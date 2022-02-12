@@ -1,53 +1,26 @@
 import { useState } from 'react'
+import RegisterForm from '../components/RegisterForm'
+import axios from 'axios'
 
 const Register = () => {
 const [name, setName] = useState('') 
 const [email, setEmail] = useState('') 
 const [password, setPassword] = useState('') 
 
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault()
-    console.table({name, email, password})
-}
-
-const registerForm = () => {
-    return(
-        <form onSubmit={handleSubmit} className="mt-3">
-            <div className="form-group mb-3">
-                <label className="form-label">Your name: </label>
-                <input 
-                    type="text" 
-                    className="form-control" 
-                    placeholder="enter your name" 
-                    value={name} 
-                    onChange={e => setName(e.target.value)}
-                />
-            </div>
-            <div className="form-group mb-3">
-                <label className="form-label">Email: </label>
-                    <input 
-                        type="email" 
-                        className="form-control" 
-                        placeholder="enter email" 
-                        value={email} 
-                        onChange={e => setEmail(e.target.value)}
-                    />
-                </div>
-                <div className="form-group mb-3">
-                <label className="form-label">Your password: </label>
-                    <input 
-                        type="password" 
-                        className="form-control" 
-                        placeholder="enter your password" 
-                        value={password} 
-                        onChange={e => setPassword(e.target.value)}
-                    />
-                </div>
-                <button className="btn btn-primary">submit</button>
-        </form>
-    )
-}
-
+    try {
+        const res = await axios.post(`http://localhost:8000/api/register`, {
+            name: name,
+            email: email,
+            password: password
+        });
+        console.log('REGISTER USER ==>', res)
+    } catch(err) {
+        console.log(err)
+        }
+    }
+    
     return(
     <>   
         <div className="container-fluid bg-secondary bg-gradient p-5 text-center">
@@ -56,7 +29,14 @@ const registerForm = () => {
         <div className="container">
             <div className="row">
                 <div className="col-md-6 offset-md-3">
-                    {registerForm()}
+                    <RegisterForm 
+                    handleSubmit={handleSubmit}
+                    name={name}
+                    setName={setName}
+                    email={email}
+                    setEmail={setEmail}
+                    password={password}
+                    setPassword={setPassword}/>
                 </div>
             </div>
         </div>

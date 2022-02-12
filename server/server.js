@@ -13,9 +13,12 @@ mongoose
   .then(() => console.log("DB connected"))
   .catch((err) => console.log("DB Error => ", err));
 
-  //middlewares
+//middlewares
+//damit die cors policy datenaustausch zwischen domains funktioniert
 app.use(cors())
 app.use(morgan('dev'))
+//to get post bodies - less. 24
+app.use(express.json())
 
 //routes
 readdirSync('./routes').map((r) => app.use('/api', require(`./routes/${r}`)))
