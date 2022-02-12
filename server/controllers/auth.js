@@ -21,3 +21,23 @@ export const register = async (req, res) => {
         return res.status(400).send('auth.js Error during saving')
     }
 }
+
+export const login = async (req, res) => {
+    const { email, password } = req.body
+
+    try {
+        let user = await User.findOne({email}).exec()
+        // console.log('User', user)
+        if (!user) res.status(400).send('This email does not exist')
+        //compare password
+        user.comparePassword(password, (err, match)=> {
+            console.log('COMPARE PASSWORD LOGIN ERROR', err)
+            if(!match || err) return res.status(400).send('Incorrect password')
+            console.log('NOW LETS GENERATE TOKEN')
+        })
+
+    } catch (err) {
+        console.log('auth.js backend - error', err)
+        res.status(400).send('Sign in failed')
+    }
+}
