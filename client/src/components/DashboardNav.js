@@ -9,7 +9,7 @@ const DashboardNav = () => {
                 <Link className={ `nav-link ${active === '/dashboard' && 'active'}`} to="/dashboard">Your bookings</Link>
             </li>
             <li className='nav-item'>
-                <Link className={ `nav-link ${active === '/dashboard/seller' && 'active'}`} to="/dashboard/seller">Your hotels</Link>
+                <Link className={ `nav-link ${active === '/dashboard/seller' && 'active'}`} to="/dashboard/seller">Your offers</Link>
             </li>
         </ul>
     )
