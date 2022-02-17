@@ -10,6 +10,7 @@ import TopNav from './components/TopNav'
 import Dashboard from './user/Dashboard'
 import DashboardSeller from './user/DashboardSeller' 
 import NewHotel from './hotels/NewHotel'
+import stripeCallback from "./stripe/StripeCallback"
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <PrivateRoute exact path="/dashboard" component = {Dashboard}/>
         <PrivateRoute exact path="/dashboard/seller" component = {DashboardSeller}/>
         <PrivateRoute exact path="/hotels/new" component = {NewHotel}/>
+        <PrivateRoute exact path="/stripe/callback" component = {stripeCallback}/>
       </Switch>
       </BrowserRouter>
     </div>
