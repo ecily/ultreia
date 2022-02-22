@@ -21,3 +21,4 @@ export const updateUserInLocalStorage = (user, next) => {
         next()
     }
 }
+
