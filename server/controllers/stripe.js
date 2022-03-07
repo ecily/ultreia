@@ -45,10 +45,11 @@ const updateDelayDays = async (accountId) => {
     const account = await stripe.account.update(accountId, {
         settings: {
             payouts: {
+            schedule: {
                 delay_days: 7,
             }
         }
-    })
+    }})
     return account
 }
 
@@ -66,7 +67,7 @@ export const getAccountStatus = async (req, res) => {
     { new: true}
     ).select('-password')
     .exec()
-    //console.log(updatedUser)
+    console.log(updatedUser)
     res.json(updatedUser)
 }
 
