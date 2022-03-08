@@ -27,7 +27,7 @@ await axios.post(`${process.env.REACT_APP_API}/get-account-balance`, {}, {
 })
 
 export const currencyFormatter = (data) => {
-    return(data.amount / 100).toLocaleString(data.currency, {
+    return(data.amount).toLocaleString(data.currency, {
         style: 'currency',
         currency: data.currency
     })
