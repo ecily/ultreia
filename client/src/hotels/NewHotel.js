@@ -34,6 +34,7 @@ const handleSubmit = async (e) => {
     e.preventDefault()
 
     //create form data for the hotelData variable. all is in state already
+    
     let hotelData = new FormData()
     hotelData.append('title', title)
     hotelData.append('content', content)
@@ -43,7 +44,6 @@ const handleSubmit = async (e) => {
     hotelData.append('from', from)
     hotelData.append('to', to)
     hotelData.append('bed', bed)
-
 
 
     let res =  await createHotel(token, hotelData)
@@ -84,9 +84,9 @@ const hotelForm = () => (
             name='title' 
             onChange={handleChange} 
             placeholder='What is the name of your business?'
-            className='form-control m-t' 
+            className='form-control m-t m-b2' 
             value={title}
-            className='form-control m-2'>
+            >
         </input>
         <textarea 
             name='content' 
@@ -105,7 +105,7 @@ const hotelForm = () => (
         //onPlaceSelected={({place}) => setLocation(place.formatted_address)}
           onPlaceSelected={(place) => {
              setLocation({...location, location: place.formatted_address})}}
-          
+                       
           options={{
                 types: ["address"],
                 componentRestrictions: { country: "at" },
