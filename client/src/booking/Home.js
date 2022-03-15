@@ -22,7 +22,8 @@ const Home = () => {
     </div>
     <div className="container-fluid">
         {/* <pre>{JSON.stringify(hotels, null, 4)}</pre> */}
-        {hotels.map((h) => <SmallCard key={h._id} h={h}/>)}
+        {hotels.map((h) => 
+            <SmallCard key={h._id} h={h} />)}
     </div>
     </>
     )

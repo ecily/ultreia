@@ -3,7 +3,9 @@ import { diffDays } from "../../actions/hotel"
 import { useHistory, Link } from 'react-router-dom'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
-const SmallCard = ({h, handlelHotelDelete = (f) => f }) => {
+const SmallCard = ({h, handlelHotelDelete = (f) => f, 
+    owner = false, 
+    showViewMoreButton = true }) => {
 
 const history = useHistory()
 
@@ -46,12 +48,22 @@ return (
                     <p className="card-text">Verfügbar von {new Date(h.from).toLocaleDateString()}</p>
                     <p className="card-text">Verfügbar bis {new Date(h.to).toLocaleDateString()}</p>        
                     <div className="d-flex justify-content-between h4">       
-                    <button onClick={() => history.push(`/hotel/${h._id}`)}className="btn btn-primary">Details</button>
-                   
-                            <Link to={`/hotel/edit/${h._id}`}>
-                                <EditOutlined className="text-warning" />
-                            </Link>
-                            <DeleteOutlined onClick={() => handlelHotelDelete(h._id)} className="text-danger" />
+                            {showViewMoreButton && (
+                                    <button 
+                                    onClick={() => history.push(`/hotel/${h._id}`)}
+                                    className="btn btn-primary"
+                                    >
+                                        Details
+                                    </button>
+                            )}
+                            {
+                                owner && <>
+                                <Link to={`/hotel/edit/${h._id}`}>
+                                    <EditOutlined className="text-warning" />
+                                </Link>
+                                <DeleteOutlined onClick={() => handlelHotelDelete(h._id)} className="text-danger" />
+                                </>
+                            }
                     </div>
                 </div>
             </div>

@@ -2,18 +2,16 @@ import User from '../models/user'
 import jwt from 'jsonwebtoken'
 
 export const register = async (req, res) => {
-    console.log(req.body)
-    const { name, email, password } = req.body
 
-    if(!name) return res.status(400).send('auth.js: Name is required')
-    if(!password || password.length < 6) return res.status(400).send('auth.js Valid Password is required')
-
-    let userExist = await User.findOne({ email }).exec()
-    if(userExist) return res.status(400).send('auth.js Email already taken')
-
-    //register physically
-    const user = new User(req.body)
     try {
+        //console.log(req.body)
+        const { name, email, password } = req.body
+        if(!name) return res.status(400).send('auth.js: Name is required')
+        if(!password || password.length < 6) return res.status(400).send('auth.js Valid Password is required')
+        let userExist = await User.findOne({ email }).exec()
+        if(userExist) return res.status(400).send('auth.js Email already taken')
+        //register physically
+        const user = new User(req.body)
         await user.save()
         console.log('USER CREATED')
         return res.json({ ok: true })
@@ -25,7 +23,6 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     const { email, password } = req.body
-
     try {
         let user = await User.findOne({email}).exec()
         // console.log('User', user)
@@ -48,7 +45,6 @@ export const login = async (req, res) => {
                 stripe_seller: user.stripe_seller,
                 stripeSession: user.stripeSession
             }})
-
         })
 
     } catch (err) {
