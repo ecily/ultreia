@@ -1,7 +1,0 @@
-node_modules
-.env
-npm-debug.log*
-pids
-*.pid
-*.seed
-.DS_Store

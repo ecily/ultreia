@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -35,13 +35,21 @@
         "INTERNET",
         "VIBRATE",
         "POST_NOTIFICATIONS"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiBase": "http://localhost:4000/api"
-    }
+      "apiBase": "http://localhost:4000/api",
+      "eas": {
+        "projectId": "a6310341-1133-4528-91fd-4dd33c27dab6"
+      }
+    },
+    "owner": "ecily",
+    "plugins": [
+      "expo-notifications"
+    ]
   }
 }

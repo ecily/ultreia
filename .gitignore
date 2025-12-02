@@ -1,0 +1,74 @@
+cat > .gitignore << 'EOF'
+# Node / JavaScript
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+*.tmp
+*.gz
+
+# Env & Secrets
+.env
+*.env
+secrets/
+*.pem
+*.key
+*.crt
+*.p12
+*.der
+*.jks
+*.keystore
+*.pfx
+
+# Expo / React Native / Metro
+.expo/
+.expo-shared/
+dist/
+web-build/
+.packager
+.bundle
+.haste-map-*
+metro-cache/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# Android
+mobile/android/.gradle/
+mobile/android/.idea/
+mobile/android/local.properties
+mobile/android/**/build/
+mobile/android/app/*.apk
+mobile/android/app/*.aab
+mobile/android/app/debug/
+mobile/android/app/release/
+
+# iOS (falls später hinzugefügt)
+mobile/ios/build/
+mobile/ios/DerivedData/
+mobile/ios/Pods/
+
+# OS-Junk
+.DS_Store
+Thumbs.db
+
+# Firebase Config (sensibel)
+mobile/google-services.json
+mobile/android/app/google-services.json
+firebase/
+EOF
+firebase/
+mobile_old/
