@@ -24,6 +24,9 @@ const HEARTBEAT_SECONDS = Number(process.env.HEARTBEAT_SECONDS || 60);
 const OFFER_MAX_DISTANCE_METERS = Number(process.env.OFFER_MAX_DISTANCE_METERS || 250);
 
 const FCM_PROJECT_ID = process.env.FCM_PROJECT_ID || undefined;
+// Cloud (DO / App Platform): Service-Account als JSON in Env
+const FCM_SERVICE_ACCOUNT_JSON = process.env.FCM_SERVICE_ACCOUNT_JSON || undefined;
+// Lokal: alternativ Pfad zu JSON-Datei
 const FCM_SERVICE_ACCOUNT_PATH =
   process.env.FCM_SERVICE_ACCOUNT_PATH || process.env.GOOGLE_APPLICATION_CREDENTIALS || undefined;
 
@@ -38,13 +41,13 @@ const EXPO_PUSH_HOST = 'exp.host';
 const EXPO_PUSH_SEND_PATH = '/--/api/v2/push/send';
 const EXPO_PUSH_RECEIPTS_PATH = '/--/api/v2/push/getReceipts';
 
-function expoPost(path, body) {
+function expoPost(pathName, body) {
   return new Promise((resolve, reject) => {
     const json = JSON.stringify(body || {});
     const options = {
       host: EXPO_PUSH_HOST,
       method: 'POST',
-      path,
+      path: pathName,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -98,10 +101,7 @@ async function sendExpoPush({ expoPushToken, title, body, data }) {
 
   try {
     const { statusCode, body: respBody } = await expoPost(EXPO_PUSH_SEND_PATH, payload);
-    logger.info(
-      { expoPushToken, statusCode, respBody },
-      '[push-expo] Expo send response'
-    );
+    logger.info({ expoPushToken, statusCode, respBody }, '[push-expo] Expo send response');
 
     let ticket = null;
     if (respBody && respBody.data) {
@@ -135,10 +135,7 @@ async function getExpoReceipts(ticketIds) {
     const { statusCode, body } = await expoPost(EXPO_PUSH_RECEIPTS_PATH, {
       ids: ticketIds,
     });
-    logger.info(
-      { statusCode, body },
-      '[push-expo] Expo receipts response'
-    );
+    logger.info({ statusCode, body }, '[push-expo] Expo receipts response');
     return {
       ok: statusCode >= 200 && statusCode < 300,
       statusCode,
@@ -156,19 +153,32 @@ const expoPushReady = true;
 let fcmReady = false;
 let fcmMessaging = null;
 
-if (FCM_SERVICE_ACCOUNT_PATH) {
+if (FCM_SERVICE_ACCOUNT_JSON || FCM_SERVICE_ACCOUNT_PATH) {
   try {
-    const resolved = path.resolve(FCM_SERVICE_ACCOUNT_PATH);
-    // eslint-disable-next-line import/no-dynamic-require, global-require
-    const serviceAccount = require(resolved);
+    let serviceAccount;
+
+    if (FCM_SERVICE_ACCOUNT_JSON) {
+      // Bevorzugt in Cloud-Umgebungen (DigitalOcean App Platform)
+      serviceAccount = JSON.parse(FCM_SERVICE_ACCOUNT_JSON);
+      logger.info(
+        { projectId: FCM_PROJECT_ID || serviceAccount.project_id },
+        '[fcm] initializing firebase-admin from JSON env'
+      );
+    } else {
+      const resolved = path.resolve(FCM_SERVICE_ACCOUNT_PATH);
+      // eslint-disable-next-line import/no-dynamic-require, global-require
+      serviceAccount = require(resolved);
+      logger.info(
+        { projectId: FCM_PROJECT_ID || serviceAccount.project_id, serviceAccountPath: resolved },
+        '[fcm] initializing firebase-admin from file'
+      );
+    }
 
     if (!admin.apps.length) {
-      const app = admin.initializeApp(
-        {
-          credential: admin.credential.cert(serviceAccount),
-          projectId: FCM_PROJECT_ID || serviceAccount.project_id,
-        }
-      );
+      const app = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: FCM_PROJECT_ID || serviceAccount.project_id,
+      });
       fcmMessaging = app.messaging();
     } else {
       fcmMessaging = admin.app().messaging();
@@ -176,19 +186,21 @@ if (FCM_SERVICE_ACCOUNT_PATH) {
 
     fcmReady = true;
     logger.info(
-      { projectId: FCM_PROJECT_ID || serviceAccount.project_id, serviceAccountPath: resolved },
+      { projectId: FCM_PROJECT_ID || serviceAccount.project_id },
       '[fcm] initialized firebase-admin'
     );
   } catch (err) {
     fcmReady = false;
     fcmMessaging = null;
     logger.error(
-      { err, FCM_SERVICE_ACCOUNT_PATH, FCM_PROJECT_ID },
+      { err, hasJson: Boolean(FCM_SERVICE_ACCOUNT_JSON), FCM_SERVICE_ACCOUNT_PATH, FCM_PROJECT_ID },
       '[fcm] failed to init firebase-admin'
     );
   }
 } else {
-  logger.warn('[fcm] no FCM_SERVICE_ACCOUNT_PATH/GOOGLE_APPLICATION_CREDENTIALS set – FCM disabled');
+  logger.warn(
+    '[fcm] no FCM_SERVICE_ACCOUNT_JSON or FCM_SERVICE_ACCOUNT_PATH/GOOGLE_APPLICATION_CREDENTIALS set – FCM disabled'
+  );
 }
 
 async function sendFcmPush({ fcmToken, title, body, data }) {
@@ -231,10 +243,7 @@ async function sendFcmPush({ fcmToken, title, body, data }) {
 
   try {
     const response = await fcmMessaging.send(message);
-    logger.info(
-      { fcmToken, response },
-      '[fcm] send response'
-    );
+    logger.info({ fcmToken, response }, '[fcm] send response');
     return { ok: true, messageId: response };
   } catch (err) {
     logger.warn(
@@ -517,10 +526,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
             return;
           }
 
-          req.log.info(
-            { deviceId, via, pushResult },
-            '[hb] push triggered'
-          );
+          req.log.info({ deviceId, via, pushResult }, '[hb] push triggered');
         } catch (pushErr) {
           req.log.warn({ deviceId, err: pushErr }, '[hb] push trigger failed');
         }
@@ -717,9 +723,17 @@ app.use((err, req, res, next) => {
 // Start / Shutdown ─────────────────────────────────────────────────────────────
 let httpServer;
 
+function maskMongoUri(uri) {
+  try {
+    return uri.replace(/\/\/([^@]+)@/, '//***:***@');
+  } catch (e) {
+    return uri;
+  }
+}
+
 async function start() {
   try {
-    logger.info({ uri: MONGODB_URI }, 'Connecting MongoDB…');
+    logger.info({ uri: maskMongoUri(MONGODB_URI) }, 'Connecting MongoDB…');
     await mongoose.connect(MONGODB_URI);
     logger.info('MongoDB connected');
 
