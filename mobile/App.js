@@ -1,12 +1,12 @@
 // ULTREIA – Heartbeat + Push MVP (mit Watchdog, JS-only)
-// - BG-Location (≈30s) via Foreground-Service-Notification
+// - BG-Location (≈20s + ~100m) via Foreground-Service-Notification
 // - BackgroundFetch als Fallback
 // - Device-Register inkl. Expo-Push-Token + FCM-Token + Diagnostics
 // - Zentrale Heartbeat-Engine mit Reason + Latenz-Logging
 // - Watchdog (HB-Alter + Self-Heal bei AppState 'active')
 // - BG-Diagnostics (Permissions + Task-Status)
 // - Lokale Test-Notification
-// - API_BASE wieder über app.json (http://localhost:4000/api) + adb reverse
+// - API_BASE über app.json (Online-Backend auf DO oder lokal per adb reverse)
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -31,17 +31,17 @@ const TASK_IDS = {
 const NOTIF_CHANNELS = { fg: 'ultreia-fg', offers: 'offers' };
 
 // Ziel: Sweet-Spot für Fußgänger (~12 min/km).
-// Nominell 30s Heartbeat; Android drosselt im BG, aber so landen wir real eher
-// im 1–3-Minuten-Bereich als bei 5–10.
-const HEARTBEAT_SECONDS = 30;
-const BG_DISTANCE_METERS = 10;
+// Nominell 20s Heartbeat + ~100m Distanz. Android drosselt im BG, aber
+// damit landen wir real eher im 1–3-Minuten-Bereich als bei 5–10.
+const HEARTBEAT_SECONDS = 20;
+const BG_DISTANCE_METERS = 100;
 
 // Watchdog: ab diesem Alter (in Sekunden) betrachten wir den letzten Heartbeat
 // als "alt" und versuchen bei AppState 'active' ein Self-Heal (Rearm+HB).
-const WATCHDOG_THRESHOLD_SECONDS = 5 * 60;
+const WATCHDOG_THRESHOLD_SECONDS = 3 * 60;
 const WATCHDOG_POLL_SECONDS = 30;
 
-// API-Base: aus app.json / extra.apiBase (http://localhost:4000/api)
+// API-Base: aus app.json / extra.apiBase (Online-Backend auf DO)
 // Emulator-Fallback: 10.0.2.2
 const API_BASE =
   (Constants?.expoConfig?.extra && Constants.expoConfig.extra.apiBase) ||
@@ -715,10 +715,10 @@ export default function App() {
 
       <Text style={styles.hint}>
         Hinweis:{'\n'}
-        • Backend: http://localhost:4000 (per adb reverse){'\n'}
-        • Android-Device via USB mit PC verbinden.{'\n'}
-        • BG-Heartbeat: nominell alle 30s + 10m Bewegung, Android drosselt im Doze.{'\n'}
-        • Watchdog: zeigt HB-Alter, versucht bei Rückkehr in den Vordergrund ein Self-Heal, wenn der letzte HB zu lange her ist.{'\n'}
+        • Backend: Online-API (oder lokal mit http://localhost:4000 per adb reverse){'\n'}
+        • Android-Device via USB mit PC verbinden (für lokale Tests).{'\n'}
+        • BG-Heartbeat: nominell alle 20s + ~100m Bewegung, Android drosselt im Doze.{'\n'}
+        • Watchdog: zeigt HB-Alter, versucht bei Rückkehr in den Vordergrund ein Self-Heal, wenn der letzte HB zu lange her ist (~3 min).{'\n'}
         • Akku-Optimierung DARF anbleiben – Ultreia versucht trotzdem, im Rahmen der Android-Regeln stabil zu bleiben.
       </Text>
     </ScrollView>

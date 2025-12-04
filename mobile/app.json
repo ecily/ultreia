@@ -42,7 +42,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiBase": "http://localhost:4000/api",
+      "apiBase": "https://orca-app-xtzrs.ondigitalocean.app/api",
       "eas": {
         "projectId": "a6310341-1133-4528-91fd-4dd33c27dab6"
       }
