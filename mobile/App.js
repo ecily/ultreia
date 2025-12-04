@@ -1,8 +1,9 @@
-// ULTREIA – Heartbeat + Push MVP (mit Debug-Notifs, JS-only)
+// ULTREIA – Heartbeat + Push MVP (mit Watchdog, JS-only)
 // - BG-Location (≈30s) via Foreground-Service-Notification
 // - BackgroundFetch als Fallback
 // - Device-Register inkl. Expo-Push-Token + FCM-Token + Diagnostics
 // - Zentrale Heartbeat-Engine mit Reason + Latenz-Logging
+// - Watchdog (HB-Alter + Self-Heal bei AppState 'active')
 // - BG-Diagnostics (Permissions + Task-Status)
 // - Lokale Test-Notification
 // - API_BASE wieder über app.json (http://localhost:4000/api) + adb reverse
@@ -30,10 +31,15 @@ const TASK_IDS = {
 const NOTIF_CHANNELS = { fg: 'ultreia-fg', offers: 'offers' };
 
 // Ziel: Sweet-Spot für Fußgänger (~12 min/km).
-// Wir peilen nominell 30s Heartbeat an; Android wird das im BG drosseln,
-// aber damit landen wir realistisch eher im 1–3-Minuten-Bereich als bei 5–10.
+// Nominell 30s Heartbeat; Android drosselt im BG, aber so landen wir real eher
+// im 1–3-Minuten-Bereich als bei 5–10.
 const HEARTBEAT_SECONDS = 30;
 const BG_DISTANCE_METERS = 10;
+
+// Watchdog: ab diesem Alter (in Sekunden) betrachten wir den letzten Heartbeat
+// als "alt" und versuchen bei AppState 'active' ein Self-Heal (Rearm+HB).
+const WATCHDOG_THRESHOLD_SECONDS = 5 * 60;
+const WATCHDOG_POLL_SECONDS = 30;
 
 // API-Base: aus app.json / extra.apiBase (http://localhost:4000/api)
 // Emulator-Fallback: 10.0.2.2
@@ -42,6 +48,9 @@ const API_BASE =
   'http://10.0.2.2:4000/api';
 
 const DEVICE_ID = 'ULTR-DEV-001';
+
+// Globaler Timestamp des letzten erfolgreichen Heartbeats (inkl. BG-Tasks)
+let lastHeartbeatAtMs = null;
 
 // ── Notifications Handler ─────────────────────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -90,6 +99,7 @@ async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown' }) {
   }
 
   const data = await res.json();
+  lastHeartbeatAtMs = Date.now();
   console.log(`[HB] ok reason=${reason} latency=${latencyMs}ms`);
   return { data, latencyMs };
 }
@@ -318,8 +328,9 @@ async function resolveCoordsForHeartbeat() {
   return cur.coords;
 }
 
-// ── Helper: einmaliger Init-FG-Heartbeat ─────────────────────────────────────
-async function sendImmediateHeartbeat() {
+// ── Helper: einmaliger FG-Heartbeat mit Reason ───────────────────────────────
+async function sendImmediateHeartbeat(reason) {
+  const hbReason = reason || 'init';
   const coords = await resolveCoordsForHeartbeat();
   if (!coords) {
     throw new Error('No coords available');
@@ -328,7 +339,7 @@ async function sendImmediateHeartbeat() {
     lat: coords.latitude,
     lng: coords.longitude,
     accuracy: coords.accuracy,
-    reason: 'init',
+    reason: hbReason,
   });
 }
 
@@ -341,6 +352,8 @@ export default function App() {
     lastResp: null,
     lastHeartbeatReason: null,
     lastHeartbeatLatencyMs: null,
+    lastHeartbeatAt: null,
+    hbAgeSeconds: null,
     bgLocRunning: false,
     fetchStatus: 'unknown',
     pushToken: null,
@@ -355,20 +368,52 @@ export default function App() {
   const appState = useRef(AppState.currentState);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
+  const lastHbMsRef = useRef(null);
 
-  // AppState → bei active sicherstellen, dass BG-Location läuft + Diagnostics auffrischen
+  // AppState → bei active sicherstellen, dass BG-Location läuft + Diagnostics + Watchdog-Heal
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (nextState) => {
       appState.current = nextState;
       if (nextState === 'active') {
         try {
-          console.log('[AppState] active → ensure BG running + refresh diag');
+          console.log('[AppState] active → ensure BG running + refresh diag + watchdog-check');
           const hasBg = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
           if (!hasBg) {
             console.log('[ReArm] bgLoc not running → startBgLocation');
             await startBgLocation();
           }
+
           await refreshRuntimeStatus(setState);
+
+          // Watchdog: Wenn letzter HB zu lange her ist, versuche Self-Heal (Rearm+HB)
+          if (lastHeartbeatAtMs) {
+            const ageMs = Date.now() - lastHeartbeatAtMs;
+            const ageSec = Math.floor(ageMs / 1000);
+            console.log('[Watchdog] HB age on active:', ageSec, 's');
+            if (ageSec > WATCHDOG_THRESHOLD_SECONDS) {
+              console.log('[Watchdog] HB stale → sending watchdog-rearm heartbeat');
+              try {
+                const hbResult = await sendImmediateHeartbeat('watchdog-rearm');
+                setState((s) => ({
+                  ...s,
+                  lastOkAt: new Date(),
+                  lastErr: null,
+                  lastResp: hbResult.data,
+                  lastHeartbeatReason: 'watchdog-rearm',
+                  lastHeartbeatLatencyMs: hbResult.latencyMs,
+                  lastHeartbeatAt: new Date().toISOString(),
+                  hbAgeSeconds: 0,
+                }));
+                lastHbMsRef.current = Date.now();
+              } catch (e) {
+                console.warn('[Watchdog] watchdog-rearm failed:', (e && e.message) || e);
+                setState((s) => ({
+                  ...s,
+                  lastErr: `[watchdog] ${(e && e.message) || e}`,
+                }));
+              }
+            }
+          }
         } catch (e) {
           console.warn('[ReArm/AppState] failed:', (e && e.message) || e);
         }
@@ -490,7 +535,9 @@ export default function App() {
         await refreshRuntimeStatus(setState);
 
         // Initialer Heartbeat (Reason = init)
-        const hbResult = await sendImmediateHeartbeat();
+        const hbResult = await sendImmediateHeartbeat('init');
+
+        lastHbMsRef.current = lastHeartbeatAtMs || Date.now();
 
         setState((s) => ({
           ...s,
@@ -500,6 +547,8 @@ export default function App() {
           lastResp: hbResult.data,
           lastHeartbeatReason: 'init',
           lastHeartbeatLatencyMs: hbResult.latencyMs,
+          lastHeartbeatAt: new Date().toISOString(),
+          hbAgeSeconds: 0,
         }));
       } catch (e) {
         console.warn('[INIT] failed:', (e && e.message) || e);
@@ -510,6 +559,35 @@ export default function App() {
         }));
       }
     })();
+  }, []);
+
+  // Watchdog: HB-Alter im State halten (für Anzeige) und Poll, solange App im FG
+  useEffect(() => {
+    const intervalMs = WATCHDOG_POLL_SECONDS * 1000;
+    const id = setInterval(() => {
+      if (!lastHeartbeatAtMs) {
+        return;
+      }
+      const ageMs = Date.now() - lastHeartbeatAtMs;
+      const ageSec = Math.floor(ageMs / 1000);
+      // State nur updaten, wenn sich etwas sinnvoll verändert hat
+      setState((s) => {
+        const prevAge = s.hbAgeSeconds;
+        const prevLastAt = s.lastHeartbeatAt;
+        const tsIso = new Date(lastHeartbeatAtMs).toISOString();
+        if (prevAge === ageSec && prevLastAt === tsIso) {
+          return s;
+        }
+        return {
+          ...s,
+          lastHeartbeatAt: tsIso,
+          hbAgeSeconds: ageSec,
+        };
+      });
+      lastHbMsRef.current = lastHeartbeatAtMs;
+    }, intervalMs);
+
+    return () => clearInterval(id);
   }, []);
 
   const onManualPing = async () => {
@@ -528,7 +606,10 @@ export default function App() {
         lastResp: hbResult.data,
         lastHeartbeatReason: 'manual',
         lastHeartbeatLatencyMs: hbResult.latencyMs,
+        lastHeartbeatAt: new Date().toISOString(),
+        hbAgeSeconds: 0,
       }));
+      lastHbMsRef.current = lastHeartbeatAtMs || Date.now();
     } catch (e) {
       setState((s) => ({ ...s, lastErr: (e && e.message) || String(e) }));
     }
@@ -559,6 +640,13 @@ export default function App() {
   const shortExpoToken = state.pushToken ? String(state.pushToken).slice(0, 22) + '…' : '—';
   const shortFcmToken = state.fcmToken ? String(state.fcmToken).slice(0, 22) + '…' : '—';
 
+  const hbAgeText =
+    state.hbAgeSeconds == null
+      ? '—'
+      : state.hbAgeSeconds < 60
+      ? `${state.hbAgeSeconds}s`
+      : `${Math.floor(state.hbAgeSeconds / 60)}min ${state.hbAgeSeconds % 60}s`;
+
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <Text style={styles.title}>ULTREIA – Heartbeat + Push MVP</Text>
@@ -588,6 +676,11 @@ export default function App() {
         Letzte HB-Latenz:{' '}
         {state.lastHeartbeatLatencyMs != null ? `${state.lastHeartbeatLatencyMs} ms` : '—'}
       </Text>
+      <Text style={styles.line}>
+        Letzter HB-Zeitpunkt:{' '}
+        {state.lastHeartbeatAt ? new Date(state.lastHeartbeatAt).toLocaleTimeString() : '—'}
+      </Text>
+      <Text style={styles.line}>HB-Alter: {hbAgeText}</Text>
 
       <Text style={styles.line}>Notif-Permission: {state.notifPermission}</Text>
       <Text style={styles.line}>
@@ -625,8 +718,8 @@ export default function App() {
         • Backend: http://localhost:4000 (per adb reverse){'\n'}
         • Android-Device via USB mit PC verbinden.{'\n'}
         • BG-Heartbeat: nominell alle 30s + 10m Bewegung, Android drosselt im Doze.{'\n'}
-        • Für stabile BG-Herzschläge: Standort „Immer erlauben“ + Akku-Optimierung für ULTREIA
-          ausschalten.
+        • Watchdog: zeigt HB-Alter, versucht bei Rückkehr in den Vordergrund ein Self-Heal, wenn der letzte HB zu lange her ist.{'\n'}
+        • Akku-Optimierung DARF anbleiben – Ultreia versucht trotzdem, im Rahmen der Android-Regeln stabil zu bleiben.
       </Text>
     </ScrollView>
   );
