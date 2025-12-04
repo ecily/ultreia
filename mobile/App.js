@@ -1,11 +1,13 @@
 // ULTREIA – Heartbeat + Push MVP (mit Watchdog, JS-only)
 // - BG-Location (≈20s + ~100m) via Foreground-Service-Notification
+// - Foreground-Heartbeat-Loop (Timer) für stabile HBs im Hintergrund
 // - BackgroundFetch als Fallback
 // - Device-Register inkl. Expo-Push-Token + FCM-Token + Diagnostics
 // - Zentrale Heartbeat-Engine mit Reason + Latenz-Logging
 // - Watchdog (HB-Alter + Self-Heal bei AppState 'active')
 // - BG-Diagnostics (Permissions + Task-Status)
 // - Lokale Test-Notification
+// - Einfaches Onboarding für Pilger (Motor-Erklärung + Präferenzen)
 // - API_BASE über app.json (Online-Backend auf DO oder lokal per adb reverse)
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -36,6 +38,9 @@ const NOTIF_CHANNELS = { fg: 'ultreia-fg', offers: 'offers' };
 const HEARTBEAT_SECONDS = 20;
 const BG_DISTANCE_METERS = 100;
 
+// Foreground-Heartbeat-Loop (zusätzlicher Timer, der HBs nicht nur an Location bindet)
+const HB_LOOP_SECONDS = 30;
+
 // Watchdog: ab diesem Alter (in Sekunden) betrachten wir den letzten Heartbeat
 // als "alt" und versuchen bei AppState 'active' ein Self-Heal (Rearm+HB).
 const WATCHDOG_THRESHOLD_SECONDS = 3 * 60;
@@ -51,6 +56,10 @@ const DEVICE_ID = 'ULTR-DEV-001';
 
 // Globaler Timestamp des letzten erfolgreichen Heartbeats (inkl. BG-Tasks)
 let lastHeartbeatAtMs = null;
+// Historie der Inter-HB-Intervalle (Sekunden) für die letzten ≈60 Heartbeats
+let hbIntervals = [];
+// Timer-ID des Foreground-Heartbeat-Loops
+let hbLoopTimerId = null;
 
 // ── Notifications Handler ─────────────────────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -84,7 +93,8 @@ async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown' }) {
     body: JSON.stringify(payload),
   });
 
-  const latencyMs = Date.now() - startedAt;
+  const finishedAt = Date.now();
+  const latencyMs = finishedAt - startedAt;
 
   if (!res.ok) {
     let txt = '';
@@ -99,9 +109,25 @@ async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown' }) {
   }
 
   const data = await res.json();
-  lastHeartbeatAtMs = Date.now();
-  console.log(`[HB] ok reason=${reason} latency=${latencyMs}ms`);
-  return { data, latencyMs };
+
+  let intervalSec = null;
+  if (lastHeartbeatAtMs != null) {
+    const deltaSec = Math.round((finishedAt - lastHeartbeatAtMs) / 1000);
+    intervalSec = deltaSec;
+    hbIntervals.push(deltaSec);
+    if (hbIntervals.length > 60) {
+      hbIntervals.shift();
+    }
+  }
+  lastHeartbeatAtMs = finishedAt;
+
+  console.log(
+    `[HB] ok reason=${reason} latency=${latencyMs}ms interval=${
+      intervalSec != null ? `${intervalSec}s` : 'n/a'
+    } samples=${hbIntervals.length}`
+  );
+
+  return { data, latencyMs, intervalSec };
 }
 
 async function registerDevice({ expoPushToken, fcmToken } = {}) {
@@ -161,7 +187,7 @@ try {
   // duplicate define on fast refresh
 }
 
-// ── BackgroundFetch Task ─────────────────────────────────────────────────────-
+// ── BackgroundFetch Task ─────────────────────────────────────────────────-----
 try {
   TaskManager.defineTask(TASK_IDS.fetch, async () => {
     console.log('[FETCH TASK] tick');
@@ -191,7 +217,7 @@ try {
   // duplicate define
 }
 
-// ── Start BG-Location ─────────────────────────────────────────────────────────
+// ── Start BG-Location ─────────────────────────────────────────────────--------
 async function startBgLocation() {
   const hasStarted = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
   if (hasStarted) {
@@ -218,7 +244,66 @@ async function startBgLocation() {
   });
 }
 
-// ── BackgroundFetch registrieren ──────────────────────────────────────────────
+// ── Foreground-Heartbeat-Loop ────────────────────────────────────────────────
+function startHeartbeatLoop(updateState) {
+  if (hbLoopTimerId) {
+    console.log('[HB-Loop] already running');
+    updateState((s) => ({ ...s, hbLoopActive: true }));
+    return;
+  }
+
+  console.log('[HB-Loop] starting loop…', `interval=${HB_LOOP_SECONDS}s`);
+  updateState((s) => ({ ...s, hbLoopActive: true }));
+
+  const runTick = async () => {
+    try {
+      const coords = await resolveCoordsForHeartbeat();
+      if (!coords) {
+        console.warn('[HB-Loop] no coords available');
+        return;
+      }
+      const hbResult = await sendHeartbeat({
+        lat: coords.latitude,
+        lng: coords.longitude,
+        accuracy: coords.accuracy,
+        reason: 'fg-loop',
+      });
+      updateState((s) => ({
+        ...s,
+        lastOkAt: new Date(),
+        lastErr: null,
+        lastResp: hbResult.data,
+        lastHeartbeatReason: 'fg-loop',
+        lastHeartbeatLatencyMs: hbResult.latencyMs,
+        lastHeartbeatAt: new Date().toISOString(),
+        hbAgeSeconds: 0,
+        hbLoopActive: true,
+      }));
+    } catch (e) {
+      console.warn('[HB-Loop] tick failed:', (e && e.message) || e);
+      updateState((s) => ({
+        ...s,
+        lastErr: `[hb-loop] ${(e && e.message) || e}`,
+        hbLoopActive: true,
+      }));
+    }
+  };
+
+  hbLoopTimerId = setInterval(runTick, HB_LOOP_SECONDS * 1000);
+}
+
+function stopHeartbeatLoop(updateState) {
+  if (hbLoopTimerId) {
+    clearInterval(hbLoopTimerId);
+    hbLoopTimerId = null;
+    console.log('[HB-Loop] stopped');
+  }
+  if (updateState) {
+    updateState((s) => ({ ...s, hbLoopActive: false }));
+  }
+}
+
+// ── BackgroundFetch registrieren ─────────────────────────────────────────────-
 async function ensureBackgroundFetch() {
   const registered = await TaskManager.isTaskRegisteredAsync(TASK_IDS.fetch);
   if (!registered) {
@@ -346,6 +431,15 @@ async function sendImmediateHeartbeat(reason) {
 // ── UI Komponente ─────────────────────────────────────────────────────────────
 export default function App() {
   const [state, setState] = useState({
+    // Onboarding / Pilger-Setup
+    onboardingCompleted: false,
+    onboardingStep: 0,
+    prefAccommodation: true,
+    prefFood: true,
+    prefPharmacy: false,
+    prefWater: true,
+
+    // Heartbeat / Diagnostics
     ready: false,
     lastOkAt: null,
     lastErr: null,
@@ -363,20 +457,25 @@ export default function App() {
     notifPermission: 'unknown',
     fgLocationPermission: 'unknown',
     bgLocationPermission: 'unknown',
+    hbLoopActive: false,
   });
+
+  const [hasRunInit, setHasRunInit] = useState(false);
 
   const appState = useRef(AppState.currentState);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const lastHbMsRef = useRef(null);
 
-  // AppState → bei active sicherstellen, dass BG-Location läuft + Diagnostics + Watchdog-Heal
+  // AppState → bei active sicherstellen, dass BG-Location läuft + Diagnostics + Watchdog-Heal + HB-Loop
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (nextState) => {
       appState.current = nextState;
       if (nextState === 'active') {
         try {
-          console.log('[AppState] active → ensure BG running + refresh diag + watchdog-check');
+          console.log(
+            '[AppState] active → ensure BG running + refresh diag + watchdog-check + hb-loop'
+          );
           const hasBg = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
           if (!hasBg) {
             console.log('[ReArm] bgLoc not running → startBgLocation');
@@ -384,6 +483,7 @@ export default function App() {
           }
 
           await refreshRuntimeStatus(setState);
+          startHeartbeatLoop(setState);
 
           // Watchdog: Wenn letzter HB zu lange her ist, versuche Self-Heal (Rearm+HB)
           if (lastHeartbeatAtMs) {
@@ -460,8 +560,12 @@ export default function App() {
     };
   }, []);
 
-  // Initiales Setup
+  // Initiales Setup – läuft erst NACH abgeschlossenem Onboarding
   useEffect(() => {
+    if (!state.onboardingCompleted || hasRunInit) {
+      return;
+    }
+
     (async () => {
       try {
         await ensurePermissions(setState);
@@ -527,8 +631,9 @@ export default function App() {
 
         if (appState.current === 'active') {
           await startBgLocation();
+          startHeartbeatLoop(setState);
         } else {
-          console.log('[INIT] app not active, BG will be ensured on first active');
+          console.log('[INIT] app not active, BG/HB-Loop will be ensured on first active');
         }
 
         await ensureBackgroundFetch();
@@ -550,6 +655,8 @@ export default function App() {
           lastHeartbeatAt: new Date().toISOString(),
           hbAgeSeconds: 0,
         }));
+
+        setHasRunInit(true);
       } catch (e) {
         console.warn('[INIT] failed:', (e && e.message) || e);
         setState((s) => ({
@@ -559,7 +666,12 @@ export default function App() {
         }));
       }
     })();
-  }, []);
+
+    return () => {
+      // Bei Unmount sauber stoppen
+      stopHeartbeatLoop(setState);
+    };
+  }, [state.onboardingCompleted, hasRunInit]);
 
   // Watchdog: HB-Alter im State halten (für Anzeige) und Poll, solange App im FG
   useEffect(() => {
@@ -570,7 +682,6 @@ export default function App() {
       }
       const ageMs = Date.now() - lastHeartbeatAtMs;
       const ageSec = Math.floor(ageMs / 1000);
-      // State nur updaten, wenn sich etwas sinnvoll verändert hat
       setState((s) => {
         const prevAge = s.hbAgeSeconds;
         const prevLastAt = s.lastHeartbeatAt;
@@ -589,6 +700,35 @@ export default function App() {
 
     return () => clearInterval(id);
   }, []);
+
+  // ── Onboarding-Handler ──────────────────────────────────────────────────────
+  const goNextOnboardingStep = () => {
+    setState((s) => ({
+      ...s,
+      onboardingStep: s.onboardingStep + 1,
+    }));
+  };
+
+  const goPrevOnboardingStep = () => {
+    setState((s) => ({
+      ...s,
+      onboardingStep: s.onboardingStep > 0 ? s.onboardingStep - 1 : 0,
+    }));
+  };
+
+  const togglePref = (key) => {
+    setState((s) => ({
+      ...s,
+      [key]: !s[key],
+    }));
+  };
+
+  const completeOnboarding = () => {
+    setState((s) => ({
+      ...s,
+      onboardingCompleted: true,
+    }));
+  };
 
   const onManualPing = async () => {
     try {
@@ -647,6 +787,149 @@ export default function App() {
       ? `${state.hbAgeSeconds}s`
       : `${Math.floor(state.hbAgeSeconds / 60)}min ${state.hbAgeSeconds % 60}s`;
 
+  // Auswertung der Inter-HB-Intervalle (letzte ≈60 Samples)
+  let hbStatsText = '—';
+  let hbHistogramText = '—';
+
+  if (hbIntervals.length > 0) {
+    let sum = 0;
+    let min = hbIntervals[0];
+    let max = hbIntervals[0];
+    for (let i = 0; i < hbIntervals.length; i += 1) {
+      const v = hbIntervals[i];
+      sum += v;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    const avg = sum / hbIntervals.length;
+    hbStatsText = `n=${hbIntervals.length}, min=${min}s, Ø=${avg.toFixed(1)}s, max=${max}s`;
+
+    const bucketDefs = [
+      { label: '<30s', min: 0, max: 29 },
+      { label: '30–59s', min: 30, max: 59 },
+      { label: '60–119s', min: 60, max: 119 },
+      { label: '120–299s', min: 120, max: 299 },
+      { label: '>=300s', min: 300, max: Infinity },
+    ];
+    const bucketCounts = bucketDefs.map(() => 0);
+
+    for (let i = 0; i < hbIntervals.length; i += 1) {
+      const v = hbIntervals[i];
+      for (let j = 0; j < bucketDefs.length; j += 1) {
+        const b = bucketDefs[j];
+        if (v >= b.min && v <= b.max) {
+          bucketCounts[j] += 1;
+          break;
+        }
+      }
+    }
+
+    hbHistogramText = bucketDefs
+      .map((b, idx) => `${b.label}:${bucketCounts[idx]}`)
+      .join(' | ');
+  }
+
+  // ── Onboarding-UI ───────────────────────────────────────────────────────────
+  if (!state.onboardingCompleted) {
+    return (
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
+        <Text style={styles.title}>ULTREIA – Pilger-Herzschlag</Text>
+
+        {state.onboardingStep === 0 && (
+          <>
+            <Text style={styles.line}>
+              Ultreia läuft wie eine Navigations-App im Hintergrund und sendet in regelmäßigen
+              Herzschlägen deine Position an unseren Server. So können wir dich genau im richtigen
+              Moment auf Schlafplätze, Essen oder Hilfe in deiner Nähe hinweisen.
+            </Text>
+            <Text style={styles.line}>
+              Wir achten auf deinen Akku:{' '}
+              {'\n'}• häufige Herzschläge nur, während du zu Fuß unterwegs bist
+              {'\n'}• deutlich weniger Aktivität, wenn du still sitzt oder schläfst
+              {'\n'}• keine Dauer-Flut an Notifications – nur dann, wenn es wirklich relevant ist.
+            </Text>
+
+            <TouchableOpacity style={styles.btn} onPress={goNextOnboardingStep}>
+              <Text style={styles.btnText}>Weiter</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {state.onboardingStep === 1 && (
+          <>
+            <Text style={styles.line}>
+              Worauf soll Ultreia dich unterwegs aufmerksam machen? Du kannst das später jederzeit
+              anpassen.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.toggleRow}
+              onPress={() => togglePref('prefAccommodation')}
+            >
+              <Text style={styles.toggleText}>
+                [{state.prefAccommodation ? '✓' : ' '}] Schlafplätze (Albergues) in der Nähe
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefFood')}>
+              <Text style={styles.toggleText}>
+                [{state.prefFood ? '✓' : ' '}] Essen & Trinken (Menú Peregrino, Bars)
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.toggleRow}
+              onPress={() => togglePref('prefPharmacy')}
+            >
+              <Text style={styles.toggleText}>
+                [{state.prefPharmacy ? '✓' : ' '}] Apotheken & medizinische Hilfe
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefWater')}>
+              <Text style={styles.toggleText}>
+                [{state.prefWater ? '✓' : ' '}] Wasserstellen & Versorgungspunkte
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.row}>
+              <TouchableOpacity style={[styles.btnSecondary, styles.rowButton]} onPress={goPrevOnboardingStep}>
+                <Text style={styles.btnText}>Zurück</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.btn, styles.rowButton]} onPress={goNextOnboardingStep}>
+                <Text style={styles.btnText}>Weiter</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {state.onboardingStep >= 2 && (
+          <>
+            <Text style={styles.line}>
+              Um dich im richtigen Moment zu erreichen, braucht Ultreia Zugriff auf Standort und
+              Notifications. Wir nutzen diese Daten ausschließlich, um dir auf dem Camino zu
+              helfen – nicht für Werbung abseits deiner gewählten Kategorien.
+            </Text>
+            <Text style={styles.line}>
+              Du kannst Ultreia jederzeit wieder schließen oder die Berechtigungen in den
+              Android-Einstellungen anpassen. Solange der Herzschlag läuft, verpasst du keine
+              wichtigen Punkte entlang des Weges.
+            </Text>
+
+            <TouchableOpacity style={styles.btn} onPress={completeOnboarding}>
+              <Text style={styles.btnText}>Verstanden – Motor starten</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.btnSecondary} onPress={goPrevOnboardingStep}>
+              <Text style={styles.btnText}>Zurück</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </ScrollView>
+    );
+  }
+
+  // ── Haupt-Diagnostics-UI (nach Onboarding) ─────────────────────────────────
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <Text style={styles.title}>ULTREIA – Heartbeat + Push MVP</Text>
@@ -664,6 +947,9 @@ export default function App() {
         BG-Task laufend (OS): {state.bgLocRunning ? 'ja' : 'nein'}
       </Text>
       <Text style={styles.line}>BackgroundFetch-Status: {state.fetchStatus}</Text>
+      <Text style={styles.line}>
+        HB-Loop aktiv (Timer): {state.hbLoopActive ? 'ja' : 'nein'}
+      </Text>
 
       <Text style={styles.line}>
         Letzter OK:{' '}
@@ -681,6 +967,8 @@ export default function App() {
         {state.lastHeartbeatAt ? new Date(state.lastHeartbeatAt).toLocaleTimeString() : '—'}
       </Text>
       <Text style={styles.line}>HB-Alter: {hbAgeText}</Text>
+      <Text style={styles.line}>HB-Intervall (letzte HBs): {hbStatsText}</Text>
+      <Text style={styles.line}>HB-Histogramm: {hbHistogramText}</Text>
 
       <Text style={styles.line}>Notif-Permission: {state.notifPermission}</Text>
       <Text style={styles.line}>
@@ -688,6 +976,13 @@ export default function App() {
       </Text>
       <Text style={styles.line}>
         BG-Location-Permission: {state.bgLocationPermission}
+      </Text>
+
+      <Text style={styles.line}>
+        Pilger-Präferenzen:{' '}
+        {[state.prefAccommodation && 'Schlafplätze', state.prefFood && 'Essen/Trinken', state.prefPharmacy && 'Apotheken', state.prefWater && 'Wasser']
+          .filter(Boolean)
+          .join(', ') || '—'}
       </Text>
 
       {state.lastNotification ? (
@@ -718,8 +1013,13 @@ export default function App() {
         • Backend: Online-API (oder lokal mit http://localhost:4000 per adb reverse){'\n'}
         • Android-Device via USB mit PC verbinden (für lokale Tests).{'\n'}
         • BG-Heartbeat: nominell alle 20s + ~100m Bewegung, Android drosselt im Doze.{'\n'}
-        • Watchdog: zeigt HB-Alter, versucht bei Rückkehr in den Vordergrund ein Self-Heal, wenn der letzte HB zu lange her ist (~3 min).{'\n'}
-        • Akku-Optimierung DARF anbleiben – Ultreia versucht trotzdem, im Rahmen der Android-Regeln stabil zu bleiben.
+        • Foreground-HB-Loop: zusätzlicher Timer (ca. 30s) auf Basis LastKnownLocation für
+        stabilere HBs auch bei wenig Bewegung.{'\n'}
+        • Watchdog: zeigt HB-Alter, versucht bei Rückkehr in den Vordergrund ein Self-Heal, wenn der
+        letzte HB zu lange her ist (~3 min).{'\n'}
+        • HB-Stats/Histo: zeigt reale Inter-HB-Intervalle (letzte ≈60 HBs) zur Feintuning-Analyse.{'\n'}
+        • Akku-Optimierung DARF anbleiben – Ultreia versucht trotzdem, im Rahmen der Android-Regeln
+        stabil zu bleiben.
       </Text>
     </ScrollView>
   );
@@ -746,7 +1046,7 @@ const styles = StyleSheet.create({
   },
   line: {
     color: '#cfcfcf',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   err: {
     color: '#ff6b6b',
@@ -790,5 +1090,20 @@ const styles = StyleSheet.create({
   notifText: {
     color: '#cfcfcf',
     fontSize: 12,
+  },
+  toggleRow: {
+    marginTop: 10,
+    paddingVertical: 10,
+  },
+  toggleText: {
+    color: '#cfcfcf',
+  },
+  row: {
+    flexDirection: 'row',
+    marginTop: 18,
+  },
+  rowButton: {
+    flex: 1,
+    marginHorizontal: 4,
   },
 });

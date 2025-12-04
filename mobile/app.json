@@ -49,7 +49,14 @@
     },
     "owner": "ecily",
     "plugins": [
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
     ]
   }
 }
