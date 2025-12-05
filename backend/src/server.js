@@ -15,6 +15,11 @@ const https = require('https');
 const path = require('path');
 const admin = require('firebase-admin');
 
+// Models
+const Offer = require('./models/Offer');
+// Routes
+const offersRouter = require('./routes/offers');
+
 // ── Config ─────────────────────────────────────────────────────────────────────
 const PORT = Number(process.env.PORT) || 4000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ultreia';
@@ -321,48 +326,28 @@ const heartbeatSchema = new mongoose.Schema(
     accuracy: { type: Number },
     ts: { type: Date, default: () => new Date() },
     serverReceivedAt: { type: Date, default: () => new Date(), index: true },
+
     powerState: { type: String },
     battery: {
       level: { type: Number, min: 0, max: 1 },
       charging: { type: Boolean },
     },
-    expireAt: { type: Date, default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) },
-  },
-  { timestamps: true }
-);
 
-const offerSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    body: { type: String },
-    location: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        required: true,
-        default: 'Point',
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
-    },
-    radiusMeters: { type: Number, default: 200 },
-    validFrom: { type: Date, default: () => new Date() },
-    validUntil: { type: Date, required: true },
-    active: { type: Boolean, default: true },
+    // Interessen-Snapshot für diesen Heartbeat (z.B. ['albergue','restaurant'])
+    interests: [{ type: String }],
+
+    // TTL: Heartbeats laufen nach ~30 Tagen aus
+    expireAt: { type: Date, default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) },
   },
   { timestamps: true }
 );
 
 heartbeatSchema.index({ deviceId: 1, ts: -1 });
 heartbeatSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
-offerSchema.index({ location: '2dsphere' });
-offerSchema.index({ active: 1, validFrom: 1, validUntil: 1 });
 
 const Device = mongoose.models.Device || mongoose.model('Device', deviceSchema);
-const Heartbeat = mongoose.models.Heartbeat || mongoose.model('Heartbeat', heartbeatSchema);
-const Offer = mongoose.models.Offer || mongoose.model('Offer', offerSchema);
+const Heartbeat =
+  mongoose.models.Heartbeat || mongoose.model('Heartbeat', heartbeatSchema);
 
 // ── Health ────────────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -380,6 +365,9 @@ app.get('/api/health', (req, res) => {
     fcmReady,
   });
 });
+
+// ── Offers-Routen (für Admin-Frontend) ────────────────────────────────────────
+app.use('/api/offers', offersRouter);
 
 // ── Endpoints ─────────────────────────────────────────────────────────────────
 // 1) Register/Update device
@@ -430,10 +418,40 @@ app.post('/api/push/register', async (req, res, next) => {
 // 2) Heartbeat ingest + Offer-Matching + Push (FCM bevorzugt, Expo Fallback)
 app.post('/api/location/heartbeat', async (req, res, next) => {
   try {
-    const { deviceId, lat, lng, accuracy, ts, battery, powerState } = req.body || {};
+    const {
+      deviceId,
+      lat,
+      lng,
+      accuracy,
+      ts,
+      battery,
+      powerState,
+      interests,
+    } = req.body || {};
+
     const nlat = Number(lat);
     const nlng = Number(lng);
     const nacc = accuracy != null ? Number(accuracy) : undefined;
+
+    // interests optional normalisieren (string[] oder kommagetrennter String)
+    let interestList = null;
+    if (Array.isArray(interests)) {
+      interestList = interests
+        .map((v) => (typeof v === 'string' ? v : String(v)))
+        .map((v) => v.trim().toLowerCase())
+        .filter((v) => v.length > 0);
+      if (interestList.length === 0) {
+        interestList = null;
+      }
+    } else if (typeof interests === 'string' && interests.trim() !== '') {
+      interestList = interests
+        .split(',')
+        .map((v) => v.trim().toLowerCase())
+        .filter((v) => v.length > 0);
+      if (interestList.length === 0) {
+        interestList = null;
+      }
+    }
 
     if (!deviceId || typeof deviceId !== 'string') {
       return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
@@ -452,6 +470,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
       serverReceivedAt: now,
       battery: battery && typeof battery === 'object' ? battery : undefined,
       powerState: powerState ? String(powerState) : undefined,
+      interests: interestList && interestList.length > 0 ? interestList : undefined,
     });
 
     await Device.findOneAndUpdate(
@@ -467,7 +486,8 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
         coordinates: [nlng, nlat],
       };
 
-      offers = await Offer.find({
+      // Basis-Filter
+      const offerMatch = {
         active: true,
         validFrom: { $lte: now },
         validUntil: { $gte: now },
@@ -477,14 +497,28 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
             $maxDistance: OFFER_MAX_DISTANCE_METERS,
           },
         },
-      })
-        .limit(10)
-        .lean();
+      };
+
+      // Nur wenn Interessen vorhanden sind, zusätzlich nach Kategorie filtern
+      if (interestList && interestList.length > 0) {
+        offerMatch.category = { $in: interestList };
+      }
+
+      offers = await Offer.find(offerMatch).limit(10).lean();
     } catch (matchErr) {
       req.log.warn({ deviceId, err: matchErr }, '[hb] offer match failed');
     }
 
-    req.log.info({ deviceId, id: hb._id, offers: offers.length }, '[hb] stored');
+    req.log.info(
+      {
+        deviceId,
+        id: hb._id,
+        offers: offers.length,
+        hasInterests: Boolean(interestList && interestList.length > 0),
+        interests: interestList,
+      },
+      '[hb] stored'
+    );
 
     if (offers.length > 0) {
       (async () => {
@@ -544,6 +578,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
         radiusMeters: o.radiusMeters,
         validFrom: o.validFrom,
         validUntil: o.validUntil,
+        category: o.category || null,
       })),
     });
   } catch (err) {
