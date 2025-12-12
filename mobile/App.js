@@ -54,6 +54,43 @@ const API_BASE =
 
 const DEVICE_ID = 'ULTR-DEV-001';
 
+// Aktuelle Interessen-Liste (Offer-Kategorien) basierend auf Pilger-Präferenzen.
+// Wird aus dem React-State im App-Component aktualisiert und von allen Heartbeats genutzt.
+let currentInterests = null;
+
+// Mapping der UI-Präferenzen auf Offer-Kategorien im Backend
+function buildInterestsFromPrefs({
+  prefAccommodation,
+  prefFood,
+  prefPharmacy,
+  prefWater,
+}) {
+  const list = [];
+
+  // Schlafplätze → Albergues / Hostels
+  if (prefAccommodation) {
+    list.push('albergue', 'hostel');
+  }
+
+  // Essen & Trinken → Restaurants / Bars
+  if (prefFood) {
+    list.push('restaurant', 'bar');
+  }
+
+  // Apotheken & medizinische Hilfe
+  if (prefPharmacy) {
+    list.push('pharmacy');
+  }
+
+  // Wasserstellen & Versorgungspunkte
+  if (prefWater) {
+    list.push('water');
+  }
+
+  // Dedupe
+  return Array.from(new Set(list));
+}
+
 // Globaler Timestamp des letzten erfolgreichen Heartbeats (inkl. BG-Tasks)
 let lastHeartbeatAtMs = null;
 // Historie der Inter-HB-Intervalle (Sekunden) für die letzten ≈60 Heartbeats
@@ -71,8 +108,17 @@ Notifications.setNotificationHandler({
 });
 
 // ── API Calls / Heartbeat-Engine ─────────────────────────────────────────────
-async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown' }) {
+async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown', interests }) {
   const startedAt = Date.now();
+
+  // interests: bevorzugt explizit übergeben, sonst aus currentInterests
+  let finalInterests = null;
+  if (Array.isArray(interests) && interests.length > 0) {
+    finalInterests = interests;
+  } else if (Array.isArray(currentInterests) && currentInterests.length > 0) {
+    finalInterests = currentInterests;
+  }
+
   const payload = {
     deviceId: DEVICE_ID,
     lat,
@@ -83,8 +129,14 @@ async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown' }) {
     source: reason,
   };
 
+  if (finalInterests && finalInterests.length > 0) {
+    payload.interests = finalInterests;
+  }
+
   console.log(
-    `[HB] start reason=${reason} lat=${lat} lng=${lng} acc=${accuracy != null ? accuracy : 'n/a'}`
+    `[HB] start reason=${reason} lat=${lat} lng=${lng} acc=${
+      accuracy != null ? accuracy : 'n/a'
+    } interests=${finalInterests && finalInterests.length ? finalInterests.join(',') : 'none'}`
   );
 
   const res = await fetch(`${API_BASE}/location/heartbeat`, {
@@ -403,7 +455,7 @@ async function ensurePermissions(setState) {
   }
 }
 
-// ── Helper: Koordinaten für Heartbeat bestimmen ──────────────────────────────
+// ── Helper: Koordinaten für Heartbeat bestimmen ─────────────────────────────-
 async function resolveCoordsForHeartbeat() {
   const last = await Location.getLastKnownPositionAsync();
   if (last && last.coords) {
@@ -466,6 +518,18 @@ export default function App() {
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const lastHbMsRef = useRef(null);
+
+  // Interessen global aktualisieren, wenn Präferenzen sich ändern
+  useEffect(() => {
+    const interests = buildInterestsFromPrefs({
+      prefAccommodation: state.prefAccommodation,
+      prefFood: state.prefFood,
+      prefPharmacy: state.prefPharmacy,
+      prefWater: state.prefWater,
+    });
+    currentInterests = interests;
+    console.log('[Interests] updated:', interests);
+  }, [state.prefAccommodation, state.prefFood, state.prefPharmacy, state.prefWater]);
 
   // AppState → bei active sicherstellen, dass BG-Location läuft + Diagnostics + Watchdog-Heal + HB-Loop
   useEffect(() => {
@@ -893,7 +957,10 @@ export default function App() {
             </TouchableOpacity>
 
             <View style={styles.row}>
-              <TouchableOpacity style={[styles.btnSecondary, styles.rowButton]} onPress={goPrevOnboardingStep}>
+              <TouchableOpacity
+                style={[styles.btnSecondary, styles.rowButton]}
+                onPress={goPrevOnboardingStep}
+              >
                 <Text style={styles.btnText}>Zurück</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.btn, styles.rowButton]} onPress={goNextOnboardingStep}>
@@ -980,7 +1047,12 @@ export default function App() {
 
       <Text style={styles.line}>
         Pilger-Präferenzen:{' '}
-        {[state.prefAccommodation && 'Schlafplätze', state.prefFood && 'Essen/Trinken', state.prefPharmacy && 'Apotheken', state.prefWater && 'Wasser']
+        {[
+          state.prefAccommodation && 'Schlafplätze',
+          state.prefFood && 'Essen/Trinken',
+          state.prefPharmacy && 'Apotheken',
+          state.prefWater && 'Wasser',
+        ]
           .filter(Boolean)
           .join(', ') || '—'}
       </Text>
