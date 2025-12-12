@@ -1,17 +1,20 @@
 package com.ecily.ultreia.heartbeat
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 
 class HeartbeatService : Service() {
 
@@ -24,7 +27,25 @@ class HeartbeatService : Service() {
         private const val ACTION_START = "com.ecily.ultreia.heartbeat.START"
         private const val ACTION_STOP = "com.ecily.ultreia.heartbeat.STOP"
 
+        private fun hasLocationPermission(context: Context): Boolean {
+            val fine = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            val coarse = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            return fine || coarse
+        }
+
         fun start(context: Context) {
+            // WICHTIG: Service nur starten, wenn Location-Permission bereits erteilt ist.
+            if (!hasLocationPermission(context)) {
+                Log.w(TAG, "start(): missing location permission – not starting HeartbeatService")
+                return
+            }
+
             val intent = Intent(context, HeartbeatService::class.java).apply {
                 action = ACTION_START
             }
@@ -74,10 +95,46 @@ class HeartbeatService : Service() {
                 stopSelf()
                 return START_NOT_STICKY
             }
+
             else -> {
                 if (!isRunning) {
                     isRunning = true
-                    startForeground(NOTIFICATION_ID, buildNotification())
+
+                    // Nochmals im Service selbst prüfen – Safety-Net für alle Fälle.
+                    val hasLocPerm = hasLocationPermission(this)
+                    if (!hasLocPerm) {
+                        Log.w(
+                            TAG,
+                            "onStartCommand: missing location permission – cannot start foreground service"
+                        )
+                        isRunning = false
+                        stopSelf()
+                        return START_NOT_STICKY
+                    }
+
+                    try {
+                        startForeground(NOTIFICATION_ID, buildNotification())
+                    } catch (se: SecurityException) {
+                        // WICHTIG: SecurityException NICHT nach oben durchreichen, sonst App-Crash.
+                        Log.e(
+                            TAG,
+                            "onStartCommand: startForeground failed with SecurityException: ${se.message}",
+                            se
+                        )
+                        isRunning = false
+                        stopSelf()
+                        return START_NOT_STICKY
+                    } catch (e: Exception) {
+                        Log.e(
+                            TAG,
+                            "onStartCommand: startForeground failed with unexpected exception: ${e.message}",
+                            e
+                        )
+                        isRunning = false
+                        stopSelf()
+                        return START_NOT_STICKY
+                    }
+
                     handler.post(heartbeatRunnable)
                     Log.i(TAG, "Heartbeat loop started")
                 }

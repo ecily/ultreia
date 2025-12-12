@@ -632,8 +632,6 @@ export default function App() {
 
     (async () => {
       try {
-        await ensurePermissions(setState);
-
         // Expo Push Token + FCM-Token holen
         let expoToken = null;
         let fcmToken = null;
@@ -787,11 +785,21 @@ export default function App() {
     }));
   };
 
-  const completeOnboarding = () => {
-    setState((s) => ({
-      ...s,
-      onboardingCompleted: true,
-    }));
+  const handleMotorStart = async () => {
+    try {
+      console.log('[Onboarding] Motor starten → ensurePermissions');
+      await ensurePermissions(setState);
+      setState((s) => ({
+        ...s,
+        onboardingCompleted: true,
+      }));
+    } catch (e) {
+      console.warn('[Onboarding] ensurePermissions failed:', (e && e.message) || e);
+      setState((s) => ({
+        ...s,
+        lastErr: `[OnboardingPerms] ${(e && e.message) || e}`,
+      }));
+    }
   };
 
   const onManualPing = async () => {
@@ -978,12 +986,11 @@ export default function App() {
               helfen – nicht für Werbung abseits deiner gewählten Kategorien.
             </Text>
             <Text style={styles.line}>
-              Du kannst Ultreia jederzeit wieder schließen oder die Berechtigungen in den
-              Android-Einstellungen anpassen. Solange der Herzschlag läuft, verpasst du keine
-              wichtigen Punkte entlang des Weges.
+              Bitte wähle im Standort-Dialog idealerweise „Immer erlauben“, damit der
+              Pilger-Herzschlag auch im Hintergrund weiterlaufen kann.
             </Text>
 
-            <TouchableOpacity style={styles.btn} onPress={completeOnboarding}>
+            <TouchableOpacity style={styles.btn} onPress={handleMotorStart}>
               <Text style={styles.btnText}>Verstanden – Motor starten</Text>
             </TouchableOpacity>
 
@@ -1082,7 +1089,8 @@ export default function App() {
 
       <Text style={styles.hint}>
         Hinweis:{'\n'}
-        • Backend: Online-API (oder lokal mit http://localhost:4000 per adb reverse){'\n'}
+        • Backend: Online-API (oder lokal mit http://localhost:4000 per adb reverse)
+        {'\n'}
         • Android-Device via USB mit PC verbinden (für lokale Tests).{'\n'}
         • BG-Heartbeat: nominell alle 20s + ~100m Bewegung, Android drosselt im Doze.{'\n'}
         • Foreground-HB-Loop: zusätzlicher Timer (ca. 30s) auf Basis LastKnownLocation für
