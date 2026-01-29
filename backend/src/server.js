@@ -28,6 +28,10 @@ const isProd = NODE_ENV === 'production';
 const HEARTBEAT_SECONDS = Number(process.env.HEARTBEAT_SECONDS || 60);
 const OFFER_MAX_DISTANCE_METERS = Number(process.env.OFFER_MAX_DISTANCE_METERS || 250);
 
+// Push-Dedupe (Server-seitig)
+const PUSH_DEDUPE_MINUTES = Math.max(1, Number(process.env.PUSH_DEDUPE_MINUTES || 5));
+const PUSH_EVENT_TTL_DAYS = Math.max(1, Number(process.env.PUSH_EVENT_TTL_DAYS || 14));
+
 const FCM_PROJECT_ID = process.env.FCM_PROJECT_ID || undefined;
 // Cloud (DO / App Platform): Service-Account als JSON in Env
 const FCM_SERVICE_ACCOUNT_JSON = process.env.FCM_SERVICE_ACCOUNT_JSON || undefined;
@@ -76,9 +80,7 @@ function expoPost(pathName, body) {
       });
     });
 
-    req.on('error', (err) => {
-      reject(err);
-    });
+    req.on('error', (err) => reject(err));
 
     req.write(json);
     req.end();
@@ -110,12 +112,8 @@ async function sendExpoPush({ expoPushToken, title, body, data }) {
 
     let ticket = null;
     if (respBody && respBody.data) {
-      if (respBody.data.id) {
-        ticket = respBody.data;
-      }
-      if (Array.isArray(respBody.data) && respBody.data.length > 0) {
-        ticket = respBody.data[0];
-      }
+      if (respBody.data.id) ticket = respBody.data;
+      if (Array.isArray(respBody.data) && respBody.data.length > 0) ticket = respBody.data[0];
     }
 
     return {
@@ -137,15 +135,9 @@ async function getExpoReceipts(ticketIds) {
   }
 
   try {
-    const { statusCode, body } = await expoPost(EXPO_PUSH_RECEIPTS_PATH, {
-      ids: ticketIds,
-    });
+    const { statusCode, body } = await expoPost(EXPO_PUSH_RECEIPTS_PATH, { ids: ticketIds });
     logger.info({ statusCode, body }, '[push-expo] Expo receipts response');
-    return {
-      ok: statusCode >= 200 && statusCode < 300,
-      statusCode,
-      body,
-    };
+    return { ok: statusCode >= 200 && statusCode < 300, statusCode, body };
   } catch (err) {
     logger.warn({ err }, '[push-expo] Expo receipts error');
     return { ok: false, error: err.message || String(err) };
@@ -163,7 +155,6 @@ if (FCM_SERVICE_ACCOUNT_JSON || FCM_SERVICE_ACCOUNT_PATH) {
     let serviceAccount;
 
     if (FCM_SERVICE_ACCOUNT_JSON) {
-      // Bevorzugt in Cloud-Umgebungen (DigitalOcean App Platform)
       serviceAccount = JSON.parse(FCM_SERVICE_ACCOUNT_JSON);
       logger.info(
         { projectId: FCM_PROJECT_ID || serviceAccount.project_id },
@@ -180,11 +171,11 @@ if (FCM_SERVICE_ACCOUNT_JSON || FCM_SERVICE_ACCOUNT_PATH) {
     }
 
     if (!admin.apps.length) {
-      const app = admin.initializeApp({
+      const appFcm = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         projectId: FCM_PROJECT_ID || serviceAccount.project_id,
       });
-      fcmMessaging = app.messaging();
+      fcmMessaging = appFcm.messaging();
     } else {
       fcmMessaging = admin.app().messaging();
     }
@@ -208,7 +199,15 @@ if (FCM_SERVICE_ACCOUNT_JSON || FCM_SERVICE_ACCOUNT_PATH) {
   );
 }
 
-async function sendFcmPush({ fcmToken, title, body, data }) {
+function isFcmTokenInvalidCode(code) {
+  return (
+    code === 'messaging/registration-token-not-registered' ||
+    code === 'messaging/invalid-registration-token' ||
+    code === 'messaging/invalid-argument'
+  );
+}
+
+async function sendFcmPush({ deviceId, fcmToken, title, body, data }) {
   if (!fcmReady || !fcmMessaging) {
     logger.warn('[fcm] not initialized, skipping push');
     return { ok: false, error: 'fcm-not-initialized' };
@@ -222,11 +221,8 @@ async function sendFcmPush({ fcmToken, title, body, data }) {
   if (data && typeof data === 'object') {
     Object.entries(data).forEach(([k, v]) => {
       if (v === undefined || v === null) return;
-      if (typeof v === 'string') {
-        dataPayload[String(k)] = v;
-      } else {
-        dataPayload[String(k)] = JSON.stringify(v);
-      }
+      if (typeof v === 'string') dataPayload[String(k)] = v;
+      else dataPayload[String(k)] = JSON.stringify(v);
     });
   }
 
@@ -240,7 +236,7 @@ async function sendFcmPush({ fcmToken, title, body, data }) {
     android: {
       priority: 'high',
       notification: {
-        channelId: 'offers', // muss zu deinem Android-Channel "offers" passen
+        channelId: 'offers',
         sound: 'default',
       },
     },
@@ -251,11 +247,26 @@ async function sendFcmPush({ fcmToken, title, body, data }) {
     logger.info({ fcmToken, response }, '[fcm] send response');
     return { ok: true, messageId: response };
   } catch (err) {
+    const code = err && err.code ? err.code : undefined;
     logger.warn(
-      { fcmToken, err: { message: err.message, code: err.code, stack: err.stack } },
+      { fcmToken, err: { message: err.message, code, stack: err.stack } },
       '[fcm] send error'
     );
-    return { ok: false, error: err.message || String(err), code: err.code };
+
+    // Token-Hygiene: ungültige Tokens serverseitig entfernen
+    if (deviceId && typeof deviceId === 'string' && isFcmTokenInvalidCode(code)) {
+      try {
+        await Device.updateOne(
+          { deviceId },
+          { $set: { invalid: true, fcmToken: null, lastSeenAt: new Date() } }
+        );
+        logger.warn({ deviceId, code }, '[fcm] token invalid -> cleared fcmToken & marked invalid');
+      } catch (e) {
+        logger.warn({ deviceId, e }, '[fcm] failed to clear invalid token');
+      }
+    }
+
+    return { ok: false, error: err.message || String(err), code };
   }
 }
 
@@ -333,10 +344,8 @@ const heartbeatSchema = new mongoose.Schema(
       charging: { type: Boolean },
     },
 
-    // Interessen-Snapshot für diesen Heartbeat (z.B. ['albergue','restaurant'])
     interests: [{ type: String }],
 
-    // TTL: Heartbeats laufen nach ~30 Tagen aus
     expireAt: { type: Date, default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) },
   },
   { timestamps: true }
@@ -345,9 +354,42 @@ const heartbeatSchema = new mongoose.Schema(
 heartbeatSchema.index({ deviceId: 1, ts: -1 });
 heartbeatSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
+const pushEventSchema = new mongoose.Schema(
+  {
+    deviceId: { type: String, required: true, index: true },
+    offerId: { type: String, required: true, index: true }, // primary offer
+    offerIds: { type: String }, // comma-separated ids (optional)
+    via: { type: String, enum: ['fcm', 'expo', 'none'], default: 'none' },
+    source: { type: String, default: 'heartbeat' },
+    sentAt: { type: Date, default: () => new Date(), index: true },
+    expireAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * PUSH_EVENT_TTL_DAYS),
+    },
+  },
+  { timestamps: true }
+);
+
+pushEventSchema.index({ deviceId: 1, offerId: 1, sentAt: -1 });
+pushEventSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
+
 const Device = mongoose.models.Device || mongoose.model('Device', deviceSchema);
-const Heartbeat =
-  mongoose.models.Heartbeat || mongoose.model('Heartbeat', heartbeatSchema);
+const Heartbeat = mongoose.models.Heartbeat || mongoose.model('Heartbeat', heartbeatSchema);
+const PushEvent = mongoose.models.PushEvent || mongoose.model('PushEvent', pushEventSchema);
+
+async function shouldDedupePush({ deviceId, offerId }) {
+  const since = new Date(Date.now() - PUSH_DEDUPE_MINUTES * 60 * 1000);
+  const existing = await PushEvent.findOne({
+    deviceId,
+    offerId,
+    sentAt: { $gte: since },
+  })
+    .sort({ sentAt: -1 })
+    .select({ sentAt: 1, via: 1, _id: 0 })
+    .lean();
+
+  return existing ? { dedupe: true, last: existing } : { dedupe: false, last: null };
+}
 
 // ── Health ────────────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -363,6 +405,9 @@ app.get('/api/health', (req, res) => {
     uptimeSec: Math.round(process.uptime()),
     expoPushReady,
     fcmReady,
+    heartbeatSeconds: HEARTBEAT_SECONDS,
+    offerMaxDistanceMeters: OFFER_MAX_DISTANCE_METERS,
+    pushDedupeMinutes: PUSH_DEDUPE_MINUTES,
   });
 });
 
@@ -418,39 +463,25 @@ app.post('/api/push/register', async (req, res, next) => {
 // 2) Heartbeat ingest + Offer-Matching + Push (FCM bevorzugt, Expo Fallback)
 app.post('/api/location/heartbeat', async (req, res, next) => {
   try {
-    const {
-      deviceId,
-      lat,
-      lng,
-      accuracy,
-      ts,
-      battery,
-      powerState,
-      interests,
-    } = req.body || {};
+    const { deviceId, lat, lng, accuracy, ts, battery, powerState, interests } = req.body || {};
 
     const nlat = Number(lat);
     const nlng = Number(lng);
     const nacc = accuracy != null ? Number(accuracy) : undefined;
 
-    // interests optional normalisieren (string[] oder kommagetrennter String)
     let interestList = null;
     if (Array.isArray(interests)) {
       interestList = interests
         .map((v) => (typeof v === 'string' ? v : String(v)))
         .map((v) => v.trim().toLowerCase())
         .filter((v) => v.length > 0);
-      if (interestList.length === 0) {
-        interestList = null;
-      }
+      if (interestList.length === 0) interestList = null;
     } else if (typeof interests === 'string' && interests.trim() !== '') {
       interestList = interests
         .split(',')
         .map((v) => v.trim().toLowerCase())
         .filter((v) => v.length > 0);
-      if (interestList.length === 0) {
-        interestList = null;
-      }
+      if (interestList.length === 0) interestList = null;
     }
 
     if (!deviceId || typeof deviceId !== 'string') {
@@ -481,30 +512,42 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
 
     let offers = [];
     try {
-      const point = {
-        type: 'Point',
-        coordinates: [nlng, nlat],
-      };
+      const point = { type: 'Point', coordinates: [nlng, nlat] };
 
-      // Basis-Filter
-      const offerMatch = {
+      const query = {
         active: true,
         validFrom: { $lte: now },
         validUntil: { $gte: now },
-        location: {
-          $near: {
-            $geometry: point,
-            $maxDistance: OFFER_MAX_DISTANCE_METERS,
-          },
-        },
       };
 
-      // Nur wenn Interessen vorhanden sind, zusätzlich nach Kategorie filtern
       if (interestList && interestList.length > 0) {
-        offerMatch.category = { $in: interestList };
+        query.category = { $in: interestList };
       }
 
-      offers = await Offer.find(offerMatch).limit(10).lean();
+      // GeoNear liefert Distanz in Metern -> danach radiusMeters pro Offer berücksichtigen
+      const raw = await Offer.aggregate([
+        {
+          $geoNear: {
+            near: point,
+            distanceField: 'distanceMeters',
+            spherical: true,
+            maxDistance: OFFER_MAX_DISTANCE_METERS,
+            query,
+          },
+        },
+        { $limit: 20 },
+      ]).exec();
+
+      offers = (raw || [])
+        .filter((o) => {
+          const d = typeof o.distanceMeters === 'number' ? o.distanceMeters : null;
+          const r = Number(o.radiusMeters);
+          const allowed =
+            Number.isFinite(r) && r > 0 ? Math.min(r, OFFER_MAX_DISTANCE_METERS) : OFFER_MAX_DISTANCE_METERS;
+          if (d == null) return true;
+          return d <= allowed;
+        })
+        .slice(0, 10);
     } catch (matchErr) {
       req.log.warn({ deviceId, err: matchErr }, '[hb] offer match failed');
     }
@@ -530,9 +573,24 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           }
 
           const primary = offers[0];
+          const primaryOfferId = primary && primary._id ? primary._id.toString() : null;
+          if (!primaryOfferId) return;
+
+          // Dedupe: gleiche primary-Offer innerhalb Window nicht erneut pushen
+          const dedupeCheck = await shouldDedupePush({ deviceId, offerId: primaryOfferId });
+          if (dedupeCheck.dedupe) {
+            req.log.info(
+              { deviceId, primaryOfferId, last: dedupeCheck.last, windowMin: PUSH_DEDUPE_MINUTES },
+              '[hb] push deduped'
+            );
+            return;
+          }
+
+          const allOfferIds = offers.map((o) => o._id.toString()).join(',');
           const dataPayload = {
             deviceId,
-            offerIds: offers.map((o) => o._id.toString()).join(','),
+            offerId: primaryOfferId,
+            offerIds: allOfferIds,
             source: 'heartbeat',
           };
 
@@ -541,6 +599,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
 
           if (dev.fcmToken && fcmReady) {
             pushResult = await sendFcmPush({
+              deviceId,
               fcmToken: dev.fcmToken,
               title: primary.title || 'ULTREIA Angebot',
               body: primary.body || 'Neues Angebot in deiner Nähe.',
@@ -560,7 +619,24 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
             return;
           }
 
-          req.log.info({ deviceId, via, pushResult }, '[hb] push triggered');
+          // PushEvent nur wenn wir tatsächlich versucht haben zu senden
+          try {
+            await PushEvent.create({
+              deviceId,
+              offerId: primaryOfferId,
+              offerIds: allOfferIds,
+              via: via || 'none',
+              source: 'heartbeat',
+              sentAt: new Date(),
+            });
+          } catch (e) {
+            req.log.warn({ deviceId, e }, '[hb] failed to write PushEvent');
+          }
+
+          req.log.info(
+            { deviceId, via, pushOk: Boolean(pushResult && pushResult.ok), pushResult },
+            '[hb] push triggered'
+          );
         } catch (pushErr) {
           req.log.warn({ deviceId, err: pushErr }, '[hb] push trigger failed');
         }
@@ -579,6 +655,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
         validFrom: o.validFrom,
         validUntil: o.validUntil,
         category: o.category || null,
+        distanceMeters: typeof o.distanceMeters === 'number' ? Math.round(o.distanceMeters) : null,
       })),
     });
   } catch (err) {
@@ -646,19 +723,13 @@ app.post('/api/debug/push/:deviceId', async (req, res, next) => {
     if (pushResult && pushResult.ticket && pushResult.ticket.id) {
       const ticketId = pushResult.ticket.id;
       const receiptResult = await getExpoReceipts([ticketId]);
-      receipts = {
-        ticketId,
-        raw: receiptResult.body,
-      };
+      receipts = { ticketId, raw: receiptResult.body };
 
       try {
         const data = receiptResult.body && receiptResult.body.data;
         const r = data && data[ticketId];
         if (r && r.status === 'error' && r.details && r.details.error === 'DeviceNotRegistered') {
-          await Device.updateOne(
-            { deviceId },
-            { $set: { invalid: true, expoPushToken: null } }
-          );
+          await Device.updateOne({ deviceId }, { $set: { invalid: true, expoPushToken: null } });
           logger.warn(
             { deviceId, ticketId },
             '[push-expo] DeviceNotRegistered – marked device invalid & cleared expoPushToken'
@@ -717,12 +788,10 @@ app.post('/api/debug/push-fcm/:deviceId', async (req, res, next) => {
     const title = (req.body && req.body.title) || 'ULTREIA Debug (FCM)';
     const bodyText = (req.body && req.body.body) || 'Debug-Push vom Backend (FCM)';
 
-    const dataPayload = {
-      source: 'debug-endpoint-fcm',
-      deviceId,
-    };
+    const dataPayload = { source: 'debug-endpoint-fcm', deviceId };
 
     const pushResult = await sendFcmPush({
+      deviceId,
       fcmToken: dev.fcmToken,
       title,
       body: bodyText,
