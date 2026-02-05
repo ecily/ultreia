@@ -6,14 +6,10 @@
 // B) BackgroundFetch/TaskManager Watchdog (Recovery + Self-Heal)
 // C) “Booster”-Heartbeats bei Location-Events (edge burst / movement-based)
 //
-// WICHTIG (Realität Android):
-// - Exakt 60s “für immer” ist ohne echten nativen Foreground-Service schwer.
-// - expo-location foregroundService ist der beste JS-only Weg; wir machen es so sticky wie möglich
-//   (rearm via Watchdog, startOnBoot, stopOnTerminate=false, OS-Status-Diagnostics).
-//
 // Fokus: Stabilität/Diagnostik/Token-Hygiene/Dedupe korrekt.
+// UI-Phase: App/UX bauen, ohne den Motor zu destabilisieren (Motor bleibt funktional gleich).
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View, TouchableOpacity, AppState, ScrollView } from 'react-native';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
@@ -32,34 +28,26 @@ const NOTIF_CHANNELS = { fg: 'ultreia-fg', offers: 'offers' };
 const STORAGE_KEYS = {
   prefs: 'ultreia:prefs:v1',
   interests: 'ultreia:interests:v1',
+  notifInbox: 'ultreia:notif-inbox:v1',
 };
 
-// ── Tuning (Fußgänger-UX, akzeptabler Rhythmus) ───────────────────────────────
-// BG Location: lieber “bewegungsnah” statt starrer Sekunden-Takt.
-// timeInterval hilft Android beim Scheduling, aber Bewegung/Doze bestimmen real.
-const BG_TIME_SECONDS = 60; // nominell
-const BG_DISTANCE_METERS = 25; // reagiert flott beim Gehen
+// ── Tuning ───────────────────────────────────────────────────────────────────
+const BG_TIME_SECONDS = 60;
+const BG_DISTANCE_METERS = 25;
 
-// Globales Dedupe: Android kann Updates in 20–40s liefern → wir senden nicht jedes Event.
-// Ziel: im Normalfall ~60s, bei Doze auch mal länger.
 const HB_MIN_GAP_SECONDS = 55;
 
-// “Booster”: Wenn wir Bewegung sehen, sofortiger Heartbeat (einmalig pro Burst).
 const BOOSTER_MIN_GAP_SECONDS = 45;
 const BOOSTER_MOVE_METERS = 60;
 
-// Foreground-Loop (nur wenn App aktiv): Diagnostics + “immer warm”
 const HB_LOOP_SECONDS = 45;
 
-// Watchdog: ab diesem Alter versuchen wir Self-Heal (auch via Fetch)
 const WATCHDOG_STALE_SECONDS = 3 * 60;
 const WATCHDOG_POLL_SECONDS = 30;
 
-// Debug Defaults
 const DEBUG_OFFER_RADIUS_M = 200;
 const DEBUG_OFFER_VALID_MIN = 30;
 
-// API Base
 const API_BASE =
   (Constants?.expoConfig?.extra && Constants.expoConfig.extra.apiBase) || 'http://10.0.2.2:4000/api';
 
@@ -69,7 +57,6 @@ let interestsCacheLoaded = false;
 
 // Global last HB
 let lastHeartbeatAtMs = null;
-// Intervals history
 let hbIntervals = [];
 
 // Last sent coords for skip logic
@@ -80,12 +67,19 @@ let hbLoopTimerId = null;
 
 // Last coords snapshot for movement-based decisions
 let lastCoordsForBooster = null;
-// Last booster fire time
 let lastBoosterAtMs = null;
 
-// ── DeviceId (ohne extra Dependencies) ────────────────────────────────────────
-// Stabil “genug” via FCM Token (primär), sonst Expo Token, sonst deterministischer Fallback.
-// WICHTIG: niemals aktiv “upgraden” (kein DEVICE_ID reset), sonst wechseln DeviceIDs mitten im Betrieb.
+// ── Single-flight HB (verhindert Doppel-Trigger) ─────────────────────────────
+let hbInFlight = null;
+let hbInFlightMeta = null;
+
+const FORCE_HB_REASONS = new Set(['manual', 'init', 'watchdog-rearm', 'fetch-watchdog']);
+
+function isForceReason(reason) {
+  return FORCE_HB_REASONS.has(String(reason || ''));
+}
+
+// ── DeviceId (ohne extra Dependencies) ───────────────────────────────────────
 let DEVICE_ID = null;
 
 function fnv1a32(str) {
@@ -119,7 +113,6 @@ function getEasProjectIdMaybe() {
 async function resolveDeviceId() {
   if (DEVICE_ID) return DEVICE_ID;
 
-  // 1) FCM Token (Android)
   if (Platform.OS === 'android') {
     try {
       const nativeToken = await Notifications.getDevicePushTokenAsync();
@@ -133,7 +126,6 @@ async function resolveDeviceId() {
     }
   }
 
-  // 2) Expo Push Token
   try {
     const projectId = getEasProjectIdMaybe();
     const tokenData = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
@@ -146,7 +138,6 @@ async function resolveDeviceId() {
     // ignore
   }
 
-  // 3) Deterministischer Fallback (ohne Date.now -> bleibt stabil zwischen Sessions “genug”)
   const fallbackSeed = `${Platform.OS}|${Constants?.deviceName || 'device'}|${Constants?.expoVersion || ''}`;
   DEVICE_ID = makeDeviceIdFromSeed(`fallback:${fallbackSeed}`);
   return DEVICE_ID;
@@ -282,7 +273,6 @@ async function loadInterestsCached() {
     // ignore
   }
 
-  // fallback: prefs → interests
   try {
     const prefs = await loadPrefsFromStorage();
     if (prefs) {
@@ -290,7 +280,6 @@ async function loadInterestsCached() {
       currentInterests = interests;
       interestsCacheLoaded = true;
       console.log('[Interests] derived from stored prefs:', interests);
-      // also persist derived interests to keep storage consistent
       try {
         await AsyncStorage.setItem(STORAGE_KEYS.interests, JSON.stringify(interests));
       } catch (e) {
@@ -302,10 +291,40 @@ async function loadInterestsCached() {
     // ignore
   }
 
-  interestsCacheLoaded = true; // prevent repeated IO storms
+  interestsCacheLoaded = true;
   currentInterests = currentInterests || [];
   console.log('[Interests] none available (storage empty)');
   return currentInterests;
+}
+
+// ── Inbox (Push Historie) ────────────────────────────────────────────────────
+async function loadNotifInbox() {
+  try {
+    const raw = await AsyncStorage.getItem(STORAGE_KEYS.notifInbox);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.slice(0, 50);
+  } catch (e) {
+    return [];
+  }
+}
+
+async function persistNotifInbox(items) {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEYS.notifInbox, JSON.stringify(Array.isArray(items) ? items.slice(0, 50) : []));
+  } catch (e) {
+    // ignore
+  }
+}
+
+function normalizeNotifItem(input) {
+  const obj = input && typeof input === 'object' ? input : {};
+  const title = String(obj.title || '');
+  const body = String(obj.body || '');
+  const data = obj.data && typeof obj.data === 'object' ? obj.data : {};
+  const receivedAt = obj.receivedAt ? String(obj.receivedAt) : new Date().toISOString();
+  return { title, body, data, receivedAt };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -329,12 +348,10 @@ function shouldSkipHeartbeat({ reason, lat, lng }) {
   const now = Date.now();
   const ageSec = lastHeartbeatAtMs ? Math.floor((now - lastHeartbeatAtMs) / 1000) : null;
 
-  // Hard allow list: manual/debug/init/watchdog-rearm dürfen immer (Diagnose/Recovery)
-  const forceReasons = new Set(['manual', 'init', 'watchdog-rearm', 'fetch-watchdog', 'booster-move']);
-  if (forceReasons.has(String(reason || ''))) return { skip: false, why: 'force' };
+  // Force: Diagnose/Recovery nur hier
+  if (isForceReason(reason)) return { skip: false, why: 'force' };
 
   if (ageSec != null && ageSec < HB_MIN_GAP_SECONDS) {
-    // Wenn wir uns signifikant bewegt haben, nicht skippen (auch wenn der Takt enger ist).
     if (lastSentCoords && lat != null && lng != null) {
       const movedM = haversineMeters(lastSentCoords.latitude, lastSentCoords.longitude, lat, lng);
       if (movedM >= BG_DISTANCE_METERS) return { skip: false, why: `moved:${Math.round(movedM)}m` };
@@ -360,7 +377,7 @@ async function resolveCoordsForHeartbeat({ allowCurrentFix = true } = {}) {
 }
 
 // ── Heartbeat Engine ─────────────────────────────────────────────────────────
-async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown', interests }) {
+async function sendHeartbeatCore({ lat, lng, accuracy, reason = 'unknown', interests }) {
   const startedAt = Date.now();
 
   let finalInterests = null;
@@ -369,7 +386,6 @@ async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown', interests
   } else if (Array.isArray(currentInterests) && currentInterests.length > 0) {
     finalInterests = currentInterests;
   } else {
-    // Headless/after reboot: attempt lazy-load from storage once
     try {
       const loaded = await loadInterestsCached();
       if (Array.isArray(loaded) && loaded.length > 0) finalInterests = loaded;
@@ -436,10 +452,39 @@ async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown', interests
   return { data, latencyMs, intervalSec };
 }
 
+async function sendHeartbeatSingleFlight({ lat, lng, accuracy, reason = 'unknown', interests }) {
+  const r = String(reason || 'unknown');
+
+  if (hbInFlight) {
+    if (isForceReason(r)) {
+      console.log(`[HB] join in-flight reason=${r} inFlightReason=${hbInFlightMeta?.reason || 'n/a'}`);
+      return hbInFlight;
+    }
+    console.log(`[HB] skip reason=${r} why=in-flight inFlightReason=${hbInFlightMeta?.reason || 'n/a'}`);
+    return { skipped: true, why: 'in-flight', inFlightReason: hbInFlightMeta?.reason || null };
+  }
+
+  hbInFlightMeta = { reason: r, startedAtMs: Date.now() };
+
+  const p = (async () => {
+    try {
+      return await sendHeartbeatCore({ lat, lng, accuracy, reason: r, interests });
+    } finally {
+      if (hbInFlight === p) {
+        hbInFlight = null;
+        hbInFlightMeta = null;
+      }
+    }
+  })();
+
+  hbInFlight = p;
+  return p;
+}
+
 async function sendImmediateHeartbeat(reason) {
   const coords = await resolveCoordsForHeartbeat();
   if (!coords) throw new Error('No coords available');
-  return sendHeartbeat({
+  return sendHeartbeatSingleFlight({
     lat: coords.latitude,
     lng: coords.longitude,
     accuracy: coords.accuracy,
@@ -471,7 +516,6 @@ async function registerDevice({ expoPushToken, fcmToken } = {}) {
 }
 
 // ── BG Location Task ─────────────────────────────────────────────────────────
-// Tier A event-first, aber deduped (HB_MIN_GAP_SECONDS), sonst flutet Android teils mit 30s Updates.
 try {
   TaskManager.defineTask(TASK_IDS.bgLoc, async ({ data, error }) => {
     if (error) {
@@ -494,7 +538,6 @@ try {
 
     console.log('[BG TASK] location update:', `lat=${lat} lng=${lng} acc=${acc} speed=${coords.speed}`);
 
-    // Ensure interests available in headless context (once)
     try {
       if (!Array.isArray(currentInterests) || currentInterests.length === 0) {
         await loadInterestsCached();
@@ -503,20 +546,27 @@ try {
       // ignore
     }
 
-    // Deduped event-first HB
     try {
       const dec = shouldSkipHeartbeat({ reason: 'bg-location', lat, lng });
       if (dec.skip) {
         const ageSec = hbAgeSecondsNow();
         console.log(`[HB] skip reason=bg-location why=${dec.why} ageSec=${ageSec != null ? ageSec : 'n/a'}`);
       } else {
-        await sendHeartbeat({ lat, lng, accuracy: acc, reason: 'bg-location' });
+        const r = await sendHeartbeatSingleFlight({ lat, lng, accuracy: acc, reason: 'bg-location' });
+        if (r && r.skipped) {
+          const ageSec = hbAgeSecondsNow();
+          console.log(
+            `[HB] skip reason=bg-location why=${r.why} inFlightReason=${r.inFlightReason || 'n/a'} ageSec=${
+              ageSec != null ? ageSec : 'n/a'
+            }`
+          );
+        }
       }
     } catch (e2) {
       console.warn('[BG TASK] heartbeat failed:', (e2 && e2.message) || e2);
     }
 
-    // Booster: große Bewegung, rate-limited
+    // Booster: große Bewegung, rate-limited (NICHT force; läuft durch dedupe + single-flight)
     try {
       const now = Date.now();
       const canBooster = !lastBoosterAtMs || now - lastBoosterAtMs >= BOOSTER_MIN_GAP_SECONDS * 1000;
@@ -532,7 +582,18 @@ try {
           console.log(`[Booster] moved ${Math.round(movedM)}m -> heartbeat booster`);
           lastBoosterAtMs = now;
           try {
-            await sendHeartbeat({ lat, lng, accuracy: acc, reason: 'booster-move' });
+            const decB = shouldSkipHeartbeat({ reason: 'booster-move', lat, lng });
+            if (decB.skip) {
+              const ageSec = hbAgeSecondsNow();
+              console.log(`[HB] skip reason=booster-move why=${decB.why} ageSec=${ageSec != null ? ageSec : 'n/a'}`);
+            } else {
+              const r = await sendHeartbeatSingleFlight({ lat, lng, accuracy: acc, reason: 'booster-move' });
+              if (r && r.skipped) {
+                console.log(
+                  `[HB] skip reason=booster-move why=${r.why} inFlightReason=${r.inFlightReason || 'n/a'}`
+                );
+              }
+            }
           } catch (e3) {
             console.warn('[Booster] failed:', (e3 && e3.message) || e3);
           }
@@ -550,16 +611,12 @@ try {
   // duplicate define on fast refresh
 }
 
-// ── BackgroundFetch Task (Tier B Watchdog) ────────────────────────────────────
-// Responsibilities:
-// - Ensure BG location updates are started (rearm)
-// - If HB is stale -> send a heartbeat using lastKnown (or current if possible)
+// ── BackgroundFetch Task ─────────────────────────────────────────────────────
 try {
   TaskManager.defineTask(TASK_IDS.fetch, async () => {
     console.log('[FETCH TASK] tick');
 
     try {
-      // Rearm BG Location if needed
       try {
         const hasBg = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
         if (!hasBg) {
@@ -570,7 +627,6 @@ try {
         console.warn('[FETCH TASK] rearm check failed:', (eRearm && eRearm.message) || eRearm);
       }
 
-      // Ensure interests available in headless context (once)
       try {
         if (!Array.isArray(currentInterests) || currentInterests.length === 0) {
           await loadInterestsCached();
@@ -593,12 +649,19 @@ try {
           '[FETCH TASK] watchdog heartbeat:',
           `ageSec=${ageSec} lat=${coords.latitude} lng=${coords.longitude} acc=${coords.accuracy}`
         );
-        await sendHeartbeat({
+
+        const r = await sendHeartbeatSingleFlight({
           lat: coords.latitude,
           lng: coords.longitude,
           accuracy: coords.accuracy,
           reason: 'fetch-watchdog',
         });
+
+        if (r && r.skipped) {
+          console.log(`[FETCH TASK] HB skipped: ${r.why} inFlightReason=${r.inFlightReason || 'n/a'}`);
+          return BackgroundFetch.BackgroundFetchResult.NoData;
+        }
+
         return BackgroundFetch.BackgroundFetchResult.NewData;
       }
 
@@ -613,9 +676,7 @@ try {
   // duplicate define
 }
 
-// ── BG Location Start (Tier A) ───────────────────────────────────────────────
-// expo-location uses an Android foreground service for background updates when foregroundService is provided.
-// We do our best to make it persistent; rearm happens via AppState + Fetch watchdog.
+// ── BG Location Start ─────────────────────────────────────────────────────────
 async function startBgLocation() {
   const hasStarted = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
   if (hasStarted) {
@@ -646,7 +707,7 @@ async function startBgLocation() {
   });
 }
 
-// ── Foreground Heartbeat Loop (nur wenn App aktiv) ───────────────────────────
+// ── Foreground Heartbeat Loop ────────────────────────────────────────────────
 function startHeartbeatLoop(updateState) {
   if (hbLoopTimerId) {
     console.log('[HB-Loop] already running');
@@ -673,12 +734,18 @@ function startHeartbeatLoop(updateState) {
         return;
       }
 
-      const hbResult = await sendHeartbeat({
+      const hbResult = await sendHeartbeatSingleFlight({
         lat: coords.latitude,
         lng: coords.longitude,
         accuracy: coords.accuracy,
         reason: 'fg-loop',
       });
+
+      if (hbResult && hbResult.skipped) {
+        console.log(`[HB] skip reason=fg-loop why=${hbResult.why} inFlightReason=${hbResult.inFlightReason || 'n/a'}`);
+        updateState((s) => ({ ...s, hbLoopActive: true }));
+        return;
+      }
 
       updateState((s) => ({
         ...s,
@@ -714,7 +781,7 @@ function stopHeartbeatLoop(updateState) {
   if (updateState) updateState((s) => ({ ...s, hbLoopActive: false }));
 }
 
-// ── BackgroundFetch register (Tier B) ────────────────────────────────────────
+// ── BackgroundFetch register ─────────────────────────────────────────────────
 async function ensureBackgroundFetch() {
   const registered = await TaskManager.isTaskRegisteredAsync(TASK_IDS.fetch);
   if (!registered) {
@@ -755,7 +822,6 @@ async function refreshRuntimeStatus(updateState) {
       deviceId = null;
     }
 
-    // also show interests status (useful after reboot/headless)
     let interestsLabel = 'none';
     try {
       const ints = await loadInterestsCached();
@@ -831,6 +897,32 @@ async function ensurePermissions(setState) {
 }
 
 // ── UI ──────────────────────────────────────────────────────────────────────
+const TABS = [
+  { key: 'home', label: 'Home' },
+  { key: 'offers', label: 'Angebote' },
+  { key: 'settings', label: 'Einstellungen' },
+  { key: 'diagnostics', label: 'Diagnostik' },
+];
+
+function formatAge(hbAgeSeconds) {
+  if (hbAgeSeconds == null) return '—';
+  if (hbAgeSeconds < 60) return `${hbAgeSeconds}s`;
+  return `${Math.floor(hbAgeSeconds / 60)}min ${hbAgeSeconds % 60}s`;
+}
+
+function formatTimeMaybe(d) {
+  if (!d) return '—';
+  try {
+    return new Date(d).toLocaleTimeString();
+  } catch (e) {
+    return '—';
+  }
+}
+
+function isTruthy(x) {
+  return !!x;
+}
+
 export default function App() {
   const [state, setState] = useState({
     // Onboarding
@@ -841,7 +933,7 @@ export default function App() {
     prefPharmacy: false,
     prefWater: true,
 
-    // Diagnostics
+    // Runtime / Motor
     ready: false,
     lastOkAt: null,
     lastErr: null,
@@ -861,15 +953,17 @@ export default function App() {
     bgLocationPermission: 'unknown',
     hbLoopActive: false,
 
-    // Device
+    // Identity / interests
     deviceId: null,
-
-    // Interests UI
     interestsLabel: 'none',
 
     // Debug
     debugLastAction: null,
     debugLastResult: null,
+
+    // UI
+    activeTab: 'home',
+    notifInbox: [],
   });
 
   const [hasRunInit, setHasRunInit] = useState(false);
@@ -878,7 +972,7 @@ export default function App() {
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
 
-  // Early hydration: prefs + interests from AsyncStorage (so UI & BG share same baseline)
+  // ── Boot: prefs + interests + inbox
   useEffect(() => {
     (async () => {
       try {
@@ -902,10 +996,17 @@ export default function App() {
       } catch (e) {
         // ignore
       }
+
+      try {
+        const inbox = await loadNotifInbox();
+        setState((s) => ({ ...s, notifInbox: Array.isArray(inbox) ? inbox : [] }));
+      } catch (e) {
+        // ignore
+      }
     })();
   }, []);
 
-  // interests (persist)
+  // ── Persist interests whenever prefs change
   useEffect(() => {
     const prefs = {
       prefAccommodation: state.prefAccommodation,
@@ -920,7 +1021,7 @@ export default function App() {
     })().catch(() => null);
   }, [state.prefAccommodation, state.prefFood, state.prefPharmacy, state.prefWater]);
 
-  // AppState rearm + active loop
+  // ── AppState: rearm
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (nextState) => {
       appState.current = nextState;
@@ -936,7 +1037,6 @@ export default function App() {
             // ignore
           }
 
-          // make sure interests are loaded (after reboot it might be empty until UI toggles)
           try {
             const ints = await loadInterestsCached();
             setState((s) => ({ ...s, interestsLabel: Array.isArray(ints) && ints.length ? ints.join(',') : 'none' }));
@@ -985,19 +1085,29 @@ export default function App() {
     return () => sub.remove();
   }, []);
 
-  // Notification listeners
+  // ── Notifications listeners: update lastNotification + inbox
   useEffect(() => {
     const notifSub = Notifications.addNotificationReceivedListener((notification) => {
       try {
         const content = notification && notification.request ? notification.request.content : {};
-        const info = {
+        const info = normalizeNotifItem({
           title: content.title || '',
           body: content.body || '',
           data: content.data || {},
           receivedAt: new Date().toISOString(),
-        };
+        });
+
         console.log('[Notif] received:', info);
-        setState((s) => ({ ...s, lastNotification: JSON.stringify(info) }));
+
+        setState((s) => {
+          const nextInbox = [info, ...(Array.isArray(s.notifInbox) ? s.notifInbox : [])].slice(0, 50);
+          persistNotifInbox(nextInbox).catch(() => null);
+          return {
+            ...s,
+            lastNotification: JSON.stringify(info),
+            notifInbox: nextInbox,
+          };
+        });
       } catch (e) {
         console.warn('[Notif] parse failed:', (e && e.message) || e);
       }
@@ -1020,7 +1130,7 @@ export default function App() {
     };
   }, []);
 
-  // Init after onboarding
+  // ── Init sequence after onboarding
   useEffect(() => {
     if (!state.onboardingCompleted || hasRunInit) return;
 
@@ -1029,7 +1139,6 @@ export default function App() {
         let expoToken = null;
         let fcmToken = null;
 
-        // deviceId early
         try {
           const deviceId = await resolveDeviceId();
           setState((s) => ({ ...s, deviceId }));
@@ -1037,7 +1146,6 @@ export default function App() {
           // ignore
         }
 
-        // Ensure interests loaded before any headless motor sends HBs
         try {
           const ints = await loadInterestsCached();
           setState((s) => ({ ...s, interestsLabel: Array.isArray(ints) && ints.length ? ints.join(',') : 'none' }));
@@ -1045,7 +1153,6 @@ export default function App() {
           // ignore
         }
 
-        // Expo token
         try {
           const projectId = getEasProjectIdMaybe();
           const tokenData = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
@@ -1057,7 +1164,6 @@ export default function App() {
           setState((s) => ({ ...s, lastErr: `[PushToken] ${(e && e.message) || e}` }));
         }
 
-        // FCM token
         if (Platform.OS === 'android') {
           try {
             const nativeToken = await Notifications.getDevicePushTokenAsync();
@@ -1070,7 +1176,6 @@ export default function App() {
           }
         }
 
-        // register
         try {
           const resp = await registerDevice({ expoPushToken: expoToken, fcmToken });
           console.log('[registerDevice] resp:', resp);
@@ -1080,7 +1185,6 @@ export default function App() {
           setState((s) => ({ ...s, lastErr: `[register] ${(e && e.message) || e}` }));
         }
 
-        // Start BG + FG loop if active
         if (appState.current === 'active') {
           await startBgLocation();
           startHeartbeatLoop(setState);
@@ -1117,7 +1221,7 @@ export default function App() {
     };
   }, [state.onboardingCompleted, hasRunInit]);
 
-  // Watchdog age update (UI only)
+  // ── HB age poll (UI)
   useEffect(() => {
     const id = setInterval(() => {
       if (!lastHeartbeatAtMs) return;
@@ -1132,11 +1236,12 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  // ── Onboarding handlers ────────────────────────────────────────────────────
+  // ── UI actions
   const goNextOnboardingStep = () => setState((s) => ({ ...s, onboardingStep: s.onboardingStep + 1 }));
   const goPrevOnboardingStep = () =>
     setState((s) => ({ ...s, onboardingStep: s.onboardingStep > 0 ? s.onboardingStep - 1 : 0 }));
   const togglePref = (key) => setState((s) => ({ ...s, [key]: !s[key] }));
+  const setTab = (key) => setState((s) => ({ ...s, activeTab: key }));
 
   const handleMotorStart = async () => {
     try {
@@ -1150,7 +1255,6 @@ export default function App() {
         // ignore
       }
 
-      // persist current prefs/interests explicitly (so reboot/headless has them even if user never opens again)
       try {
         await savePrefsAndInterests({
           prefAccommodation: state.prefAccommodation,
@@ -1169,16 +1273,21 @@ export default function App() {
     }
   };
 
-  // ── Actions ───────────────────────────────────────────────────────────────
   const onManualPing = async () => {
     try {
       const coords = await resolveCoordsForHeartbeat({ allowCurrentFix: true });
-      const hbResult = await sendHeartbeat({
+      const hbResult = await sendHeartbeatSingleFlight({
         lat: coords.latitude,
         lng: coords.longitude,
         accuracy: coords.accuracy,
         reason: 'manual',
       });
+
+      if (hbResult && hbResult.skipped) {
+        setState((s) => ({ ...s, lastErr: `[manual] skipped (${hbResult.why})` }));
+        return;
+      }
+
       setState((s) => ({
         ...s,
         lastOkAt: new Date(),
@@ -1223,7 +1332,6 @@ export default function App() {
       const deviceId = await resolveDeviceId();
       const coords = await resolveCoordsForHeartbeat({ allowCurrentFix: true });
 
-      // Ensure interests present for category selection too
       try {
         await loadInterestsCached();
       } catch (e) {
@@ -1320,21 +1428,19 @@ export default function App() {
     }
   };
 
-  // ── UI derived ─────────────────────────────────────────────────────────────
+  const onClearInbox = async () => {
+    setState((s) => ({ ...s, notifInbox: [] }));
+    await persistNotifInbox([]);
+  };
+
   const shortExpoToken = state.pushToken ? String(state.pushToken).slice(0, 22) + '…' : '—';
   const shortFcmToken = state.fcmToken ? String(state.fcmToken).slice(0, 22) + '…' : '—';
 
-  const hbAgeText =
-    state.hbAgeSeconds == null
-      ? '—'
-      : state.hbAgeSeconds < 60
-      ? `${state.hbAgeSeconds}s`
-      : `${Math.floor(state.hbAgeSeconds / 60)}min ${state.hbAgeSeconds % 60}s`;
+  const hbAgeText = formatAge(state.hbAgeSeconds);
 
-  let hbStatsText = '—';
-  let hbHistogramText = '—';
+  const hbStats = useMemo(() => {
+    if (hbIntervals.length <= 0) return { statsText: '—', histText: '—' };
 
-  if (hbIntervals.length > 0) {
     let sum = 0;
     let min = hbIntervals[0];
     let max = hbIntervals[0];
@@ -1345,7 +1451,7 @@ export default function App() {
       if (v > max) max = v;
     }
     const avg = sum / hbIntervals.length;
-    hbStatsText = `n=${hbIntervals.length}, min=${min}s, Ø=${avg.toFixed(1)}s, max=${max}s`;
+    const statsText = `n=${hbIntervals.length}, min=${min}s, Ø=${avg.toFixed(1)}s, max=${max}s`;
 
     const bucketDefs = [
       { label: '<30s', min: 0, max: 29 },
@@ -1367,28 +1473,44 @@ export default function App() {
       }
     }
 
-    hbHistogramText = bucketDefs.map((b, idx) => `${b.label}:${bucketCounts[idx]}`).join(' | ');
-  }
+    const histText = bucketDefs.map((b, idx) => `${b.label}:${bucketCounts[idx]}`).join(' | ');
+    return { statsText, histText };
+  }, [state.hbAgeSeconds]); // leichte Triggerung über UI-Tick, hbIntervals ist global
 
-  // ── Onboarding UI ──────────────────────────────────────────────────────────
+  const prefsSummary = useMemo(() => {
+    return [
+      state.prefAccommodation && 'Schlafplätze',
+      state.prefFood && 'Essen/Trinken',
+      state.prefPharmacy && 'Apotheken',
+      state.prefWater && 'Wasser',
+    ]
+      .filter(isTruthy)
+      .join(', ');
+  }, [state.prefAccommodation, state.prefFood, state.prefPharmacy, state.prefWater]);
+
+  // ── Onboarding UI (unverändert inhaltlich, nur Styles leicht modernisiert)
   if (!state.onboardingCompleted) {
     return (
       <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-        <Text style={styles.title}>ULTREIA – Pilger-Herzschlag</Text>
+        <Text style={styles.heroTitle}>ULTREIA</Text>
+        <Text style={styles.heroSub}>Camino Francés – Context Push</Text>
 
         {state.onboardingStep === 0 && (
           <>
-            <Text style={styles.line}>
-              Ultreia läuft wie eine Navigations-App im Hintergrund und sendet in regelmäßigen Herzschlägen deine Position
-              an unseren Server. So können wir dich genau im richtigen Moment auf Schlafplätze, Essen oder Hilfe in deiner
-              Nähe hinweisen.
-            </Text>
-            <Text style={styles.line}>
-              Wir achten auf deinen Akku:{'\n'}• schnelle Trigger bei Bewegung/“Enter”{'\n'}• weniger Aktivität, wenn du
-              still sitzt oder schläfst{'\n'}• keine Dauer-Flut – nur dann, wenn es relevant ist.
-            </Text>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Wie ULTREIA funktioniert</Text>
+              <Text style={styles.p}>
+                Ultreia läuft wie eine Navigations-App im Hintergrund und sendet in regelmäßigen Herzschlägen deine Position
+                an unseren Server. So können wir dich genau im richtigen Moment auf Schlafplätze, Essen oder Hilfe in deiner
+                Nähe hinweisen.
+              </Text>
+              <Text style={styles.p}>
+                Wir achten auf deinen Akku:{'\n'}• schnelle Trigger bei Bewegung/“Enter”{'\n'}• weniger Aktivität, wenn du
+                still sitzt oder schläfst{'\n'}• keine Dauer-Flut – nur dann, wenn es relevant ist.
+              </Text>
+            </View>
 
-            <TouchableOpacity style={styles.btn} onPress={goNextOnboardingStep}>
+            <TouchableOpacity style={styles.primaryBtn} onPress={goNextOnboardingStep}>
               <Text style={styles.btnText}>Weiter</Text>
             </TouchableOpacity>
           </>
@@ -1396,35 +1518,34 @@ export default function App() {
 
         {state.onboardingStep === 1 && (
           <>
-            <Text style={styles.line}>
-              Worauf soll Ultreia dich unterwegs aufmerksam machen? Du kannst das später jederzeit anpassen.
-            </Text>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Was ist für dich relevant?</Text>
+              <Text style={styles.p}>Du kannst das später jederzeit in den Einstellungen ändern.</Text>
 
-            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefAccommodation')}>
-              <Text style={styles.toggleText}>
-                [{state.prefAccommodation ? '✓' : ' '}] Schlafplätze (Albergues) in der Nähe
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefAccommodation')}>
+                <Text style={styles.toggleText}>
+                  [{state.prefAccommodation ? '✓' : ' '}] Schlafplätze (Albergues) in der Nähe
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefFood')}>
-              <Text style={styles.toggleText}>
-                [{state.prefFood ? '✓' : ' '}] Essen & Trinken (Menú Peregrino, Bars)
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefFood')}>
+                <Text style={styles.toggleText}>[{state.prefFood ? '✓' : ' '}] Essen & Trinken (Menú Peregrino, Bars)</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefPharmacy')}>
-              <Text style={styles.toggleText}>[{state.prefPharmacy ? '✓' : ' '}] Apotheken & medizinische Hilfe</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefPharmacy')}>
+                <Text style={styles.toggleText}>[{state.prefPharmacy ? '✓' : ' '}] Apotheken & medizinische Hilfe</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefWater')}>
-              <Text style={styles.toggleText}>[{state.prefWater ? '✓' : ' '}] Wasserstellen & Versorgungspunkte</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefWater')}>
+                <Text style={styles.toggleText}>[{state.prefWater ? '✓' : ' '}] Wasserstellen & Versorgungspunkte</Text>
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.row}>
-              <TouchableOpacity style={[styles.btnSecondary, styles.rowButton]} onPress={goPrevOnboardingStep}>
+              <TouchableOpacity style={[styles.secondaryBtn, styles.rowButton]} onPress={goPrevOnboardingStep}>
                 <Text style={styles.btnText}>Zurück</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.rowButton]} onPress={goNextOnboardingStep}>
+              <TouchableOpacity style={[styles.primaryBtn, styles.rowButton]} onPress={goNextOnboardingStep}>
                 <Text style={styles.btnText}>Weiter</Text>
               </TouchableOpacity>
             </View>
@@ -1433,16 +1554,19 @@ export default function App() {
 
         {state.onboardingStep >= 2 && (
           <>
-            <Text style={styles.line}>
-              Um dich im richtigen Moment zu erreichen, braucht Ultreia Zugriff auf Standort und Notifications. Bitte wähle
-              im Standort-Dialog idealerweise „Immer erlauben“.
-            </Text>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Berechtigungen</Text>
+              <Text style={styles.p}>
+                Um dich im richtigen Moment zu erreichen, braucht Ultreia Zugriff auf Standort und Notifications. Bitte wähle
+                im Standort-Dialog idealerweise „Immer erlauben“.
+              </Text>
+            </View>
 
-            <TouchableOpacity style={styles.btn} onPress={handleMotorStart}>
+            <TouchableOpacity style={styles.primaryBtn} onPress={handleMotorStart}>
               <Text style={styles.btnText}>Verstanden – Motor starten</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnSecondary} onPress={goPrevOnboardingStep}>
+            <TouchableOpacity style={styles.secondaryBtn} onPress={goPrevOnboardingStep}>
               <Text style={styles.btnText}>Zurück</Text>
             </TouchableOpacity>
           </>
@@ -1451,152 +1575,480 @@ export default function App() {
     );
   }
 
-  // ── Main Diagnostics UI ────────────────────────────────────────────────────
+  // ── App Shell
+  const renderTopBar = () => {
+    return (
+      <View style={styles.topBar}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.topBarTitle}>ULTREIA</Text>
+          <Text style={styles.topBarSub}>
+            {state.ready ? 'Aktiv' : 'Init…'} • HB {hbAgeText} • {state.bgLocRunning ? 'BG an' : 'BG aus'}
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.chip} onPress={onRefreshBgStatus}>
+          <Text style={styles.chipText}>Refresh</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderTabBar = () => {
+    return (
+      <View style={styles.tabBar}>
+        {TABS.map((t) => {
+          const active = state.activeTab === t.key;
+          return (
+            <TouchableOpacity
+              key={t.key}
+              style={[styles.tabBtn, active ? styles.tabBtnActive : null]}
+              onPress={() => setTab(t.key)}
+            >
+              <Text style={[styles.tabText, active ? styles.tabTextActive : null]}>{t.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
+
+  // ── Screens
+  const HomeScreen = () => {
+    const okAt = state.lastOkAt ? formatTimeMaybe(state.lastOkAt) : '—';
+    const hbAt = state.lastHeartbeatAt ? formatTimeMaybe(state.lastHeartbeatAt) : '—';
+    const interests = state.interestsLabel || 'none';
+
+    return (
+      <>
+        <View style={styles.grid}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Status</Text>
+            <Text style={styles.kv}>Bereit: <Text style={styles.kvVal}>{state.ready ? 'Ja' : 'Nein'}</Text></Text>
+            <Text style={styles.kv}>BG-Task: <Text style={styles.kvVal}>{state.bgLocRunning ? 'Läuft' : 'Aus'}</Text></Text>
+            <Text style={styles.kv}>Fetch: <Text style={styles.kvVal}>{state.fetchStatus}</Text></Text>
+            <Text style={styles.kv}>HB-Loop: <Text style={styles.kvVal}>{state.hbLoopActive ? 'Aktiv' : 'Inaktiv'}</Text></Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Heartbeat</Text>
+            <Text style={styles.kv}>Alter: <Text style={styles.kvVal}>{hbAgeText}</Text></Text>
+            <Text style={styles.kv}>Letzter OK: <Text style={styles.kvVal}>{okAt}</Text></Text>
+            <Text style={styles.kv}>Letzter HB: <Text style={styles.kvVal}>{hbAt}</Text></Text>
+            <Text style={styles.kv}>Reason: <Text style={styles.kvVal}>{state.lastHeartbeatReason || '—'}</Text></Text>
+            <Text style={styles.kv}>
+              Latenz: <Text style={styles.kvVal}>{state.lastHeartbeatLatencyMs != null ? `${state.lastHeartbeatLatencyMs} ms` : '—'}</Text>
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Dein Fokus</Text>
+          <Text style={styles.p}>Aktiv: {prefsSummary || '—'}</Text>
+
+          <View style={styles.pillRow}>
+            <TouchableOpacity style={[styles.pill, state.prefAccommodation ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefAccommodation')}>
+              <Text style={styles.pillText}>Schlaf</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.pill, state.prefFood ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefFood')}>
+              <Text style={styles.pillText}>Essen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.pill, state.prefPharmacy ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefPharmacy')}>
+              <Text style={styles.pillText}>Apotheke</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.pill, state.prefWater ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefWater')}>
+              <Text style={styles.pillText}>Wasser</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.smallMuted}>Backend-Kategorien: {interests}</Text>
+        </View>
+
+        {state.lastErr ? (
+          <View style={[styles.card, styles.cardDanger]}>
+            <Text style={styles.cardTitle}>Hinweis</Text>
+            <Text style={styles.errText}>{state.lastErr}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Aktionen</Text>
+          <View style={styles.row}>
+            <TouchableOpacity style={[styles.primaryBtn, styles.rowButton]} onPress={onManualPing}>
+              <Text style={styles.btnText}>Heartbeat senden</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.secondaryBtn, styles.rowButton]} onPress={onLocalTestNotification}>
+              <Text style={styles.btnText}>Lokaler Test</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.row}>
+            <TouchableOpacity style={[styles.secondaryBtn, styles.rowButton]} onPress={onSeedOfferHere}>
+              <Text style={styles.btnText}>Test-Offer</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.secondaryBtn, styles.rowButton]} onPress={() => setTab('offers')}>
+              <Text style={styles.btnText}>Zu Angeboten</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Letzte Notification</Text>
+          {state.notifInbox && state.notifInbox.length ? (
+            <>
+              <Text style={styles.pStrong}>{state.notifInbox[0].title || '—'}</Text>
+              <Text style={styles.p}>{state.notifInbox[0].body || '—'}</Text>
+              <Text style={styles.smallMuted}>{formatTimeMaybe(state.notifInbox[0].receivedAt)}</Text>
+            </>
+          ) : (
+            <Text style={styles.p}>Noch keine Notification empfangen.</Text>
+          )}
+        </View>
+      </>
+    );
+  };
+
+  const OffersScreen = () => {
+    const inbox = Array.isArray(state.notifInbox) ? state.notifInbox : [];
+    return (
+      <>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Angebote (Inbox)</Text>
+          <Text style={styles.p}>
+            Hier erscheinen empfangene Push-Nachrichten. Später wird daraus ein echtes Offer-Feed (mit Details/CTA).
+          </Text>
+
+          <View style={styles.row}>
+            <TouchableOpacity style={[styles.secondaryBtn, styles.rowButton]} onPress={onDebugPushFcm}>
+              <Text style={styles.btnText}>Debug Push (FCM)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.secondaryBtn, styles.rowButton]} onPress={onDebugPushExpo}>
+              <Text style={styles.btnText}>Debug Push (Expo)</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.ghostBtn} onPress={onClearInbox}>
+            <Text style={styles.ghostBtnText}>Inbox leeren</Text>
+          </TouchableOpacity>
+        </View>
+
+        {inbox.length ? (
+          inbox.map((n, idx) => {
+            const key = `${n.receivedAt || 't'}-${idx}`;
+            return (
+              <View key={key} style={styles.card}>
+                <Text style={styles.pStrong}>{n.title || '—'}</Text>
+                <Text style={styles.p}>{n.body || '—'}</Text>
+                <Text style={styles.smallMuted}>{formatTimeMaybe(n.receivedAt)}</Text>
+                {n.data && Object.keys(n.data).length ? (
+                  <View style={styles.codeBox}>
+                    <Text style={styles.codeText}>{safeJsonStringify(n.data)}</Text>
+                  </View>
+                ) : null}
+              </View>
+            );
+          })
+        ) : (
+          <View style={styles.card}>
+            <Text style={styles.p}>Keine Einträge. Sende einen Debug-Push oder warte auf reale Matches.</Text>
+          </View>
+        )}
+      </>
+    );
+  };
+
+  const SettingsScreen = () => {
+    const deviceId = state.deviceId || '—';
+    return (
+      <>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Einstellungen</Text>
+          <Text style={styles.p}>Interessen steuern, ohne den Motor zu verändern.</Text>
+
+          <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefAccommodation')}>
+            <Text style={styles.toggleText}>[{state.prefAccommodation ? '✓' : ' '}] Schlafplätze</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefFood')}>
+            <Text style={styles.toggleText}>[{state.prefFood ? '✓' : ' '}] Essen & Trinken</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefPharmacy')}>
+            <Text style={styles.toggleText}>[{state.prefPharmacy ? '✓' : ' '}] Apotheken</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefWater')}>
+            <Text style={styles.toggleText}>[{state.prefWater ? '✓' : ' '}] Wasserstellen</Text>
+          </TouchableOpacity>
+
+          <View style={styles.hr} />
+
+          <Text style={styles.smallMuted}>DeviceId</Text>
+          <Text style={styles.pStrong} numberOfLines={1}>{deviceId}</Text>
+
+          <Text style={styles.smallMuted}>API</Text>
+          <Text style={styles.p} numberOfLines={2}>{API_BASE}</Text>
+        </View>
+      </>
+    );
+  };
+
+  const DiagnosticsScreen = () => {
+    return (
+      <>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Diagnostik</Text>
+
+          <Text style={styles.kv}>Device: <Text style={styles.kvVal}>{state.deviceId || '—'}</Text></Text>
+          <Text style={styles.kv}>Interests (cache): <Text style={styles.kvVal}>{state.interestsLabel || 'none'}</Text></Text>
+          <Text style={styles.kv}>Expo Token: <Text style={styles.kvVal}>{shortExpoToken}</Text></Text>
+          <Text style={styles.kv}>FCM Token: <Text style={styles.kvVal}>{shortFcmToken}</Text></Text>
+          <Text style={styles.kv}>Device-Register: <Text style={styles.kvVal}>{state.deviceRegistered ? 'OK' : 'noch nicht'}</Text></Text>
+
+          <View style={styles.hr} />
+
+          <Text style={styles.kv}>Notif-Permission: <Text style={styles.kvVal}>{state.notifPermission}</Text></Text>
+          <Text style={styles.kv}>FG-Location: <Text style={styles.kvVal}>{state.fgLocationPermission}</Text></Text>
+          <Text style={styles.kv}>BG-Location: <Text style={styles.kvVal}>{state.bgLocationPermission}</Text></Text>
+
+          <View style={styles.hr} />
+
+          <Text style={styles.kv}>HB-Intervall Stats: <Text style={styles.kvVal}>{hbStats.statsText}</Text></Text>
+          <Text style={styles.kv}>HB-Histogramm: <Text style={styles.kvVal}>{hbStats.histText}</Text></Text>
+
+          {state.lastErr ? (
+            <View style={[styles.cardInner, styles.cardDangerInner]}>
+              <Text style={styles.pStrong}>Fehler</Text>
+              <Text style={styles.errText}>{state.lastErr}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        {state.debugLastAction || state.debugLastResult ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Debug</Text>
+            <Text style={styles.kv}>Aktion: <Text style={styles.kvVal}>{state.debugLastAction || '—'}</Text></Text>
+            <View style={styles.codeBox}>
+              <Text style={styles.codeText}>{state.debugLastResult ? state.debugLastResult : '—'}</Text>
+            </View>
+          </View>
+        ) : null}
+
+        {state.lastResp ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Letzte Server-Response</Text>
+            <View style={styles.codeBox}>
+              <Text style={styles.codeText}>{safeJsonStringify(state.lastResp)}</Text>
+            </View>
+          </View>
+        ) : null}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Test-Aktionen</Text>
+
+          <TouchableOpacity style={styles.primaryBtn} onPress={onManualPing}>
+            <Text style={styles.btnText}>Jetzt Heartbeat senden</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.secondaryBtn} onPress={onSeedOfferHere}>
+            <Text style={styles.btnText}>Test-Offer hier erstellen</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.secondaryBtn} onPress={onDebugPushFcm}>
+            <Text style={styles.btnText}>Debug Push (FCM)</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.secondaryBtn} onPress={onDebugPushExpo}>
+            <Text style={styles.btnText}>Debug Push (Expo)</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.secondaryBtn} onPress={onLocalTestNotification}>
+            <Text style={styles.btnText}>Lokale Test-Notification</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Hinweise</Text>
+          <Text style={styles.p}>
+            • Android kann BG-Updates dichter als 60s liefern → Dedupe mit HB_MIN_GAP_SECONDS (~55s).{'\n'}
+            • Single-flight verhindert Doppel-Trigger (interval=0s).{'\n'}
+            • Tier A: expo-location + ForegroundService Notification.{'\n'}
+            • Tier B: BackgroundFetch Watchdog (rearm + stale HB).{'\n'}
+            • Tier C: Booster bei Movement-Bursts (rate-limited).{'\n'}
+            • Interests werden in AsyncStorage persistiert (Headless-sicher nach Reboot).
+          </Text>
+        </View>
+      </>
+    );
+  };
+
+  const renderScreen = () => {
+    if (state.activeTab === 'offers') return <OffersScreen />;
+    if (state.activeTab === 'settings') return <SettingsScreen />;
+    if (state.activeTab === 'diagnostics') return <DiagnosticsScreen />;
+    return <HomeScreen />;
+  };
+
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>ULTREIA – Heartbeat + Push MVP</Text>
+    <View style={styles.shell}>
+      {renderTopBar()}
+      {renderTabBar()}
 
-      <Text style={styles.line}>API_BASE: {API_BASE}</Text>
-      <Text style={styles.line}>Device: {state.deviceId || '—'}</Text>
-      <Text style={styles.line}>Interests (cache): {state.interestsLabel || 'none'}</Text>
-      <Text style={styles.line}>Expo PushToken: {shortExpoToken}</Text>
-      <Text style={styles.line}>FCM-Token: {shortFcmToken}</Text>
-      <Text style={styles.line}>Device-Register: {state.deviceRegistered ? 'OK' : 'noch nicht'}</Text>
-
-      <Text style={styles.line}>Status: {state.ready ? 'Bereit' : 'Init…'}</Text>
-      <Text style={styles.line}>BG-Task laufend (OS): {state.bgLocRunning ? 'ja' : 'nein'}</Text>
-      <Text style={styles.line}>BackgroundFetch-Status: {state.fetchStatus}</Text>
-      <Text style={styles.line}>HB-Loop aktiv (Timer): {state.hbLoopActive ? 'ja' : 'nein'}</Text>
-
-      <Text style={styles.line}>Letzter OK: {state.lastOkAt ? new Date(state.lastOkAt).toLocaleTimeString() : '—'}</Text>
-      <Text style={styles.line}>Letzter HB-Reason: {state.lastHeartbeatReason || '—'}</Text>
-      <Text style={styles.line}>
-        Letzte HB-Latenz: {state.lastHeartbeatLatencyMs != null ? `${state.lastHeartbeatLatencyMs} ms` : '—'}
-      </Text>
-      <Text style={styles.line}>
-        Letzter HB-Zeitpunkt: {state.lastHeartbeatAt ? new Date(state.lastHeartbeatAt).toLocaleTimeString() : '—'}
-      </Text>
-      <Text style={styles.line}>HB-Alter: {hbAgeText}</Text>
-      <Text style={styles.line}>HB-Intervall (letzte HBs): {hbStatsText}</Text>
-      <Text style={styles.line}>HB-Histogramm: {hbHistogramText}</Text>
-
-      <Text style={styles.line}>Notif-Permission: {state.notifPermission}</Text>
-      <Text style={styles.line}>FG-Location-Permission: {state.fgLocationPermission}</Text>
-      <Text style={styles.line}>BG-Location-Permission: {state.bgLocationPermission}</Text>
-
-      <Text style={styles.line}>
-        Pilger-Präferenzen:{' '}
-        {[
-          state.prefAccommodation && 'Schlafplätze',
-          state.prefFood && 'Essen/Trinken',
-          state.prefPharmacy && 'Apotheken',
-          state.prefWater && 'Wasser',
-        ]
-          .filter(Boolean)
-          .join(', ') || '—'}
-      </Text>
-
-      {state.lastNotification ? (
-        <View style={styles.notifBox}>
-          <Text style={styles.notifTitle}>Letzte Notification:</Text>
-          <Text style={styles.notifText}>{state.lastNotification}</Text>
-        </View>
-      ) : (
-        <Text style={styles.line}>Letzte Notification: —</Text>
-      )}
-
-      {state.debugLastAction || state.debugLastResult ? (
-        <View style={styles.notifBox}>
-          <Text style={styles.notifTitle}>Debug:</Text>
-          <Text style={styles.notifText}>Aktion: {state.debugLastAction || '—'}</Text>
-          <Text style={styles.notifText}>Ergebnis: {state.debugLastResult ? state.debugLastResult : '—'}</Text>
-        </View>
-      ) : null}
-
-      {state.lastResp ? (
-        <View style={styles.notifBox}>
-          <Text style={styles.notifTitle}>Letzte Server-Response:</Text>
-          <Text style={styles.notifText}>{safeJsonStringify(state.lastResp)}</Text>
-        </View>
-      ) : null}
-
-      {state.lastErr ? <Text style={styles.err}>Fehler: {state.lastErr}</Text> : null}
-
-      <TouchableOpacity style={styles.btn} onPress={onManualPing}>
-        <Text style={styles.btnText}>Jetzt Heartbeat senden</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.btnSecondary} onPress={onSeedOfferHere}>
-        <Text style={styles.btnText}>Test-Offer hier erstellen</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.btnSecondary} onPress={onDebugPushFcm}>
-        <Text style={styles.btnText}>Debug Push (FCM)</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.btnSecondary} onPress={onDebugPushExpo}>
-        <Text style={styles.btnText}>Debug Push (Expo)</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.btnSecondary} onPress={onLocalTestNotification}>
-        <Text style={styles.btnText}>Lokale Test-Notification</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.btnSecondary} onPress={onRefreshBgStatus}>
-        <Text style={styles.btnText}>BG-Status aktualisieren</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.hint}>
-        Hinweis:{'\n'}• Android kann BG-Updates dichter als 60s liefern → wir dedupen mit HB_MIN_GAP_SECONDS (~55s).
-        {'\n'}• Tier A: expo-location + ForegroundService Notification.{'\n'}• Tier B: BackgroundFetch Watchdog (rearm +
-        stale HB).{'\n'}• Tier C: Booster bei Movement-Bursts (rate-limited).{'\n'}• Interests werden in AsyncStorage
-        persistiert, damit sie nach Reboot im Headless-Kontext verfügbar sind.{'\n'}• Debug: benötigt Backend-Endpunkte
-        /api/debug/seed-offer, /api/debug/push-fcm, /api/debug/push-expo.
-      </Text>
-    </ScrollView>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.screen}>
+        {renderScreen()}
+      </ScrollView>
+    </View>
   );
 }
 
 // ── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
+  shell: { flex: 1, backgroundColor: '#0b0b0c' },
   scroll: { flex: 1, backgroundColor: '#0b0b0c' },
+
   container: {
     flexGrow: 1,
     backgroundColor: '#0b0b0c',
     paddingHorizontal: 16,
-    paddingTop: 60,
+    paddingTop: 56,
     paddingBottom: 40,
   },
-  title: { color: '#fff', fontSize: 20, fontWeight: '700', marginBottom: 18 },
-  line: { color: '#cfcfcf', marginBottom: 8 },
-  err: { color: '#ff6b6b', marginVertical: 8 },
-  btn: {
-    marginTop: 18,
-    backgroundColor: '#3b5ccc',
-    paddingVertical: 14,
-    borderRadius: 10,
+
+  screen: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 40,
+  },
+
+  heroTitle: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 6, letterSpacing: 0.4 },
+  heroSub: { color: '#9aa0a6', marginBottom: 18 },
+
+  topBar: {
+    paddingTop: 44,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1c1d21',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0b0b0c',
+  },
+  topBarTitle: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  topBarSub: { color: '#9aa0a6', fontSize: 12, marginTop: 2 },
+
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: '#1b1c1f',
+    borderWidth: 1,
+    borderColor: '#2a2b31',
+  },
+  chipText: { color: '#cfcfcf', fontWeight: '700', fontSize: 12 },
+
+  tabBar: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: '#0b0b0c',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1c1d21',
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 6,
+    borderRadius: 12,
+    backgroundColor: '#121317',
+    borderWidth: 1,
+    borderColor: '#1c1d21',
     alignItems: 'center',
   },
-  btnSecondary: {
+  tabBtnActive: {
+    backgroundColor: '#1b1c1f',
+    borderColor: '#2a2b31',
+  },
+  tabText: { color: '#9aa0a6', fontWeight: '700', fontSize: 12 },
+  tabTextActive: { color: '#ffffff' },
+
+  grid: { flexDirection: 'row', gap: 10 },
+  card: {
+    backgroundColor: '#121317',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#1c1d21',
+    marginBottom: 12,
+    flex: 1,
+  },
+  cardInner: {
+    marginTop: 10,
+    backgroundColor: '#0f1013',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#1c1d21',
+  },
+  cardDanger: { borderColor: '#3a1f24' },
+  cardDangerInner: { borderColor: '#3a1f24' },
+  cardTitle: { color: '#fff', fontWeight: '800', marginBottom: 8, fontSize: 14 },
+  p: { color: '#cfcfcf', lineHeight: 20 },
+  pStrong: { color: '#ffffff', fontWeight: '800', marginBottom: 6 },
+  smallMuted: { color: '#9aa0a6', marginTop: 10, fontSize: 12 },
+
+  kv: { color: '#cfcfcf', marginBottom: 6 },
+  kvVal: { color: '#ffffff', fontWeight: '700' },
+
+  errText: { color: '#ff6b6b', lineHeight: 20 },
+
+  primaryBtn: {
+    marginTop: 12,
+    backgroundColor: '#3b5ccc',
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+  secondaryBtn: {
     marginTop: 12,
     backgroundColor: '#2f8f6b',
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: 14,
     alignItems: 'center',
   },
-  btnText: { color: '#fff', fontWeight: '700' },
-  hint: { color: '#9aa0a6', marginTop: 16, lineHeight: 20 },
-  notifBox: {
-    marginTop: 10,
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: '#1b1c1f',
+  ghostBtn: {
+    marginTop: 12,
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2a2b31',
   },
-  notifTitle: { color: '#ffffff', fontWeight: '600', marginBottom: 4 },
-  notifText: { color: '#cfcfcf', fontSize: 12 },
+  ghostBtnText: { color: '#cfcfcf', fontWeight: '800' },
+  btnText: { color: '#fff', fontWeight: '800' },
+
   toggleRow: { marginTop: 10, paddingVertical: 10 },
   toggleText: { color: '#cfcfcf' },
-  row: { flexDirection: 'row', marginTop: 18 },
-  rowButton: { flex: 1, marginHorizontal: 4 },
+
+  pillRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 10 },
+  pill: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#2a2b31',
+  },
+  pillOn: { backgroundColor: '#1b1c1f' },
+  pillOff: { backgroundColor: '#0f1013' },
+  pillText: { color: '#ffffff', fontWeight: '800', fontSize: 12 },
+
+  row: { flexDirection: 'row', marginTop: 10, gap: 10 },
+  rowButton: { flex: 1 },
+
+  hr: { height: 1, backgroundColor: '#1c1d21', marginVertical: 12 },
+
+  codeBox: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: '#0f1013',
+    borderWidth: 1,
+    borderColor: '#1c1d21',
+  },
+  codeText: { color: '#cfcfcf', fontSize: 12 },
 });
