@@ -1,0 +1,5739 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+backend/package.json
+backend/src/models/Offer.js
+backend/src/routes/offers.js
+backend/src/server.js
+frontend_backup_2025-12-05/.gitignore
+frontend_backup_2025-12-05/eslint.config.js
+frontend_backup_2025-12-05/frontend.zip
+frontend_backup_2025-12-05/index.html
+frontend_backup_2025-12-05/package.json
+frontend_backup_2025-12-05/public/vite.svg
+frontend_backup_2025-12-05/README.md
+frontend_backup_2025-12-05/src/App.css
+frontend_backup_2025-12-05/src/App.jsx
+frontend_backup_2025-12-05/src/assets/react.svg
+frontend_backup_2025-12-05/src/index.css
+frontend_backup_2025-12-05/src/main.jsx
+frontend_backup_2025-12-05/vite.config.js
+frontend/.gitignore
+frontend/eslint.config.js
+frontend/index.html
+frontend/package.json
+frontend/public/vite.svg
+frontend/README.md
+frontend/src/App.css
+frontend/src/App.jsx
+frontend/src/assets/react.svg
+frontend/src/index.css
+frontend/src/locales/de.json
+frontend/src/locales/en.json
+frontend/src/locales/es.json
+frontend/src/main.jsx
+frontend/vite.config.js
+mobile/android/.gitignore
+mobile/android/app/build.gradle
+mobile/android/app/proguard-rules.pro
+mobile/android/app/src/debug/AndroidManifest.xml
+mobile/android/app/src/debugOptimized/AndroidManifest.xml
+mobile/android/app/src/main/AndroidManifest.xml
+mobile/android/app/src/main/java/com/ecily/ultreia/heartbeat/HeartbeatService.kt
+mobile/android/app/src/main/java/com/ecily/ultreia/MainActivity.kt
+mobile/android/app/src/main/java/com/ecily/ultreia/MainApplication.kt
+mobile/android/app/src/main/res/drawable-hdpi/splashscreen_logo.png
+mobile/android/app/src/main/res/drawable-mdpi/splashscreen_logo.png
+mobile/android/app/src/main/res/drawable-xhdpi/splashscreen_logo.png
+mobile/android/app/src/main/res/drawable-xxhdpi/splashscreen_logo.png
+mobile/android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png
+mobile/android/app/src/main/res/drawable/ic_launcher_background.xml
+mobile/android/app/src/main/res/drawable/rn_edit_text_material.xml
+mobile/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+mobile/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp
+mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp
+mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher.webp
+mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.webp
+mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp
+mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher.webp
+mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.webp
+mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp
+mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp
+mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.webp
+mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp
+mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp
+mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp
+mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp
+mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp
+mobile/android/app/src/main/res/values-night/colors.xml
+mobile/android/app/src/main/res/values/colors.xml
+mobile/android/app/src/main/res/values/strings.xml
+mobile/android/app/src/main/res/values/styles.xml
+mobile/android/build.gradle
+mobile/android/gradle.properties
+mobile/android/gradle/wrapper/gradle-wrapper.jar
+mobile/android/gradle/wrapper/gradle-wrapper.properties
+mobile/android/gradlew
+mobile/android/gradlew.bat
+mobile/android/settings.gradle
+mobile/App.js
+mobile/app.json
+mobile/assets/adaptive-icon.png
+mobile/assets/favicon.png
+mobile/assets/icon.png
+mobile/assets/splash-icon.png
+mobile/eas.json
+mobile/index.js
+mobile/package.json
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+cat > .gitignore << 'EOF'
+# Node / JavaScript
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+*.tmp
+*.gz
+
+# Env & Secrets
+.env
+*.env
+secrets/
+*.pem
+*.key
+*.crt
+*.p12
+*.der
+*.jks
+*.keystore
+*.pfx
+
+# Expo / React Native / Metro
+.expo/
+.expo-shared/
+dist/
+web-build/
+.packager
+.bundle
+.haste-map-*
+metro-cache/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# Android
+mobile/android/.gradle/
+mobile/android/.idea/
+mobile/android/local.properties
+mobile/android/**/build/
+mobile/android/app/*.apk
+mobile/android/app/*.aab
+mobile/android/app/debug/
+mobile/android/app/release/
+
+# iOS (falls später hinzugefügt)
+mobile/ios/build/
+mobile/ios/DerivedData/
+mobile/ios/Pods/
+
+# OS-Junk
+.DS_Store
+Thumbs.db
+
+# Firebase Config (sensibel)
+mobile/google-services.json
+mobile/android/app/google-services.json
+firebase/
+EOF
+firebase/
+mobile_old/
+</file>
+
+<file path="backend/src/models/Offer.js">
+// C:/ultreia/backend/src/models/Offer.js
+// ULTREIA – Offer Model (mit Kategorie, aber noch ohne Heartbeat-Filterung)
+
+const mongoose = require('mongoose');
+
+const offerSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    body: { type: String },
+
+    // Kategorie des Offers, z. B.:
+    // 'albergue', 'hostel', 'restaurant', 'bar', 'supermarket', 'pharmacy', 'water', 'help', ...
+    // Vorerst als freies String-Feld, später können wir ein Enum daraus machen.
+    category: {
+      type: String,
+      default: 'other',
+    },
+
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+
+    radiusMeters: { type: Number, default: 200 },
+
+    validFrom: { type: Date, default: () => new Date() },
+    validUntil: { type: Date, required: true },
+
+    active: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+// Geo-Index für $near-Queries
+offerSchema.index({ location: '2dsphere' });
+// Aktiv + Zeitraum
+offerSchema.index({ active: 1, validFrom: 1, validUntil: 1 });
+// Kategorie + aktiv (für spätere Kategorie-Filter)
+offerSchema.index({ category: 1, active: 1 });
+
+const Offer =
+  mongoose.models.Offer || mongoose.model('Offer', offerSchema);
+
+module.exports = Offer;
+</file>
+
+<file path="backend/src/routes/offers.js">
+// C:/ultreia/backend/src/routes/offers.js
+// ULTREIA – Offer CRUD Routes (für Admin-Frontend)
+
+const express = require('express');
+const mongoose = require('mongoose');
+const Offer = require('../models/Offer');
+
+const router = express.Router();
+
+/**
+ * Hilfsfunktionen
+ */
+
+function toNumber(value, fallback = undefined) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function toBoolean(value, fallback = undefined) {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (v === 'true' || v === '1' || v === 'yes') return true;
+    if (v === 'false' || v === '0' || v === 'no') return false;
+  }
+  return fallback;
+}
+
+// DTO-Mapper: DB → API-Response
+function mapOffer(o) {
+  const coords = Array.isArray(o.location?.coordinates)
+    ? o.location.coordinates
+    : [undefined, undefined];
+
+  const lng = coords[0];
+  const lat = coords[1];
+
+  return {
+    id: o._id.toString(),
+    title: o.title,
+    body: o.body || '',
+    category: o.category || 'other',
+    lat,
+    lng,
+    radiusMeters: o.radiusMeters,
+    validFrom: o.validFrom,
+    validUntil: o.validUntil,
+    active: o.active,
+    createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
+  };
+}
+
+/**
+ * GET /api/offers
+ * Optional Query-Parameter:
+ *  - active: true/false
+ *  - category: string
+ */
+router.get('/', async (req, res, next) => {
+  try {
+    const filter = {};
+
+    const active = toBoolean(req.query.active, undefined);
+    if (typeof active === 'boolean') {
+      filter.active = active;
+    }
+
+    if (typeof req.query.category === 'string' && req.query.category.trim() !== '') {
+      filter.category = req.query.category.trim().toLowerCase();
+    }
+
+    const offers = await Offer.find(filter).sort({ createdAt: -1 }).lean();
+
+    return res.json({
+      ok: true,
+      count: offers.length,
+      offers: offers.map(mapOffer),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * GET /api/offers/:id
+ */
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ ok: false, error: 'invalid id' });
+    }
+
+    const offer = await Offer.findById(id).lean();
+    if (!offer) {
+      return res.status(404).json({ ok: false, error: 'offer not found' });
+    }
+
+    return res.json({
+      ok: true,
+      offer: mapOffer(offer),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * POST /api/offers
+ * Erwartet im Body (JSON):
+ *  - title: string (required)
+ *  - body: string (optional)
+ *  - category: string (optional, default 'other')
+ *  - lat: number (required)
+ *  - lng: number (required)
+ *  - radiusMeters: number (optional, default 200)
+ *  - validFrom: ISO-String (optional, default jetzt)
+ *  - validUntil: ISO-String (required)
+ *  - active: boolean (optional, default true)
+ */
+router.post('/', async (req, res, next) => {
+  try {
+    const {
+      title,
+      body,
+      category,
+      lat,
+      lng,
+      radiusMeters,
+      validFrom,
+      validUntil,
+      active,
+    } = req.body || {};
+
+    if (!title || typeof title !== 'string') {
+      return res.status(400).json({ ok: false, error: 'title (string) required' });
+    }
+
+    const nlat = toNumber(lat);
+    const nlng = toNumber(lng);
+    if (!Number.isFinite(nlat) || !Number.isFinite(nlng)) {
+      return res.status(400).json({ ok: false, error: 'lat/lng (number) required' });
+    }
+
+    const nRadius = toNumber(radiusMeters, 200);
+    if (!Number.isFinite(nRadius) || nRadius <= 0) {
+      return res.status(400).json({ ok: false, error: 'radiusMeters must be > 0' });
+    }
+
+    let vFrom = validFrom ? new Date(validFrom) : new Date();
+    if (Number.isNaN(vFrom.getTime())) {
+      vFrom = new Date();
+    }
+
+    if (!validUntil) {
+      return res.status(400).json({ ok: false, error: 'validUntil (ISO date) required' });
+    }
+    let vUntil = new Date(validUntil);
+    if (Number.isNaN(vUntil.getTime())) {
+      return res
+        .status(400)
+        .json({ ok: false, error: 'validUntil must be a valid ISO date' });
+    }
+
+    const isActive = typeof active === 'boolean' ? active : true;
+
+    const doc = await Offer.create({
+      title: title.trim(),
+      body: typeof body === 'string' ? body.trim() : undefined,
+      category: typeof category === 'string' ? category.trim().toLowerCase() : 'other',
+      location: {
+        type: 'Point',
+        coordinates: [nlng, nlat],
+      },
+      radiusMeters: nRadius,
+      validFrom: vFrom,
+      validUntil: vUntil,
+      active: isActive,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      offer: mapOffer(doc),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * PUT /api/offers/:id
+ * Gleiche Felder wie POST, alle optional außer id.
+ */
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ ok: false, error: 'invalid id' });
+    }
+
+    const {
+      title,
+      body,
+      category,
+      lat,
+      lng,
+      radiusMeters,
+      validFrom,
+      validUntil,
+      active,
+    } = req.body || {};
+
+    const update = {};
+
+    if (title !== undefined) {
+      if (!title || typeof title !== 'string') {
+        return res.status(400).json({ ok: false, error: 'title must be non-empty string' });
+      }
+      update.title = title.trim();
+    }
+
+    if (body !== undefined) {
+      if (body === null || body === '') {
+        update.body = undefined;
+      } else if (typeof body === 'string') {
+        update.body = body.trim();
+      }
+    }
+
+    if (category !== undefined) {
+      if (typeof category !== 'string' || category.trim() === '') {
+        update.category = 'other';
+      } else {
+        update.category = category.trim().toLowerCase();
+      }
+    }
+
+    const nlat = toNumber(lat, null);
+    const nlng = toNumber(lng, null);
+    if (nlat !== null || nlng !== null) {
+      if (!Number.isFinite(nlat) || !Number.isFinite(nlng)) {
+        return res.status(400).json({ ok: false, error: 'lat/lng must be numbers' });
+      }
+      update.location = {
+        type: 'Point',
+        coordinates: [nlng, nlat],
+      };
+    }
+
+    const nRadius = toNumber(radiusMeters, null);
+    if (nRadius !== null) {
+      if (!Number.isFinite(nRadius) || nRadius <= 0) {
+        return res.status(400).json({ ok: false, error: 'radiusMeters must be > 0' });
+      }
+      update.radiusMeters = nRadius;
+    }
+
+    if (validFrom !== undefined) {
+      if (!validFrom) {
+        update.validFrom = new Date();
+      } else {
+        const vFrom = new Date(validFrom);
+        if (Number.isNaN(vFrom.getTime())) {
+          return res
+            .status(400)
+            .json({ ok: false, error: 'validFrom must be a valid ISO date' });
+        }
+        update.validFrom = vFrom;
+      }
+    }
+
+    if (validUntil !== undefined) {
+      if (!validUntil) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'validUntil must be a valid ISO date' });
+      }
+      const vUntil = new Date(validUntil);
+      if (Number.isNaN(vUntil.getTime())) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'validUntil must be a valid ISO date' });
+      }
+      update.validUntil = vUntil;
+    }
+
+    if (active !== undefined) {
+      const isActive = toBoolean(active, null);
+      if (isActive === null) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'active must be boolean or "true"/"false"' });
+      }
+      update.active = isActive;
+    }
+
+    const doc = await Offer.findByIdAndUpdate(
+      id,
+      { $set: update },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!doc) {
+      return res.status(404).json({ ok: false, error: 'offer not found' });
+    }
+
+    return res.json({
+      ok: true,
+      offer: mapOffer(doc),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * DELETE /api/offers/:id
+ * (MVP: hard delete – später evtl. soft delete / archive)
+ */
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ ok: false, error: 'invalid id' });
+    }
+
+    const result = await Offer.findByIdAndDelete(id).lean();
+    if (!result) {
+      return res.status(404).json({ ok: false, error: 'offer not found' });
+    }
+
+    return res.json({
+      ok: true,
+      deletedId: id,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+module.exports = router;
+</file>
+
+<file path="frontend_backup_2025-12-05/.gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="frontend_backup_2025-12-05/eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+</file>
+
+<file path="frontend_backup_2025-12-05/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="frontend_backup_2025-12-05/package.json">
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "vite": "^7.1.7"
+  }
+}
+</file>
+
+<file path="frontend_backup_2025-12-05/public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="frontend_backup_2025-12-05/README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="frontend_backup_2025-12-05/src/App.css">
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+</file>
+
+<file path="frontend_backup_2025-12-05/src/App.jsx">
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <>
+      <div>
+        <a href="https://vite.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
+}
+
+export default App
+</file>
+
+<file path="frontend_backup_2025-12-05/src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="frontend_backup_2025-12-05/src/index.css">
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+</file>
+
+<file path="frontend_backup_2025-12-05/src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+</file>
+
+<file path="frontend_backup_2025-12-05/vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+<file path="frontend/.gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="frontend/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="frontend/public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="frontend/README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="frontend/src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="frontend/src/index.css">
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+</file>
+
+<file path="frontend/src/locales/de.json">
+{
+  "lang.label.de": "DE",
+  "lang.label.en": "EN",
+  "lang.label.es": "ES",
+  "lang.aria": "Sprache wählen",
+  "brand.name": "ULTREIA Camino",
+  "brand.tagline": "Digitale Herzschläge für den Jakobsweg.",
+  "nav.ariaMain": "Hauptnavigation",
+  "nav.pilgrims": "Für Pilger:innen",
+  "nav.providers": "Für Anbieter",
+  "nav.howItWorks": "So funktioniert es",
+  "hero.badge": "Camino Francés · Pilotphase",
+  "hero.title.line1": "Gelber Pfeil. Blaues Band.",
+  "hero.title.line2": "Ein smarter Motor für deinen Camino.",
+  "hero.subtitle": "Ultreia verbindet Pilger:innen und Anbieter entlang des Camino Francés – mit verlässlichen Hintergrund-Herzschlägen und Hinweisen genau dann, wenn du an Herbergen, Bars oder Hilfe vorbeikommst.",
+  "hero.cta.primary": "Ich bin auf dem Weg",
+  "hero.cta.secondary": "Ich biete etwas am Camino an",
+  "meta.path": "Strecke",
+  "meta.path.value": "Saint-Jean-Pied-de-Port → Santiago de Compostela",
+  "meta.mode": "Fokus",
+  "meta.mode.value": "Zu Fuß · allein oder in der Gruppe",
+  "meta.status": "Status",
+  "meta.status.value": "MVP · Technologie wird im Feld getestet",
+  "hero.card.pilgrimLabel": "Unterwegs als Pilger:in",
+  "hero.card.pilgrimTitle": "Du gehst. Ultreia spürt, wann es wichtig ist.",
+  "hero.card.pilgrimPoint1": "Sensible Herzschläge im Hintergrund statt Dauer-Tracking.",
+  "hero.card.pilgrimPoint2": "Hinweise auf Schlafplätze, Essen, Wasser oder Hilfe in deiner Nähe.",
+  "hero.card.pilgrimPoint3": "Respekt vor Akku, Privatsphäre und deinem eigenen Rhythmus.",
+  "hero.card.pilgrimChip": "Für echte Pilgerwege gebaut",
+  "hero.card.providerLabel": "Anbieter am Camino",
+  "hero.card.providerTitle": "Sichtbar werden, wenn Pilger:innen wirklich vorbeikommen.",
+  "hero.card.providerPoint1": "Zeige deine Albergue, Bar, Apotheke oder dein Angebot genau im passenden Radius.",
+  "hero.card.providerPoint2": "Ohne App-Stress: Angebot einmal anlegen, Ultreia kümmert sich um den Rest.",
+  "hero.card.providerChip": "Fair für kleine Betriebe",
+  "hero.path.label": "Camino Francés – typische Tagesetappen, Dörfer, Abzweigungen",
+  "section.pilgrims.title": "Für Pilger:innen",
+  "section.pilgrins.title": "Für Pilger:innen",
+  "section.pilgrims.text": "Du bist mit Rucksack und Muschel unterwegs. Ultreia will dein stiller Begleiter sein: präsent, wenn du ihn brauchst, unsichtbar, wenn du nur gehen möchtest.",
+  "section.pilgrims.point1": "Finde Herbergen, Essen, Wasser oder Hilfe, wenn du in den Radius kommst – nicht in einem überladenen Karten-Dschungel.",
+  "section.pilgrims.point2": "Steuere selbst, welche Kategorien dich interessieren: Schlafen, Essen, Apotheken, Wasserstellen und mehr.",
+  "section.pilgrims.point3": "Die Technologie achtet auf Akku und OS-Regeln – damit dein Smartphone den ganzen Tag mitkommt.",
+  "section.providers.title": "Für Anbieter:innen am Camino",
+  "section.providers.text": "Du betreibst eine Albergue, ein kleines Restaurant, einen Kiosk oder bietest Hilfe für Pilger:innen an? Ultreia macht dich sichtbar, wenn es zählt.",
+  "section.providers.point1": "Lege dein Angebot mit Standort, Kategorie, Radius und Zeiten an – passend zum Camino Francés.",
+  "section.providers.point2": "Pilger:innen sehen eine Benachrichtigung, wenn sie wirklich in der Nähe sind – nicht Tage vorher.",
+  "section.providers.point3": "Konzentriere dich auf deine Gäste vor Ort, nicht auf Social-Media-Algorithmen.",
+  "section.how.title": "Wie Ultreia funktioniert",
+  "section.how.text": "Unter der Haube läuft eine spezialisierte Hintergrund-Technologie: Herzschläge vom Smartphone zur Ultreia-Plattform, Geofences entlang des Camino und faire Regeln für Benachrichtigungen.",
+  "section.how.step1.title": "1 · Herzschläge im Hintergrund",
+  "section.how.step1.text": "Die App sendet regelmäßig einen kurzen Standort-Herzschlag – optimiert für Gehen, nicht für Autobahnen. Wenn du ruhst, wird der Takt automatisch ruhiger.",
+  "section.how.step2.title": "2 · Angebote im Radius",
+  "section.how.step2.text": "Entlang des Camino legen Anbieter ihre Angebote mit Kategorie und Radius an. Ultreia prüft jeden Herzschlag gegen diese Zonen.",
+  "section.how.step3.title": "3 · Hinweise im richtigen Moment",
+  "section.how.step3.text": "Triffst du auf eine relevante Zone, erhältst du eine dezente Benachrichtigung – nicht fünf auf einmal, sondern kuratiert und geordnet nach deinen Interessen.",
+  "footer.madeForCamino": "Entwickelt für Pilger:innen und Gastgeber entlang des Camino Francés"
+}
+</file>
+
+<file path="frontend/src/locales/en.json">
+{
+  "lang.label.de": "DE",
+  "lang.label.en": "EN",
+  "lang.label.es": "ES",
+  "lang.aria": "Select language",
+  "brand.name": "ULTREIA Camino",
+  "brand.tagline": "Digital heartbeats for the Camino.",
+  "nav.ariaMain": "Main navigation",
+  "nav.pilgrims": "For pilgrims",
+  "nav.providers": "For hosts & businesses",
+  "nav.howItWorks": "How it works",
+  "hero.badge": "Camino Francés · Pilot",
+  "hero.title.line1": "Yellow arrows. Blue horizon.",
+  "hero.title.line2": "A smart engine for your Camino.",
+  "hero.subtitle": "Ultreia connects pilgrims and local hosts along the Camino Francés – with reliable background heartbeats and gentle nudges exactly when you pass places to sleep, eat or get help.",
+  "hero.cta.primary": "I am walking the Camino",
+  "hero.cta.secondary": "I offer something along the route",
+  "meta.path": "Route",
+  "meta.path.value": "Saint-Jean-Pied-de-Port → Santiago de Compostela",
+  "meta.mode": "Focus",
+  "meta.mode.value": "Walking · solo or in a group",
+  "meta.status": "Status",
+  "meta.status.value": "MVP · technology under real-world testing",
+  "hero.card.pilgrimLabel": "Walking as a pilgrim",
+  "hero.card.pilgrimTitle": "You walk. Ultreia senses when it matters.",
+  "hero.card.pilgrimPoint1": "Gentle background heartbeats instead of constant tracking.",
+  "hero.card.pilgrimPoint2": "Hints for nearby beds, food, water or help when you are actually close.",
+  "hero.card.pilgrimPoint3": "Respect for battery, privacy and your own rhythm.",
+  "hero.card.pilgrimChip": "Built for real pilgrim paths",
+  "hero.card.providerLabel": "Hosts & businesses",
+  "hero.card.providerTitle": "Be seen when pilgrims truly pass by.",
+  "hero.card.providerPoint1": "Show your albergue, bar, pharmacy or service with the right radius.",
+  "hero.card.providerPoint2": "No app hassle: create your offer once, Ultreia handles the timing.",
+  "hero.card.providerChip": "Fair for small places",
+  "hero.path.label": "Camino Francés – typical stages, villages, crossings",
+  "section.pilgrims.title": "For pilgrims",
+  "section.pilgrins.title": "For pilgrims",
+  "section.pilgrims.text": "You carry a backpack and a shell. Ultreia aims to be your quiet companion: present when you need it, invisible when you just want to walk.",
+  "section.pilgrims.point1": "Find beds, food, water or help when you enter the radius – not in a noisy map jungle.",
+  "section.pilgrims.point2": "Control which categories matter to you: sleeping, food, pharmacies, water points and more.",
+  "section.pilgrims.point3": "The tech respects battery and OS rules – so your phone lasts through the day.",
+  "section.providers.title": "For hosts & businesses",
+  "section.providers.text": "You run an albergue, a small restaurant, a kiosk or offer help to pilgrims? Ultreia makes you visible when it counts.",
+  "section.providers.point1": "Create your offer with location, category, radius and times – tailored to the Camino Francés.",
+  "section.providers.point2": "Pilgrims receive a notification when they are truly nearby – not days in advance.",
+  "section.providers.point3": "Focus on guests in front of you, not on social media algorithms.",
+  "section.how.title": "How Ultreia works",
+  "section.how.text": "Under the hood runs a specialised background engine: heartbeats from the phone to the Ultreia platform, geofences along the Camino and fair rules for notifications.",
+  "section.how.step1.title": "1 · Heartbeats in the background",
+  "section.how.step1.text": "The app sends short position heartbeats – tuned for walking, not highways. When you rest, the rhythm slows down automatically.",
+  "section.how.step2.title": "2 · Offers within range",
+  "section.how.step2.text": "Along the Camino, hosts register their places with category and radius. Ultreia checks every heartbeat against these zones.",
+  "section.how.step3.title": "3 · Signals at the right moment",
+  "section.how.step3.text": "When you enter a relevant zone, you receive a gentle notification – not five at once, but curated according to your interests.",
+  "footer.madeForCamino": "Created for pilgrims and hosts along the Camino Francés"
+}
+</file>
+
+<file path="frontend/src/locales/es.json">
+{
+  "lang.label.de": "DE",
+  "lang.label.en": "EN",
+  "lang.label.es": "ES",
+  "lang.aria": "Elegir idioma",
+  "brand.name": "ULTREIA Camino",
+  "brand.tagline": "Latidos digitales para el Camino.",
+  "nav.ariaMain": "Navegación principal",
+  "nav.pilgrims": "Para peregrinos",
+  "nav.providers": "Para alojamientos y negocios",
+  "nav.howItWorks": "Cómo funciona",
+  "hero.badge": "Camino Francés · Piloto",
+  "hero.title.line1": "Flecha amarilla. Horizonte azul.",
+  "hero.title.line2": "Un motor inteligente para tu Camino.",
+  "hero.subtitle": "Ultreia conecta a peregrinos y anfitriones a lo largo del Camino Francés, con latidos de fondo fiables y avisos suaves justo cuando pasas cerca de albergues, bares o ayuda.",
+  "hero.cta.primary": "Estoy caminando el Camino",
+  "hero.cta.secondary": "Tengo un lugar u oferta en el Camino",
+  "meta.path": "Ruta",
+  "meta.path.value": "Saint-Jean-Pied-de-Port → Santiago de Compostela",
+  "meta.mode": "Foco",
+  "meta.mode.value": "A pie · solo o en grupo",
+  "meta.status": "Estado",
+  "meta.status.value": "MVP · tecnología probándose en el terreno",
+  "hero.card.pilgrimLabel": "Peregrino en marcha",
+  "hero.card.pilgrimTitle": "Tú caminas. Ultreia detecta cuándo importa.",
+  "hero.card.pilgrimPoint1": "Latidos discretos en segundo plano en lugar de seguimiento constante.",
+  "hero.card.pilgrimPoint2": "Avisos de camas, comida, agua o ayuda cuando realmente estás cerca.",
+  "hero.card.pilgrimPoint3": "Respeto por la batería, la privacidad y tu propio ritmo.",
+  "hero.card.pilgrimChip": "Pensado para caminos reales",
+  "hero.card.providerLabel": "Anfitriones y negocios",
+  "hero.card.providerTitle": "Ser visible cuando los peregrinos pasan por tu puerta.",
+  "hero.card.providerPoint1": "Publica tu albergue, bar, farmacia o servicio con la categoría y el radio adecuados.",
+  "hero.card.providerPoint2": "Sin complicaciones: creas tu anuncio una vez y Ultreia se ocupa del resto.",
+  "hero.card.providerChip": "Justo con los pequeños negocios",
+  "hero.path.label": "Camino Francés – etapas, pueblos y desvíos típicos",
+  "section.pilgrims.title": "Para peregrinos",
+  "section.pilgrins.title": "Para peregrinos",
+  "section.pilgrims.text": "Llevas mochila y concha. Ultreia quiere ser tu compañero silencioso: presente cuando lo necesitas, invisible cuando solo quieres caminar.",
+  "section.pilgrims.point1": "Encuentra camas, comida, agua o ayuda al entrar en el radio, sin perderte en un mapa lleno de iconos.",
+  "section.pilgrims.point2": "Elige qué categorías te interesan: dormir, comer, farmacias, fuentes de agua y más.",
+  "section.pilgrims.point3": "La tecnología respeta la batería y las normas del sistema para que el móvil aguante todo el día.",
+  "section.providers.title": "Para alojamientos y negocios",
+  "section.providers.text": "¿Llevas un albergue, un bar pequeño, una tienda o ayudas a peregrinos? Ultreia te hace visible cuando de verdad pasan frente a ti.",
+  "section.providers.point1": "Configura tu oferta con ubicación, categoría, radio y horarios, ajustados al Camino Francés.",
+  "section.providers.point2": "Los peregrinos reciben una notificación cuando están realmente cerca, no días antes.",
+  "section.providers.point3": "Concéntrate en las personas que tienes delante, no en los algoritmos de redes sociales.",
+  "section.how.title": "Cómo funciona Ultreia",
+  "section.how.text": "Por debajo funciona un motor de fondo especializado: latidos desde el móvil hacia la plataforma Ultreia, zonas geográficas a lo largo del Camino y reglas justas para las notificaciones.",
+  "section.how.step1.title": "1 · Latidos en segundo plano",
+  "section.how.step1.text": "La app envía pequeños latidos de posición —pensados para caminar, no para autopistas—. Cuando descansas, el ritmo se calma automáticamente.",
+  "section.how.step2.title": "2 · Ofertas dentro del radio",
+  "section.how.step2.text": "A lo largo del Camino, los anfitriones registran sus lugares con categoría y radio. Ultreia compara cada latido con estas zonas.",
+  "section.how.step3.title": "3 · Avisos en el momento justo",
+  "section.how.step3.text": "Al entrar en una zona relevante recibes un aviso suave, no cinco a la vez, sino filtrado según tus intereses.",
+  "footer.madeForCamino": "Creado para peregrinos y anfitriones del Camino Francés"
+}
+</file>
+
+<file path="frontend/src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+</file>
+
+<file path="frontend/vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+<file path="mobile/android/.gitignore">
+# OSX
+#
+.DS_Store
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+
+# Bundle artifacts
+*.jsbundle
+</file>
+
+<file path="mobile/android/app/build.gradle">
+apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "com.facebook.react"
+
+def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+
+/**
+ * This is the configuration block to customize your React Native Android app.
+ * By default you don't need to apply any configuration, just uncomment the lines you need.
+ */
+react {
+    entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
+    reactNativeDir = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+    hermesCommand = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/sdks/hermesc/%OS-BIN%/hermesc"
+    codegenDir = new File(["node", "--print", "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+
+    enableBundleCompression = (findProperty('android.enableBundleCompression') ?: false).toBoolean()
+    // Use Expo CLI to bundle the app, this ensures the Metro config
+    // works correctly with Expo projects.
+    cliFile = new File(["node", "--print", "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })"].execute(null, rootDir).text.trim())
+    bundleCommand = "export:embed"
+
+    /* Folders */
+     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
+    // root = file("../../")
+    //   The folder where the react-native NPM package is. Default is ../../node_modules/react-native
+    // reactNativeDir = file("../../node_modules/react-native")
+    //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen
+    // codegenDir = file("../../node_modules/@react-native/codegen")
+
+    /* Variants */
+    //   The list of variants to that are debuggable. For those we're going to
+    //   skip the bundling of the JS bundle and the assets. By default is just 'debug'.
+    //   If you add flavors like lite, prod, etc. you'll have to list your debuggableVariants.
+    // debuggableVariants = ["liteDebug", "prodDebug"]
+
+    /* Bundling */
+    //   A list containing the node command and its flags. Default is just 'node'.
+    // nodeExecutableAndArgs = ["node"]
+
+    //
+    //   The path to the CLI configuration file. Default is empty.
+    // bundleConfig = file(../rn-cli.config.js)
+    //
+    //   The name of the generated asset file containing your JS bundle
+    // bundleAssetName = "MyApplication.android.bundle"
+    //
+    //   The entry file for bundle generation. Default is 'index.android.js' or 'index.js'
+    // entryFile = file("../js/MyApplication.android.js")
+    //
+    //   A list of extra flags to pass to the 'bundle' commands.
+    //   See https://github.com/react-native-community/cli/blob/main/docs/commands.md#bundle
+    // extraPackagerArgs = []
+
+    /* Hermes Commands */
+    //   The hermes compiler command to run. By default it is 'hermesc'
+    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"
+    //
+    //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
+    // hermesFlags = ["-O", "-output-source-map"]
+
+    /* Autolinking */
+    autolinkLibrariesWithApp()
+}
+
+/**
+ * Set this to true in release builds to optimize the app using [R8](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
+ */
+def enableMinifyInReleaseBuilds = (findProperty('android.enableMinifyInReleaseBuilds') ?: false).toBoolean()
+
+/**
+ * The preferred build flavor of JavaScriptCore (JSC)
+ *
+ * For example, to use the international variant, you can use:
+ * `def jscFlavor = 'org.webkit:android-jsc-intl:+'`
+ *
+ * The international variant includes ICU i18n library and necessary data
+ * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
+ * give correct results when using with locales other than en-US. Note that
+ * this variant is about 6MiB larger per architecture than default.
+ */
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+
+android {
+    ndkVersion rootProject.ext.ndkVersion
+
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk rootProject.ext.compileSdkVersion
+
+    namespace 'com.ecily.ultreia'
+    defaultConfig {
+        applicationId 'com.ecily.ultreia'
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "0.1.0"
+
+        buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
+    }
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            signingConfig signingConfigs.debug
+            def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
+            shrinkResources enableShrinkResources.toBoolean()
+            minifyEnabled enableMinifyInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            def enablePngCrunchInRelease = findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true'
+            crunchPngs enablePngCrunchInRelease.toBoolean()
+        }
+    }
+    packagingOptions {
+        jniLibs {
+            def enableLegacyPackaging = findProperty('expo.useLegacyPackaging') ?: 'false'
+            useLegacyPackaging enableLegacyPackaging.toBoolean()
+        }
+    }
+    androidResources {
+        ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+}
+
+// Apply static values from `gradle.properties` to the `android.packagingOptions`
+// Accepts values in comma delimited lists, example:
+// android.packagingOptions.pickFirsts=/LICENSE,**/picasa.ini
+["pickFirsts", "excludes", "merges", "doNotStrip"].each { prop ->
+    // Split option: 'foo,bar' -> ['foo', 'bar']
+    def options = (findProperty("android.packagingOptions.$prop") ?: "").split(",");
+    // Trim all elements in place.
+    for (i in 0..<options.size()) options[i] = options[i].trim();
+    // `[] - ""` is essentially `[""].filter(Boolean)` removing all empty strings.
+    options -= ""
+
+    if (options.length > 0) {
+        println "android.packagingOptions.$prop += $options ($options.length)"
+        // Ex: android.packagingOptions.pickFirsts += '**/SCCS/**'
+        options.each {
+            android.packagingOptions[prop] += it
+        }
+    }
+}
+
+dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin
+    implementation("com.facebook.react:react-android")
+
+    def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
+    def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
+    def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
+
+    if (isGifEnabled) {
+        // For animated gif support
+        implementation("com.facebook.fresco:animated-gif:${expoLibs.versions.fresco.get()}")
+    }
+
+    if (isWebpEnabled) {
+        // For webp support
+        implementation("com.facebook.fresco:webpsupport:${expoLibs.versions.fresco.get()}")
+        if (isWebpAnimatedEnabled) {
+            // Animated webp support
+            implementation("com.facebook.fresco:animated-webp:${expoLibs.versions.fresco.get()}")
+        }
+    }
+
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        implementation jscFlavor
+    }
+}
+
+apply plugin: 'com.google.gms.google-services'
+</file>
+
+<file path="mobile/android/app/proguard-rules.pro">
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in /usr/local/Cellar/android-sdk/24.3.3/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the proguardFiles
+# directive in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# react-native-reanimated
+-keep class com.swmansion.reanimated.** { *; }
+-keep class com.facebook.react.turbomodule.** { *; }
+
+# Add any project specific keep options here:
+</file>
+
+<file path="mobile/android/app/src/debug/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+    <application android:usesCleartextTraffic="true" tools:targetApi="28" tools:ignore="GoogleAppIndexingWarning" tools:replace="android:usesCleartextTraffic" />
+</manifest>
+</file>
+
+<file path="mobile/android/app/src/debugOptimized/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+    <application android:usesCleartextTraffic="true" tools:targetApi="28" tools:ignore="GoogleAppIndexingWarning" tools:replace="android:usesCleartextTraffic" />
+</manifest>
+</file>
+
+<file path="mobile/android/app/src/main/java/com/ecily/ultreia/MainApplication.kt">
+package com.ecily.ultreia
+
+import android.app.Application
+import android.content.res.Configuration
+
+import com.facebook.react.PackageList
+import com.facebook.react.ReactApplication
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
+import com.facebook.react.ReactNativeHost
+import com.facebook.react.ReactPackage
+import com.facebook.react.ReactHost
+import com.facebook.react.common.ReleaseLevel
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
+import com.facebook.react.defaults.DefaultReactNativeHost
+
+import expo.modules.ApplicationLifecycleDispatcher
+import expo.modules.ReactNativeHostWrapper
+
+class MainApplication : Application(), ReactApplication {
+
+  override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(
+      this,
+      object : DefaultReactNativeHost(this) {
+        override fun getPackages(): List<ReactPackage> =
+            PackageList(this).packages.apply {
+              // Packages that cannot be autolinked yet can be added manually here, for example:
+              // add(MyReactNativePackage())
+            }
+
+          override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
+
+          override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+
+          override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+      }
+  )
+
+  override val reactHost: ReactHost
+    get() = ReactNativeHostWrapper.createReactHost(applicationContext, reactNativeHost)
+
+  override fun onCreate() {
+    super.onCreate()
+    DefaultNewArchitectureEntryPoint.releaseLevel = try {
+      ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
+    } catch (e: IllegalArgumentException) {
+      ReleaseLevel.STABLE
+    }
+    loadReactNative(this)
+    ApplicationLifecycleDispatcher.onApplicationCreate(this)
+  }
+
+  override fun onConfigurationChanged(newConfig: Configuration) {
+    super.onConfigurationChanged(newConfig)
+    ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
+  }
+}
+</file>
+
+<file path="mobile/android/app/src/main/res/drawable/ic_launcher_background.xml">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:drawable="@color/splashscreen_background"/>
+  <item>
+    <bitmap android:gravity="center" android:src="@drawable/splashscreen_logo"/>
+  </item>
+</layer-list>
+</file>
+
+<file path="mobile/android/app/src/main/res/drawable/rn_edit_text_material.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+       android:insetLeft="@dimen/abc_edit_text_inset_horizontal_material"
+       android:insetRight="@dimen/abc_edit_text_inset_horizontal_material"
+       android:insetTop="@dimen/abc_edit_text_inset_top_material"
+       android:insetBottom="@dimen/abc_edit_text_inset_bottom_material"
+       >
+
+    <selector>
+        <!--
+          This file is a copy of abc_edit_text_material (https://bit.ly/3k8fX7I).
+          The item below with state_pressed="false" and state_focused="false" causes a NullPointerException.
+          NullPointerException:tempt to invoke virtual method 'android.graphics.drawable.Drawable android.graphics.drawable.Drawable$ConstantState.newDrawable(android.content.res.Resources)'
+
+          <item android:state_pressed="false" android:state_focused="false" android:drawable="@drawable/abc_textfield_default_mtrl_alpha"/>
+
+          For more info, see https://bit.ly/3CdLStv (react-native/pull/29452) and https://bit.ly/3nxOMoR.
+        -->
+        <item android:state_enabled="false" android:drawable="@drawable/abc_textfield_default_mtrl_alpha"/>
+        <item android:drawable="@drawable/abc_textfield_activated_mtrl_alpha"/>
+    </selector>
+
+</inset>
+</file>
+
+<file path="mobile/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/iconBackground"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+</file>
+
+<file path="mobile/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/iconBackground"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+</file>
+
+<file path="mobile/android/app/src/main/res/values-night/colors.xml">
+<resources/>
+</file>
+
+<file path="mobile/android/app/src/main/res/values/colors.xml">
+<resources>
+  <color name="splashscreen_background">#ffffff</color>
+  <color name="iconBackground">#ffffff</color>
+  <color name="colorPrimary">#023c69</color>
+  <color name="colorPrimaryDark">#ffffff</color>
+</resources>
+</file>
+
+<file path="mobile/android/app/src/main/res/values/strings.xml">
+<resources>
+  <string name="app_name">ULTREIA</string>
+  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+</resources>
+</file>
+
+<file path="mobile/android/app/src/main/res/values/styles.xml">
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <item name="android:enforceNavigationBarContrast" tools:targetApi="29">true</item>
+    <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="android:statusBarColor">#ffffff</item>
+  </style>
+  <style name="Theme.App.SplashScreen" parent="AppTheme">
+    <item name="android:windowBackground">@drawable/ic_launcher_background</item>
+  </style>
+</resources>
+</file>
+
+<file path="mobile/android/build.gradle">
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+        classpath 'com.google.gms:google-services:4.4.1'
+    classpath('com.android.tools.build:gradle')
+    classpath('com.facebook.react:react-native-gradle-plugin')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
+}
+
+apply plugin: "expo-root-project"
+apply plugin: "com.facebook.react.rootproject"
+</file>
+
+<file path="mobile/android/gradle.properties">
+# Project-wide Gradle settings.
+
+# IDE (e.g. Android Studio) users:
+# Gradle settings configured through the IDE *will override*
+# any settings specified in this file.
+
+# For more details on how to configure your build environment visit
+# http://www.gradle.org/docs/current/userguide/build_environment.html
+
+# Specifies the JVM arguments used for the daemon process.
+# The setting is particularly useful for tweaking memory settings.
+# Default value: -Xmx512m -XX:MaxMetaspaceSize=256m
+org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m
+
+# When configured, Gradle will run in incubating parallel mode.
+# This option should only be used with decoupled projects. More details, visit
+# http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
+org.gradle.parallel=true
+
+# AndroidX package structure to make it clearer which packages are bundled with the
+# Android operating system, and which are packaged with your app's APK
+# https://developer.android.com/topic/libraries/support-library/androidx-rn
+android.useAndroidX=true
+
+# Enable AAPT2 PNG crunching
+android.enablePngCrunchInReleaseBuilds=true
+
+# Use this property to specify which architecture you want to build.
+# You can also override it from the CLI using
+# ./gradlew <task> -PreactNativeArchitectures=x86_64
+reactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64
+
+# Use this property to enable support to the new architecture.
+# This will allow you to use TurboModules and the Fabric render in
+# your application. You should enable this flag either if you want
+# to write custom TurboModules/Fabric components OR use libraries that
+# are providing them.
+newArchEnabled=false
+
+# Use this property to enable or disable the Hermes JS engine.
+# If set to false, you will be using JSC instead.
+hermesEnabled=true
+
+# Use this property to enable edge-to-edge display support.
+# This allows your app to draw behind system bars for an immersive UI.
+# Note: Only works with ReactActivity and should not be used with custom Activity.
+edgeToEdgeEnabled=true
+
+# Enable GIF support in React Native images (~200 B increase)
+expo.gif.enabled=true
+# Enable webp support in React Native images (~85 KB increase)
+expo.webp.enabled=true
+# Enable animated webp support (~3.4 MB increase)
+# Disabled by default because iOS doesn't support animated webp
+expo.webp.animated=false
+
+# Enable network inspector
+EX_DEV_CLIENT_NETWORK_INSPECTOR=true
+
+# Use legacy packaging to compress native libraries in the resulting APK.
+expo.useLegacyPackaging=false
+
+# Specifies whether the app is configured to use edge-to-edge via the app config or plugin
+# WARNING: This property has been deprecated and will be removed in Expo SDK 55. Use `edgeToEdgeEnabled` or `react.edgeToEdgeEnabled` to determine whether the project is using edge-to-edge.
+expo.edgeToEdgeEnabled=true
+</file>
+
+<file path="mobile/android/gradle/wrapper/gradle-wrapper.properties">
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+</file>
+
+<file path="mobile/android/gradlew">
+#!/bin/sh
+
+#
+# Copyright © 2015-2021 the original authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+##############################################################################
+#
+#   Gradle start up script for POSIX generated by Gradle.
+#
+#   Important for running:
+#
+#   (1) You need a POSIX-compliant shell to run this script. If your /bin/sh is
+#       noncompliant, but you have some other compliant shell such as ksh or
+#       bash, then to run this script, type that shell name before the whole
+#       command line, like:
+#
+#           ksh Gradle
+#
+#       Busybox and similar reduced shells will NOT work, because this script
+#       requires all of these POSIX shell features:
+#         * functions;
+#         * expansions «$var», «${var}», «${var:-default}», «${var+SET}»,
+#           «${var#prefix}», «${var%suffix}», and «$( cmd )»;
+#         * compound commands having a testable exit status, especially «case»;
+#         * various built-in commands including «command», «set», and «ulimit».
+#
+#   Important for patching:
+#
+#   (2) This script targets any POSIX shell, so it avoids extensions provided
+#       by Bash, Ksh, etc; in particular arrays are avoided.
+#
+#       The "traditional" practice of packing multiple parameters into a
+#       space-separated string is a well documented source of bugs and security
+#       problems, so this is (mostly) avoided, by progressively accumulating
+#       options in "$@", and eventually passing that to Java.
+#
+#       Where the inherited environment variables (DEFAULT_JVM_OPTS, JAVA_OPTS,
+#       and GRADLE_OPTS) rely on word-splitting, this is performed explicitly;
+#       see the in-line comments for details.
+#
+#       There are tweaks for specific operating systems such as AIX, CygWin,
+#       Darwin, MinGW, and NonStop.
+#
+#   (3) This script is generated from the Groovy template
+#       https://github.com/gradle/gradle/blob/HEAD/platforms/jvm/plugins-application/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
+#       within the Gradle project.
+#
+#       You can find Gradle at https://github.com/gradle/gradle/.
+#
+##############################################################################
+
+# Attempt to set APP_HOME
+
+# Resolve links: $0 may be a link
+app_path=$0
+
+# Need this for daisy-chained symlinks.
+while
+    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
+    [ -h "$app_path" ]
+do
+    ls=$( ls -ld "$app_path" )
+    link=${ls#*' -> '}
+    case $link in             #(
+      /*)   app_path=$link ;; #(
+      *)    app_path=$APP_HOME$link ;;
+    esac
+done
+
+# This is normally unused
+# shellcheck disable=SC2034
+APP_BASE_NAME=${0##*/}
+# Discard cd standard output in case $CDPATH is set (https://github.com/gradle/gradle/issues/25036)
+APP_HOME=$( cd -P "${APP_HOME:-./}" > /dev/null && printf '%s\n' "$PWD" ) || exit
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD=maximum
+
+warn () {
+    echo "$*"
+} >&2
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+} >&2
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "$( uname )" in                #(
+  CYGWIN* )         cygwin=true  ;; #(
+  Darwin* )         darwin=true  ;; #(
+  MSYS* | MINGW* )  msys=true    ;; #(
+  NONSTOP* )        nonstop=true ;;
+esac
+
+CLASSPATH="\\\"\\\""
+
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD=$JAVA_HOME/jre/sh/java
+    else
+        JAVACMD=$JAVA_HOME/bin/java
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD=java
+    if ! command -v java >/dev/null 2>&1
+    then
+        die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+fi
+
+# Increase the maximum file descriptors if we can.
+if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
+    case $MAX_FD in #(
+      max*)
+        # In POSIX sh, ulimit -H is undefined. That's why the result is checked to see if it worked.
+        # shellcheck disable=SC2039,SC3045
+        MAX_FD=$( ulimit -H -n ) ||
+            warn "Could not query maximum file descriptor limit"
+    esac
+    case $MAX_FD in  #(
+      '' | soft) :;; #(
+      *)
+        # In POSIX sh, ulimit -n is undefined. That's why the result is checked to see if it worked.
+        # shellcheck disable=SC2039,SC3045
+        ulimit -n "$MAX_FD" ||
+            warn "Could not set maximum file descriptor limit to $MAX_FD"
+    esac
+fi
+
+# Collect all arguments for the java command, stacking in reverse order:
+#   * args from the command line
+#   * the main class name
+#   * -classpath
+#   * -D...appname settings
+#   * --module-path (only if needed)
+#   * DEFAULT_JVM_OPTS, JAVA_OPTS, and GRADLE_OPTS environment variables.
+
+# For Cygwin or MSYS, switch paths to Windows format before running java
+if "$cygwin" || "$msys" ; then
+    APP_HOME=$( cygpath --path --mixed "$APP_HOME" )
+    CLASSPATH=$( cygpath --path --mixed "$CLASSPATH" )
+
+    JAVACMD=$( cygpath --unix "$JAVACMD" )
+
+    # Now convert the arguments - kludge to limit ourselves to /bin/sh
+    for arg do
+        if
+            case $arg in                                #(
+              -*)   false ;;                            # don't mess with options #(
+              /?*)  t=${arg#/} t=/${t%%/*}              # looks like a POSIX filepath
+                    [ -e "$t" ] ;;                      #(
+              *)    false ;;
+            esac
+        then
+            arg=$( cygpath --path --ignore --mixed "$arg" )
+        fi
+        # Roll the args list around exactly as many times as the number of
+        # args, so each arg winds up back in the position where it started, but
+        # possibly modified.
+        #
+        # NB: a `for` loop captures its iteration list before it begins, so
+        # changing the positional parameters here affects neither the number of
+        # iterations, nor the values presented in `arg`.
+        shift                   # remove old arg
+        set -- "$@" "$arg"      # push replacement arg
+    done
+fi
+
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+
+# Collect all arguments for the java command:
+#   * DEFAULT_JVM_OPTS, JAVA_OPTS, JAVA_OPTS, and optsEnvironmentVar are not allowed to contain shell fragments,
+#     and any embedded shellness will be escaped.
+#   * For example: A user cannot expect ${Hostname} to be expanded, as it is an environment variable and will be
+#     treated as '${Hostname}' itself on the command line.
+
+set -- \
+        "-Dorg.gradle.appname=$APP_BASE_NAME" \
+        -classpath "$CLASSPATH" \
+        -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
+        "$@"
+
+# Stop when "xargs" is not available.
+if ! command -v xargs >/dev/null 2>&1
+then
+    die "xargs is not available"
+fi
+
+# Use "xargs" to parse quoted args.
+#
+# With -n1 it outputs one arg per line, with the quotes and backslashes removed.
+#
+# In Bash we could simply go:
+#
+#   readarray ARGS < <( xargs -n1 <<<"$var" ) &&
+#   set -- "${ARGS[@]}" "$@"
+#
+# but POSIX shell has neither arrays nor command substitution, so instead we
+# post-process each arg (as a line of input to sed) to backslash-escape any
+# character that might be a shell metacharacter, then use eval to reverse
+# that process (while maintaining the separation between arguments), and wrap
+# the whole thing up as a single "set" statement.
+#
+# This will of course break if any of these variables contains a newline or
+# an unmatched quote.
+#
+
+eval "set -- $(
+        printf '%s\n' "$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS" |
+        xargs -n1 |
+        sed ' s~[^-[:alnum:]+,./:=@_]~\\&~g; ' |
+        tr '\n' ' '
+    )" '"$@"'
+
+exec "$JAVACMD" "$@"
+</file>
+
+<file path="mobile/android/gradlew.bat">
+@rem
+@rem Copyright 2015 the original author or authors.
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem
+@rem      https://www.apache.org/licenses/LICENSE-2.0
+@rem
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+@rem SPDX-License-Identifier: Apache-2.0
+@rem
+
+@if "%DEBUG%"=="" @echo off
+@rem ##########################################################################
+@rem
+@rem  Gradle startup script for Windows
+@rem
+@rem ##########################################################################
+
+@rem Set local scope for the variables with windows NT shell
+if "%OS%"=="Windows_NT" setlocal
+
+set DIRNAME=%~dp0
+if "%DIRNAME%"=="" set DIRNAME=.
+@rem This is normally unused
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
+@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
+
+@rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+set JAVA_EXE=java.exe
+%JAVA_EXE% -version >NUL 2>&1
+if %ERRORLEVEL% equ 0 goto execute
+
+echo. 1>&2
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH. 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
+
+goto fail
+
+:findJavaFromJavaHome
+set JAVA_HOME=%JAVA_HOME:"=%
+set JAVA_EXE=%JAVA_HOME%/bin/java.exe
+
+if exist "%JAVA_EXE%" goto execute
+
+echo. 1>&2
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME% 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
+
+goto fail
+
+:execute
+@rem Setup the command line
+
+set CLASSPATH=
+
+
+@rem Execute Gradle
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" -jar "%APP_HOME%\gradle\wrapper\gradle-wrapper.jar" %*
+
+:end
+@rem End local scope for the variables with windows NT shell
+if %ERRORLEVEL% equ 0 goto mainEnd
+
+:fail
+rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+rem the _cmd.exe /c_ return code!
+set EXIT_CODE=%ERRORLEVEL%
+if %EXIT_CODE% equ 0 set EXIT_CODE=1
+if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
+exit /b %EXIT_CODE%
+
+:mainEnd
+if "%OS%"=="Windows_NT" endlocal
+
+:omega
+</file>
+
+<file path="mobile/android/settings.gradle">
+pluginManagement {
+  def reactNativeGradlePlugin = new File(
+    providers.exec {
+      workingDir(rootDir)
+      commandLine("node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
+    }.standardOutput.asText.get().trim()
+  ).getParentFile().absolutePath
+  includeBuild(reactNativeGradlePlugin)
+  
+  def expoPluginsPath = new File(
+    providers.exec {
+      workingDir(rootDir)
+      commandLine("node", "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
+    }.standardOutput.asText.get().trim(),
+    "../android/expo-gradle-plugin"
+  ).absolutePath
+  includeBuild(expoPluginsPath)
+}
+
+plugins {
+  id("com.facebook.react.settings")
+  id("expo-autolinking-settings")
+}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+  if (System.getenv('EXPO_USE_COMMUNITY_AUTOLINKING') == '1') {
+    ex.autolinkLibrariesFromCommand()
+  } else {
+    ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
+  }
+}
+expoAutolinking.useExpoModules()
+
+rootProject.name = 'ULTREIA'
+
+expoAutolinking.useExpoVersionCatalog()
+
+include ':app'
+includeBuild(expoAutolinking.reactNativeGradlePlugin)
+</file>
+
+<file path="mobile/eas.json">
+{
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {}
+  }
+}
+</file>
+
+<file path="mobile/index.js">
+import { registerRootComponent } from 'expo';
+
+import App from './App';
+
+// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
+// It also ensures that whether you load the app in Expo Go or in a native build,
+// the environment is set up appropriately
+registerRootComponent(App);
+</file>
+
+<file path="README.md">
+# ULTREIA (MERN, JS-only)
+</file>
+
+<file path="frontend/eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "vite": "^7.2.4"
+  }
+}
+</file>
+
+<file path="frontend/src/App.css">
+:root {
+  /* Camino-Farben: tiefes Blau + Jakobsweg-Gelb */
+  --camino-blue-deep: #002b5c;
+  --camino-blue: #004a99;
+  --camino-blue-soft: #0b2346;
+  --camino-yellow: #ffd600;
+
+  --bg-deep: #010714;
+  --bg-elevated: #071425;
+  --bg-elevated-soft: rgba(7, 20, 37, 0.94);
+
+  --accent-yellow: var(--camino-yellow);
+  --accent-yellow-soft: rgba(255, 214, 0, 0.18);
+  --accent-blue: var(--camino-blue);
+  --accent-sky: #4cb1ff;
+  --accent-amber: #ff9e42;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --text-main: #f5f7fa;
+  --text-muted: #9aa4b8;
+  --chip-bg: rgba(9, 24, 46, 0.9);
+
+  --radius-large: 22px;
+  --radius-medium: 14px;
+  --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #000309;
+  color: var(--text-main);
+}
+
+/* Hintergrund-Layer: Camino-Blau mit gelben Akzenten */
+
+.app-root {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.bg-gradient {
+  position: fixed;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 15% -10%, var(--camino-yellow) 0, transparent 45%),
+    radial-gradient(circle at 90% 110%, #ffb347 0, transparent 45%),
+    radial-gradient(circle at 60% 40%, var(--camino-blue) 0, var(--camino-blue-deep) 70%);
+  opacity: 0.95;
+  z-index: -2;
+}
+
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.78) 40%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+  z-index: -1;
+}
+
+/* Shell-Ghost Hintergrund in der rechten Hero-Spalte wird zusätzlich per SVG gesetzt */
+
+.app-shell {
+  min-height: 100vh;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 20px 18px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navigation */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 10px 6px;
+  border-radius: 999px;
+  background: rgba(1, 9, 26, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(18px);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Kleine Jakobsmuschel im Branding */
+
+.brand-symbol {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 10%, #fff 0, var(--camino-yellow) 40%, #f5a623 100%);
+  box-shadow:
+    0 0 0 2px rgba(2, 4, 8, 0.9),
+    0 12px 22px rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-shell-icon {
+  width: 20px;
+  height: 20px;
+  color: #412205;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fdfdfd;
+}
+
+.brand-tagline {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 150ms ease;
+}
+
+.nav-link:hover {
+  color: #f5f7fa;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-link-soft {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.lang-chip {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: 140ms ease;
+}
+
+.lang-chip:hover {
+  color: #f5f7fa;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lang-chip-active {
+  background: rgba(0, 59, 124, 0.9);
+  color: #fdfdfd;
+  box-shadow: 0 0 0 1px rgba(76, 177, 255, 0.9);
+}
+
+/* Main */
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 26px;
+  gap: 28px;
+}
+
+/* Hero */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+  gap: 24px;
+  padding: 24px 20px 24px;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 214, 0, 0.22), transparent 60%),
+    radial-gradient(circle at 80% 120%, rgba(255, 180, 60, 0.32), transparent 55%),
+    linear-gradient(135deg, rgba(5, 20, 54, 0.98), rgba(1, 7, 20, 0.99));
+  border: 1px solid rgba(173, 195, 255, 0.2);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 20% 105%,
+    rgba(255, 214, 0, 0.08),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 6px;
+  border-radius: 999px;
+  background: rgba(4, 18, 38, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fdfdfd;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-badge-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #fff, var(--camino-yellow) 55%, #ff9900 100%);
+  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.26);
+}
+
+.hero-title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-title-line {
+  display: block;
+}
+
+.hero-title-line-top {
+  font-size: clamp(20px, 2.2vw, 24px);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(213, 223, 243, 0.98);
+}
+
+.hero-title-line-bottom {
+  font-size: clamp(32px, 4.1vw, 44px);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #fdfdfd;
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 34rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-primary,
+.btn-ghost {
+  border-radius: 999px;
+  padding: 11px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--camino-yellow), #ffb347);
+  color: #22150a;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: rgba(3, 29, 79, 0.92);
+  color: #fdfdfd;
+  border: 1px solid rgba(160, 192, 255, 0.9);
+}
+
+.btn-ghost:hover {
+  background: rgba(2, 41, 102, 0.96);
+}
+
+/* Hero Meta */
+
+.hero-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-item {
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(3, 12, 32, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.meta-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fdfdfd;
+}
+
+.meta-value-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(18, 122, 76, 0.16);
+  border: 1px solid rgba(80, 224, 151, 0.7);
+}
+
+/* Hero Visual + große Jakobsmuschel */
+
+.hero-visual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* Ghost-Shell als zentrales Camino-Symbol, aber dezent */
+
+.hero-shell-ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hero-shell-icon {
+  width: 220px;
+  height: 220px;
+  color: rgba(255, 214, 0, 0.08);
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.8));
+  transform: translate(10px, -10px);
+}
+
+.hero-card {
+  position: relative;
+  background: var(--bg-elevated-soft);
+  border-radius: var(--radius-large);
+  border: 1px solid rgba(165, 187, 231, 0.5);
+  padding: 14px 14px 12px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.hero-card-top {
+  transform: translateX(6px);
+}
+
+.hero-card-bottom {
+  max-width: 280px;
+  align-self: flex-end;
+  transform: translateX(-4px);
+}
+
+.hero-card-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.hero-card-label-provider {
+  color: #f1e7ff;
+}
+
+.hero-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fdfdfd;
+  margin-bottom: 5px;
+}
+
+.hero-card-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hero-card-foot {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.hero-chip-yellow {
+  background: var(--accent-yellow-soft);
+  border-color: rgba(255, 214, 0, 0.85);
+  color: #ffefba;
+}
+
+.hero-chip-blue {
+  background: rgba(2, 43, 122, 0.96);
+  border-color: rgba(92, 178, 255, 0.95);
+  color: #d5e9ff;
+}
+
+/* Path */
+
+.hero-path {
+  margin-top: 10px;
+  padding: 10px 12px 8px;
+  border-radius: var(--radius-medium);
+  background: rgba(3, 12, 32, 0.92);
+  border: 1px dashed rgba(111, 146, 214, 0.9);
+}
+
+.hero-path-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.hero-path-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 2px solid var(--camino-yellow);
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.24);
+}
+
+.hero-path-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-path-segment {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--camino-yellow), #ffb347);
+  opacity: 0.8;
+}
+
+.hero-path-segment-2 {
+  background: linear-gradient(90deg, #4cb1ff, var(--camino-yellow));
+}
+
+.hero-path-segment-3 {
+  background: linear-gradient(90deg, #2ecc71, #4cb1ff);
+}
+
+/* Section Two */
+
+.section-two {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.section-card {
+  background: rgba(3, 11, 24, 0.97);
+  border-radius: 24px;
+  border: 1px solid rgba(137, 168, 230, 0.5);
+  padding: 16px 18px 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.section-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fdfdfd;
+}
+
+.section-text {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.section-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #ccd5ea;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Section How */
+
+.section-how {
+  margin-top: 4px;
+}
+
+.section-how-inner {
+  background: rgba(3, 10, 22, 0.97);
+  border-radius: 24px;
+  border: 1px solid rgba(137, 168, 230, 0.5);
+  padding: 16px 18px 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+}
+
+.how-steps {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.how-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.how-step-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(3, 29, 79, 0.96);
+  color: #fdfdfd;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(130, 177, 255, 0.95);
+}
+
+.how-step-content {
+  flex: 1;
+}
+
+.how-step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fdfdfd;
+  margin-bottom: 2px;
+}
+
+.how-step-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Footer */
+
+.footer {
+  margin-top: 26px;
+  padding: 10px 6px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-text {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Responsiveness */
+
+@media (max-width: 900px) {
+  .app-shell {
+    padding-inline: 14px;
+  }
+
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 24px;
+    gap: 10px;
+  }
+
+  .nav-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-links {
+    gap: 4px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px 16px 18px;
+  }
+
+  .hero-visual {
+    margin-top: 6px;
+  }
+
+  .hero-shell-icon {
+    width: 180px;
+    height: 180px;
+    transform: translate(0, -4px);
+  }
+
+  .section-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .lang-switch {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .hero-card-bottom {
+    align-self: stretch;
+    max-width: 100%;
+    transform: none;
+  }
+}
+</file>
+
+<file path="frontend/src/App.jsx">
+import { useEffect, useState } from 'react';
+import './App.css';
+
+import de from './locales/de.json';
+import en from './locales/en.json';
+import es from './locales/es.json';
+
+const MESSAGES = { de, en, es };
+const SUPPORTED_LANGS = ['de', 'en', 'es'];
+
+function getInitialLang() {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = window.localStorage.getItem('ultreia-lang');
+      if (stored && SUPPORTED_LANGS.includes(stored)) {
+        return stored;
+      }
+    } catch {
+      // ignore
+    }
+    if (typeof navigator !== 'undefined' && navigator.language) {
+      const short = navigator.language.slice(0, 2).toLowerCase();
+      if (SUPPORTED_LANGS.includes(short)) {
+        return short;
+      }
+    }
+  }
+  return 'de';
+}
+
+// Einfaches Jakobsmuschel-Icon als Inline-SVG, über CSS gelb/blau eingefärbt
+function CaminoShellIcon({ className }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 64 64"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {/* Schale */}
+      <path
+        d="M32 8C23 9 16 16 13 24L10 32L16 52H48L54 32L51 24C48 16 41 9 32 8Z"
+        fill="currentColor"
+      />
+      {/* Strahlen / Rippen */}
+      <path
+        d="M32 12L30 26L32 52M24 14L26 28L32 52M40 14L38 28L32 52M18 20L23 30L32 52M46 20L41 30L32 52"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+function App() {
+  const [lang, setLang] = useState(getInitialLang);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('ultreia-lang', lang);
+      }
+    } catch {
+      // ignore
+    }
+  }, [lang]);
+
+  const t = (key) => {
+    const dict = MESSAGES[lang] || MESSAGES.de;
+    return dict[key] || key;
+  };
+
+  const handleLangClick = (code) => {
+    if (code !== lang && SUPPORTED_LANGS.includes(code)) {
+      setLang(code);
+    }
+  };
+
+  return (
+    <div className="app-root">
+      {/* Camino-Blau/Gelb Hintergrund-Layer */}
+      <div className="bg-gradient" />
+      <div className="bg-overlay" />
+
+      <div className="app-shell">
+        {/* Navigation */}
+        <header className="nav">
+          <div className="nav-left">
+            <div className="brand-mark">
+              <div className="brand-symbol" aria-hidden="true">
+                <CaminoShellIcon className="brand-shell-icon" />
+              </div>
+              <div className="brand-text">
+                <span className="brand-name">{t('brand.name')}</span>
+                <span className="brand-tagline">{t('brand.tagline')}</span>
+              </div>
+            </div>
+          </div>
+          <div className="nav-right">
+            <nav className="nav-links" aria-label={t('nav.ariaMain')}>
+              <button type="button" className="nav-link">
+                {t('nav.pilgrims')}
+              </button>
+              <button type="button" className="nav-link">
+                {t('nav.providers')}
+              </button>
+              <button type="button" className="nav-link nav-link-soft">
+                {t('nav.howItWorks')}
+              </button>
+            </nav>
+            <div className="lang-switch" aria-label={t('lang.aria')}>
+              {SUPPORTED_LANGS.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => handleLangClick(code)}
+                  className={
+                    'lang-chip ' + (lang === code ? 'lang-chip-active' : '')
+                  }
+                >
+                  {t(`lang.label.${code}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        <main className="main">
+          {/* Hero */}
+          <section className="hero">
+            <div className="hero-content">
+              <div className="hero-badge">
+                <span className="hero-badge-dot" />
+                <span>{t('hero.badge')}</span>
+              </div>
+
+              <h1 className="hero-title">
+                <span className="hero-title-line hero-title-line-top">
+                  {t('hero.title.line1')}
+                </span>
+                <span className="hero-title-line hero-title-line-bottom">
+                  {t('hero.title.line2')}
+                </span>
+              </h1>
+
+              <p className="hero-subtitle">{t('hero.subtitle')}</p>
+
+              <div className="hero-actions">
+                <button type="button" className="btn-primary">
+                  {t('hero.cta.primary')}
+                </button>
+                <button type="button" className="btn-ghost">
+                  {t('hero.cta.secondary')}
+                </button>
+              </div>
+
+              <div className="hero-meta">
+                <div className="meta-item">
+                  <span className="meta-label">{t('meta.path')}</span>
+                  <span className="meta-value">{t('meta.path.value')}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">{t('meta.mode')}</span>
+                  <span className="meta-value">{t('meta.mode.value')}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">{t('meta.status')}</span>
+                  <span className="meta-value meta-value-pill">
+                    {t('meta.status.value')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Rechte Seite: Karten + großer Jakobsmuschel-Ghost */}
+            <div className="hero-visual" aria-hidden="true">
+              <div className="hero-shell-ghost">
+                <CaminoShellIcon className="hero-shell-icon" />
+              </div>
+
+              <div className="hero-card hero-card-top">
+                <div className="hero-card-label">{t('hero.card.pilgrimLabel')}</div>
+                <div className="hero-card-title">
+                  {t('hero.card.pilgrimTitle')}
+                </div>
+                <ul className="hero-card-list">
+                  <li>{t('hero.card.pilgrimPoint1')}</li>
+                  <li>{t('hero.card.pilgrimPoint2')}</li>
+                  <li>{t('hero.card.pilgrimPoint3')}</li>
+                </ul>
+                <div className="hero-card-foot">
+                  <span className="hero-chip hero-chip-yellow">
+                    {t('hero.card.pilgrimChip')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="hero-card hero-card-bottom">
+                <div className="hero-card-label hero-card-label-provider">
+                  {t('hero.card.providerLabel')}
+                </div>
+                <div className="hero-card-title">
+                  {t('hero.card.providerTitle')}
+                </div>
+                <ul className="hero-card-list">
+                  <li>{t('hero.card.providerPoint1')}</li>
+                  <li>{t('hero.card.providerPoint2')}</li>
+                </ul>
+                <div className="hero-card-foot">
+                  <span className="hero-chip hero-chip-blue">
+                    {t('hero.card.providerChip')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="hero-path">
+                <div className="hero-path-label">
+                  <span className="hero-path-dot" />
+                  <span>{t('hero.path.label')}</span>
+                </div>
+                <div className="hero-path-line">
+                  <span className="hero-path-segment hero-path-segment-1" />
+                  <span className="hero-path-segment hero-path-segment-2" />
+                  <span className="hero-path-segment hero-path-segment-3" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section: Für wen? */}
+          <section className="section-two">
+            <div className="section-card">
+              <h2 className="section-title">{t('section.pilgrims.title')}</h2>
+              <p className="section-text">{t('section.pilgrims.text')}</p>
+              <ul className="section-list">
+                <li>{t('section.pilgrims.point1')}</li>
+                <li>{t('section.pilgrims.point2')}</li>
+                <li>{t('section.pilgrims.point3')}</li>
+              </ul>
+            </div>
+            <div className="section-card">
+              <h2 className="section-title">{t('section.providers.title')}</h2>
+              <p className="section-text">{t('section.providers.text')}</p>
+              <ul className="section-list">
+                <li>{t('section.providers.point1')}</li>
+                <li>{t('section.providers.point2')}</li>
+                <li>{t('section.providers.point3')}</li>
+              </ul>
+            </div>
+          </section>
+
+          {/* Section: Wie funktioniert es? */}
+          <section className="section-how">
+            <div className="section-how-inner">
+              <h2 className="section-title">{t('section.how.title')}</h2>
+              <p className="section-text">{t('section.how.text')}</p>
+              <div className="how-steps">
+                <div className="how-step">
+                  <span className="how-step-badge">1</span>
+                  <div className="how-step-content">
+                    <div className="how-step-title">{t('section.how.step1.title')}</div>
+                    <div className="how-step-text">{t('section.how.step1.text')}</div>
+                  </div>
+                </div>
+                <div className="how-step">
+                  <span className="how-step-badge">2</span>
+                  <div className="how-step-content">
+                    <div className="how-step-title">{t('section.how.step2.title')}</div>
+                    <div className="how-step-text">{t('section.how.step2.text')}</div>
+                  </div>
+                </div>
+                <div className="how-step">
+                  <span className="how-step-badge">3</span>
+                  <div className="how-step-content">
+                    <div className="how-step-title">{t('section.how.step3.title')}</div>
+                    <div className="how-step-text">{t('section.how.step3.text')}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer className="footer">
+          <span className="footer-text">
+            © {new Date().getFullYear()} ULTREIA · {t('footer.madeForCamino')}
+          </span>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+</file>
+
+<file path="mobile/android/app/src/main/java/com/ecily/ultreia/heartbeat/HeartbeatService.kt">
+package com.ecily.ultreia.heartbeat
+
+import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+
+class HeartbeatService : Service() {
+
+    companion object {
+        private const val TAG = "ULTREIA-HeartbeatService"
+        private const val CHANNEL_ID = "ultreia-fg" // konsistent mit JS
+        private const val NOTIFICATION_ID = 1001
+        private const val HEARTBEAT_INTERVAL_MS = 60_000L
+
+        private const val ACTION_START = "com.ecily.ultreia.heartbeat.START"
+        private const val ACTION_STOP = "com.ecily.ultreia.heartbeat.STOP"
+
+        private fun hasLocationPermission(context: Context): Boolean {
+            val fine = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            val coarse = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            return fine || coarse
+        }
+
+        fun start(context: Context) {
+            // WICHTIG: Service nur starten, wenn Location-Permission bereits erteilt ist.
+            if (!hasLocationPermission(context)) {
+                Log.w(TAG, "start(): missing location permission – not starting HeartbeatService")
+                return
+            }
+
+            val intent = Intent(context, HeartbeatService::class.java).apply {
+                action = ACTION_START
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
+
+        fun stop(context: Context) {
+            val intent = Intent(context, HeartbeatService::class.java).apply {
+                action = ACTION_STOP
+            }
+            context.startService(intent)
+        }
+    }
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var isRunning = false
+
+    private val heartbeatRunnable = object : Runnable {
+        override fun run() {
+            if (!isRunning) return
+            Log.i(TAG, "native heartbeat tick (no HTTP yet)")
+            // TODO: später HTTP-Call + Location einbauen
+            handler.postDelayed(this, HEARTBEAT_INTERVAL_MS)
+        }
+    }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        Log.i(TAG, "onCreate")
+        createNotificationChannel()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val action = intent?.action
+        Log.i(TAG, "onStartCommand action=$action")
+
+        when (action) {
+            ACTION_STOP -> {
+                stopHeartbeat()
+                stopForeground(true)
+                stopSelf()
+                return START_NOT_STICKY
+            }
+
+            else -> {
+                if (!isRunning) {
+                    isRunning = true
+
+                    // Nochmals im Service selbst prüfen – Safety-Net für alle Fälle.
+                    val hasLocPerm = hasLocationPermission(this)
+                    if (!hasLocPerm) {
+                        Log.w(
+                            TAG,
+                            "onStartCommand: missing location permission – cannot start foreground service"
+                        )
+                        isRunning = false
+                        stopSelf()
+                        return START_NOT_STICKY
+                    }
+
+                    try {
+                        startForeground(NOTIFICATION_ID, buildNotification())
+                    } catch (se: SecurityException) {
+                        // WICHTIG: SecurityException NICHT nach oben durchreichen, sonst App-Crash.
+                        Log.e(
+                            TAG,
+                            "onStartCommand: startForeground failed with SecurityException: ${se.message}",
+                            se
+                        )
+                        isRunning = false
+                        stopSelf()
+                        return START_NOT_STICKY
+                    } catch (e: Exception) {
+                        Log.e(
+                            TAG,
+                            "onStartCommand: startForeground failed with unexpected exception: ${e.message}",
+                            e
+                        )
+                        isRunning = false
+                        stopSelf()
+                        return START_NOT_STICKY
+                    }
+
+                    handler.post(heartbeatRunnable)
+                    Log.i(TAG, "Heartbeat loop started")
+                }
+            }
+        }
+
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        Log.i(TAG, "onDestroy")
+        stopHeartbeat()
+        super.onDestroy()
+    }
+
+    private fun stopHeartbeat() {
+        isRunning = false
+        handler.removeCallbacks(heartbeatRunnable)
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val mgr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val existing = mgr.getNotificationChannel(CHANNEL_ID)
+            if (existing == null) {
+                val channel = NotificationChannel(
+                    CHANNEL_ID,
+                    "ULTREIA Service",
+                    NotificationManager.IMPORTANCE_MIN
+                ).apply {
+                    description = "Hält Ultreia im Hintergrund aktiv"
+                    setShowBadge(false)
+                    enableVibration(false)
+                }
+                mgr.createNotificationChannel(channel)
+            }
+        }
+    }
+
+    private fun buildNotification(): Notification {
+        val iconResId = resources.getIdentifier(
+            "ic_notification",
+            "mipmap",
+            packageName
+        ).takeIf { it != 0 } ?: resources.getIdentifier(
+            "ic_launcher",
+            "mipmap",
+            packageName
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("ULTREIA läuft – Pilgerhilfe aktiv")
+            .setContentText("Sorgt für regelmäßige Herzschläge im Hintergrund.")
+            .setSmallIcon(iconResId)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .build()
+    }
+}
+</file>
+
+<file path="mobile/android/app/src/main/java/com/ecily/ultreia/MainActivity.kt">
+package com.ecily.ultreia
+
+import android.os.Build
+import android.os.Bundle
+import com.ecily.ultreia.heartbeat.HeartbeatService
+
+import com.facebook.react.ReactActivity
+import com.facebook.react.ReactActivityDelegate
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
+import com.facebook.react.defaults.DefaultReactActivityDelegate
+
+import expo.modules.ReactActivityDelegateWrapper
+
+class MainActivity : ReactActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    // Set the theme to AppTheme BEFORE onCreate to support
+    // coloring the background, status bar, and navigation bar.
+    // This is required for expo-splash-screen.
+    setTheme(R.style.AppTheme)
+    super.onCreate(null)
+
+    // ULTREIA – nativer Heartbeat-Foreground-Service
+    // Startet beim App-Launch und hält sich selbst im Hintergrund am Leben.
+    HeartbeatService.start(applicationContext)
+  }
+
+  /**
+   * Returns the name of the main component registered from JavaScript. This is used to schedule
+   * rendering of the component.
+   */
+  override fun getMainComponentName(): String = "main"
+
+  /**
+   * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
+   * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
+   */
+  override fun createReactActivityDelegate(): ReactActivityDelegate {
+    return ReactActivityDelegateWrapper(
+      this,
+      BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
+      object : DefaultReactActivityDelegate(
+        this,
+        mainComponentName,
+        fabricEnabled
+      ) {}
+    )
+  }
+
+  /**
+   * Align the back button behavior with Android S
+   * where moving root activities to background instead of finishing activities.
+   * @see <a href="https://developer.android.com/reference/android/app/Activity#onBackPressed()">onBackPressed</a>
+   */
+  override fun invokeDefaultOnBackPressed() {
+    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+      if (!moveTaskToBack(false)) {
+        // For non-root activities, use the default implementation to finish them.
+        super.invokeDefaultOnBackPressed()
+      }
+      return
+    }
+
+    // Use the default back button implementation on Android S
+    // because it's doing more than [Activity.moveTaskToBack] in fact.
+    super.invokeDefaultOnBackPressed()
+  }
+}
+</file>
+
+<file path="mobile/package.json">
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~54.0.20",
+    "expo-background-fetch": "^14.0.7",
+    "expo-intent-launcher": "^13.0.7",
+    "expo-location": "^19.0.7",
+    "expo-notifications": "^0.32.12",
+    "expo-status-bar": "~3.0.8",
+    "expo-task-manager": "^14.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "private": true
+}
+</file>
+
+<file path="backend/package.json">
+{
+  "name": "ultreia-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ULTREIA Backend (Express + Mongo, JS-only)",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon --watch src --ext js,json --exec \"node src/server.js\"",
+    "start": "node src/server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.0",
+    "firebase-admin": "^13.6.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.19.2",
+    "pino": "^10.1.0",
+    "pino-http": "^11.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
+</file>
+
+<file path="mobile/android/app/src/main/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.ecily.ultreia">
+
+  <!-- Standort / Hintergrund / Service / Netzwerk / Boot -->
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+  <!-- Erlaubt Links in andere Apps zu öffnen -->
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <category android:name="android.intent.category.BROWSABLE" />
+      <data android:scheme="https" />
+    </intent>
+  </queries>
+
+  <application
+    android:name=".MainApplication"
+    android:label="@string/app_name"
+    android:icon="@mipmap/ic_launcher"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:allowBackup="true"
+    android:theme="@style/AppTheme"
+    android:supportsRtl="true"
+    android:enableOnBackInvokedCallback="false">
+
+    <!-- Expo Updates (aktuell deaktiviert) -->
+    <meta-data
+      android:name="expo.modules.updates.ENABLED"
+      android:value="false" />
+    <meta-data
+      android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH"
+      android:value="ALWAYS" />
+    <meta-data
+      android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS"
+      android:value="0" />
+
+    <!-- ULTREIA Heartbeat Foreground Service (Kotlin) -->
+    <service
+      android:name=".heartbeat.HeartbeatService"
+      android:enabled="true"
+      android:exported="false"
+      android:foregroundServiceType="location" />
+
+    <activity
+      android:name=".MainActivity"
+      android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode"
+      android:launchMode="singleTask"
+      android:windowSoftInputMode="adjustResize"
+      android:theme="@style/Theme.App.SplashScreen"
+      android:exported="true"
+      android:screenOrientation="portrait">
+
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="ultreia" />
+      </intent-filter>
+    </activity>
+
+  </application>
+</manifest>
+</file>
+
+<file path="backend/src/server.js">
+// C:/ultreia/backend/src/server.js
+// ULTREIA Backend – Heartbeat-MVP (FCM + optional Expo Push mit Diagnostik)
+
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const pino = require('pino');
+const pinoHttp = require('pino-http');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const https = require('https');
+const path = require('path');
+const admin = require('firebase-admin');
+
+// Models
+const Offer = require('./models/Offer');
+// Routes
+const offersRouter = require('./routes/offers');
+
+// ── Config ─────────────────────────────────────────────────────────────────────
+const PORT = Number(process.env.PORT) || 4000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ultreia';
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const isProd = NODE_ENV === 'production';
+const HEARTBEAT_SECONDS = Number(process.env.HEARTBEAT_SECONDS || 60);
+const OFFER_MAX_DISTANCE_METERS = Number(process.env.OFFER_MAX_DISTANCE_METERS || 250);
+
+const FCM_PROJECT_ID = process.env.FCM_PROJECT_ID || undefined;
+// Cloud (DO / App Platform): Service-Account als JSON in Env
+const FCM_SERVICE_ACCOUNT_JSON = process.env.FCM_SERVICE_ACCOUNT_JSON || undefined;
+// Lokal: alternativ Pfad zu JSON-Datei
+const FCM_SERVICE_ACCOUNT_PATH =
+  process.env.FCM_SERVICE_ACCOUNT_PATH || process.env.GOOGLE_APPLICATION_CREDENTIALS || undefined;
+
+const logger = pino({
+  level: process.env.LOG_LEVEL || (isProd ? 'info' : 'debug'),
+  base: { service: 'ultreia-backend' },
+  redact: ['req.headers.authorization'],
+});
+
+// ── Expo Push Setup ───────────────────────────────────────────────────────────
+const EXPO_PUSH_HOST = 'exp.host';
+const EXPO_PUSH_SEND_PATH = '/--/api/v2/push/send';
+const EXPO_PUSH_RECEIPTS_PATH = '/--/api/v2/push/getReceipts';
+
+function expoPost(pathName, body) {
+  return new Promise((resolve, reject) => {
+    const json = JSON.stringify(body || {});
+    const options = {
+      host: EXPO_PUSH_HOST,
+      method: 'POST',
+      path: pathName,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Content-Length': Buffer.byteLength(json),
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let raw = '';
+      res.on('data', (chunk) => {
+        raw += chunk;
+      });
+      res.on('end', () => {
+        let parsed = null;
+        try {
+          parsed = raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          parsed = null;
+        }
+        resolve({ statusCode: res.statusCode, body: parsed !== null ? parsed : raw });
+      });
+    });
+
+    req.on('error', (err) => {
+      reject(err);
+    });
+
+    req.write(json);
+    req.end();
+  });
+}
+
+// Einzelnen Expo Push senden (ein Token)
+async function sendExpoPush({ expoPushToken, title, body, data }) {
+  if (!expoPushToken || typeof expoPushToken !== 'string') {
+    logger.warn({ expoPushToken }, '[push-expo] missing expoPushToken, skipping');
+    return { ok: false, error: 'missing-expo-token' };
+  }
+  if (!expoPushToken.startsWith('ExponentPushToken[')) {
+    logger.warn({ expoPushToken }, '[push-expo] invalid expoPushToken format');
+    return { ok: false, error: 'invalid-expo-token-format' };
+  }
+
+  const payload = {
+    to: expoPushToken,
+    sound: 'default',
+    title: title || 'ULTREIA',
+    body: body || 'Neues Angebot in deiner Nähe.',
+    data: data || {},
+  };
+
+  try {
+    const { statusCode, body: respBody } = await expoPost(EXPO_PUSH_SEND_PATH, payload);
+    logger.info({ expoPushToken, statusCode, respBody }, '[push-expo] Expo send response');
+
+    let ticket = null;
+    if (respBody && respBody.data) {
+      if (respBody.data.id) {
+        ticket = respBody.data;
+      }
+      if (Array.isArray(respBody.data) && respBody.data.length > 0) {
+        ticket = respBody.data[0];
+      }
+    }
+
+    return {
+      ok: statusCode >= 200 && statusCode < 300,
+      statusCode,
+      ticket,
+      raw: respBody,
+    };
+  } catch (err) {
+    logger.warn({ err }, '[push-expo] Expo send error');
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
+// Expo Receipts holen
+async function getExpoReceipts(ticketIds) {
+  if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
+    return { ok: false, error: 'no-ticket-ids' };
+  }
+
+  try {
+    const { statusCode, body } = await expoPost(EXPO_PUSH_RECEIPTS_PATH, {
+      ids: ticketIds,
+    });
+    logger.info({ statusCode, body }, '[push-expo] Expo receipts response');
+    return {
+      ok: statusCode >= 200 && statusCode < 300,
+      statusCode,
+      body,
+    };
+  } catch (err) {
+    logger.warn({ err }, '[push-expo] Expo receipts error');
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
+const expoPushReady = true;
+
+// ── FCM (firebase-admin) Setup ────────────────────────────────────────────────
+let fcmReady = false;
+let fcmMessaging = null;
+
+if (FCM_SERVICE_ACCOUNT_JSON || FCM_SERVICE_ACCOUNT_PATH) {
+  try {
+    let serviceAccount;
+
+    if (FCM_SERVICE_ACCOUNT_JSON) {
+      // Bevorzugt in Cloud-Umgebungen (DigitalOcean App Platform)
+      serviceAccount = JSON.parse(FCM_SERVICE_ACCOUNT_JSON);
+      logger.info(
+        { projectId: FCM_PROJECT_ID || serviceAccount.project_id },
+        '[fcm] initializing firebase-admin from JSON env'
+      );
+    } else {
+      const resolved = path.resolve(FCM_SERVICE_ACCOUNT_PATH);
+      // eslint-disable-next-line import/no-dynamic-require, global-require
+      serviceAccount = require(resolved);
+      logger.info(
+        { projectId: FCM_PROJECT_ID || serviceAccount.project_id, serviceAccountPath: resolved },
+        '[fcm] initializing firebase-admin from file'
+      );
+    }
+
+    if (!admin.apps.length) {
+      const app = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: FCM_PROJECT_ID || serviceAccount.project_id,
+      });
+      fcmMessaging = app.messaging();
+    } else {
+      fcmMessaging = admin.app().messaging();
+    }
+
+    fcmReady = true;
+    logger.info(
+      { projectId: FCM_PROJECT_ID || serviceAccount.project_id },
+      '[fcm] initialized firebase-admin'
+    );
+  } catch (err) {
+    fcmReady = false;
+    fcmMessaging = null;
+    logger.error(
+      { err, hasJson: Boolean(FCM_SERVICE_ACCOUNT_JSON), FCM_SERVICE_ACCOUNT_PATH, FCM_PROJECT_ID },
+      '[fcm] failed to init firebase-admin'
+    );
+  }
+} else {
+  logger.warn(
+    '[fcm] no FCM_SERVICE_ACCOUNT_JSON or FCM_SERVICE_ACCOUNT_PATH/GOOGLE_APPLICATION_CREDENTIALS set – FCM disabled'
+  );
+}
+
+async function sendFcmPush({ fcmToken, title, body, data }) {
+  if (!fcmReady || !fcmMessaging) {
+    logger.warn('[fcm] not initialized, skipping push');
+    return { ok: false, error: 'fcm-not-initialized' };
+  }
+  if (!fcmToken || typeof fcmToken !== 'string') {
+    logger.warn({ fcmToken }, '[fcm] missing fcmToken, skipping');
+    return { ok: false, error: 'missing-fcm-token' };
+  }
+
+  const dataPayload = {};
+  if (data && typeof data === 'object') {
+    Object.entries(data).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+      if (typeof v === 'string') {
+        dataPayload[String(k)] = v;
+      } else {
+        dataPayload[String(k)] = JSON.stringify(v);
+      }
+    });
+  }
+
+  const message = {
+    token: fcmToken,
+    notification: {
+      title: title || 'ULTREIA',
+      body: body || 'Neues Angebot in deiner Nähe.',
+    },
+    data: dataPayload,
+    android: {
+      priority: 'high',
+      notification: {
+        channelId: 'offers', // muss zu deinem Android-Channel "offers" passen
+        sound: 'default',
+      },
+    },
+  };
+
+  try {
+    const response = await fcmMessaging.send(message);
+    logger.info({ fcmToken, response }, '[fcm] send response');
+    return { ok: true, messageId: response };
+  } catch (err) {
+    logger.warn(
+      { fcmToken, err: { message: err.message, code: err.code, stack: err.stack } },
+      '[fcm] send error'
+    );
+    return { ok: false, error: err.message || String(err), code: err.code };
+  }
+}
+
+// ── App Setup ─────────────────────────────────────────────────────────────────
+const app = express();
+app.set('trust proxy', true);
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+  })
+);
+
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: '100kb' }));
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', apiLimiter);
+
+// request-id + logging
+app.use((req, res, next) => {
+  if (!req.headers['x-request-id']) req.headers['x-request-id'] = crypto.randomUUID();
+  res.setHeader('x-request-id', req.headers['x-request-id']);
+  next();
+});
+app.use(
+  pinoHttp({
+    logger,
+    customLogLevel: (res, err) => {
+      if (err || res.statusCode >= 500) return 'error';
+      if (res.statusCode >= 400) return 'warn';
+      return 'info';
+    },
+    customSuccessMessage: (req, res) => `${req.method} ${req.url} -> ${res.statusCode}`,
+    autoLogging: { ignore: (req) => req.url === '/favicon.ico' },
+  })
+);
+
+// ── Models ────────────────────────────────────────────────────────────────────
+const deviceSchema = new mongoose.Schema(
+  {
+    deviceId: { type: String, required: true, unique: true, index: true },
+    platform: { type: String, enum: ['android', 'ios', 'web', 'unknown'], default: 'unknown' },
+    expoPushToken: { type: String },
+    fcmToken: { type: String },
+    lastSeenAt: { type: Date },
+    invalid: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+const heartbeatSchema = new mongoose.Schema(
+  {
+    deviceId: { type: String, required: true, index: true },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+    accuracy: { type: Number },
+    ts: { type: Date, default: () => new Date() },
+    serverReceivedAt: { type: Date, default: () => new Date(), index: true },
+
+    powerState: { type: String },
+    battery: {
+      level: { type: Number, min: 0, max: 1 },
+      charging: { type: Boolean },
+    },
+
+    // Interessen-Snapshot für diesen Heartbeat (z.B. ['albergue','restaurant'])
+    interests: [{ type: String }],
+
+    // TTL: Heartbeats laufen nach ~30 Tagen aus
+    expireAt: { type: Date, default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) },
+  },
+  { timestamps: true }
+);
+
+heartbeatSchema.index({ deviceId: 1, ts: -1 });
+heartbeatSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
+
+const Device = mongoose.models.Device || mongoose.model('Device', deviceSchema);
+const Heartbeat =
+  mongoose.models.Heartbeat || mongoose.model('Heartbeat', heartbeatSchema);
+
+// ── Health ────────────────────────────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const dbState = states[mongoose.connection.readyState] || 'unknown';
+
+  return res.json({
+    ok: true,
+    service: 'ultreia-backend',
+    env: NODE_ENV,
+    db: dbState,
+    time: new Date().toISOString(),
+    uptimeSec: Math.round(process.uptime()),
+    expoPushReady,
+    fcmReady,
+  });
+});
+
+// ── Offers-Routen (für Admin-Frontend) ────────────────────────────────────────
+app.use('/api/offers', offersRouter);
+
+// ── Endpoints ─────────────────────────────────────────────────────────────────
+// 1) Register/Update device
+app.post('/api/push/register', async (req, res, next) => {
+  try {
+    const { deviceId, platform = 'android', expoToken, fcmToken } = req.body || {};
+    if (!deviceId || typeof deviceId !== 'string') {
+      return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
+    }
+
+    const update = {
+      platform: ['android', 'ios', 'web'].includes(platform) ? platform : 'unknown',
+      lastSeenAt: new Date(),
+      invalid: false,
+    };
+    if (expoToken) update.expoPushToken = String(expoToken);
+    if (fcmToken) update.fcmToken = String(fcmToken);
+
+    const dev = await Device.findOneAndUpdate(
+      { deviceId },
+      { $set: update },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    req.log.info(
+      {
+        deviceId,
+        hasExpoToken: Boolean(dev.expoPushToken),
+        hasFcmToken: Boolean(dev.fcmToken),
+      },
+      '[register] upsert ok'
+    );
+
+    return res.json({
+      ok: true,
+      device: {
+        deviceId: dev.deviceId,
+        platform: dev.platform,
+        hasExpoToken: Boolean(dev.expoPushToken),
+        hasFcmToken: Boolean(dev.fcmToken),
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 2) Heartbeat ingest + Offer-Matching + Push (FCM bevorzugt, Expo Fallback)
+app.post('/api/location/heartbeat', async (req, res, next) => {
+  try {
+    const {
+      deviceId,
+      lat,
+      lng,
+      accuracy,
+      ts,
+      battery,
+      powerState,
+      interests,
+    } = req.body || {};
+
+    const nlat = Number(lat);
+    const nlng = Number(lng);
+    const nacc = accuracy != null ? Number(accuracy) : undefined;
+
+    // interests optional normalisieren (string[] oder kommagetrennter String)
+    let interestList = null;
+    if (Array.isArray(interests)) {
+      interestList = interests
+        .map((v) => (typeof v === 'string' ? v : String(v)))
+        .map((v) => v.trim().toLowerCase())
+        .filter((v) => v.length > 0);
+      if (interestList.length === 0) {
+        interestList = null;
+      }
+    } else if (typeof interests === 'string' && interests.trim() !== '') {
+      interestList = interests
+        .split(',')
+        .map((v) => v.trim().toLowerCase())
+        .filter((v) => v.length > 0);
+      if (interestList.length === 0) {
+        interestList = null;
+      }
+    }
+
+    if (!deviceId || typeof deviceId !== 'string') {
+      return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
+    }
+    if (!Number.isFinite(nlat) || !Number.isFinite(nlng)) {
+      return res.status(400).json({ ok: false, error: 'lat/lng required (number)' });
+    }
+
+    const now = new Date();
+    const hb = await Heartbeat.create({
+      deviceId,
+      lat: nlat,
+      lng: nlng,
+      accuracy: Number.isFinite(nacc) ? nacc : undefined,
+      ts: ts ? new Date(ts) : now,
+      serverReceivedAt: now,
+      battery: battery && typeof battery === 'object' ? battery : undefined,
+      powerState: powerState ? String(powerState) : undefined,
+      interests: interestList && interestList.length > 0 ? interestList : undefined,
+    });
+
+    await Device.findOneAndUpdate(
+      { deviceId },
+      { $set: { lastSeenAt: now, invalid: false } },
+      { upsert: true, setDefaultsOnInsert: true }
+    );
+
+    let offers = [];
+    try {
+      const point = {
+        type: 'Point',
+        coordinates: [nlng, nlat],
+      };
+
+      // Basis-Filter
+      const offerMatch = {
+        active: true,
+        validFrom: { $lte: now },
+        validUntil: { $gte: now },
+        location: {
+          $near: {
+            $geometry: point,
+            $maxDistance: OFFER_MAX_DISTANCE_METERS,
+          },
+        },
+      };
+
+      // Nur wenn Interessen vorhanden sind, zusätzlich nach Kategorie filtern
+      if (interestList && interestList.length > 0) {
+        offerMatch.category = { $in: interestList };
+      }
+
+      offers = await Offer.find(offerMatch).limit(10).lean();
+    } catch (matchErr) {
+      req.log.warn({ deviceId, err: matchErr }, '[hb] offer match failed');
+    }
+
+    req.log.info(
+      {
+        deviceId,
+        id: hb._id,
+        offers: offers.length,
+        hasInterests: Boolean(interestList && interestList.length > 0),
+        interests: interestList,
+      },
+      '[hb] stored'
+    );
+
+    if (offers.length > 0) {
+      (async () => {
+        try {
+          const dev = await Device.findOne({ deviceId }).lean();
+          if (!dev) {
+            req.log.info({ deviceId }, '[hb] no device doc, skip push');
+            return;
+          }
+
+          const primary = offers[0];
+          const dataPayload = {
+            deviceId,
+            offerIds: offers.map((o) => o._id.toString()).join(','),
+            source: 'heartbeat',
+          };
+
+          let pushResult = null;
+          let via = null;
+
+          if (dev.fcmToken && fcmReady) {
+            pushResult = await sendFcmPush({
+              fcmToken: dev.fcmToken,
+              title: primary.title || 'ULTREIA Angebot',
+              body: primary.body || 'Neues Angebot in deiner Nähe.',
+              data: dataPayload,
+            });
+            via = 'fcm';
+          } else if (dev.expoPushToken) {
+            pushResult = await sendExpoPush({
+              expoPushToken: dev.expoPushToken,
+              title: primary.title || 'ULTREIA Angebot',
+              body: primary.body || 'Neues Angebot in deiner Nähe.',
+              data: dataPayload,
+            });
+            via = 'expo';
+          } else {
+            req.log.info({ deviceId }, '[hb] no push token on device, skip push');
+            return;
+          }
+
+          req.log.info({ deviceId, via, pushResult }, '[hb] push triggered');
+        } catch (pushErr) {
+          req.log.warn({ deviceId, err: pushErr }, '[hb] push trigger failed');
+        }
+      })();
+    }
+
+    return res.json({
+      ok: true,
+      nextPollSec: HEARTBEAT_SECONDS,
+      savedId: hb._id.toString(),
+      offers: offers.map((o) => ({
+        id: o._id.toString(),
+        title: o.title,
+        body: o.body,
+        radiusMeters: o.radiusMeters,
+        validFrom: o.validFrom,
+        validUntil: o.validUntil,
+        category: o.category || null,
+      })),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 3) Simple success metric
+app.get('/api/metrics/heartbeat', async (req, res, next) => {
+  try {
+    const deviceId = req.query.deviceId ? String(req.query.deviceId) : null;
+    const minutes = Math.max(1, Math.min(1440, Number(req.query.minutes) || 15));
+    const since = new Date(Date.now() - minutes * 60 * 1000);
+
+    const match = deviceId ? { deviceId, ts: { $gte: since } } : { ts: { $gte: since } };
+    const count = await Heartbeat.countDocuments(match);
+
+    const expected = Math.max(1, Math.floor((minutes * 60) / HEARTBEAT_SECONDS));
+    const successRate = Math.min(1, count / expected);
+
+    const last = await Heartbeat.find(deviceId ? { deviceId } : {})
+      .sort({ ts: -1 })
+      .limit(5)
+      .select({ deviceId: 1, ts: 1, serverReceivedAt: 1, _id: 0 });
+
+    return res.json({
+      ok: true,
+      windowMinutes: minutes,
+      heartbeatSeconds: HEARTBEAT_SECONDS,
+      deviceScoped: Boolean(deviceId),
+      observed: count,
+      expected,
+      successRate,
+      last,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 4) Debug-Endpoint: Expo-Push + unmittelbare Receipts (sofort)
+app.post('/api/debug/push/:deviceId', async (req, res, next) => {
+  try {
+    const { deviceId } = req.params;
+    const dev = await Device.findOne({ deviceId }).lean();
+
+    if (!dev) {
+      return res.status(404).json({ ok: false, error: 'device not found' });
+    }
+    if (!dev.expoPushToken) {
+      return res.status(400).json({ ok: false, error: 'device has no expoPushToken' });
+    }
+
+    const title = (req.body && req.body.title) || 'ULTREIA Debug (Expo)';
+    const bodyText = (req.body && req.body.body) || 'Debug-Push vom Backend (Expo)';
+
+    const pushResult = await sendExpoPush({
+      expoPushToken: dev.expoPushToken,
+      title,
+      body: bodyText,
+      data: { source: 'debug-endpoint-expo', deviceId },
+    });
+
+    let receipts = null;
+    if (pushResult && pushResult.ticket && pushResult.ticket.id) {
+      const ticketId = pushResult.ticket.id;
+      const receiptResult = await getExpoReceipts([ticketId]);
+      receipts = {
+        ticketId,
+        raw: receiptResult.body,
+      };
+
+      try {
+        const data = receiptResult.body && receiptResult.body.data;
+        const r = data && data[ticketId];
+        if (r && r.status === 'error' && r.details && r.details.error === 'DeviceNotRegistered') {
+          await Device.updateOne(
+            { deviceId },
+            { $set: { invalid: true, expoPushToken: null } }
+          );
+          logger.warn(
+            { deviceId, ticketId },
+            '[push-expo] DeviceNotRegistered – marked device invalid & cleared expoPushToken'
+          );
+        }
+      } catch (markErr) {
+        logger.warn({ deviceId, markErr }, '[push-expo] failed to mark device invalid');
+      }
+    }
+
+    return res.json({
+      ok: true,
+      deviceId,
+      expoPushToken: dev.expoPushToken,
+      pushResult,
+      receipts,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 5) Neuer Endpoint: Receipts später nachfragen (Expo)
+app.get('/api/debug/receipts/:ticketId', async (req, res, next) => {
+  try {
+    const { ticketId } = req.params;
+    if (!ticketId) {
+      return res.status(400).json({ ok: false, error: 'ticketId required' });
+    }
+
+    const receiptsResult = await getExpoReceipts([ticketId]);
+
+    return res.json({
+      ok: true,
+      ticketId,
+      receiptsResult,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 6) Neuer Endpoint: Direkter FCM-Debug-Push
+app.post('/api/debug/push-fcm/:deviceId', async (req, res, next) => {
+  try {
+    const { deviceId } = req.params;
+    const dev = await Device.findOne({ deviceId }).lean();
+
+    if (!dev) {
+      return res.status(404).json({ ok: false, error: 'device not found' });
+    }
+    if (!dev.fcmToken) {
+      return res.status(400).json({ ok: false, error: 'device has no fcmToken' });
+    }
+
+    const title = (req.body && req.body.title) || 'ULTREIA Debug (FCM)';
+    const bodyText = (req.body && req.body.body) || 'Debug-Push vom Backend (FCM)';
+
+    const dataPayload = {
+      source: 'debug-endpoint-fcm',
+      deviceId,
+    };
+
+    const pushResult = await sendFcmPush({
+      fcmToken: dev.fcmToken,
+      title,
+      body: bodyText,
+      data: dataPayload,
+    });
+
+    return res.json({
+      ok: true,
+      deviceId,
+      fcmToken: dev.fcmToken,
+      pushResult,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// Root & Errors ────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.status(200).json({ ok: true, message: 'ULTREIA backend ready. See /api/health' });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ ok: false, error: 'Not Found', path: req.originalUrl });
+});
+
+app.use((err, req, res, next) => {
+  req.log?.error({ err }, 'Unhandled error');
+  if (res.headersSent) return;
+  res.status(500).json({ ok: false, error: 'Internal Server Error' });
+});
+
+// Start / Shutdown ─────────────────────────────────────────────────────────────
+let httpServer;
+
+function maskMongoUri(uri) {
+  try {
+    return uri.replace(/\/\/([^@]+)@/, '//***:***@');
+  } catch (e) {
+    return uri;
+  }
+}
+
+async function start() {
+  try {
+    logger.info({ uri: maskMongoUri(MONGODB_URI) }, 'Connecting MongoDB…');
+    await mongoose.connect(MONGODB_URI);
+    logger.info('MongoDB connected');
+
+    httpServer = app.listen(PORT, () => {
+      logger.info({ port: PORT, env: NODE_ENV }, 'Server listening');
+    });
+  } catch (err) {
+    logger.error({ err }, 'Failed to start server');
+    process.exit(1);
+  }
+}
+
+async function shutdown(signal) {
+  try {
+    logger.warn({ signal }, 'Shutting down…');
+    if (httpServer) {
+      await new Promise((resolve) => httpServer.close(resolve));
+      logger.info('HTTP server closed');
+    }
+    await mongoose.connection.close();
+    logger.info('MongoDB connection closed');
+    process.exit(0);
+  } catch (err) {
+    logger.error({ err }, 'Shutdown error');
+    process.exit(1);
+  }
+}
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+start();
+</file>
+
+<file path="mobile/app.json">
+{
+  "expo": {
+    "name": "ULTREIA",
+    "slug": "ultreia",
+    "scheme": "ultreia",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.ecily.ultreia",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "WAKE_LOCK",
+        "RECEIVE_BOOT_COMPLETED",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "INTERNET",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ],
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiBase": "https://orca-app-xtzrs.ondigitalocean.app/api",
+      "eas": {
+        "projectId": "a6310341-1133-4528-91fd-4dd33c27dab6"
+      }
+    },
+    "owner": "ecily",
+    "plugins": [
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
+    ]
+  }
+}
+</file>
+
+<file path="mobile/App.js">
+// ULTREIA – Heartbeat + Push MVP (mit Watchdog, JS-only)
+// - BG-Location (≈20s + ~100m) via Foreground-Service-Notification
+// - Foreground-Heartbeat-Loop (Timer) für stabilere HBs
+// - BackgroundFetch als Fallback
+// - Device-Register inkl. Expo-Push-Token + FCM-Token + Diagnostics
+// - Zentrale Heartbeat-Engine mit Reason + Latenz-Logging
+// - Watchdog (HB-Alter + Self-Heal bei AppState 'active')
+// - BG-Diagnostics (Permissions + Task-Status)
+// - Lokale Test-Notification
+// - Onboarding für Pilger (inkl. Kategorien/Interessen)
+// - API_BASE über app.json (Online-Backend auf DO oder lokal per adb reverse)
+
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  AppState,
+  ScrollView,
+} from 'react-native';
+import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
+import * as Notifications from 'expo-notifications';
+import * as BackgroundFetch from 'expo-background-fetch';
+import Constants from 'expo-constants';
+
+const TASK_IDS = {
+  bgLoc: 'ultreia-bg-location-task',
+  fetch: 'ultreia-heartbeat-fetch',
+};
+const NOTIF_CHANNELS = { fg: 'ultreia-fg', offers: 'offers' };
+
+// Ziel: Sweet-Spot für Fußgänger (~12 min/km).
+// Nominell 20s Heartbeat + ~100m Distanz. Android drosselt im BG, aber
+// damit landen wir real eher im 1–3-Minuten-Bereich als bei 5–10.
+const HEARTBEAT_SECONDS = 20;
+const BG_DISTANCE_METERS = 100;
+
+// Foreground-Heartbeat-Loop (zusätzlicher Timer, der HBs nicht nur an Location bindet)
+const HB_LOOP_SECONDS = 30;
+
+// Watchdog: ab diesem Alter (in Sekunden) betrachten wir den letzten Heartbeat
+// als "alt" und versuchen bei AppState 'active' ein Self-Heal (Rearm+HB).
+const WATCHDOG_THRESHOLD_SECONDS = 3 * 60;
+const WATCHDOG_POLL_SECONDS = 30;
+
+// API-Base: aus app.json / extra.apiBase (Online-Backend auf DO)
+// Emulator-Fallback: 10.0.2.2
+const API_BASE =
+  (Constants?.expoConfig?.extra && Constants.expoConfig.extra.apiBase) ||
+  'http://10.0.2.2:4000/api';
+
+const DEVICE_ID = 'ULTR-DEV-001';
+
+// Aktuelle Interessen-Liste (Offer-Kategorien) basierend auf Pilger-Präferenzen.
+let currentInterests = null;
+
+// Mapping der UI-Präferenzen auf Offer-Kategorien im Backend
+function buildInterestsFromPrefs({ prefAccommodation, prefFood, prefPharmacy, prefWater }) {
+  const list = [];
+
+  if (prefAccommodation) {
+    list.push('albergue', 'hostel');
+  }
+  if (prefFood) {
+    list.push('restaurant', 'bar');
+  }
+  if (prefPharmacy) {
+    list.push('pharmacy');
+  }
+  if (prefWater) {
+    list.push('water');
+  }
+
+  return Array.from(new Set(list));
+}
+
+// Globaler Timestamp des letzten erfolgreichen Heartbeats
+let lastHeartbeatAtMs = null;
+// Historie der Inter-HB-Intervalle (Sekunden)
+let hbIntervals = [];
+// Timer-ID des Foreground-Heartbeat-Loops
+let hbLoopTimerId = null;
+
+// ── Notifications Handler ─────────────────────────────────────────────────────
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+// ── API Calls / Heartbeat-Engine ─────────────────────────────────────────────
+async function sendHeartbeat({ lat, lng, accuracy, reason = 'unknown', interests }) {
+  const startedAt = Date.now();
+
+  let finalInterests = null;
+  if (Array.isArray(interests) && interests.length > 0) {
+    finalInterests = interests;
+  } else if (Array.isArray(currentInterests) && currentInterests.length > 0) {
+    finalInterests = currentInterests;
+  }
+
+  const payload = {
+    deviceId: DEVICE_ID,
+    lat,
+    lng,
+    accuracy,
+    ts: new Date().toISOString(),
+    powerState: 'unknown',
+    source: reason,
+  };
+
+  if (finalInterests && finalInterests.length > 0) {
+    payload.interests = finalInterests;
+  }
+
+  console.log(
+    `[HB] start reason=${reason} lat=${lat} lng=${lng} acc=${
+      accuracy != null ? accuracy : 'n/a'
+    } interests=${finalInterests && finalInterests.length ? finalInterests.join(',') : 'none'}`
+  );
+
+  const res = await fetch(`${API_BASE}/location/heartbeat`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const finishedAt = Date.now();
+  const latencyMs = finishedAt - startedAt;
+
+  const data = await res.json().catch(() => null);
+  console.log('[HB] response payload:', data);
+
+  if (!res.ok) {
+    const msg = `HTTP ${res.status}`;
+    console.warn(`[HB] error reason=${reason} latency=${latencyMs}ms: ${msg}`);
+    throw new Error(msg);
+  }
+
+  let intervalSec = null;
+  if (lastHeartbeatAtMs != null) {
+    const deltaSec = Math.round((finishedAt - lastHeartbeatAtMs) / 1000);
+    intervalSec = deltaSec;
+    hbIntervals.push(deltaSec);
+    if (hbIntervals.length > 60) {
+      hbIntervals.shift();
+    }
+  }
+  lastHeartbeatAtMs = finishedAt;
+
+  console.log(
+    `[HB] ok reason=${reason} latency=${latencyMs}ms interval=${
+      intervalSec != null ? `${intervalSec}s` : 'n/a'
+    } samples=${hbIntervals.length}`
+  );
+
+  return { data, latencyMs, intervalSec };
+}
+
+async function registerDevice({ expoPushToken, fcmToken } = {}) {
+  const body = {
+    deviceId: DEVICE_ID,
+    platform: Platform.OS === 'android' ? 'android' : Platform.OS || 'unknown',
+  };
+
+  if (expoPushToken) {
+    body.expoToken = String(expoPushToken);
+  }
+  if (fcmToken) {
+    body.fcmToken = String(fcmToken);
+  }
+
+  const res = await fetch(`${API_BASE}/push/register`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`register HTTP ${res.status} ${txt}`);
+  }
+  return res.json();
+}
+
+// ── BG-Location Task ─────────────────────────────────────────────────────────-
+try {
+  TaskManager.defineTask(TASK_IDS.bgLoc, async ({ data, error }) => {
+    if (error) {
+      console.warn('[BG TASK] error:', error);
+      return;
+    }
+    const payload = data || {};
+    const locations = payload.locations || [];
+    if (locations && locations.length) {
+      const loc = locations[0];
+      const coords = (loc && loc.coords) || {};
+      console.log(
+        '[BG TASK] location update:',
+        `lat=${coords.latitude} lng=${coords.longitude} acc=${coords.accuracy}`
+      );
+      try {
+        await sendHeartbeat({
+          lat: coords.latitude,
+          lng: coords.longitude,
+          accuracy: coords.accuracy,
+          reason: 'bg-location',
+        });
+      } catch (e2) {
+        console.warn('[BG TASK] heartbeat failed:', (e2 && e2.message) || e2);
+      }
+    } else {
+      console.log('[BG TASK] no locations in payload');
+    }
+  });
+} catch (e) {
+  // duplicate define on fast refresh
+}
+
+// ── BackgroundFetch Task ─────────────────────────────────────────────────-----
+try {
+  TaskManager.defineTask(TASK_IDS.fetch, async () => {
+    console.log('[FETCH TASK] tick');
+    try {
+      const last = await Location.getLastKnownPositionAsync();
+      if (last && last.coords) {
+        console.log(
+          '[FETCH TASK] using lastKnown:',
+          `lat=${last.coords.latitude} lng=${last.coords.longitude} acc=${last.coords.accuracy}`
+        );
+        await sendHeartbeat({
+          lat: last.coords.latitude,
+          lng: last.coords.longitude,
+          accuracy: last.coords.accuracy,
+          reason: 'fetch',
+        });
+      } else {
+        console.log('[FETCH TASK] no lastKnown coords available');
+      }
+      return BackgroundFetch.BackgroundFetchResult.NewData;
+    } catch (e2) {
+      console.warn('[FETCH TASK] failed:', (e2 && e.message) || e2);
+      return BackgroundFetch.BackgroundFetchResult.Failed;
+    }
+  });
+} catch (e) {
+  // duplicate define
+}
+
+// ── Start BG-Location ─────────────────────────────────────────────────--------
+async function startBgLocation() {
+  const hasStarted = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
+  if (hasStarted) {
+    console.log('[BG] already started');
+    return;
+  }
+
+  console.log(
+    '[BG] starting location updates…',
+    `interval=${HEARTBEAT_SECONDS}s distance=${BG_DISTANCE_METERS}m`
+  );
+  await Location.startLocationUpdatesAsync(TASK_IDS.bgLoc, {
+    accuracy: Location.Accuracy.Balanced,
+    timeInterval: HEARTBEAT_SECONDS * 1000,
+    // Für Tests kann distanceInterval auf 0 gesetzt werden, um auch ohne Bewegung HBs zu erzwingen.
+    distanceInterval: BG_DISTANCE_METERS,
+    foregroundService: {
+      notificationTitle: 'ULTREIA läuft – Pilgerhilfe aktiv',
+      notificationBody: 'Sorgt für regelmäßige Herzschläge im Hintergrund.',
+      notificationColor: '#000000',
+      killServiceOnDestroy: false,
+    },
+    pausesUpdatesAutomatically: false,
+    showsBackgroundLocationIndicator: false,
+  });
+}
+
+// ── Foreground-Heartbeat-Loop ────────────────────────────────────────────────
+async function resolveCoordsForHeartbeat() {
+  const last = await Location.getLastKnownPositionAsync();
+  if (last && last.coords) {
+    return last.coords;
+  }
+  const cur = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+  return cur.coords;
+}
+
+function startHeartbeatLoop(updateState) {
+  if (hbLoopTimerId) {
+    console.log('[HB-Loop] already running');
+    updateState((s) => ({ ...s, hbLoopActive: true }));
+    return;
+  }
+
+  console.log('[HB-Loop] starting loop…', `interval=${HB_LOOP_SECONDS}s`);
+  updateState((s) => ({ ...s, hbLoopActive: true }));
+
+  const runTick = async () => {
+    try {
+      const coords = await resolveCoordsForHeartbeat();
+      if (!coords) {
+        console.warn('[HB-Loop] no coords available');
+        return;
+      }
+      const hbResult = await sendHeartbeat({
+        lat: coords.latitude,
+        lng: coords.longitude,
+        accuracy: coords.accuracy,
+        reason: 'fg-loop',
+      });
+      updateState((s) => ({
+        ...s,
+        lastOkAt: new Date(),
+        lastErr: null,
+        lastResp: hbResult.data,
+        lastHeartbeatReason: 'fg-loop',
+        lastHeartbeatLatencyMs: hbResult.latencyMs,
+        lastHeartbeatAt: new Date().toISOString(),
+        hbAgeSeconds: 0,
+        hbLoopActive: true,
+      }));
+    } catch (e) {
+      console.warn('[HB-Loop] tick failed:', (e && e.message) || e);
+      updateState((s) => ({
+        ...s,
+        lastErr: `[hb-loop] ${(e && e.message) || e}`,
+        hbLoopActive: true,
+      }));
+    }
+  };
+
+  hbLoopTimerId = setInterval(runTick, HB_LOOP_SECONDS * 1000);
+}
+
+function stopHeartbeatLoop(updateState) {
+  if (hbLoopTimerId) {
+    clearInterval(hbLoopTimerId);
+    hbLoopTimerId = null;
+    console.log('[HB-Loop] stopped');
+  }
+  if (updateState) {
+    updateState((s) => ({ ...s, hbLoopActive: false }));
+  }
+}
+
+// ── BackgroundFetch registrieren ─────────────────────────────────────────────-
+async function ensureBackgroundFetch() {
+  const registered = await TaskManager.isTaskRegisteredAsync(TASK_IDS.fetch);
+  if (!registered) {
+    try {
+      console.log('[Fetch] registering BackgroundFetch…');
+      await BackgroundFetch.registerTaskAsync(TASK_IDS.fetch, {
+        minimumInterval: 15 * 60,
+        stopOnTerminate: false,
+        startOnBoot: true,
+      });
+    } catch (e) {
+      console.warn('[Fetch] register failed:', (e && e.message) || e);
+    }
+  } else {
+    console.log('[Fetch] already registered');
+  }
+}
+
+// ── Diagnostics: BG-Status Refresh ────────────────────────────────────────────
+async function refreshRuntimeStatus(updateState) {
+  try {
+    const hasBgLoc = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
+
+    let fetchStatusLabel = 'unknown';
+    try {
+      const status = await BackgroundFetch.getStatusAsync();
+      if (status === BackgroundFetch.BackgroundFetchStatus.Available) {
+        fetchStatusLabel = 'available';
+      } else if (status === BackgroundFetch.BackgroundFetchStatus.Denied) {
+        fetchStatusLabel = 'denied';
+      } else if (status === BackgroundFetch.BackgroundFetchStatus.Restricted) {
+        fetchStatusLabel = 'restricted';
+      }
+    } catch (e) {
+      console.warn('[Diag] getStatusAsync failed:', (e && e.message) || e);
+    }
+
+    updateState((s) => ({
+      ...s,
+      bgLocRunning: !!hasBgLoc,
+      fetchStatus: fetchStatusLabel,
+    }));
+
+    console.log('[Diag] bgLocRunning=', !!hasBgLoc, 'fetchStatus=', fetchStatusLabel);
+  } catch (e) {
+    console.warn('[Diag] refreshRuntimeStatus failed:', (e && e.message) || e);
+  }
+}
+
+// ── Permissions ───────────────────────────────────────────────────────────────
+async function ensurePermissions(setState) {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync(NOTIF_CHANNELS.fg, {
+      name: 'ULTREIA Service',
+      importance: Notifications.AndroidImportance.MIN,
+      vibrationPattern: [0],
+      bypassDnd: false,
+      sound: undefined,
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.SECRET,
+    });
+    await Notifications.setNotificationChannelAsync(NOTIF_CHANNELS.offers, {
+      name: 'ULTREIA Offers',
+      importance: Notifications.AndroidImportance.MAX,
+    });
+
+    const notifPermBefore = await Notifications.getPermissionsAsync();
+    console.log('[Perm] notif before request:', notifPermBefore);
+    const notifPerm = await Notifications.requestPermissionsAsync();
+    console.log('[Perm] notif after request:', notifPerm);
+    setState((s) => ({
+      ...s,
+      notifPermission: notifPerm && notifPerm.status ? notifPerm.status : 'unknown',
+    }));
+  }
+
+  const fg = await Location.requestForegroundPermissionsAsync();
+  console.log('[Perm] fg location:', fg);
+  setState((s) => ({
+    ...s,
+    fgLocationPermission: fg.status || 'unknown',
+  }));
+  if (fg.status !== 'granted') throw new Error('Foreground location permission denied');
+
+  if (Platform.OS === 'android') {
+    const bg = await Location.requestBackgroundPermissionsAsync();
+    console.log('[Perm] bg location (request):', bg);
+    setState((s) => ({
+      ...s,
+      bgLocationPermission: bg.status || 'unknown',
+    }));
+    if (bg.status !== 'granted') {
+      console.warn('Background location permission not granted yet.');
+    }
+
+    const bgCurrent = await Location.getBackgroundPermissionsAsync();
+    console.log('[Perm] bg location (current):', bgCurrent);
+  }
+}
+
+// ── Helper: einmaliger FG-Heartbeat mit Reason ───────────────────────────────
+async function sendImmediateHeartbeat(reason) {
+  const hbReason = reason || 'init';
+  const coords = await resolveCoordsForHeartbeat();
+  if (!coords) {
+    throw new Error('No coords available');
+  }
+  return sendHeartbeat({
+    lat: coords.latitude,
+    lng: coords.longitude,
+    accuracy: coords.accuracy,
+    reason: hbReason,
+  });
+}
+
+// ── UI Komponente ─────────────────────────────────────────────────────────────
+export default function App() {
+  const [state, setState] = useState({
+    // Onboarding / Pilger-Setup
+    onboardingCompleted: false,
+    onboardingStep: 0,
+    prefAccommodation: true,
+    prefFood: true,
+    prefPharmacy: false,
+    prefWater: true,
+
+    // Heartbeat / Diagnostics
+    ready: false,
+    lastOkAt: null,
+    lastErr: null,
+    lastResp: null,
+    lastHeartbeatReason: null,
+    lastHeartbeatLatencyMs: null,
+    lastHeartbeatAt: null,
+    hbAgeSeconds: null,
+    bgLocRunning: false,
+    fetchStatus: 'unknown',
+    pushToken: null,
+    fcmToken: null,
+    deviceRegistered: false,
+    lastNotification: null,
+    notifPermission: 'unknown',
+    fgLocationPermission: 'unknown',
+    bgLocationPermission: 'unknown',
+    hbLoopActive: false,
+  });
+
+  const [hasRunInit, setHasRunInit] = useState(false);
+
+  const appState = useRef(AppState.currentState);
+  const notificationListener = useRef(null);
+  const responseListener = useRef(null);
+  const lastHbMsRef = useRef(null);
+
+  // Interessen global aktualisieren, wenn Präferenzen sich ändern
+  useEffect(() => {
+    const interests = buildInterestsFromPrefs({
+      prefAccommodation: state.prefAccommodation,
+      prefFood: state.prefFood,
+      prefPharmacy: state.prefPharmacy,
+      prefWater: state.prefWater,
+    });
+    currentInterests = interests;
+    console.log('[Interests] updated:', interests);
+  }, [state.prefAccommodation, state.prefFood, state.prefPharmacy, state.prefWater]);
+
+  // AppState → bei active BG-Location + Diagnostics + Watchdog-Heal + HB-Loop
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', async (nextState) => {
+      appState.current = nextState;
+      if (nextState === 'active') {
+        try {
+          console.log(
+            '[AppState] active → ensure BG running + refresh diag + watchdog-check + hb-loop'
+          );
+          const hasBg = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
+          if (!hasBg) {
+            console.log('[ReArm] bgLoc not running → startBgLocation');
+            await startBgLocation();
+          }
+
+          await refreshRuntimeStatus(setState);
+          startHeartbeatLoop(setState);
+
+          if (lastHeartbeatAtMs) {
+            const ageMs = Date.now() - lastHeartbeatAtMs;
+            const ageSec = Math.floor(ageMs / 1000);
+            console.log('[Watchdog] HB age on active:', ageSec, 's');
+            if (ageSec > WATCHDOG_THRESHOLD_SECONDS) {
+              console.log('[Watchdog] HB stale → sending watchdog-rearm heartbeat');
+              try {
+                const hbResult = await sendImmediateHeartbeat('watchdog-rearm');
+                setState((s) => ({
+                  ...s,
+                  lastOkAt: new Date(),
+                  lastErr: null,
+                  lastResp: hbResult.data,
+                  lastHeartbeatReason: 'watchdog-rearm',
+                  lastHeartbeatLatencyMs: hbResult.latencyMs,
+                  lastHeartbeatAt: new Date().toISOString(),
+                  hbAgeSeconds: 0,
+                }));
+                lastHbMsRef.current = Date.now();
+              } catch (e) {
+                console.warn('[Watchdog] watchdog-rearm failed:', (e && e.message) || e);
+                setState((s) => ({
+                  ...s,
+                  lastErr: `[watchdog] ${(e && e.message) || e}`,
+                }));
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[ReArm/AppState] failed:', (e && e.message) || e);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
+  // Notification Listener
+  useEffect(() => {
+    const notifSub = Notifications.addNotificationReceivedListener((notification) => {
+      try {
+        const content = notification && notification.request ? notification.request.content : {};
+        const info = {
+          title: content.title || '',
+          body: content.body || '',
+          data: content.data || {},
+          receivedAt: new Date().toISOString(),
+        };
+        console.log('[Notif] received:', info);
+        setState((s) => ({
+          ...s,
+          lastNotification: JSON.stringify(info),
+        }));
+      } catch (e) {
+        console.warn('[Notif] parse failed:', (e && e.message) || e);
+      }
+    });
+
+    const respSub = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log('[Notif] response:', response);
+    });
+
+    notificationListener.current = notifSub;
+    responseListener.current = respSub;
+
+    return () => {
+      if (notificationListener.current && typeof notificationListener.current.remove === 'function') {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current && typeof responseListener.current.remove === 'function') {
+        responseListener.current.remove();
+      }
+    };
+  }, []);
+
+  // Initiales Setup – läuft erst NACH abgeschlossenem Onboarding
+  useEffect(() => {
+    if (!state.onboardingCompleted || hasRunInit) {
+      return;
+    }
+
+    (async () => {
+      try {
+        let expoToken = null;
+        let fcmToken = null;
+
+        try {
+          const projectId =
+            (Constants &&
+              Constants.expoConfig &&
+              Constants.expoConfig.extra &&
+              Constants.expoConfig.extra.eas &&
+              Constants.expoConfig.extra.eas.projectId) ||
+            (Constants && Constants.easConfig && Constants.easConfig.projectId) ||
+            null;
+
+          const tokenData = await Notifications.getExpoPushTokenAsync(
+            projectId ? { projectId } : undefined
+          );
+          expoToken = tokenData.data;
+          console.log('[Push] Expo token:', expoToken);
+          setState((s) => ({ ...s, pushToken: expoToken }));
+        } catch (e) {
+          console.warn('[Push] getExpoPushTokenAsync failed:', (e && e.message) || e);
+          setState((s) => ({
+            ...s,
+            lastErr: `[PushToken] ${(e && e.message) || e}`,
+          }));
+        }
+
+        if (Platform.OS === 'android') {
+          try {
+            const nativeToken = await Notifications.getDevicePushTokenAsync();
+            fcmToken = nativeToken && nativeToken.data ? nativeToken.data : null;
+            console.log('[Push] FCM native token:', fcmToken);
+            if (fcmToken) {
+              setState((s) => ({ ...s, fcmToken }));
+            }
+          } catch (e) {
+            console.warn('[Push] getDevicePushTokenAsync failed:', (e && e.message) || e);
+            setState((s) => ({
+              ...s,
+              lastErr: `[FCMToken] ${(e && e.message) || e}`,
+            }));
+          }
+        }
+
+        try {
+          const resp = await registerDevice({ expoPushToken: expoToken, fcmToken });
+          console.log('[registerDevice] resp:', resp);
+          if (resp && resp.ok) {
+            setState((s) => ({ ...s, deviceRegistered: true }));
+          }
+        } catch (e) {
+          console.warn('[registerDevice] failed:', (e && e.message) || e);
+          setState((s) => ({
+            ...s,
+            lastErr: `[register] ${(e && e.message) || e}`,
+          }));
+        }
+
+        if (appState.current === 'active') {
+          await startBgLocation();
+          startHeartbeatLoop(setState);
+        } else {
+          console.log('[INIT] app not active, BG/HB-Loop will be ensured on first active');
+        }
+
+        await ensureBackgroundFetch();
+        await refreshRuntimeStatus(setState);
+
+        const hbResult = await sendImmediateHeartbeat('init');
+
+        lastHbMsRef.current = lastHeartbeatAtMs || Date.now();
+
+        setState((s) => ({
+          ...s,
+          ready: true,
+          lastOkAt: new Date(),
+          lastErr: null,
+          lastResp: hbResult.data,
+          lastHeartbeatReason: 'init',
+          lastHeartbeatLatencyMs: hbResult.latencyMs,
+          lastHeartbeatAt: new Date().toISOString(),
+          hbAgeSeconds: 0,
+        }));
+
+        setHasRunInit(true);
+      } catch (e) {
+        console.warn('[INIT] failed:', (e && e.message) || e);
+        setState((s) => ({
+          ...s,
+          ready: false,
+          lastErr: (e && e.message) || String(e),
+        }));
+      }
+    })();
+
+    return () => {
+      stopHeartbeatLoop(setState);
+    };
+  }, [state.onboardingCompleted, hasRunInit]);
+
+  // Watchdog: HB-Alter im State halten
+  useEffect(() => {
+    const intervalMs = WATCHDOG_POLL_SECONDS * 1000;
+    const id = setInterval(() => {
+      if (!lastHeartbeatAtMs) {
+        return;
+      }
+      const ageMs = Date.now() - lastHeartbeatAtMs;
+      const ageSec = Math.floor(ageMs / 1000);
+      setState((s) => {
+        const prevAge = s.hbAgeSeconds;
+        const prevLastAt = s.lastHeartbeatAt;
+        const tsIso = new Date(lastHeartbeatAtMs).toISOString();
+        if (prevAge === ageSec && prevLastAt === tsIso) {
+          return s;
+        }
+        return {
+          ...s,
+          lastHeartbeatAt: tsIso,
+          hbAgeSeconds: ageSec,
+        };
+      });
+      lastHbMsRef.current = lastHeartbeatAtMs;
+    }, intervalMs);
+
+    return () => clearInterval(id);
+  }, []);
+
+  // ── Onboarding-Handler ──────────────────────────────────────────────────────
+  const goNextOnboardingStep = () => {
+    setState((s) => ({
+      ...s,
+      onboardingStep: s.onboardingStep + 1,
+    }));
+  };
+
+  const goPrevOnboardingStep = () => {
+    setState((s) => ({
+      ...s,
+      onboardingStep: s.onboardingStep > 0 ? s.onboardingStep - 1 : 0,
+    }));
+  };
+
+  const togglePref = (key) => {
+    setState((s) => ({
+      ...s,
+      [key]: !s[key],
+    }));
+  };
+
+  const handleMotorStart = async () => {
+    try {
+      console.log('[Onboarding] Motor starten → ensurePermissions');
+      await ensurePermissions(setState);
+      setState((s) => ({
+        ...s,
+        onboardingCompleted: true,
+      }));
+    } catch (e) {
+      console.warn('[Onboarding] ensurePermissions failed:', (e && e.message) || e);
+      setState((s) => ({
+        ...s,
+        lastErr: `[OnboardingPerms] ${(e && e.message) || e}`,
+      }));
+    }
+  };
+
+  const onManualPing = async () => {
+    try {
+      const coords = await resolveCoordsForHeartbeat();
+      const hbResult = await sendHeartbeat({
+        lat: coords.latitude,
+        lng: coords.longitude,
+        accuracy: coords.accuracy,
+        reason: 'manual',
+      });
+      setState((s) => ({
+        ...s,
+        lastOkAt: new Date(),
+        lastErr: null,
+        lastResp: hbResult.data,
+        lastHeartbeatReason: 'manual',
+        lastHeartbeatLatencyMs: hbResult.latencyMs,
+        lastHeartbeatAt: new Date().toISOString(),
+        hbAgeSeconds: 0,
+      }));
+      lastHbMsRef.current = lastHeartbeatAtMs || Date.now();
+    } catch (e) {
+      setState((s) => ({ ...s, lastErr: (e && e.message) || String(e) }));
+    }
+  };
+
+  const onLocalTestNotification = async () => {
+    try {
+      const id = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: 'ULTREIA Lokal',
+          body: 'Lokaler Test-Push (ohne Expo/FCM).',
+          data: { source: 'local-test' },
+          sound: 'default',
+        },
+        trigger: null,
+      });
+      console.log('[LocalNotif] scheduled id:', id);
+    } catch (e) {
+      console.warn('[LocalNotif] failed:', (e && e.message) || e);
+      setState((s) => ({ ...s, lastErr: `[LocalNotif] ${(e && e.message) || e}` }));
+    }
+  };
+
+  const onRefreshBgStatus = async () => {
+    await refreshRuntimeStatus(setState);
+  };
+
+  const shortExpoToken = state.pushToken ? String(state.pushToken).slice(0, 22) + '…' : '—';
+  const shortFcmToken = state.fcmToken ? String(state.fcmToken).slice(0, 22) + '…' : '—';
+
+  const hbAgeText =
+    state.hbAgeSeconds == null
+      ? '—'
+      : state.hbAgeSeconds < 60
+      ? `${state.hbAgeSeconds}s`
+      : `${Math.floor(state.hbAgeSeconds / 60)}min ${state.hbAgeSeconds % 60}s`;
+
+  let hbStatsText = '—';
+  let hbHistogramText = '—';
+
+  if (hbIntervals.length > 0) {
+    let sum = 0;
+    let min = hbIntervals[0];
+    let max = hbIntervals[0];
+    for (let i = 0; i < hbIntervals.length; i += 1) {
+      const v = hbIntervals[i];
+      sum += v;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    const avg = sum / hbIntervals.length;
+    hbStatsText = `n=${hbIntervals.length}, min=${min}s, Ø=${avg.toFixed(1)}s, max=${max}s`;
+
+    const bucketDefs = [
+      { label: '<30s', min: 0, max: 29 },
+      { label: '30–59s', min: 30, max: 59 },
+      { label: '60–119s', min: 60, max: 119 },
+      { label: '120–299s', min: 120, max: 299 },
+      { label: '>=300s', min: 300, max: Infinity },
+    ];
+    const bucketCounts = bucketDefs.map(() => 0);
+
+    for (let i = 0; i < hbIntervals.length; i += 1) {
+      const v = hbIntervals[i];
+      for (let j = 0; j < bucketDefs.length; j += 1) {
+        const b = bucketDefs[j];
+        if (v >= b.min && v <= b.max) {
+          bucketCounts[j] += 1;
+          break;
+        }
+      }
+    }
+
+    hbHistogramText = bucketDefs
+      .map((b, idx) => `${b.label}:${bucketCounts[idx]}`)
+      .join(' | ');
+  }
+
+  // ── Onboarding-UI ───────────────────────────────────────────────────────────
+  if (!state.onboardingCompleted) {
+    return (
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
+        <Text style={styles.title}>ULTREIA – Pilger-Herzschlag</Text>
+
+        {state.onboardingStep === 0 && (
+          <>
+            <Text style={styles.line}>
+              Ultreia läuft wie eine Navigations-App im Hintergrund und sendet in regelmäßigen
+              Herzschlägen deine Position an unseren Server. So können wir dich genau im richtigen
+              Moment auf Schlafplätze, Essen oder Hilfe in deiner Nähe hinweisen.
+            </Text>
+            <Text style={styles.line}>
+              Wir achten auf deinen Akku:{'\n'}• häufige Herzschläge nur, während du zu Fuß
+              unterwegs bist{'\n'}• deutlich weniger Aktivität, wenn du still sitzt oder schläfst
+              {'\n'}• keine Dauer-Flut an Notifications – nur dann, wenn es wirklich relevant ist.
+            </Text>
+
+            <TouchableOpacity style={styles.btn} onPress={goNextOnboardingStep}>
+              <Text style={styles.btnText}>Weiter</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {state.onboardingStep === 1 && (
+          <>
+            <Text style={styles.line}>
+              Worauf soll Ultreia dich unterwegs aufmerksam machen? Du kannst das später jederzeit
+              anpassen.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.toggleRow}
+              onPress={() => togglePref('prefAccommodation')}
+            >
+              <Text style={styles.toggleText}>
+                [{state.prefAccommodation ? '✓' : ' '}] Schlafplätze (Albergues) in der Nähe
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefFood')}>
+              <Text style={styles.toggleText}>
+                [{state.prefFood ? '✓' : ' '}] Essen & Trinken (Menú Peregrino, Bars)
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefPharmacy')}>
+              <Text style={styles.toggleText}>
+                [{state.prefPharmacy ? '✓' : ' '}] Apotheken & medizinische Hilfe
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.toggleRow} onPress={() => togglePref('prefWater')}>
+              <Text style={styles.toggleText}>
+                [{state.prefWater ? '✓' : ' '}] Wasserstellen & Versorgungspunkte
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={[styles.btnSecondary, styles.rowButton]}
+                onPress={goPrevOnboardingStep}
+              >
+                <Text style={styles.btnText}>Zurück</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.btn, styles.rowButton]} onPress={goNextOnboardingStep}>
+                <Text style={styles.btnText}>Weiter</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {state.onboardingStep >= 2 && (
+          <>
+            <Text style={styles.line}>
+              Um dich im richtigen Moment zu erreichen, braucht Ultreia Zugriff auf Standort und
+              Notifications. Wir nutzen diese Daten ausschließlich, um dir auf dem Camino zu
+              helfen – nicht für Werbung abseits deiner gewählten Kategorien.
+            </Text>
+            <Text style={styles.line}>
+              Bitte wähle im Standort-Dialog idealerweise „Immer erlauben“, damit der
+              Pilger-Herzschlag auch im Hintergrund weiterlaufen kann.
+            </Text>
+
+            <TouchableOpacity style={styles.btn} onPress={handleMotorStart}>
+              <Text style={styles.btnText}>Verstanden – Motor starten</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.btnSecondary} onPress={goPrevOnboardingStep}>
+              <Text style={styles.btnText}>Zurück</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </ScrollView>
+    );
+  }
+
+  // ── Haupt-Diagnostics-UI (nach Onboarding) ─────────────────────────────────
+  return (
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
+      <Text style={styles.title}>ULTREIA – Heartbeat + Push MVP</Text>
+
+      <Text style={styles.line}>API_BASE: {API_BASE}</Text>
+      <Text style={styles.line}>Device: {DEVICE_ID}</Text>
+      <Text style={styles.line}>Expo PushToken: {shortExpoToken}</Text>
+      <Text style={styles.line}>FCM-Token: {shortFcmToken}</Text>
+      <Text style={styles.line}>
+        Device-Register: {state.deviceRegistered ? 'OK' : 'noch nicht'}
+      </Text>
+
+      <Text style={styles.line}>Status: {state.ready ? 'Bereit' : 'Init…'}</Text>
+      <Text style={styles.line}>BG-Task laufend (OS): {state.bgLocRunning ? 'ja' : 'nein'}</Text>
+      <Text style={styles.line}>BackgroundFetch-Status: {state.fetchStatus}</Text>
+      <Text style={styles.line}>HB-Loop aktiv (Timer): {state.hbLoopActive ? 'ja' : 'nein'}</Text>
+
+      <Text style={styles.line}>
+        Letzter OK: {state.lastOkAt ? new Date(state.lastOkAt).toLocaleTimeString() : '—'}
+      </Text>
+      <Text style={styles.line}>
+        Letzter HB-Reason: {state.lastHeartbeatReason || '—'}
+      </Text>
+      <Text style={styles.line}>
+        Letzte HB-Latenz:{' '}
+        {state.lastHeartbeatLatencyMs != null ? `${state.lastHeartbeatLatencyMs} ms` : '—'}
+      </Text>
+      <Text style={styles.line}>
+        Letzter HB-Zeitpunkt:{' '}
+        {state.lastHeartbeatAt ? new Date(state.lastHeartbeatAt).toLocaleTimeString() : '—'}
+      </Text>
+      <Text style={styles.line}>HB-Alter: {hbAgeText}</Text>
+      <Text style={styles.line}>HB-Intervall (letzte HBs): {hbStatsText}</Text>
+      <Text style={styles.line}>HB-Histogramm: {hbHistogramText}</Text>
+
+      <Text style={styles.line}>Notif-Permission: {state.notifPermission}</Text>
+      <Text style={styles.line}>FG-Location-Permission: {state.fgLocationPermission}</Text>
+      <Text style={styles.line}>BG-Location-Permission: {state.bgLocationPermission}</Text>
+
+      <Text style={styles.line}>
+        Pilger-Präferenzen:{' '}
+        {[
+          state.prefAccommodation && 'Schlafplätze',
+          state.prefFood && 'Essen/Trinken',
+          state.prefPharmacy && 'Apotheken',
+          state.prefWater && 'Wasser',
+        ]
+          .filter(Boolean)
+          .join(', ') || '—'}
+      </Text>
+
+      {state.lastNotification ? (
+        <View style={styles.notifBox}>
+          <Text style={styles.notifTitle}>Letzte Notification:</Text>
+          <Text style={styles.notifText}>{state.lastNotification}</Text>
+        </View>
+      ) : (
+        <Text style={styles.line}>Letzte Notification: —</Text>
+      )}
+
+      {state.lastErr ? <Text style={styles.err}>Fehler: {state.lastErr}</Text> : null}
+
+      <TouchableOpacity style={styles.btn} onPress={onManualPing}>
+        <Text style={styles.btnText}>Jetzt Heartbeat senden</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.btnSecondary} onPress={onLocalTestNotification}>
+        <Text style={styles.btnText}>Lokale Test-Notification</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.btnSecondary} onPress={onRefreshBgStatus}>
+        <Text style={styles.btnText}>BG-Status aktualisieren</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.hint}>
+        Hinweis:{'\n'}• Backend: Online-API (oder lokal mit http://localhost:4000 per adb reverse)
+        {'\n'}• BG-Heartbeat: nominell alle 20s + ~100m Bewegung (Android drosselt im Doze).{'\n'}•
+        Foreground-HB-Loop: zusätzlicher Timer (30s) auf Basis LastKnownLocation.{'\n'}• Watchdog:
+        zeigt HB-Alter, versucht bei Rückkehr in den Vordergrund ein Self-Heal (~3 min).{'\n'}• HB-Stats
+        / Histo: reale Inter-HB-Intervalle zur Feintuning-Analyse.
+      </Text>
+    </ScrollView>
+  );
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+    backgroundColor: '#0b0b0c',
+  },
+  container: {
+    flexGrow: 1,
+    backgroundColor: '#0b0b0c',
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 40,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 18,
+  },
+  line: {
+    color: '#cfcfcf',
+    marginBottom: 8,
+  },
+  err: {
+    color: '#ff6b6b',
+    marginVertical: 8,
+  },
+  btn: {
+    marginTop: 18,
+    backgroundColor: '#3b5ccc',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  btnSecondary: {
+    marginTop: 12,
+    backgroundColor: '#2f8f6b',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  btnText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  hint: {
+    color: '#9aa0a6',
+    marginTop: 16,
+    lineHeight: 20,
+  },
+  notifBox: {
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#1b1c1f',
+  },
+  notifTitle: {
+    color: '#ffffff',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  notifText: {
+    color: '#cfcfcf',
+    fontSize: 12,
+  },
+  toggleRow: {
+    marginTop: 10,
+    paddingVertical: 10,
+  },
+  toggleText: {
+    color: '#cfcfcf',
+  },
+  row: {
+    flexDirection: 'row',
+    marginTop: 18,
+  },
+  rowButton: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+});
+</file>
+
+</files>

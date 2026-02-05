@@ -29,7 +29,12 @@ const HEARTBEAT_SECONDS = Number(process.env.HEARTBEAT_SECONDS || 60);
 const OFFER_MAX_DISTANCE_METERS = Number(process.env.OFFER_MAX_DISTANCE_METERS || 250);
 
 // Push-Dedupe (Server-seitig)
-const PUSH_DEDUPE_MINUTES = Math.max(1, Number(process.env.PUSH_DEDUPE_MINUTES || 5));
+const PUSH_DEDUPE_MINUTES = Math.max(1, Number(process.env.PUSH_DEDUPE_MINUTES || 5)); // pro offerId
+// Globaler Cooldown (egal welche Offer): schützt vor Push-Spam bei vielen Treffern
+const PUSH_GLOBAL_COOLDOWN_SECONDS = Math.max(
+  0,
+  Number(process.env.PUSH_GLOBAL_COOLDOWN_SECONDS || 45)
+);
 const PUSH_EVENT_TTL_DAYS = Math.max(1, Number(process.env.PUSH_EVENT_TTL_DAYS || 14));
 
 const FCM_PROJECT_ID = process.env.FCM_PROJECT_ID || undefined;
@@ -361,6 +366,14 @@ const pushEventSchema = new mongoose.Schema(
     offerIds: { type: String }, // comma-separated ids (optional)
     via: { type: String, enum: ['fcm', 'expo', 'none'], default: 'none' },
     source: { type: String, default: 'heartbeat' },
+
+    pushOk: { type: Boolean, default: false, index: true },
+    errorCode: { type: String },
+    errorMessage: { type: String },
+
+    category: { type: String },
+    distanceMeters: { type: Number },
+
     sentAt: { type: Date, default: () => new Date(), index: true },
     expireAt: {
       type: Date,
@@ -371,17 +384,19 @@ const pushEventSchema = new mongoose.Schema(
 );
 
 pushEventSchema.index({ deviceId: 1, offerId: 1, sentAt: -1 });
+pushEventSchema.index({ deviceId: 1, sentAt: -1 });
 pushEventSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
 const Device = mongoose.models.Device || mongoose.model('Device', deviceSchema);
 const Heartbeat = mongoose.models.Heartbeat || mongoose.model('Heartbeat', heartbeatSchema);
 const PushEvent = mongoose.models.PushEvent || mongoose.model('PushEvent', pushEventSchema);
 
-async function shouldDedupePush({ deviceId, offerId }) {
+async function shouldDedupePushOkByOffer({ deviceId, offerId }) {
   const since = new Date(Date.now() - PUSH_DEDUPE_MINUTES * 60 * 1000);
   const existing = await PushEvent.findOne({
     deviceId,
     offerId,
+    pushOk: true,
     sentAt: { $gte: since },
   })
     .sort({ sentAt: -1 })
@@ -389,6 +404,23 @@ async function shouldDedupePush({ deviceId, offerId }) {
     .lean();
 
   return existing ? { dedupe: true, last: existing } : { dedupe: false, last: null };
+}
+
+async function shouldCooldownPushOkGlobal({ deviceId }) {
+  if (!PUSH_GLOBAL_COOLDOWN_SECONDS || PUSH_GLOBAL_COOLDOWN_SECONDS <= 0) {
+    return { cooldown: false, last: null };
+  }
+  const since = new Date(Date.now() - PUSH_GLOBAL_COOLDOWN_SECONDS * 1000);
+  const existing = await PushEvent.findOne({
+    deviceId,
+    pushOk: true,
+    sentAt: { $gte: since },
+  })
+    .sort({ sentAt: -1 })
+    .select({ sentAt: 1, offerId: 1, via: 1, _id: 0 })
+    .lean();
+
+  return existing ? { cooldown: true, last: existing } : { cooldown: false, last: null };
 }
 
 // ── Health ────────────────────────────────────────────────────────────────────
@@ -408,6 +440,7 @@ app.get('/api/health', (req, res) => {
     heartbeatSeconds: HEARTBEAT_SECONDS,
     offerMaxDistanceMeters: OFFER_MAX_DISTANCE_METERS,
     pushDedupeMinutes: PUSH_DEDUPE_MINUTES,
+    pushGlobalCooldownSeconds: PUSH_GLOBAL_COOLDOWN_SECONDS,
   });
 });
 
@@ -576,12 +609,33 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           const primaryOfferId = primary && primary._id ? primary._id.toString() : null;
           if (!primaryOfferId) return;
 
-          // Dedupe: gleiche primary-Offer innerhalb Window nicht erneut pushen
-          const dedupeCheck = await shouldDedupePush({ deviceId, offerId: primaryOfferId });
+          // 0) Global Cooldown: schützt vor “offer carousel spamming”
+          const cooldownCheck = await shouldCooldownPushOkGlobal({ deviceId });
+          if (cooldownCheck.cooldown) {
+            req.log.info(
+              {
+                deviceId,
+                cooldownHit: true,
+                cooldownSec: PUSH_GLOBAL_COOLDOWN_SECONDS,
+                last: cooldownCheck.last,
+              },
+              '[hb] push cooldown (global)'
+            );
+            return;
+          }
+
+          // 1) Dedupe pro primary offerId: nur erfolgreiche Pushes dedupen
+          const dedupeCheck = await shouldDedupePushOkByOffer({ deviceId, offerId: primaryOfferId });
           if (dedupeCheck.dedupe) {
             req.log.info(
-              { deviceId, primaryOfferId, last: dedupeCheck.last, windowMin: PUSH_DEDUPE_MINUTES },
-              '[hb] push deduped'
+              {
+                deviceId,
+                dedupeHit: true,
+                primaryOfferId,
+                last: dedupeCheck.last,
+                windowMin: PUSH_DEDUPE_MINUTES,
+              },
+              '[hb] push deduped (per-offer)'
             );
             return;
           }
@@ -619,7 +673,9 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
             return;
           }
 
-          // PushEvent nur wenn wir tatsächlich versucht haben zu senden
+          const pushOk = Boolean(pushResult && pushResult.ok);
+
+          // PushEvent IMMER schreiben (auch Fehler), aber Dedupe greift nur bei pushOk=true
           try {
             await PushEvent.create({
               deviceId,
@@ -627,6 +683,12 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
               offerIds: allOfferIds,
               via: via || 'none',
               source: 'heartbeat',
+              pushOk,
+              errorCode: pushOk ? null : String(pushResult && pushResult.code ? pushResult.code : ''),
+              errorMessage: pushOk ? null : String(pushResult && pushResult.error ? pushResult.error : ''),
+              category: primary.category ? String(primary.category) : null,
+              distanceMeters:
+                typeof primary.distanceMeters === 'number' ? Math.round(primary.distanceMeters) : null,
               sentAt: new Date(),
             });
           } catch (e) {
@@ -634,8 +696,17 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           }
 
           req.log.info(
-            { deviceId, via, pushOk: Boolean(pushResult && pushResult.ok), pushResult },
-            '[hb] push triggered'
+            {
+              deviceId,
+              via,
+              pushOk,
+              offerId: primaryOfferId,
+              distanceMeters:
+                typeof primary.distanceMeters === 'number' ? Math.round(primary.distanceMeters) : null,
+              category: primary.category || null,
+              pushResult,
+            },
+            '[hb] push result'
           );
         } catch (pushErr) {
           req.log.warn({ deviceId, err: pushErr }, '[hb] push trigger failed');
