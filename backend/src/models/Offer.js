@@ -37,7 +37,7 @@ const openingHoursSchema = new mongoose.Schema(
 
 const offerSchema = new mongoose.Schema(
   {
-    providerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Provider', required: true },
+    providerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Provider', required: true, index: true },
 
     title: { type: String, required: true, trim: true, maxlength: 140 },
     body: { type: String, default: '', trim: true, maxlength: 2000 },
@@ -114,10 +114,14 @@ offerSchema.pre('validate', function (next) {
       const weekly = Array.isArray(this.openingHours.weekly) ? this.openingHours.weekly : [];
       for (const day of weekly) {
         if (typeof day !== 'object' || day == null) return next(new Error('openingHours.weekly invalid day entry'));
-        if (typeof day.dow !== 'number' || day.dow < 0 || day.dow > 6) return next(new Error('openingHours.weekly.dow must be 0..6'));
+        if (typeof day.dow !== 'number' || day.dow < 0 || day.dow > 6) {
+          return next(new Error('openingHours.weekly.dow must be 0..6'));
+        }
         const intervals = Array.isArray(day.intervals) ? day.intervals : [];
         for (const it of intervals) {
-          if (typeof it !== 'object' || it == null) return next(new Error('openingHours.weekly.intervals invalid entry'));
+          if (typeof it !== 'object' || it == null) {
+            return next(new Error('openingHours.weekly.intervals invalid entry'));
+          }
           if (!isValidHHmm(it.start) || !isValidHHmm(it.end)) {
             return next(new Error('openingHours intervals must use "HH:mm"'));
           }
@@ -135,9 +139,9 @@ offerSchema.pre('validate', function (next) {
 // Indexes
 // ─────────────────────────────────────────────────────────────────────────────
 offerSchema.index({ location: '2dsphere' });
-offerSchema.index({ active: 1, validUntil: 1 });
+offerSchema.index({ active: 1, validFrom: 1, validUntil: 1 });
+offerSchema.index({ providerId: 1, active: 1, updatedAt: -1 });
 offerSchema.index({ category: 1, active: 1 });
-offerSchema.index({ providerId: 1, updatedAt: -1 });
 
 const Offer = mongoose.models.Offer || mongoose.model('Offer', offerSchema);
 
