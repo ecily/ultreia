@@ -8,11 +8,10 @@ const providerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 160 },
 
-    // slug für URLs / Frontend (unique)
+    // slug für URLs / Frontend (unique via schema.index unten)
     slug: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       minlength: 2,
       maxlength: 80,
@@ -35,7 +34,7 @@ const providerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Index/Uniqueness
+// Index/Uniqueness (einmalig, ohne Duplicate Warning)
 providerSchema.index({ slug: 1 }, { unique: true });
 
 const Provider = mongoose.models.Provider || mongoose.model('Provider', providerSchema);
