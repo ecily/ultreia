@@ -59,6 +59,9 @@ function isDebugAllowed(req, deviceIdMaybe) {
   // In non-prod: always allow
   if (!isProd) return { ok: true, why: 'non-prod' };
 
+  // If prod gating is not configured, allow to unblock MVP (harden later)
+  if (!DEBUG_TOKEN && DEBUG_DEVICE_ALLOWLIST.length === 0) return { ok: true, why: 'prod-unconfigured' };
+
   const deviceId = deviceIdMaybe ? String(deviceIdMaybe) : null;
 
   // In prod: allow only if deviceId is in allowlist OR token matches
@@ -288,10 +291,7 @@ async function sendFcmPush({ deviceId, fcmToken, title, body, data }) {
     // Token-Hygiene: ungültige Tokens serverseitig entfernen
     if (deviceId && typeof deviceId === 'string' && isFcmTokenInvalidCode(code)) {
       try {
-        await Device.updateOne(
-          { deviceId },
-          { $set: { invalid: true, fcmToken: null, lastSeenAt: new Date() } }
-        );
+        await Device.updateOne({ deviceId }, { $set: { invalid: true, fcmToken: null, lastSeenAt: new Date() } });
         logger.warn({ deviceId, code }, '[fcm] token invalid -> cleared fcmToken & marked invalid');
       } catch (e) {
         logger.warn({ deviceId, e }, '[fcm] failed to clear invalid token');
@@ -483,7 +483,14 @@ app.use('/api/offers', offersRouter);
 // 1) Register/Update device
 app.post('/api/push/register', async (req, res, next) => {
   try {
-    const { deviceId, platform = 'android', expoToken, fcmToken } = req.body || {};
+    const body = req.body || {};
+    const deviceId = body.deviceId;
+    const platform = body.platform || 'android';
+
+    // Accept both keys (mobile uses expoPushToken; older code used expoToken)
+    const expoToken = body.expoToken || body.expoPushToken || null;
+    const fcmToken = body.fcmToken || null;
+
     if (!deviceId || typeof deviceId !== 'string') {
       return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
     }
@@ -607,7 +614,8 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
         .filter((o) => {
           const d = typeof o.distanceMeters === 'number' ? o.distanceMeters : null;
           const r = Number(o.radiusMeters);
-          const allowed = Number.isFinite(r) && r > 0 ? Math.min(r, OFFER_MAX_DISTANCE_METERS) : OFFER_MAX_DISTANCE_METERS;
+          const allowed =
+            Number.isFinite(r) && r > 0 ? Math.min(r, OFFER_MAX_DISTANCE_METERS) : OFFER_MAX_DISTANCE_METERS;
           if (d == null) return true;
           return d <= allowed;
         })
@@ -644,7 +652,12 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           const cooldownCheck = await shouldCooldownPushOkGlobal({ deviceId });
           if (cooldownCheck.cooldown) {
             req.log.info(
-              { deviceId, cooldownHit: true, cooldownSec: PUSH_GLOBAL_COOLDOWN_SECONDS, last: cooldownCheck.last },
+              {
+                deviceId,
+                cooldownHit: true,
+                cooldownSec: PUSH_GLOBAL_COOLDOWN_SECONDS,
+                last: cooldownCheck.last,
+              },
               '[hb] push cooldown (global)'
             );
             return;
@@ -654,14 +667,25 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           const dedupeCheck = await shouldDedupePushOkByOffer({ deviceId, offerId: primaryOfferId });
           if (dedupeCheck.dedupe) {
             req.log.info(
-              { deviceId, dedupeHit: true, primaryOfferId, last: dedupeCheck.last, windowMin: PUSH_DEDUPE_MINUTES },
+              {
+                deviceId,
+                dedupeHit: true,
+                primaryOfferId,
+                last: dedupeCheck.last,
+                windowMin: PUSH_DEDUPE_MINUTES,
+              },
               '[hb] push deduped (per-offer)'
             );
             return;
           }
 
           const allOfferIds = offers.map((o) => o._id.toString()).join(',');
-          const dataPayload = { deviceId, offerId: primaryOfferId, offerIds: allOfferIds, source: 'heartbeat' };
+          const dataPayload = {
+            deviceId,
+            offerId: primaryOfferId,
+            offerIds: allOfferIds,
+            source: 'heartbeat',
+          };
 
           let pushResult = null;
           let via = null;
@@ -809,12 +833,8 @@ app.post('/api/debug/seed-offer', async (req, res, next) => {
       radiusMeters: rM,
       validFrom: new Date(now.getTime() - 60 * 1000),
       validUntil: new Date(now.getTime() + vMin * 60 * 1000),
-      // Standard: GeoJSON Point [lng, lat]
+      // GeoJSON Point [lng, lat]
       location: { type: 'Point', coordinates: [nlng, nlat] },
-      debug: {
-        seededBy: deviceId,
-        seededAt: now,
-      },
     };
 
     const created = await Offer.create(offerDoc);
@@ -926,7 +946,8 @@ app.post('/api/debug/push-fcm', async (req, res, next) => {
   }
 });
 
-// Backward compatible debug endpoints (optional, keep existing ones)
+// Backward compatible debug endpoints (keep existing ones)
+
 // 7) Debug-Endpoint: Expo-Push + unmittelbare Receipts (sofort)
 app.post('/api/debug/push/:deviceId', async (req, res, next) => {
   try {
