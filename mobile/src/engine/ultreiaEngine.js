@@ -166,6 +166,48 @@ function shouldSkipHeartbeat({ reason, lat, lng }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Geo Qualität / Koordinaten-Schutz
+// Priorität #1: korrekte Geo-Koordinaten (lat/lng). Backend nutzt Point=[lng,lat].
+// Wir schützen clientseitig vor: Range-Fehlern, lat/lng Swap Heuristik (konservativ).
+// ─────────────────────────────────────────────────────────────────────────────
+function isValidLatLng(lat, lng) {
+  return (
+    typeof lat === 'number' &&
+    Number.isFinite(lat) &&
+    typeof lng === 'number' &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  );
+}
+
+function maybeSwapLatLng(lat, lng) {
+  // Konservativ:
+  // - Wenn (lat außerhalb [-90,90] aber lng innerhalb) -> eindeutig falsch -> swap
+  // - Wenn (lng außerhalb [-180,180] aber lat innerhalb) -> eindeutig falsch -> swap
+  // - Wenn beide gültig -> kein swap (keine Heuristik, um False Positives zu vermeiden)
+  // - Wenn beide ungültig -> unverändert (wird später verworfen)
+  const latOk = typeof lat === 'number' && Number.isFinite(lat) && lat >= -90 && lat <= 90;
+  const lngOk = typeof lng === 'number' && Number.isFinite(lng) && lng >= -180 && lng <= 180;
+
+  if (!latOk && lngOk) {
+    const swappedLat = lng;
+    const swappedLng = lat;
+    if (isValidLatLng(swappedLat, swappedLng)) return { lat: swappedLat, lng: swappedLng, swapped: true };
+  }
+
+  if (!lngOk && latOk) {
+    const swappedLat = lng;
+    const swappedLng = lat;
+    if (isValidLatLng(swappedLat, swappedLng)) return { lat: swappedLat, lng: swappedLng, swapped: true };
+  }
+
+  return { lat, lng, swapped: false };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DeviceId (ohne extra Dependencies)
 // ─────────────────────────────────────────────────────────────────────────────
 let DEVICE_ID = null;
@@ -419,12 +461,18 @@ export async function resolveCoordsForHeartbeat({ allowCurrentFix = true } = {})
 async function sendHeartbeatCore({ lat, lng, accuracy, reason = 'unknown', interests }) {
   const startedAt = Date.now();
 
-  const finalLat = toNumberOrNull(lat);
-  const finalLng = toNumberOrNull(lng);
+  const rawLat = toNumberOrNull(lat);
+  const rawLng = toNumberOrNull(lng);
   const finalAcc = toNumberOrNull(accuracy);
 
-  if (finalLat == null || finalLng == null) {
+  if (rawLat == null || rawLng == null) {
     throw new Error('Invalid coords (lat/lng)');
+  }
+
+  const { lat: finalLat, lng: finalLng, swapped } = maybeSwapLatLng(rawLat, rawLng);
+
+  if (!isValidLatLng(finalLat, finalLng)) {
+    throw new Error('Invalid coords range (lat/lng)');
   }
 
   let finalInterests = null;
@@ -459,7 +507,9 @@ async function sendHeartbeatCore({ lat, lng, accuracy, reason = 'unknown', inter
   console.log(
     `[HB] start device=${deviceId} reason=${r} lat=${finalLat} lng=${finalLng} acc=${
       finalAcc != null ? finalAcc : 'n/a'
-    } interests=${finalInterests && finalInterests.length ? finalInterests.join(',') : 'none'}`
+    } interests=${finalInterests && finalInterests.length ? finalInterests.join(',') : 'none'}${
+      swapped ? ' swappedLatLng=1' : ''
+    }`
   );
 
   const res = await fetch(`${API_BASE}/location/heartbeat`, {
