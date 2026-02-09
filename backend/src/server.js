@@ -16,7 +16,9 @@ const path = require('path');
 const admin = require('firebase-admin');
 
 // Models
-const Offer = require('./models/Offer');
+const { Offer } = require('./models/Offer');
+const { Provider } = require('./models/Provider');
+
 // Routes
 const offersRouter = require('./routes/offers');
 
@@ -84,6 +86,20 @@ function clampNumber(n, min, max, fallback) {
   const v = Number(n);
   if (!Number.isFinite(v)) return fallback;
   return Math.max(min, Math.min(max, v));
+}
+
+// Debug-Provider (wird für /api/debug/seed-offer benötigt, da Offer.providerId required ist)
+async function ensureDebugProvider() {
+  const slug = 'debug';
+  const update = {
+    name: 'Debug Provider',
+    slug,
+    timezone: 'Europe/Madrid',
+    contact: { email: 'debug@local.invalid' },
+  };
+
+  const doc = await Provider.findOneAndUpdate({ slug }, { $set: update }, { upsert: true, new: true });
+  return doc;
 }
 
 // ── Expo Push Setup ───────────────────────────────────────────────────────────
@@ -348,7 +364,7 @@ app.use(
   })
 );
 
-// ── Models ────────────────────────────────────────────────────────────────────
+// ── Models (Device/Heartbeat/PushEvent bleiben hier fürs MVP) ───────────────────
 const deviceSchema = new mongoose.Schema(
   {
     deviceId: { type: String, required: true, unique: true, index: true },
@@ -648,7 +664,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           const primaryOfferId = primary && primary._id ? primary._id.toString() : null;
           if (!primaryOfferId) return;
 
-          // 0) Global Cooldown: schützt vor “offer carousel spamming”
+          // 0) Global Cooldown
           const cooldownCheck = await shouldCooldownPushOkGlobal({ deviceId });
           if (cooldownCheck.cooldown) {
             req.log.info(
@@ -663,7 +679,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
             return;
           }
 
-          // 1) Dedupe pro primary offerId: nur erfolgreiche Pushes dedupen
+          // 1) Dedupe pro primary offerId (nur successful dedupen)
           const dedupeCheck = await shouldDedupePushOkByOffer({ deviceId, offerId: primaryOfferId });
           if (dedupeCheck.dedupe) {
             req.log.info(
@@ -825,7 +841,10 @@ app.post('/api/debug/seed-offer', async (req, res, next) => {
     const vMin = clampNumber(validMinutes, 1, 24 * 60, 30);
     const cat = String(category || 'restaurant').trim().toLowerCase() || 'restaurant';
 
+    const debugProvider = await ensureDebugProvider();
+
     const offerDoc = {
+      providerId: debugProvider._id,
       active: true,
       title: String(title || `Debug Offer (${cat})`).slice(0, 120),
       body: String(body || `Debug-Offer für ${deviceId}`).slice(0, 500),
@@ -848,6 +867,7 @@ app.post('/api/debug/seed-offer', async (req, res, next) => {
       ok: true,
       offer: {
         id: created._id.toString(),
+        providerId: created.providerId.toString(),
         title: created.title,
         category: created.category,
         radiusMeters: created.radiusMeters,
