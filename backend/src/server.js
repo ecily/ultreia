@@ -31,10 +31,7 @@ const OFFER_MAX_DISTANCE_METERS = Number(process.env.OFFER_MAX_DISTANCE_METERS |
 // Push-Dedupe (Server-seitig)
 const PUSH_DEDUPE_MINUTES = Math.max(1, Number(process.env.PUSH_DEDUPE_MINUTES || 5)); // pro offerId
 // Globaler Cooldown (egal welche Offer): schützt vor Push-Spam bei vielen Treffern
-const PUSH_GLOBAL_COOLDOWN_SECONDS = Math.max(
-  0,
-  Number(process.env.PUSH_GLOBAL_COOLDOWN_SECONDS || 45)
-);
+const PUSH_GLOBAL_COOLDOWN_SECONDS = Math.max(0, Number(process.env.PUSH_GLOBAL_COOLDOWN_SECONDS || 45));
 const PUSH_EVENT_TTL_DAYS = Math.max(1, Number(process.env.PUSH_EVENT_TTL_DAYS || 14));
 
 const FCM_PROJECT_ID = process.env.FCM_PROJECT_ID || undefined;
@@ -44,11 +41,47 @@ const FCM_SERVICE_ACCOUNT_JSON = process.env.FCM_SERVICE_ACCOUNT_JSON || undefin
 const FCM_SERVICE_ACCOUNT_PATH =
   process.env.FCM_SERVICE_ACCOUNT_PATH || process.env.GOOGLE_APPLICATION_CREDENTIALS || undefined;
 
+// Debug gating (Prod-Sicherheit)
+const DEBUG_TOKEN = process.env.DEBUG_TOKEN || '';
+const DEBUG_DEVICE_ALLOWLIST = (process.env.DEBUG_DEVICE_ALLOWLIST || '')
+  .split(',')
+  .map((s) => String(s || '').trim())
+  .filter(Boolean);
+
 const logger = pino({
   level: process.env.LOG_LEVEL || (isProd ? 'info' : 'debug'),
   base: { service: 'ultreia-backend' },
-  redact: ['req.headers.authorization'],
+  redact: ['req.headers.authorization', 'req.headers["x-debug-token"]'],
 });
+
+// ── Debug helper ───────────────────────────────────────────────────────────────
+function isDebugAllowed(req, deviceIdMaybe) {
+  // In non-prod: always allow
+  if (!isProd) return { ok: true, why: 'non-prod' };
+
+  const deviceId = deviceIdMaybe ? String(deviceIdMaybe) : null;
+
+  // In prod: allow only if deviceId is in allowlist OR token matches
+  const token = String(req.headers['x-debug-token'] || req.query.debugToken || req.query.token || '');
+  if (DEBUG_TOKEN && token && token === DEBUG_TOKEN) return { ok: true, why: 'token' };
+
+  if (deviceId && DEBUG_DEVICE_ALLOWLIST.includes(deviceId)) return { ok: true, why: 'allowlist' };
+
+  return { ok: false, why: 'forbidden' };
+}
+
+function requireDebug(req, res, deviceIdMaybe) {
+  const gate = isDebugAllowed(req, deviceIdMaybe);
+  if (gate.ok) return true;
+  res.status(403).json({ ok: false, error: 'debug forbidden', reason: gate.why });
+  return false;
+}
+
+function clampNumber(n, min, max, fallback) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return fallback;
+  return Math.max(min, Math.min(max, v));
+}
 
 // ── Expo Push Setup ───────────────────────────────────────────────────────────
 const EXPO_PUSH_HOST = 'exp.host';
@@ -113,7 +146,7 @@ async function sendExpoPush({ expoPushToken, title, body, data }) {
 
   try {
     const { statusCode, body: respBody } = await expoPost(EXPO_PUSH_SEND_PATH, payload);
-    logger.info({ expoPushToken, statusCode, respBody }, '[push-expo] Expo send response');
+    logger.info({ statusCode, respBody }, '[push-expo] Expo send response');
 
     let ticket = null;
     if (respBody && respBody.data) {
@@ -186,10 +219,7 @@ if (FCM_SERVICE_ACCOUNT_JSON || FCM_SERVICE_ACCOUNT_PATH) {
     }
 
     fcmReady = true;
-    logger.info(
-      { projectId: FCM_PROJECT_ID || serviceAccount.project_id },
-      '[fcm] initialized firebase-admin'
-    );
+    logger.info({ projectId: FCM_PROJECT_ID || serviceAccount.project_id }, '[fcm] initialized firebase-admin');
   } catch (err) {
     fcmReady = false;
     fcmMessaging = null;
@@ -249,14 +279,11 @@ async function sendFcmPush({ deviceId, fcmToken, title, body, data }) {
 
   try {
     const response = await fcmMessaging.send(message);
-    logger.info({ fcmToken, response }, '[fcm] send response');
+    logger.info({ response }, '[fcm] send response');
     return { ok: true, messageId: response };
   } catch (err) {
     const code = err && err.code ? err.code : undefined;
-    logger.warn(
-      { fcmToken, err: { message: err.message, code, stack: err.stack } },
-      '[fcm] send error'
-    );
+    logger.warn({ err: { message: err.message, code, stack: err.stack } }, '[fcm] send error');
 
     // Token-Hygiene: ungültige Tokens serverseitig entfernen
     if (deviceId && typeof deviceId === 'string' && isFcmTokenInvalidCode(code)) {
@@ -441,6 +468,11 @@ app.get('/api/health', (req, res) => {
     offerMaxDistanceMeters: OFFER_MAX_DISTANCE_METERS,
     pushDedupeMinutes: PUSH_DEDUPE_MINUTES,
     pushGlobalCooldownSeconds: PUSH_GLOBAL_COOLDOWN_SECONDS,
+    debug: {
+      prodGated: isProd,
+      allowlistCount: DEBUG_DEVICE_ALLOWLIST.length,
+      tokenEnabled: Boolean(DEBUG_TOKEN),
+    },
   });
 });
 
@@ -575,8 +607,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
         .filter((o) => {
           const d = typeof o.distanceMeters === 'number' ? o.distanceMeters : null;
           const r = Number(o.radiusMeters);
-          const allowed =
-            Number.isFinite(r) && r > 0 ? Math.min(r, OFFER_MAX_DISTANCE_METERS) : OFFER_MAX_DISTANCE_METERS;
+          const allowed = Number.isFinite(r) && r > 0 ? Math.min(r, OFFER_MAX_DISTANCE_METERS) : OFFER_MAX_DISTANCE_METERS;
           if (d == null) return true;
           return d <= allowed;
         })
@@ -613,12 +644,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           const cooldownCheck = await shouldCooldownPushOkGlobal({ deviceId });
           if (cooldownCheck.cooldown) {
             req.log.info(
-              {
-                deviceId,
-                cooldownHit: true,
-                cooldownSec: PUSH_GLOBAL_COOLDOWN_SECONDS,
-                last: cooldownCheck.last,
-              },
+              { deviceId, cooldownHit: true, cooldownSec: PUSH_GLOBAL_COOLDOWN_SECONDS, last: cooldownCheck.last },
               '[hb] push cooldown (global)'
             );
             return;
@@ -628,25 +654,14 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
           const dedupeCheck = await shouldDedupePushOkByOffer({ deviceId, offerId: primaryOfferId });
           if (dedupeCheck.dedupe) {
             req.log.info(
-              {
-                deviceId,
-                dedupeHit: true,
-                primaryOfferId,
-                last: dedupeCheck.last,
-                windowMin: PUSH_DEDUPE_MINUTES,
-              },
+              { deviceId, dedupeHit: true, primaryOfferId, last: dedupeCheck.last, windowMin: PUSH_DEDUPE_MINUTES },
               '[hb] push deduped (per-offer)'
             );
             return;
           }
 
           const allOfferIds = offers.map((o) => o._id.toString()).join(',');
-          const dataPayload = {
-            deviceId,
-            offerId: primaryOfferId,
-            offerIds: allOfferIds,
-            source: 'heartbeat',
-          };
+          const dataPayload = { deviceId, offerId: primaryOfferId, offerIds: allOfferIds, source: 'heartbeat' };
 
           let pushResult = null;
           let via = null;
@@ -687,8 +702,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
               errorCode: pushOk ? null : String(pushResult && pushResult.code ? pushResult.code : ''),
               errorMessage: pushOk ? null : String(pushResult && pushResult.error ? pushResult.error : ''),
               category: primary.category ? String(primary.category) : null,
-              distanceMeters:
-                typeof primary.distanceMeters === 'number' ? Math.round(primary.distanceMeters) : null,
+              distanceMeters: typeof primary.distanceMeters === 'number' ? Math.round(primary.distanceMeters) : null,
               sentAt: new Date(),
             });
           } catch (e) {
@@ -701,8 +715,7 @@ app.post('/api/location/heartbeat', async (req, res, next) => {
               via,
               pushOk,
               offerId: primaryOfferId,
-              distanceMeters:
-                typeof primary.distanceMeters === 'number' ? Math.round(primary.distanceMeters) : null,
+              distanceMeters: typeof primary.distanceMeters === 'number' ? Math.round(primary.distanceMeters) : null,
               category: primary.category || null,
               pushResult,
             },
@@ -767,10 +780,159 @@ app.get('/api/metrics/heartbeat', async (req, res, next) => {
   }
 });
 
-// 4) Debug-Endpoint: Expo-Push + unmittelbare Receipts (sofort)
+// 4) Debug: Seed Offer near given coords (App expects /api/debug/seed-offer)
+app.post('/api/debug/seed-offer', async (req, res, next) => {
+  try {
+    const { deviceId, lat, lng, category, radiusMeters, validMinutes, title, body } = req.body || {};
+
+    if (!requireDebug(req, res, deviceId)) return;
+
+    const nlat = Number(lat);
+    const nlng = Number(lng);
+    if (!deviceId || typeof deviceId !== 'string') {
+      return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
+    }
+    if (!Number.isFinite(nlat) || !Number.isFinite(nlng)) {
+      return res.status(400).json({ ok: false, error: 'lat/lng required (number)' });
+    }
+
+    const now = new Date();
+    const rM = clampNumber(radiusMeters, 25, OFFER_MAX_DISTANCE_METERS, Math.min(200, OFFER_MAX_DISTANCE_METERS));
+    const vMin = clampNumber(validMinutes, 1, 24 * 60, 30);
+    const cat = String(category || 'restaurant').trim().toLowerCase() || 'restaurant';
+
+    const offerDoc = {
+      active: true,
+      title: String(title || `Debug Offer (${cat})`).slice(0, 120),
+      body: String(body || `Debug-Offer für ${deviceId}`).slice(0, 500),
+      category: cat,
+      radiusMeters: rM,
+      validFrom: new Date(now.getTime() - 60 * 1000),
+      validUntil: new Date(now.getTime() + vMin * 60 * 1000),
+      // Standard: GeoJSON Point [lng, lat]
+      location: { type: 'Point', coordinates: [nlng, nlat] },
+      debug: {
+        seededBy: deviceId,
+        seededAt: now,
+      },
+    };
+
+    const created = await Offer.create(offerDoc);
+
+    req.log.info(
+      { deviceId, offerId: created._id.toString(), category: cat, radiusMeters: rM, validMinutes: vMin },
+      '[debug] seeded offer'
+    );
+
+    return res.json({
+      ok: true,
+      offer: {
+        id: created._id.toString(),
+        title: created.title,
+        category: created.category,
+        radiusMeters: created.radiusMeters,
+        validFrom: created.validFrom,
+        validUntil: created.validUntil,
+        location: created.location,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 5) Debug: Push via Expo (App expects /api/debug/push-expo)
+app.post('/api/debug/push-expo', async (req, res, next) => {
+  try {
+    const { deviceId, title, body, data } = req.body || {};
+    if (!requireDebug(req, res, deviceId)) return;
+
+    if (!deviceId || typeof deviceId !== 'string') {
+      return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
+    }
+
+    const dev = await Device.findOne({ deviceId }).lean();
+    if (!dev) return res.status(404).json({ ok: false, error: 'device not found' });
+    if (!dev.expoPushToken) return res.status(400).json({ ok: false, error: 'device has no expoPushToken' });
+
+    const pushResult = await sendExpoPush({
+      expoPushToken: dev.expoPushToken,
+      title: title || 'ULTREIA Debug (Expo)',
+      body: body || `Test Push via Expo @ ${new Date().toLocaleTimeString()}`,
+      data: {
+        ...(data && typeof data === 'object' ? data : {}),
+        kind: 'debug-expo',
+        deviceId,
+        ts: new Date().toISOString(),
+      },
+    });
+
+    let receipts = null;
+    if (pushResult && pushResult.ticket && pushResult.ticket.id) {
+      const ticketId = pushResult.ticket.id;
+      const receiptResult = await getExpoReceipts([ticketId]);
+      receipts = { ticketId, raw: receiptResult.body };
+
+      try {
+        const r = receiptResult.body && receiptResult.body.data ? receiptResult.body.data[ticketId] : null;
+        if (r && r.status === 'error' && r.details && r.details.error === 'DeviceNotRegistered') {
+          await Device.updateOne({ deviceId }, { $set: { invalid: true, expoPushToken: null } });
+          logger.warn(
+            { deviceId, ticketId },
+            '[push-expo] DeviceNotRegistered – marked device invalid & cleared expoPushToken'
+          );
+        }
+      } catch (markErr) {
+        logger.warn({ deviceId, markErr }, '[push-expo] failed to mark device invalid');
+      }
+    }
+
+    return res.json({ ok: true, deviceId, pushResult, receipts });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// 6) Debug: Push via FCM (App expects /api/debug/push-fcm)
+app.post('/api/debug/push-fcm', async (req, res, next) => {
+  try {
+    const { deviceId, title, body, data } = req.body || {};
+    if (!requireDebug(req, res, deviceId)) return;
+
+    if (!deviceId || typeof deviceId !== 'string') {
+      return res.status(400).json({ ok: false, error: 'deviceId required (string)' });
+    }
+
+    const dev = await Device.findOne({ deviceId }).lean();
+    if (!dev) return res.status(404).json({ ok: false, error: 'device not found' });
+    if (!dev.fcmToken) return res.status(400).json({ ok: false, error: 'device has no fcmToken' });
+
+    const pushResult = await sendFcmPush({
+      deviceId,
+      fcmToken: dev.fcmToken,
+      title: title || 'ULTREIA Debug (FCM)',
+      body: body || `Test Push via FCM @ ${new Date().toLocaleTimeString()}`,
+      data: {
+        ...(data && typeof data === 'object' ? data : {}),
+        kind: 'debug-fcm',
+        deviceId,
+        ts: new Date().toISOString(),
+      },
+    });
+
+    return res.json({ ok: true, deviceId, pushResult });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// Backward compatible debug endpoints (optional, keep existing ones)
+// 7) Debug-Endpoint: Expo-Push + unmittelbare Receipts (sofort)
 app.post('/api/debug/push/:deviceId', async (req, res, next) => {
   try {
     const { deviceId } = req.params;
+    if (!requireDebug(req, res, deviceId)) return;
+
     const dev = await Device.findOne({ deviceId }).lean();
 
     if (!dev) {
@@ -823,7 +985,7 @@ app.post('/api/debug/push/:deviceId', async (req, res, next) => {
   }
 });
 
-// 5) Neuer Endpoint: Receipts später nachfragen (Expo)
+// 8) Neuer Endpoint: Receipts später nachfragen (Expo)
 app.get('/api/debug/receipts/:ticketId', async (req, res, next) => {
   try {
     const { ticketId } = req.params;
@@ -843,10 +1005,12 @@ app.get('/api/debug/receipts/:ticketId', async (req, res, next) => {
   }
 });
 
-// 6) Neuer Endpoint: Direkter FCM-Debug-Push
+// 9) Neuer Endpoint: Direkter FCM-Debug-Push (legacy)
 app.post('/api/debug/push-fcm/:deviceId', async (req, res, next) => {
   try {
     const { deviceId } = req.params;
+    if (!requireDebug(req, res, deviceId)) return;
+
     const dev = await Device.findOne({ deviceId }).lean();
 
     if (!dev) {

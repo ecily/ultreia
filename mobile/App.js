@@ -1,900 +1,42 @@
 // C:\ultreia\mobile\App.js
-// ULTREIA – Heartbeat + Push MVP (JS-only, robust background strategy)
-//
-// 3-stufige Strategie (Event-first, Poll-second):
-// A) BG-Location + Android Foreground-Service Notification (primärer Motor)
-// B) BackgroundFetch/TaskManager Watchdog (Recovery + Self-Heal)
-// C) “Booster”-Heartbeats bei Location-Events (edge burst / movement-based)
-//
-// Fokus: Stabilität/Diagnostik/Token-Hygiene/Dedupe korrekt.
-// UI-Phase: App/UX bauen, ohne den Motor zu destabilisieren (Motor bleibt funktional gleich).
+// ULTREIA – UI Shell (Engine ist ausgelagert nach src/engine/ultreiaEngine.js)
+// Block 4/6: App.js nutzt Engine-APIs; UI bleibt stabil, Motor bleibt unverändert.
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View, TouchableOpacity, AppState, ScrollView } from 'react-native';
-import * as Location from 'expo-location';
-import * as TaskManager from 'expo-task-manager';
+import { AppState, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as BackgroundFetch from 'expo-background-fetch';
-import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TASK_IDS = {
-  bgLoc: 'ultreia-bg-location-task',
-  fetch: 'ultreia-heartbeat-fetch',
-};
+import {
+  API_BASE,
+  DEBUG_DEFAULTS,
+  ensureBackgroundFetch,
+  ensurePermissions,
+  getEasProjectIdMaybe,
+  getEngineSnapshot,
+  getHbIntervalsRef,
+  getWatchdogPollSeconds,
+  hbAgeSecondsNow,
+  loadInterestsCached,
+  loadNotifInbox,
+  loadPrefsFromStorage,
+  normalizeNotifItem,
+  persistNotifInbox,
+  postJson,
+  refreshRuntimeStatus,
+  registerDevice,
+  resolveCoordsForHeartbeat,
+  resolveDeviceId,
+  safeJsonStringify,
+  savePrefsAndInterests,
+  sendHeartbeatSingleFlight,
+  sendImmediateHeartbeat,
+  startBgLocation,
+  startHeartbeatLoop,
+  stopHeartbeatLoop,
+} from './src/engine/ultreiaEngine';
 
-const NOTIF_CHANNELS = { fg: 'ultreia-fg', offers: 'offers' };
-
-const STORAGE_KEYS = {
-  prefs: 'ultreia:prefs:v1',
-  interests: 'ultreia:interests:v1',
-  notifInbox: 'ultreia:notif-inbox:v1',
-};
-
-// ── Tuning ───────────────────────────────────────────────────────────────────
-const BG_TIME_SECONDS = 60;
-const BG_DISTANCE_METERS = 25;
-
-const HB_MIN_GAP_SECONDS = 55;
-
-const BOOSTER_MIN_GAP_SECONDS = 45;
-const BOOSTER_MOVE_METERS = 60;
-
-const HB_LOOP_SECONDS = 45;
-
+// ── Watchdog thresholds (UI-seitig für ReArm-Entscheidung) ───────────────────
 const WATCHDOG_STALE_SECONDS = 3 * 60;
-const WATCHDOG_POLL_SECONDS = 30;
-
-const DEBUG_OFFER_RADIUS_M = 200;
-const DEBUG_OFFER_VALID_MIN = 30;
-
-const API_BASE =
-  (Constants?.expoConfig?.extra && Constants.expoConfig.extra.apiBase) || 'http://10.0.2.2:4000/api';
-
-// Interessen global (Memory Cache)
-let currentInterests = null;
-let interestsCacheLoaded = false;
-
-// Global last HB
-let lastHeartbeatAtMs = null;
-let hbIntervals = [];
-
-// Last sent coords for skip logic
-let lastSentCoords = null;
-
-// Foreground timer
-let hbLoopTimerId = null;
-
-// Last coords snapshot for movement-based decisions
-let lastCoordsForBooster = null;
-let lastBoosterAtMs = null;
-
-// ── Single-flight HB (verhindert Doppel-Trigger) ─────────────────────────────
-let hbInFlight = null;
-let hbInFlightMeta = null;
-
-const FORCE_HB_REASONS = new Set(['manual', 'init', 'watchdog-rearm', 'fetch-watchdog']);
-
-function isForceReason(reason) {
-  return FORCE_HB_REASONS.has(String(reason || ''));
-}
-
-// ── DeviceId (ohne extra Dependencies) ───────────────────────────────────────
-let DEVICE_ID = null;
-
-function fnv1a32(str) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < str.length; i += 1) {
-    h ^= str.charCodeAt(i);
-    // eslint-disable-next-line no-bitwise
-    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
-  }
-  // eslint-disable-next-line no-bitwise
-  return h >>> 0;
-}
-
-function makeDeviceIdFromSeed(seed) {
-  const hex = fnv1a32(String(seed || 'seed')).toString(16).padStart(8, '0');
-  return `ULTR-${hex}`;
-}
-
-function getEasProjectIdMaybe() {
-  return (
-    (Constants &&
-      Constants.expoConfig &&
-      Constants.expoConfig.extra &&
-      Constants.expoConfig.extra.eas &&
-      Constants.expoConfig.extra.eas.projectId) ||
-    (Constants && Constants.easConfig && Constants.easConfig.projectId) ||
-    null
-  );
-}
-
-async function resolveDeviceId() {
-  if (DEVICE_ID) return DEVICE_ID;
-
-  if (Platform.OS === 'android') {
-    try {
-      const nativeToken = await Notifications.getDevicePushTokenAsync();
-      const fcmToken = nativeToken && nativeToken.data ? String(nativeToken.data) : null;
-      if (fcmToken && fcmToken.length > 10) {
-        DEVICE_ID = makeDeviceIdFromSeed(`fcm:${fcmToken}`);
-        return DEVICE_ID;
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  try {
-    const projectId = getEasProjectIdMaybe();
-    const tokenData = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
-    const expoToken = tokenData && tokenData.data ? String(tokenData.data) : null;
-    if (expoToken && expoToken.length > 10) {
-      DEVICE_ID = makeDeviceIdFromSeed(`expo:${expoToken}`);
-      return DEVICE_ID;
-    }
-  } catch (e) {
-    // ignore
-  }
-
-  const fallbackSeed = `${Platform.OS}|${Constants?.deviceName || 'device'}|${Constants?.expoVersion || ''}`;
-  DEVICE_ID = makeDeviceIdFromSeed(`fallback:${fallbackSeed}`);
-  return DEVICE_ID;
-}
-
-function safeJsonStringify(obj) {
-  try {
-    return JSON.stringify(obj);
-  } catch (e) {
-    return String(obj);
-  }
-}
-
-async function postJson(path, body) {
-  const url = `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body || {}),
-  });
-
-  const raw = await res.text().catch(() => '');
-  let parsed = null;
-  try {
-    parsed = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    parsed = { raw };
-  }
-
-  if (!res.ok) {
-    const msg = `HTTP ${res.status} ${typeof parsed === 'string' ? parsed : raw || ''}`.trim();
-    const err = new Error(msg);
-    err.status = res.status;
-    err.data = parsed;
-    throw err;
-  }
-
-  return parsed;
-}
-
-// ── Notifications Handler ─────────────────────────────────────────────────────
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
-
-// Mapping UI prefs → backend categories
-function buildInterestsFromPrefs({ prefAccommodation, prefFood, prefPharmacy, prefWater }) {
-  const list = [];
-  if (prefAccommodation) list.push('albergue', 'hostel');
-  if (prefFood) list.push('restaurant', 'bar');
-  if (prefPharmacy) list.push('pharmacy');
-  if (prefWater) list.push('water');
-  return Array.from(new Set(list));
-}
-
-function normalizeInterests(input) {
-  if (!Array.isArray(input)) return [];
-  const cleaned = input
-    .map((x) => String(x || '').trim())
-    .filter(Boolean)
-    .map((x) => x.toLowerCase());
-  return Array.from(new Set(cleaned));
-}
-
-async function savePrefsAndInterests(prefs) {
-  const safePrefs = {
-    prefAccommodation: !!prefs.prefAccommodation,
-    prefFood: !!prefs.prefFood,
-    prefPharmacy: !!prefs.prefPharmacy,
-    prefWater: !!prefs.prefWater,
-  };
-
-  const interests = normalizeInterests(buildInterestsFromPrefs(safePrefs));
-
-  try {
-    await AsyncStorage.setItem(STORAGE_KEYS.prefs, JSON.stringify(safePrefs));
-  } catch (e) {
-    // ignore
-  }
-
-  try {
-    await AsyncStorage.setItem(STORAGE_KEYS.interests, JSON.stringify(interests));
-  } catch (e) {
-    // ignore
-  }
-
-  currentInterests = interests;
-  interestsCacheLoaded = true;
-
-  console.log('[Interests] persisted:', interests);
-  return interests;
-}
-
-async function loadPrefsFromStorage() {
-  try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEYS.prefs);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return null;
-    return {
-      prefAccommodation: !!parsed.prefAccommodation,
-      prefFood: !!parsed.prefFood,
-      prefPharmacy: !!parsed.prefPharmacy,
-      prefWater: !!parsed.prefWater,
-    };
-  } catch (e) {
-    return null;
-  }
-}
-
-async function loadInterestsCached() {
-  if (interestsCacheLoaded && Array.isArray(currentInterests) && currentInterests.length > 0) {
-    return currentInterests;
-  }
-
-  try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEYS.interests);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const interests = normalizeInterests(parsed);
-      if (interests.length > 0) {
-        currentInterests = interests;
-        interestsCacheLoaded = true;
-        console.log('[Interests] loaded from storage:', interests);
-        return interests;
-      }
-    }
-  } catch (e) {
-    // ignore
-  }
-
-  try {
-    const prefs = await loadPrefsFromStorage();
-    if (prefs) {
-      const interests = normalizeInterests(buildInterestsFromPrefs(prefs));
-      currentInterests = interests;
-      interestsCacheLoaded = true;
-      console.log('[Interests] derived from stored prefs:', interests);
-      try {
-        await AsyncStorage.setItem(STORAGE_KEYS.interests, JSON.stringify(interests));
-      } catch (e) {
-        // ignore
-      }
-      return interests;
-    }
-  } catch (e) {
-    // ignore
-  }
-
-  interestsCacheLoaded = true;
-  currentInterests = currentInterests || [];
-  console.log('[Interests] none available (storage empty)');
-  return currentInterests;
-}
-
-// ── Inbox (Push Historie) ────────────────────────────────────────────────────
-async function loadNotifInbox() {
-  try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEYS.notifInbox);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.slice(0, 50);
-  } catch (e) {
-    return [];
-  }
-}
-
-async function persistNotifInbox(items) {
-  try {
-    await AsyncStorage.setItem(STORAGE_KEYS.notifInbox, JSON.stringify(Array.isArray(items) ? items.slice(0, 50) : []));
-  } catch (e) {
-    // ignore
-  }
-}
-
-function normalizeNotifItem(input) {
-  const obj = input && typeof input === 'object' ? input : {};
-  const title = String(obj.title || '');
-  const body = String(obj.body || '');
-  const data = obj.data && typeof obj.data === 'object' ? obj.data : {};
-  const receivedAt = obj.receivedAt ? String(obj.receivedAt) : new Date().toISOString();
-  return { title, body, data, receivedAt };
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function haversineMeters(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
-  const toRad = (v) => (v * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-function hbAgeSecondsNow() {
-  return lastHeartbeatAtMs ? Math.floor((Date.now() - lastHeartbeatAtMs) / 1000) : null;
-}
-
-function shouldSkipHeartbeat({ reason, lat, lng }) {
-  const now = Date.now();
-  const ageSec = lastHeartbeatAtMs ? Math.floor((now - lastHeartbeatAtMs) / 1000) : null;
-
-  // Force: Diagnose/Recovery nur hier
-  if (isForceReason(reason)) return { skip: false, why: 'force' };
-
-  if (ageSec != null && ageSec < HB_MIN_GAP_SECONDS) {
-    if (lastSentCoords && lat != null && lng != null) {
-      const movedM = haversineMeters(lastSentCoords.latitude, lastSentCoords.longitude, lat, lng);
-      if (movedM >= BG_DISTANCE_METERS) return { skip: false, why: `moved:${Math.round(movedM)}m` };
-      return { skip: true, why: `dedupe:${ageSec}s moved:${Math.round(movedM)}m` };
-    }
-    return { skip: true, why: `dedupe:${ageSec}s` };
-  }
-
-  return { skip: false, why: 'gap-ok' };
-}
-
-async function resolveCoordsForHeartbeat({ allowCurrentFix = true } = {}) {
-  const last = await Location.getLastKnownPositionAsync();
-  if (last && last.coords) return last.coords;
-
-  if (!allowCurrentFix) return null;
-
-  const cur = await Location.getCurrentPositionAsync({
-    accuracy: Location.Accuracy.Balanced,
-    mayShowUserSettingsDialog: true,
-  });
-  return cur.coords;
-}
-
-// ── Heartbeat Engine ─────────────────────────────────────────────────────────
-async function sendHeartbeatCore({ lat, lng, accuracy, reason = 'unknown', interests }) {
-  const startedAt = Date.now();
-
-  let finalInterests = null;
-  if (Array.isArray(interests) && interests.length > 0) {
-    finalInterests = normalizeInterests(interests);
-  } else if (Array.isArray(currentInterests) && currentInterests.length > 0) {
-    finalInterests = currentInterests;
-  } else {
-    try {
-      const loaded = await loadInterestsCached();
-      if (Array.isArray(loaded) && loaded.length > 0) finalInterests = loaded;
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  const deviceId = await resolveDeviceId();
-
-  const payload = {
-    deviceId,
-    lat,
-    lng,
-    accuracy,
-    ts: new Date().toISOString(),
-    powerState: 'unknown',
-    source: reason,
-  };
-
-  if (finalInterests && finalInterests.length > 0) payload.interests = finalInterests;
-
-  console.log(
-    `[HB] start device=${deviceId} reason=${reason} lat=${lat} lng=${lng} acc=${
-      accuracy != null ? accuracy : 'n/a'
-    } interests=${finalInterests && finalInterests.length ? finalInterests.join(',') : 'none'}`
-  );
-
-  const res = await fetch(`${API_BASE}/location/heartbeat`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  const finishedAt = Date.now();
-  const latencyMs = finishedAt - startedAt;
-
-  const data = await res.json().catch(() => null);
-  console.log('[HB] response payload:', data);
-
-  if (!res.ok) {
-    const msg = `HTTP ${res.status}`;
-    console.warn(`[HB] error reason=${reason} latency=${latencyMs}ms: ${msg}`);
-    throw new Error(msg);
-  }
-
-  let intervalSec = null;
-  if (lastHeartbeatAtMs != null) {
-    const deltaSec = Math.round((finishedAt - lastHeartbeatAtMs) / 1000);
-    intervalSec = deltaSec;
-    hbIntervals.push(deltaSec);
-    if (hbIntervals.length > 60) hbIntervals.shift();
-  }
-
-  lastHeartbeatAtMs = finishedAt;
-  if (lat != null && lng != null) lastSentCoords = { latitude: lat, longitude: lng };
-
-  console.log(
-    `[HB] ok reason=${reason} latency=${latencyMs}ms interval=${intervalSec != null ? `${intervalSec}s` : 'n/a'} samples=${
-      hbIntervals.length
-    }`
-  );
-
-  return { data, latencyMs, intervalSec };
-}
-
-async function sendHeartbeatSingleFlight({ lat, lng, accuracy, reason = 'unknown', interests }) {
-  const r = String(reason || 'unknown');
-
-  if (hbInFlight) {
-    if (isForceReason(r)) {
-      console.log(`[HB] join in-flight reason=${r} inFlightReason=${hbInFlightMeta?.reason || 'n/a'}`);
-      return hbInFlight;
-    }
-    console.log(`[HB] skip reason=${r} why=in-flight inFlightReason=${hbInFlightMeta?.reason || 'n/a'}`);
-    return { skipped: true, why: 'in-flight', inFlightReason: hbInFlightMeta?.reason || null };
-  }
-
-  hbInFlightMeta = { reason: r, startedAtMs: Date.now() };
-
-  const p = (async () => {
-    try {
-      return await sendHeartbeatCore({ lat, lng, accuracy, reason: r, interests });
-    } finally {
-      if (hbInFlight === p) {
-        hbInFlight = null;
-        hbInFlightMeta = null;
-      }
-    }
-  })();
-
-  hbInFlight = p;
-  return p;
-}
-
-async function sendImmediateHeartbeat(reason) {
-  const coords = await resolveCoordsForHeartbeat();
-  if (!coords) throw new Error('No coords available');
-  return sendHeartbeatSingleFlight({
-    lat: coords.latitude,
-    lng: coords.longitude,
-    accuracy: coords.accuracy,
-    reason: reason || 'immediate',
-  });
-}
-
-async function registerDevice({ expoPushToken, fcmToken } = {}) {
-  const deviceId = await resolveDeviceId();
-
-  const body = {
-    deviceId,
-    platform: Platform.OS === 'android' ? 'android' : Platform.OS || 'unknown',
-  };
-
-  if (expoPushToken) body.expoToken = String(expoPushToken);
-  if (fcmToken) body.fcmToken = String(fcmToken);
-
-  const res = await fetch(`${API_BASE}/push/register`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`register HTTP ${res.status} ${txt}`);
-  }
-  return res.json();
-}
-
-// ── BG Location Task ─────────────────────────────────────────────────────────
-try {
-  TaskManager.defineTask(TASK_IDS.bgLoc, async ({ data, error }) => {
-    if (error) {
-      console.warn('[BG TASK] error:', error);
-      return;
-    }
-
-    const payload = data || {};
-    const locations = payload.locations || [];
-    if (!locations || !locations.length) {
-      console.log('[BG TASK] no locations in payload');
-      return;
-    }
-
-    const loc = locations[0];
-    const coords = (loc && loc.coords) || {};
-    const lat = coords.latitude;
-    const lng = coords.longitude;
-    const acc = coords.accuracy;
-
-    console.log('[BG TASK] location update:', `lat=${lat} lng=${lng} acc=${acc} speed=${coords.speed}`);
-
-    try {
-      if (!Array.isArray(currentInterests) || currentInterests.length === 0) {
-        await loadInterestsCached();
-      }
-    } catch (e) {
-      // ignore
-    }
-
-    try {
-      const dec = shouldSkipHeartbeat({ reason: 'bg-location', lat, lng });
-      if (dec.skip) {
-        const ageSec = hbAgeSecondsNow();
-        console.log(`[HB] skip reason=bg-location why=${dec.why} ageSec=${ageSec != null ? ageSec : 'n/a'}`);
-      } else {
-        const r = await sendHeartbeatSingleFlight({ lat, lng, accuracy: acc, reason: 'bg-location' });
-        if (r && r.skipped) {
-          const ageSec = hbAgeSecondsNow();
-          console.log(
-            `[HB] skip reason=bg-location why=${r.why} inFlightReason=${r.inFlightReason || 'n/a'} ageSec=${
-              ageSec != null ? ageSec : 'n/a'
-            }`
-          );
-        }
-      }
-    } catch (e2) {
-      console.warn('[BG TASK] heartbeat failed:', (e2 && e2.message) || e2);
-    }
-
-    // Booster: große Bewegung, rate-limited (NICHT force; läuft durch dedupe + single-flight)
-    try {
-      const now = Date.now();
-      const canBooster = !lastBoosterAtMs || now - lastBoosterAtMs >= BOOSTER_MIN_GAP_SECONDS * 1000;
-
-      if (canBooster && lastCoordsForBooster && lat != null && lng != null) {
-        const movedM = haversineMeters(
-          lastCoordsForBooster.latitude,
-          lastCoordsForBooster.longitude,
-          lat,
-          lng
-        );
-        if (movedM >= BOOSTER_MOVE_METERS) {
-          console.log(`[Booster] moved ${Math.round(movedM)}m -> heartbeat booster`);
-          lastBoosterAtMs = now;
-          try {
-            const decB = shouldSkipHeartbeat({ reason: 'booster-move', lat, lng });
-            if (decB.skip) {
-              const ageSec = hbAgeSecondsNow();
-              console.log(`[HB] skip reason=booster-move why=${decB.why} ageSec=${ageSec != null ? ageSec : 'n/a'}`);
-            } else {
-              const r = await sendHeartbeatSingleFlight({ lat, lng, accuracy: acc, reason: 'booster-move' });
-              if (r && r.skipped) {
-                console.log(
-                  `[HB] skip reason=booster-move why=${r.why} inFlightReason=${r.inFlightReason || 'n/a'}`
-                );
-              }
-            }
-          } catch (e3) {
-            console.warn('[Booster] failed:', (e3 && e3.message) || e3);
-          }
-        }
-      }
-
-      if (lat != null && lng != null) {
-        lastCoordsForBooster = { latitude: lat, longitude: lng };
-      }
-    } catch (e4) {
-      console.warn('[Booster] error:', (e4 && e4.message) || e4);
-    }
-  });
-} catch (e) {
-  // duplicate define on fast refresh
-}
-
-// ── BackgroundFetch Task ─────────────────────────────────────────────────────
-try {
-  TaskManager.defineTask(TASK_IDS.fetch, async () => {
-    console.log('[FETCH TASK] tick');
-
-    try {
-      try {
-        const hasBg = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
-        if (!hasBg) {
-          console.log('[FETCH TASK] bgLoc not running -> rearm startBgLocation');
-          await startBgLocation();
-        }
-      } catch (eRearm) {
-        console.warn('[FETCH TASK] rearm check failed:', (eRearm && eRearm.message) || eRearm);
-      }
-
-      try {
-        if (!Array.isArray(currentInterests) || currentInterests.length === 0) {
-          await loadInterestsCached();
-        }
-      } catch (e) {
-        // ignore
-      }
-
-      const ageSec = lastHeartbeatAtMs ? Math.floor((Date.now() - lastHeartbeatAtMs) / 1000) : null;
-      const stale = ageSec == null || ageSec >= WATCHDOG_STALE_SECONDS;
-
-      if (!stale) {
-        console.log('[FETCH TASK] HB not stale -> no heartbeat (ageSec=', ageSec, ')');
-        return BackgroundFetch.BackgroundFetchResult.NoData;
-      }
-
-      const coords = await resolveCoordsForHeartbeat({ allowCurrentFix: true });
-      if (coords && coords.latitude != null && coords.longitude != null) {
-        console.log(
-          '[FETCH TASK] watchdog heartbeat:',
-          `ageSec=${ageSec} lat=${coords.latitude} lng=${coords.longitude} acc=${coords.accuracy}`
-        );
-
-        const r = await sendHeartbeatSingleFlight({
-          lat: coords.latitude,
-          lng: coords.longitude,
-          accuracy: coords.accuracy,
-          reason: 'fetch-watchdog',
-        });
-
-        if (r && r.skipped) {
-          console.log(`[FETCH TASK] HB skipped: ${r.why} inFlightReason=${r.inFlightReason || 'n/a'}`);
-          return BackgroundFetch.BackgroundFetchResult.NoData;
-        }
-
-        return BackgroundFetch.BackgroundFetchResult.NewData;
-      }
-
-      console.log('[FETCH TASK] no coords available');
-      return BackgroundFetch.BackgroundFetchResult.NoData;
-    } catch (e2) {
-      console.warn('[FETCH TASK] failed:', (e2 && e2.message) || e2);
-      return BackgroundFetch.BackgroundFetchResult.Failed;
-    }
-  });
-} catch (e) {
-  // duplicate define
-}
-
-// ── BG Location Start ─────────────────────────────────────────────────────────
-async function startBgLocation() {
-  const hasStarted = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
-  if (hasStarted) {
-    console.log('[BG] already started');
-    return;
-  }
-
-  console.log('[BG] starting location updates…', `time=${BG_TIME_SECONDS}s distance=${BG_DISTANCE_METERS}m`);
-
-  await Location.startLocationUpdatesAsync(TASK_IDS.bgLoc, {
-    accuracy: Location.Accuracy.Balanced,
-    timeInterval: BG_TIME_SECONDS * 1000,
-    distanceInterval: BG_DISTANCE_METERS,
-    deferredUpdatesInterval: BG_TIME_SECONDS * 1000,
-    deferredUpdatesDistance: BG_DISTANCE_METERS,
-
-    pausesUpdatesAutomatically: false,
-    showsBackgroundLocationIndicator: false,
-    activityType: Location.ActivityType.Fitness,
-    mayShowUserSettingsDialog: true,
-
-    foregroundService: {
-      notificationTitle: 'ULTREIA läuft – Pilgerhilfe aktiv',
-      notificationBody: 'Wir benachrichtigen dich unterwegs über passende Angebote in deiner Nähe.',
-      notificationColor: '#000000',
-      killServiceOnDestroy: false,
-    },
-  });
-}
-
-// ── Foreground Heartbeat Loop ────────────────────────────────────────────────
-function startHeartbeatLoop(updateState) {
-  if (hbLoopTimerId) {
-    console.log('[HB-Loop] already running');
-    updateState((s) => ({ ...s, hbLoopActive: true }));
-    return;
-  }
-
-  console.log('[HB-Loop] starting loop…', `interval=${HB_LOOP_SECONDS}s`);
-  updateState((s) => ({ ...s, hbLoopActive: true }));
-
-  const runTick = async () => {
-    try {
-      const coords = await resolveCoordsForHeartbeat({ allowCurrentFix: true });
-      if (!coords) {
-        console.warn('[HB-Loop] no coords available');
-        return;
-      }
-
-      const dec = shouldSkipHeartbeat({ reason: 'fg-loop', lat: coords.latitude, lng: coords.longitude });
-      if (dec.skip) {
-        const ageSec = hbAgeSecondsNow();
-        console.log(`[HB] skip reason=fg-loop why=${dec.why} ageSec=${ageSec != null ? ageSec : 'n/a'}`);
-        updateState((s) => ({ ...s, hbLoopActive: true }));
-        return;
-      }
-
-      const hbResult = await sendHeartbeatSingleFlight({
-        lat: coords.latitude,
-        lng: coords.longitude,
-        accuracy: coords.accuracy,
-        reason: 'fg-loop',
-      });
-
-      if (hbResult && hbResult.skipped) {
-        console.log(`[HB] skip reason=fg-loop why=${hbResult.why} inFlightReason=${hbResult.inFlightReason || 'n/a'}`);
-        updateState((s) => ({ ...s, hbLoopActive: true }));
-        return;
-      }
-
-      updateState((s) => ({
-        ...s,
-        lastOkAt: new Date(),
-        lastErr: null,
-        lastResp: hbResult.data,
-        lastHeartbeatReason: 'fg-loop',
-        lastHeartbeatLatencyMs: hbResult.latencyMs,
-        lastHeartbeatAt: new Date().toISOString(),
-        hbAgeSeconds: 0,
-        hbLoopActive: true,
-      }));
-    } catch (e) {
-      console.warn('[HB-Loop] tick failed:', (e && e.message) || e);
-      updateState((s) => ({
-        ...s,
-        lastErr: `[hb-loop] ${(e && e.message) || e}`,
-        hbLoopActive: true,
-      }));
-    }
-  };
-
-  runTick().catch(() => null);
-  hbLoopTimerId = setInterval(runTick, HB_LOOP_SECONDS * 1000);
-}
-
-function stopHeartbeatLoop(updateState) {
-  if (hbLoopTimerId) {
-    clearInterval(hbLoopTimerId);
-    hbLoopTimerId = null;
-    console.log('[HB-Loop] stopped');
-  }
-  if (updateState) updateState((s) => ({ ...s, hbLoopActive: false }));
-}
-
-// ── BackgroundFetch register ─────────────────────────────────────────────────
-async function ensureBackgroundFetch() {
-  const registered = await TaskManager.isTaskRegisteredAsync(TASK_IDS.fetch);
-  if (!registered) {
-    try {
-      console.log('[Fetch] registering BackgroundFetch…');
-      await BackgroundFetch.registerTaskAsync(TASK_IDS.fetch, {
-        minimumInterval: 15 * 60,
-        stopOnTerminate: false,
-        startOnBoot: true,
-      });
-    } catch (e) {
-      console.warn('[Fetch] register failed:', (e && e.message) || e);
-    }
-  } else {
-    console.log('[Fetch] already registered');
-  }
-}
-
-// ── Diagnostics runtime status ───────────────────────────────────────────────
-async function refreshRuntimeStatus(updateState) {
-  try {
-    const hasBgLoc = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
-
-    let fetchStatusLabel = 'unknown';
-    try {
-      const status = await BackgroundFetch.getStatusAsync();
-      if (status === BackgroundFetch.BackgroundFetchStatus.Available) fetchStatusLabel = 'available';
-      else if (status === BackgroundFetch.BackgroundFetchStatus.Denied) fetchStatusLabel = 'denied';
-      else if (status === BackgroundFetch.BackgroundFetchStatus.Restricted) fetchStatusLabel = 'restricted';
-    } catch (e) {
-      console.warn('[Diag] getStatusAsync failed:', (e && e.message) || e);
-    }
-
-    let deviceId = null;
-    try {
-      deviceId = await resolveDeviceId();
-    } catch (e) {
-      deviceId = null;
-    }
-
-    let interestsLabel = 'none';
-    try {
-      const ints = await loadInterestsCached();
-      interestsLabel = Array.isArray(ints) && ints.length ? ints.join(',') : 'none';
-    } catch (e) {
-      interestsLabel = 'none';
-    }
-
-    updateState((s) => ({
-      ...s,
-      bgLocRunning: !!hasBgLoc,
-      fetchStatus: fetchStatusLabel,
-      deviceId,
-      interestsLabel,
-    }));
-
-    console.log(
-      '[Diag] deviceId=',
-      deviceId,
-      'bgLocRunning=',
-      !!hasBgLoc,
-      'fetchStatus=',
-      fetchStatusLabel,
-      'interests=',
-      interestsLabel
-    );
-  } catch (e) {
-    console.warn('[Diag] refreshRuntimeStatus failed:', (e && e.message) || e);
-  }
-}
-
-// ── Permissions ──────────────────────────────────────────────────────────────
-async function ensurePermissions(setState) {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(NOTIF_CHANNELS.fg, {
-      name: 'ULTREIA Service',
-      importance: Notifications.AndroidImportance.MIN,
-      vibrationPattern: [0],
-      bypassDnd: false,
-      sound: undefined,
-      showBadge: false,
-      lockscreenVisibility: Notifications.AndroidNotificationVisibility.SECRET,
-    });
-
-    await Notifications.setNotificationChannelAsync(NOTIF_CHANNELS.offers, {
-      name: 'ULTREIA Offers',
-      importance: Notifications.AndroidImportance.MAX,
-    });
-
-    const notifPermBefore = await Notifications.getPermissionsAsync();
-    console.log('[Perm] notif before request:', notifPermBefore);
-    const notifPerm = await Notifications.requestPermissionsAsync();
-    console.log('[Perm] notif after request:', notifPerm);
-    setState((s) => ({
-      ...s,
-      notifPermission: notifPerm && notifPerm.status ? notifPerm.status : 'unknown',
-    }));
-  }
-
-  const fg = await Location.requestForegroundPermissionsAsync();
-  console.log('[Perm] fg location:', fg);
-  setState((s) => ({ ...s, fgLocationPermission: fg.status || 'unknown' }));
-  if (fg.status !== 'granted') throw new Error('Foreground location permission denied');
-
-  if (Platform.OS === 'android') {
-    const bg = await Location.requestBackgroundPermissionsAsync();
-    console.log('[Perm] bg location (request):', bg);
-    setState((s) => ({ ...s, bgLocationPermission: bg.status || 'unknown' }));
-    if (bg.status !== 'granted') console.warn('Background location permission not granted yet.');
-    const bgCurrent = await Location.getBackgroundPermissionsAsync();
-    console.log('[Perm] bg location (current):', bgCurrent);
-  }
-}
 
 // ── UI ──────────────────────────────────────────────────────────────────────
 const TABS = [
@@ -969,8 +111,15 @@ export default function App() {
   const [hasRunInit, setHasRunInit] = useState(false);
 
   const appState = useRef(AppState.currentState);
-  const notificationListener = useRef(null);
-  const responseListener = useRef(null);
+  const notifSubRef = useRef(null);
+  const respSubRef = useRef(null);
+
+  // Stop HB loop only on real unmount (NOT on init-effect cleanup)
+  useEffect(() => {
+    return () => {
+      stopHeartbeatLoop(setState);
+    };
+  }, []);
 
   // ── Boot: prefs + interests + inbox
   useEffect(() => {
@@ -1044,17 +193,17 @@ export default function App() {
             // ignore
           }
 
-          const hasBg = await Location.hasStartedLocationUpdatesAsync(TASK_IDS.bgLoc);
-          if (!hasBg) {
-            console.log('[ReArm] bgLoc not running → startBgLocation');
+          try {
             await startBgLocation();
+          } catch (e) {
+            // ignore
           }
 
           await refreshRuntimeStatus(setState);
           startHeartbeatLoop(setState);
 
-          if (lastHeartbeatAtMs) {
-            const ageSec = Math.floor((Date.now() - lastHeartbeatAtMs) / 1000);
+          const ageSec = hbAgeSecondsNow();
+          if (ageSec != null) {
             console.log('[Watchdog] HB age on active:', ageSec, 's');
             if (ageSec > WATCHDOG_STALE_SECONDS) {
               console.log('[Watchdog] HB stale → sending watchdog-rearm heartbeat');
@@ -1117,15 +266,15 @@ export default function App() {
       console.log('[Notif] response:', response);
     });
 
-    notificationListener.current = notifSub;
-    responseListener.current = respSub;
+    notifSubRef.current = notifSub;
+    respSubRef.current = respSub;
 
     return () => {
-      if (notificationListener.current && typeof notificationListener.current.remove === 'function') {
-        notificationListener.current.remove();
+      if (notifSubRef.current && typeof notifSubRef.current.remove === 'function') {
+        notifSubRef.current.remove();
       }
-      if (responseListener.current && typeof responseListener.current.remove === 'function') {
-        responseListener.current.remove();
+      if (respSubRef.current && typeof respSubRef.current.remove === 'function') {
+        respSubRef.current.remove();
       }
     };
   }, []);
@@ -1209,29 +358,30 @@ export default function App() {
           hbAgeSeconds: 0,
         }));
 
+        // IMPORTANT: set this at the very end; no init-cleanup stops hb-loop anymore
         setHasRunInit(true);
       } catch (e) {
         console.warn('[INIT] failed:', (e && e.message) || e);
         setState((s) => ({ ...s, ready: false, lastErr: (e && e.message) || String(e) }));
       }
     })();
-
-    return () => {
-      stopHeartbeatLoop(setState);
-    };
   }, [state.onboardingCompleted, hasRunInit]);
 
   // ── HB age poll (UI)
   useEffect(() => {
+    const pollSeconds = getWatchdogPollSeconds();
     const id = setInterval(() => {
-      if (!lastHeartbeatAtMs) return;
-      const ageSec = Math.floor((Date.now() - lastHeartbeatAtMs) / 1000);
+      const snap = getEngineSnapshot();
+      if (!snap || !snap.lastHeartbeatAtMs) return;
+
+      const ageSec = snap.hbAgeSeconds != null ? snap.hbAgeSeconds : null;
+      const tsIso = new Date(snap.lastHeartbeatAtMs).toISOString();
+
       setState((s) => {
-        const tsIso = new Date(lastHeartbeatAtMs).toISOString();
         if (s.hbAgeSeconds === ageSec && s.lastHeartbeatAt === tsIso) return s;
         return { ...s, lastHeartbeatAt: tsIso, hbAgeSeconds: ageSec };
       });
-    }, WATCHDOG_POLL_SECONDS * 1000);
+    }, pollSeconds * 1000);
 
     return () => clearInterval(id);
   }, []);
@@ -1332,21 +482,21 @@ export default function App() {
       const deviceId = await resolveDeviceId();
       const coords = await resolveCoordsForHeartbeat({ allowCurrentFix: true });
 
+      let category = 'restaurant';
       try {
-        await loadInterestsCached();
+        const ints = await loadInterestsCached();
+        if (Array.isArray(ints) && ints.length) category = String(ints[0]);
       } catch (e) {
         // ignore
       }
-
-      const category = Array.isArray(currentInterests) && currentInterests.length ? currentInterests[0] : 'restaurant';
 
       const resp = await postJson('/debug/seed-offer', {
         deviceId,
         lat: coords.latitude,
         lng: coords.longitude,
         category,
-        radiusMeters: DEBUG_OFFER_RADIUS_M,
-        validMinutes: DEBUG_OFFER_VALID_MIN,
+        radiusMeters: DEBUG_DEFAULTS.offerRadiusM,
+        validMinutes: DEBUG_DEFAULTS.offerValidMin,
         title: `Debug Offer (${category})`,
       });
 
@@ -1439,19 +589,20 @@ export default function App() {
   const hbAgeText = formatAge(state.hbAgeSeconds);
 
   const hbStats = useMemo(() => {
-    if (hbIntervals.length <= 0) return { statsText: '—', histText: '—' };
+    const intervals = getHbIntervalsRef();
+    if (!intervals || intervals.length <= 0) return { statsText: '—', histText: '—' };
 
     let sum = 0;
-    let min = hbIntervals[0];
-    let max = hbIntervals[0];
-    for (let i = 0; i < hbIntervals.length; i += 1) {
-      const v = hbIntervals[i];
+    let min = intervals[0];
+    let max = intervals[0];
+    for (let i = 0; i < intervals.length; i += 1) {
+      const v = intervals[i];
       sum += v;
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    const avg = sum / hbIntervals.length;
-    const statsText = `n=${hbIntervals.length}, min=${min}s, Ø=${avg.toFixed(1)}s, max=${max}s`;
+    const avg = sum / intervals.length;
+    const statsText = `n=${intervals.length}, min=${min}s, Ø=${avg.toFixed(1)}s, max=${max}s`;
 
     const bucketDefs = [
       { label: '<30s', min: 0, max: 29 },
@@ -1462,8 +613,8 @@ export default function App() {
     ];
     const bucketCounts = bucketDefs.map(() => 0);
 
-    for (let i = 0; i < hbIntervals.length; i += 1) {
-      const v = hbIntervals[i];
+    for (let i = 0; i < intervals.length; i += 1) {
+      const v = intervals[i];
       for (let j = 0; j < bucketDefs.length; j += 1) {
         const b = bucketDefs[j];
         if (v >= b.min && v <= b.max) {
@@ -1475,7 +626,7 @@ export default function App() {
 
     const histText = bucketDefs.map((b, idx) => `${b.label}:${bucketCounts[idx]}`).join(' | ');
     return { statsText, histText };
-  }, [state.hbAgeSeconds]); // leichte Triggerung über UI-Tick, hbIntervals ist global
+  }, [state.hbAgeSeconds]);
 
   const prefsSummary = useMemo(() => {
     return [
@@ -1488,7 +639,7 @@ export default function App() {
       .join(', ');
   }, [state.prefAccommodation, state.prefFood, state.prefPharmacy, state.prefWater]);
 
-  // ── Onboarding UI (unverändert inhaltlich, nur Styles leicht modernisiert)
+  // ── Onboarding UI
   if (!state.onboardingCompleted) {
     return (
       <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
@@ -1622,20 +773,39 @@ export default function App() {
         <View style={styles.grid}>
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Status</Text>
-            <Text style={styles.kv}>Bereit: <Text style={styles.kvVal}>{state.ready ? 'Ja' : 'Nein'}</Text></Text>
-            <Text style={styles.kv}>BG-Task: <Text style={styles.kvVal}>{state.bgLocRunning ? 'Läuft' : 'Aus'}</Text></Text>
-            <Text style={styles.kv}>Fetch: <Text style={styles.kvVal}>{state.fetchStatus}</Text></Text>
-            <Text style={styles.kv}>HB-Loop: <Text style={styles.kvVal}>{state.hbLoopActive ? 'Aktiv' : 'Inaktiv'}</Text></Text>
+            <Text style={styles.kv}>
+              Bereit: <Text style={styles.kvVal}>{state.ready ? 'Ja' : 'Nein'}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              BG-Task: <Text style={styles.kvVal}>{state.bgLocRunning ? 'Läuft' : 'Aus'}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              Fetch: <Text style={styles.kvVal}>{state.fetchStatus}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              HB-Loop: <Text style={styles.kvVal}>{state.hbLoopActive ? 'Aktiv' : 'Inaktiv'}</Text>
+            </Text>
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Heartbeat</Text>
-            <Text style={styles.kv}>Alter: <Text style={styles.kvVal}>{hbAgeText}</Text></Text>
-            <Text style={styles.kv}>Letzter OK: <Text style={styles.kvVal}>{okAt}</Text></Text>
-            <Text style={styles.kv}>Letzter HB: <Text style={styles.kvVal}>{hbAt}</Text></Text>
-            <Text style={styles.kv}>Reason: <Text style={styles.kvVal}>{state.lastHeartbeatReason || '—'}</Text></Text>
             <Text style={styles.kv}>
-              Latenz: <Text style={styles.kvVal}>{state.lastHeartbeatLatencyMs != null ? `${state.lastHeartbeatLatencyMs} ms` : '—'}</Text>
+              Alter: <Text style={styles.kvVal}>{hbAgeText}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              Letzter OK: <Text style={styles.kvVal}>{okAt}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              Letzter HB: <Text style={styles.kvVal}>{hbAt}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              Reason: <Text style={styles.kvVal}>{state.lastHeartbeatReason || '—'}</Text>
+            </Text>
+            <Text style={styles.kv}>
+              Latenz:{' '}
+              <Text style={styles.kvVal}>
+                {state.lastHeartbeatLatencyMs != null ? `${state.lastHeartbeatLatencyMs} ms` : '—'}
+              </Text>
             </Text>
           </View>
         </View>
@@ -1645,16 +815,28 @@ export default function App() {
           <Text style={styles.p}>Aktiv: {prefsSummary || '—'}</Text>
 
           <View style={styles.pillRow}>
-            <TouchableOpacity style={[styles.pill, state.prefAccommodation ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefAccommodation')}>
+            <TouchableOpacity
+              style={[styles.pill, state.prefAccommodation ? styles.pillOn : styles.pillOff]}
+              onPress={() => togglePref('prefAccommodation')}
+            >
               <Text style={styles.pillText}>Schlaf</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.pill, state.prefFood ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefFood')}>
+            <TouchableOpacity
+              style={[styles.pill, state.prefFood ? styles.pillOn : styles.pillOff]}
+              onPress={() => togglePref('prefFood')}
+            >
               <Text style={styles.pillText}>Essen</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.pill, state.prefPharmacy ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefPharmacy')}>
+            <TouchableOpacity
+              style={[styles.pill, state.prefPharmacy ? styles.pillOn : styles.pillOff]}
+              onPress={() => togglePref('prefPharmacy')}
+            >
               <Text style={styles.pillText}>Apotheke</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.pill, state.prefWater ? styles.pillOn : styles.pillOff]} onPress={() => togglePref('prefWater')}>
+            <TouchableOpacity
+              style={[styles.pill, state.prefWater ? styles.pillOn : styles.pillOff]}
+              onPress={() => togglePref('prefWater')}
+            >
               <Text style={styles.pillText}>Wasser</Text>
             </TouchableOpacity>
           </View>
@@ -1779,10 +961,14 @@ export default function App() {
           <View style={styles.hr} />
 
           <Text style={styles.smallMuted}>DeviceId</Text>
-          <Text style={styles.pStrong} numberOfLines={1}>{deviceId}</Text>
+          <Text style={styles.pStrong} numberOfLines={1}>
+            {deviceId}
+          </Text>
 
           <Text style={styles.smallMuted}>API</Text>
-          <Text style={styles.p} numberOfLines={2}>{API_BASE}</Text>
+          <Text style={styles.p} numberOfLines={2}>
+            {API_BASE}
+          </Text>
         </View>
       </>
     );
@@ -1794,22 +980,42 @@ export default function App() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Diagnostik</Text>
 
-          <Text style={styles.kv}>Device: <Text style={styles.kvVal}>{state.deviceId || '—'}</Text></Text>
-          <Text style={styles.kv}>Interests (cache): <Text style={styles.kvVal}>{state.interestsLabel || 'none'}</Text></Text>
-          <Text style={styles.kv}>Expo Token: <Text style={styles.kvVal}>{shortExpoToken}</Text></Text>
-          <Text style={styles.kv}>FCM Token: <Text style={styles.kvVal}>{shortFcmToken}</Text></Text>
-          <Text style={styles.kv}>Device-Register: <Text style={styles.kvVal}>{state.deviceRegistered ? 'OK' : 'noch nicht'}</Text></Text>
+          <Text style={styles.kv}>
+            Device: <Text style={styles.kvVal}>{state.deviceId || '—'}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            Interests (cache): <Text style={styles.kvVal}>{state.interestsLabel || 'none'}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            Expo Token: <Text style={styles.kvVal}>{shortExpoToken}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            FCM Token: <Text style={styles.kvVal}>{shortFcmToken}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            Device-Register: <Text style={styles.kvVal}>{state.deviceRegistered ? 'OK' : 'noch nicht'}</Text>
+          </Text>
 
           <View style={styles.hr} />
 
-          <Text style={styles.kv}>Notif-Permission: <Text style={styles.kvVal}>{state.notifPermission}</Text></Text>
-          <Text style={styles.kv}>FG-Location: <Text style={styles.kvVal}>{state.fgLocationPermission}</Text></Text>
-          <Text style={styles.kv}>BG-Location: <Text style={styles.kvVal}>{state.bgLocationPermission}</Text></Text>
+          <Text style={styles.kv}>
+            Notif-Permission: <Text style={styles.kvVal}>{state.notifPermission}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            FG-Location: <Text style={styles.kvVal}>{state.fgLocationPermission}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            BG-Location: <Text style={styles.kvVal}>{state.bgLocationPermission}</Text>
+          </Text>
 
           <View style={styles.hr} />
 
-          <Text style={styles.kv}>HB-Intervall Stats: <Text style={styles.kvVal}>{hbStats.statsText}</Text></Text>
-          <Text style={styles.kv}>HB-Histogramm: <Text style={styles.kvVal}>{hbStats.histText}</Text></Text>
+          <Text style={styles.kv}>
+            HB-Intervall Stats: <Text style={styles.kvVal}>{hbStats.statsText}</Text>
+          </Text>
+          <Text style={styles.kv}>
+            HB-Histogramm: <Text style={styles.kvVal}>{hbStats.histText}</Text>
+          </Text>
 
           {state.lastErr ? (
             <View style={[styles.cardInner, styles.cardDangerInner]}>
@@ -1822,7 +1028,9 @@ export default function App() {
         {state.debugLastAction || state.debugLastResult ? (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Debug</Text>
-            <Text style={styles.kv}>Aktion: <Text style={styles.kvVal}>{state.debugLastAction || '—'}</Text></Text>
+            <Text style={styles.kv}>
+              Aktion: <Text style={styles.kvVal}>{state.debugLastAction || '—'}</Text>
+            </Text>
             <View style={styles.codeBox}>
               <Text style={styles.codeText}>{state.debugLastResult ? state.debugLastResult : '—'}</Text>
             </View>
@@ -1865,7 +1073,7 @@ export default function App() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Hinweise</Text>
           <Text style={styles.p}>
-            • Android kann BG-Updates dichter als 60s liefern → Dedupe mit HB_MIN_GAP_SECONDS (~55s).{'\n'}
+            • Android kann BG-Updates dichter als 60s liefern → Dedupe in Engine (HB_MIN_GAP_SECONDS ~55s).{'\n'}
             • Single-flight verhindert Doppel-Trigger (interval=0s).{'\n'}
             • Tier A: expo-location + ForegroundService Notification.{'\n'}
             • Tier B: BackgroundFetch Watchdog (rearm + stale HB).{'\n'}
