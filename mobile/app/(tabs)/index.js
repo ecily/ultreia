@@ -36,7 +36,7 @@ import { DistanceBadge } from '../../components/DistanceBadge';
 import { csvToSet, matchesInterests } from '../../utils/interests';
 
 
-const API_URL = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+const API_URL = 'https://api.ultreia.app/api';
 const FALLBACK_NEARBY_RADIUS_M = 5000;
 
 /* ───────────── Helpers ───────────── */
@@ -1172,6 +1172,7 @@ const styles = StyleSheet.create({
   },
   inlineNoticeText: { fontSize: 13, fontWeight: '600' },
 });
+
 
 
 

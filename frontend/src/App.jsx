@@ -1,8 +1,12 @@
-﻿import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
+import { I18nProvider } from './i18n';
 
 import CookieNotice from './components/CookieNotice';
+
+const NDA_ACCEPTED_KEY = 'ultreia_nda_accepted';
+const NDA_ACCEPTED_LEGACY_KEY = 'ultreia_ndaa_accepted';
 
 const AddProviderForm = lazy(() => import('./components/AddProviderForm'));
 const AddOfferForm = lazy(() => import('./components/AddOfferForm'));
@@ -15,7 +19,7 @@ const Login = lazy(() => import('./pages/Login'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const AdminCategoryPage = lazy(() => import('./pages/AdminCategoryPage'));
 const AdminOffersMap = lazy(() => import('./pages/AdminOffersMap'));
-const WhyStepsMatch = lazy(() => import('./pages/WhyStepsMatch'));
+const WhyUltreia = lazy(() => import('./pages/WhyUltreia'));
 const TesterGate = lazy(() => import('./pages/TesterGate'));
 const NDA = lazy(() => import('./pages/NDA'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
@@ -59,8 +63,10 @@ function BootGuard() {
       const hasRedirectHint = new URLSearchParams(search).has('redirect');
       if (hasRedirectHint) return;
 
-      const key = localStorage.getItem('stepsmatch_tester_key');
-      const accepted = localStorage.getItem('stepsmatch_ndaa_accepted') === '1';
+      const key = localStorage.getItem('ultreia_tester_key');
+      const accepted =
+        localStorage.getItem(NDA_ACCEPTED_KEY) === '1' ||
+        localStorage.getItem(NDA_ACCEPTED_LEGACY_KEY) === '1';
 
       if (pathname === '/') {
         if (accepted) {
@@ -134,7 +140,7 @@ const AppRoutes = () => {
           <Route path="/nda" element={<NDA />} />
 
           <Route path="/home" element={<LandingPage />} />
-          <Route path="/why" element={<WhyStepsMatch />} />
+          <Route path="/why" element={<WhyUltreia />} />
           <Route path="/pitch" element={<Pitch />} />
           <Route path="/privacy" element={<PrivacyPage />} />
 
@@ -171,12 +177,15 @@ const AppRoutes = () => {
 const App = () => {
   return (
     <HelmetProvider>
-      <Router>
-        <AppRoutes />
-        <CookieNotice />
-      </Router>
+      <I18nProvider>
+        <Router>
+          <AppRoutes />
+          <CookieNotice />
+        </Router>
+      </I18nProvider>
     </HelmetProvider>
   );
 };
 
 export default App;
+

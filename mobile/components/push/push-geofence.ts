@@ -112,7 +112,7 @@ async function httpGetJsonWithRetry(url: string, {
 ──────────────────────────────────────────────────────────── */
 let _offersFetchErrorOnce = false; // Log-Noise-Guard
 async function fetchCandidateOffers() {
-  const base = (typeof API_BASE === 'string' && API_BASE) ? API_BASE : 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+  const base = (typeof API_BASE === 'string' && API_BASE) ? API_BASE : 'https://api.ultreia.app/api';
   const url = `${base}/offers?withProvider=1&activeNow=1&fields=_id,name,location,provider,radius,validTimes,validDays,validDates`;
 
   try {
@@ -511,4 +511,5 @@ export async function markAlreadyInsideQuietly({ allowFirstEverPush = true }: { 
 export function getCurrentRegionsSnapshot() {
   return CURRENT_REGIONS.slice();
 }
+
 

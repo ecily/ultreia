@@ -1,10 +1,10 @@
-﻿# StepsMatch Frontend
+# Ultreia Frontend
 
-Produktions-Frontend für StepsMatch (React + Vite).
+Produktions-Frontend fuer Ultreia (React + Vite).
 
 ## Kernidee
 
-StepsMatch zeigt nicht einfach lokale Angebote an, sondern matched **Ort + Zeit + Interesse** und informiert genau im richtigen Moment.
+Ultreia zeigt nicht einfach lokale Angebote an, sondern matched **Ort + Zeit + Interesse** und informiert genau im richtigen Moment.
 
 ## Start
 
@@ -22,19 +22,19 @@ npm run preview
 
 ## Wichtige ENV-Variablen
 
-- `VITE_API_BASE_URL` – Backend-API-Basis (`.../api`)
-- `VITE_GOOGLE_MAPS_API_KEY` – Google Maps API Key
-- `VITE_GOOGLE_MAPS_MAP_ID` – optional für erweiterte Map-Styles/Marker
+- `VITE_API_BASE_URL` - Backend-API-Basis (`.../api`)
+- `VITE_GOOGLE_MAPS_API_KEY` - Google Maps API Key
+- `VITE_GOOGLE_MAPS_MAP_ID` - optional fuer erweiterte Map-Styles/Marker
 
 ## Seiten
 
-- `src/pages/LandingPage.jsx` – Haupt-Landingpage
-- `src/pages/WhyStepsMatch.jsx` – Positionierung/USP
-- `src/pages/Pitch.jsx` – Investor-Zusammenfassung
-- `src/pages/TesterGate.jsx` + `src/pages/NDA.jsx` – Tester-Zugang
-- `src/pages/Login.jsx` / `src/pages/Register.jsx` – Anbieter Auth
-- `src/pages/PrivacyPage.jsx` – Datenschutzhinweise
-- `src/pages/AdminCategoryPage.jsx` / `src/pages/AdminOffersMap.jsx` – Admin-Flows
+- `src/pages/LandingPage.jsx` - Haupt-Landingpage
+- `src/pages/WhyUltreia.jsx` - Positionierung/USP
+- `src/pages/Pitch.jsx` - Investor-Zusammenfassung
+- `src/pages/TesterGate.jsx` + `src/pages/NDA.jsx` - Tester-Zugang
+- `src/pages/Login.jsx` / `src/pages/Register.jsx` - Anbieter Auth
+- `src/pages/PrivacyPage.jsx` - Datenschutzhinweise
+- `src/pages/AdminCategoryPage.jsx` / `src/pages/AdminOffersMap.jsx` - Admin-Flows
 
 ## Designsystem
 
@@ -43,4 +43,4 @@ Gemeinsame UI-Tokens und Komponentenklassen sind zentral in `src/index.css` defi
 ## Hinweise
 
 - Keine Auto-Commits in Git aus diesem Repo-Stand.
-- Für Deploy nur nach lokal erfolgreichem `npm run lint` und `npm run build`.
+- Fuer Deploy nur nach lokal erfolgreichem `npm run lint` und `npm run build`.

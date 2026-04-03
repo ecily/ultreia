@@ -1,11 +1,11 @@
-﻿import React from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "@dr.pogodin/react-helmet";
 import { QRCodeCanvas } from "qrcode.react";
 import { ArrowRight, CheckCircle2, Download, Sparkles } from "lucide-react";
 
 import Navbar from "../components/Navbar";
-import logoIcon from "../assets/stepsmatch-icon.svg";
+import logoIcon from "../assets/ultreia-icon.svg";
 import heroCity from "../assets/hero-city-daylight.jpg";
 import previewImage from "../assets/navigation-preview.png";
 
@@ -24,11 +24,11 @@ function ApkModal({ open, onClose, apkUrl, onDontShowAgain }) {
             <h3 className="mt-3 text-2xl font-extrabold">In unter 1 Minute live</h3>
             <p className="mt-2 text-sm text-slate-600 sm:text-base">
               QR-Code scannen oder APK direkt laden. Danach kannst du die komplette
-              StepsMatch-MVP-Strecke sofort testen.
+              Ultreia-MVP-Strecke sofort testen.
             </p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-            Schließen
+            Schliessen
           </button>
         </div>
 
@@ -37,7 +37,7 @@ function ApkModal({ open, onClose, apkUrl, onDontShowAgain }) {
             <QRCodeCanvas value={qrValue} size={180} includeMargin level="M" />
           </div>
           <div>
-            <p className="text-sm text-slate-600">Option A: Kamera öffnen und QR scannen</p>
+            <p className="text-sm text-slate-600">Option A: Kamera oeffnen und QR scannen</p>
             <a href={apkUrl} className="sm-btn-primary mt-3 !w-full gap-2 sm:!w-auto" target="_blank" rel="noreferrer">
               <Download size={16} /> APK direkt laden
             </a>
@@ -60,34 +60,34 @@ function ApkModal({ open, onClose, apkUrl, onDontShowAgain }) {
 
 const steps = [
   {
-    title: "Anbieter veröffentlicht ein Angebot",
-    text: "Mit Radius, Kategorie und Zeitfenster für einen klaren Nutzungskontext.",
+    title: "Anbieter veroeffentlicht ein Angebot",
+    text: "Mit Radius, Kategorie und Zeitfenster fuer einen klaren Nutzungskontext.",
   },
   {
     title: "User setzt Interessen",
-    text: "Nur relevante Themen aktivieren. Kein permanentes Suchen und kein Feed-Lärm.",
+    text: "Nur relevante Themen aktivieren. Kein permanentes Suchen und kein Feed-Laerm.",
   },
   {
     title: "Match im richtigen Moment",
-    text: "Wenn Ort, Zeit und Interesse passen, kommt der Push sofort auf das Gerät.",
+    text: "Wenn Ort, Zeit und Interesse passen, kommt der Push sofort auf das Geraet.",
   },
 ];
 
 const useCases = [
-  "Feierabend: Restegerichte in direkter Nähe ohne aktives Suchen.",
+  "Feierabend: Restegerichte in direkter Naehe ohne aktives Suchen.",
   "Apotheke/Trafik: Erinnerung exakt beim Vorbeigehen.",
   "Sales: Nur echte Angebote in deinem Interessenprofil.",
   "Happy Hour: Hinweise dann, wenn du ohnehin unterwegs bist.",
   "Neu in der Gegend: lokale Angebote ohne Rechercheaufwand.",
-  "Nebenstraßen-Läden: Sichtbarkeit im richtigen Radius.",
+  "Nebenstrassen-Laeden: Sichtbarkeit im richtigen Radius.",
   "Jobs in Gehweite: sofortige Hinweise bei passendem Profil.",
   "Singles/Events: kontextbezogene Treffer statt Spam.",
-  "Pilger-/Routenfälle: relevante Stops entlang des Weges.",
+  "Pilger-/Routenfaelle: relevante Stops entlang des Weges.",
 ];
 
 const mvpPoints = [
-  "Hintergrundsuche läuft zuverlässig auch bei geschlossener App",
-  "Push-Auslösung exakt beim Eintritt in ein gültiges Angebot",
+  "Hintergrundsuche laeuft zuverlaessig auch bei geschlossener App",
+  "Push-Ausloesung exakt beim Eintritt in ein gueltiges Angebot",
   "Interessenfilter reduziert Rauschen auf wirklich passende Treffer",
   "Anbieter-Dashboard mit Angebotsverwaltung und Radiussteuerung",
 ];
@@ -98,12 +98,12 @@ export default function LandingPage() {
   const [previewOk, setPreviewOk] = React.useState(true);
   const [apkOpen, setApkOpen] = React.useState(false);
 
-  const title = "StepsMatch | finden. nicht suchen.";
+  const title = "Ultreia | finden. nicht suchen.";
   const description =
-    "Finden. Nicht suchen. StepsMatch zeigt dir passende Angebote genau dann, wenn du wirklich in der Naehe bist und macht den Weg dorthin sofort einfach.";
-  const url = "https://www.stepsmatch.com/";
+    "Finden. Nicht suchen. Ultreia zeigt dir passende Angebote genau dann, wenn du wirklich in der Naehe bist und macht den Weg dorthin sofort einfach.";
+  const url = "https://www.ultreia.app/";
 
-  const APK_REDIRECT_URL = "https://www.stepsmatch.com/StepsMatchV2.apk";
+  const APK_REDIRECT_URL = "https://www.ultreia.app/apk";
 
   React.useEffect(() => {
     try {
@@ -142,8 +142,8 @@ export default function LandingPage() {
           <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <section className="sm-rise">
               <p className="sm-badge">
-                <img src={logoIcon} alt="StepsMatch Icon" className="h-4 w-4" />
-                MVP-Plattform für lokale Relevanz
+                <img src={logoIcon} alt="Ultreia Icon" className="h-4 w-4" />
+                MVP-Plattform fuer lokale Relevanz
               </p>
 
               <h1 className="sm-hero-title mt-5">
@@ -153,7 +153,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base text-slate-700 sm:text-xl">
-                Du musst nicht mehr suchen: StepsMatch sagt dir Bescheid, wenn in
+                Du musst nicht mehr suchen: Ultreia sagt dir Bescheid, wenn in
                 deiner Naehe gerade etwas wirklich Passendes verfuegbar ist. Ein
                 Tipp, ein Klick, losgehen. So hilft die App im Alltag ganz konkret.
               </p>
@@ -185,7 +185,7 @@ export default function LandingPage() {
               {heroOk ? (
                 <img
                   src={heroCity}
-                  alt="Städtische Umgebung als StepsMatch-Nutzungsszenario"
+                  alt="Staedtische Umgebung als Ultreia-Nutzungsszenario"
                   className="h-[420px] w-full object-cover sm:h-[500px]"
                   onError={() => setHeroOk(false)}
                 />
@@ -201,8 +201,8 @@ export default function LandingPage() {
             <h2 className="sm-section-title">Warum das im Alltag hilft</h2>
             <p className="sm-section-copy">
               Anbieter pflegen ihre Angebote einmal sauber ein. Du legst nur deine
-              Interessen fest. Danach arbeitet StepsMatch im Hintergrund und informiert
-              dich verlässlich dann, wenn ein Angebot wirklich zu deinem Weg passt.
+              Interessen fest. Danach arbeitet Ultreia im Hintergrund und informiert
+              dich verlaesslich dann, wenn ein Angebot wirklich zu deinem Weg passt.
             </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {mvpPoints.map((item) => (
@@ -256,7 +256,7 @@ export default function LandingPage() {
                 {previewOk ? (
                   <img
                     src={previewImage}
-                    alt="StepsMatch App Vorschau"
+                    alt="Ultreia App Vorschau"
                     className="h-[280px] w-full object-cover"
                     onError={() => setPreviewOk(false)}
                   />
@@ -272,11 +272,11 @@ export default function LandingPage() {
           <div className="sm-card-strong p-7 sm:p-10 sm-rise sm-delay-2">
             <p className="sm-chip !border-white/35 !bg-white/10 !text-white">Release-ready Frontend</p>
             <h3 className="mt-4 text-3xl font-extrabold sm:text-4xl">
-              Bereit für den Live-Rollout der MVP-Experience
+              Bereit fuer den Live-Rollout der MVP-Experience
             </h3>
             <p className="mt-3 max-w-3xl text-sm text-blue-50 sm:text-lg">
-              Für User: relevante Hinweise ohne Suchstress. Für Anbieter: Sichtbarkeit
-              exakt im passenden Moment. Genau dafür ist StepsMatch gebaut.
+              Fuer User: relevante Hinweise ohne Suchstress. Fuer Anbieter: Sichtbarkeit
+              exakt im passenden Moment. Genau dafuer ist Ultreia gebaut.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button onClick={() => setApkOpen(true)} className="sm-btn-secondary">
@@ -286,7 +286,7 @@ export default function LandingPage() {
                 Anbieter-Onboarding
               </Link>
               <Link to="/why" className="sm-btn-ghost">
-                Warum StepsMatch
+                Warum Ultreia
               </Link>
             </div>
           </div>
@@ -295,8 +295,8 @@ export default function LandingPage() {
         <footer className="sm-divider bg-white/70">
           <div className="sm-shell flex flex-col items-start justify-between gap-3 py-7 text-sm text-slate-600 md:flex-row md:items-center">
             <div className="flex items-center gap-2 font-semibold text-slate-700">
-              <img src={logoIcon} alt="StepsMatch" className="h-5 w-5" />
-              © {new Date().getFullYear()} StepsMatch
+              <img src={logoIcon} alt="Ultreia" className="h-5 w-5" />
+              © {new Date().getFullYear()} Ultreia
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <Link to="/home">Home</Link>

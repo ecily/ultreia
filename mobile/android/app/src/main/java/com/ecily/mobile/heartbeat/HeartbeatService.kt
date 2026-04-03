@@ -1,4 +1,4 @@
-﻿package com.ecily.mobile.heartbeat
+package com.ecily.mobile.heartbeat
 
 import android.Manifest
 import android.app.Notification
@@ -31,7 +31,7 @@ class HeartbeatService : Service() {
 
     companion object {
         private const val TAG = "STEPSMATCH-HeartbeatService"
-        private const val CHANNEL_ID = "stepsmatch-bg-location-task"
+        private const val CHANNEL_ID = "ultreia-bg-location-task"
         private const val NOTIFICATION_ID = 1001
         private const val HEARTBEAT_INTERVAL_MS = 120_000L
         private const val MIN_GAP_MS = 55_000L
@@ -155,7 +155,7 @@ class HeartbeatService : Service() {
 
                     val hasLocPerm = hasLocationPermission(this)
                     if (!hasLocPerm) {
-                        Log.w(TAG, "onStartCommand: missing location permission â€“ cannot start foreground service")
+                        Log.w(TAG, "onStartCommand: missing location permission - cannot start foreground service")
                         isRunning = false
                         stopSelf()
                         return START_NOT_STICKY
@@ -337,10 +337,10 @@ class HeartbeatService : Service() {
             if (existing == null) {
                 val channel = NotificationChannel(
                     CHANNEL_ID,
-                    "Stepsmatch Service",
+                    "Ultreia Service",
                     NotificationManager.IMPORTANCE_MIN
                 ).apply {
-                    description = "H\u00e4lt Stepsmatch im Hintergrund aktiv"
+                    description = "H\u00e4lt Ultreia im Hintergrund aktiv"
                     setShowBadge(false)
                     enableVibration(false)
                 }
@@ -361,7 +361,7 @@ class HeartbeatService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Stepsmatch l\u00e4uft - Angebote aktiv")
+            .setContentTitle("Ultreia l\u00e4uft - Angebote aktiv")
             .setContentText("Sorgt f\u00fcr regelm\u00e4\u00dfige Heartbeats im Hintergrund.")
             .setSmallIcon(iconResId)
             .setOngoing(true)

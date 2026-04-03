@@ -96,7 +96,7 @@ export default function NotificationPermissionPrompt({ remindAfterMs = 6 * 60 * 
       return {
         title: 'Benachrichtigungen aktivieren',
         body:
-          'Damit du Angebote sofort siehst, wenn du in der Nähe bist, bitte in den Geräteeinstellungen die Benachrichtigungen für StepsMatch erlauben.',
+          'Damit du Angebote sofort siehst, wenn du in der Nähe bist, bitte in den Geräteeinstellungen die Benachrichtigungen für Ultreia erlauben.',
         primary: 'Einstellungen öffnen',
         secondary: 'Ich habe es erlaubt',
         tertiary: 'Später',

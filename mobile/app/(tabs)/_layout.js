@@ -5,12 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../theme/ThemeProvider';
+import { initLocale, t as tr } from '../../i18n';
 
 function HeaderBrand() {
   const t = useTheme();
   return (
     <View>
-      <Text style={{ color: t.colors.inkHigh, fontWeight: '900', fontSize: 24, letterSpacing: 0.2 }}>StepsMatch</Text>
+      <Text style={{ color: t.colors.inkHigh, fontWeight: '900', fontSize: 24, letterSpacing: 0.2 }}>{tr('brand.name', 'Ultreia')}</Text>
     </View>
   );
 }
@@ -56,7 +57,7 @@ function HeaderGreeting() {
 
   return (
     <View style={{ paddingRight: 10, alignItems: 'flex-end' }}>
-      <Text style={{ color: t.colors.inkLow, fontSize: 11 }}>Schoen, dass du da bist</Text>
+      <Text style={{ color: t.colors.inkLow, fontSize: 11 }}>{tr('tabs.headerGreeting', 'Schoen, dass du da bist')}</Text>
       <Text style={{ color: t.colors.inkHigh, fontSize: 14, fontWeight: '700' }}>{firstName || 'du'}</Text>
     </View>
   );
@@ -65,6 +66,16 @@ function HeaderGreeting() {
 export default function TabLayout() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  const [, setLocaleReady] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      await initLocale();
+      if (alive) setLocaleReady(true);
+    })();
+    return () => { alive = false; };
+  }, []);
 
   const tabBarStyle = useMemo(
     () => ({
@@ -116,10 +127,10 @@ export default function TabLayout() {
         },
       })}
     >
-      <Tabs.Screen name="index" options={{ title: 'Start' }} />
-      <Tabs.Screen name="NavigationMap" options={{ title: 'Karte' }} />
-      <Tabs.Screen name="ProfileScreen" options={{ title: 'Profil' }} />
-      <Tabs.Screen name="diagnostics" options={{ title: 'Check' }} />
+      <Tabs.Screen name="index" options={{ title: tr('tabs.start', 'Start') }} />
+      <Tabs.Screen name="NavigationMap" options={{ title: tr('tabs.map', 'Karte') }} />
+      <Tabs.Screen name="ProfileScreen" options={{ title: tr('tabs.profile', 'Profil') }} />
+      <Tabs.Screen name="diagnostics" options={{ title: tr('tabs.check', 'Check') }} />
 
       <Tabs.Screen name="offers/[id]" options={{ href: null, headerTitle: 'Angebot' }} />
       <Tabs.Screen name="[id]" options={{ href: null }} />

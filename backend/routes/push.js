@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { Expo } from 'expo-server-sdk';
 import PushToken from '../models/PushToken.js';
 import { sendToDevice } from '../services/pushService.js';
+import { BRAND_NAME } from '../config/brand.js';
 
 const router = express.Router();
 
@@ -182,7 +183,7 @@ router.get('/canary', async (req, res) => {
       resolvedDeviceId = tokenDoc?.deviceId ?? null;
     }
 
-    const title = 'StepsMatch Canary';
+    const title = `${BRAND_NAME} Canary`;
     const body = 'Automatischer Test-Push zur Token-Validierung.';
     const payload = { route: '/canary', source: 'canary', t: Date.now() };
 
@@ -397,7 +398,7 @@ router.post('/roundtrip', async (req, res) => {
 
     const offerId = rawOfferId || 'TEST';
     const payload = { offerId, route: `/offers/${offerId}`, source: 'roundtrip', t: Date.now() };
-    const title = rawTitle || 'StepsMatch';
+    const title = rawTitle || BRAND_NAME;
     const body = (rawBody || 'Test-Push') + ` [offerId:${offerId}]`;
 
     const resp = await sendToDevice({
@@ -429,7 +430,7 @@ router.post('/roundtrip-diagnose', async (req, res) => {
 
     const offerId = rawOfferId || 'TEST_DIAG';
     const payload = { offerId, route: `/offers/${offerId}`, source: 'roundtrip', t: Date.now() };
-    const title = rawTitle || 'StepsMatch';
+    const title = rawTitle || BRAND_NAME;
     const body = (rawBody || 'Diagnose-Push') + ` [offerId:${offerId}]`;
 
     const resp = await sendToDevice({
@@ -455,7 +456,7 @@ router.post('/canary', async (_req, res) => {
       return res.status(404).json({ success: false, error: 'no-valid-token' });
     }
 
-    const title = 'StepsMatch Canary';
+    const title = `${BRAND_NAME} Canary`;
     const body  = 'Automatischer Test-Push zur Token-Validierung.';
     const payload = { route: '/canary', source: 'canary', t: Date.now() };
 

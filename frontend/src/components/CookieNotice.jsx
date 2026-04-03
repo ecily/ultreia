@@ -31,7 +31,7 @@ export default function CookieNotice() {
       <div className="sm-shell">
         <div className="sm-card-soft px-5 py-4 sm:px-6 sm:py-5">
           <p className="text-sm text-slate-700 sm:text-[15px]">
-            StepsMatch verwendet aktuell nur technisch notwendige Speichertechnologien
+            Ultreia verwendet aktuell nur technisch notwendige Speichertechnologien
             für Zugang, Sicherheit und stabile Nutzung. Analyse- oder Marketing-Cookies
             sind derzeit nicht aktiv.
           </p>

@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeProvider';
 import Button from '../../components/ui/Button';
 
-const API_URL = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+const API_URL = 'https://api.ultreia.app/api';
 
 export default function InterestsScreen() {
   const router = useRouter();
@@ -128,3 +128,4 @@ const styles = StyleSheet.create({
   },
   footer: { paddingVertical: 12 },
 });
+

@@ -2,6 +2,7 @@
 import express from 'express';
 import PushToken from '../models/PushToken.js';
 import { pushToTokens } from '../utils/expoPush.js';
+import { BRAND_NAME } from '../config/brand.js';
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.post('/', async (req, res) => {
     }
 
     const { tickets, receipts } = await pushToTokens(tokens, {
-      title: 'StepsMatch Test',
+      title: `${BRAND_NAME} Test`,
       body: 'Wenn du das siehst, funktionieren Pushes wieder ✅',
       data: { test: true, now: Date.now() },
     });

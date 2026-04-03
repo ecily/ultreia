@@ -1,5 +1,5 @@
 // stepsmatch/mobile/theme/tokens.ts
-// Centralized design tokens for StepsMatch (no new deps). Compatible with JS & TS consumers.
+// Centralized design tokens for Ultreia (no new deps). Compatible with JS & TS consumers.
 
 export type ColorPalette = {
   background: string;

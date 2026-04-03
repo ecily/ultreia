@@ -95,7 +95,7 @@ async function ensureCatalog() {
 }
 
 async function ensureSeedUser() {
-  const email = `seed+${SEED_TAG}@stepsmatch.local`;
+  const email = `seed+${SEED_TAG}@ultreia.local`;
   let user = await User.findOne({ email });
   if (!user) {
     const password = await bcrypt.hash('seed-password-123', 10);
@@ -176,7 +176,7 @@ function addrFromTags(tags = {}) {
 
 async function geocodeBbox(placeQuery) {
   const u = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(placeQuery)}`;
-  const r = await fetch(u, { headers: { 'User-Agent': 'stepsmatch-seed/1.0' } });
+  const r = await fetch(u, { headers: { 'User-Agent': 'ultreia-seed/1.0' } });
   if (!r.ok) throw new Error(`nominatim failed ${r.status}`);
   const rows = await r.json();
   if (!Array.isArray(rows) || !rows.length) throw new Error('nominatim no result');
@@ -199,7 +199,7 @@ async function overpassFetch({ south, west, north, east }) {
       try {
         const r = await fetch(ep, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'stepsmatch-seed/1.0' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'ultreia-seed/1.0' },
           body: `data=${encodeURIComponent(query)}`,
         });
         if (!r.ok) throw new Error(`overpass failed ${r.status} @ ${ep}`);
@@ -344,3 +344,4 @@ run().catch(async (e) => {
   try { await mongoose.disconnect(); } catch {}
   process.exit(1);
 });
+

@@ -21,7 +21,7 @@ class MainActivity : ReactActivity() {
     // @generated end expo-splashscreen
     super.onCreate(null)
 
-    // Stepsmatch – nativer Heartbeat-Foreground-Service
+    // Ultreia – nativer Heartbeat-Foreground-Service
     // Native heartbeat is started/stopped by config sync from JS.
     // Do not force-start here, otherwise Android 12+ may kill the app
     // when the foreground service does not promote itself in time.

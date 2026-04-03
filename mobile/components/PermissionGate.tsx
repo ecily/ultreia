@@ -237,7 +237,7 @@ export default function PermissionGate({
     <View style={[overlay ? styles.overlayCard : styles.pageCard, state.notifs === 'granted' && styles.pageCardTight]}>
       <Text style={styles.title}>Ersteinrichtung</Text>
       <Text style={styles.subtitle}>
-        Damit StepsMatch zuverlässig im Hintergrund arbeitet, führe bitte diese Schritte aus:
+        Damit Ultreia zuverlässig im Hintergrund arbeitet, führe bitte diese Schritte aus:
       </Text>
 
       {/* Schritt 1: Benachrichtigungen */}
@@ -281,11 +281,11 @@ export default function PermissionGate({
       {ANDROID && (
         <Step
           index={bgRequired ? 4 : 3}
-          title="Akku-Optimierung für StepsMatch ausschalten"
+          title="Akku-Optimierung für Ultreia ausschalten"
           ok={state.batteryConfirmed}
           actionLabel="Zu den Akku-Einstellungen"
           onAction={openBatterySettings}
-          hint="Bitte StepsMatch von Akku-Optimierungen ausnehmen (Doze). Danach unten Bestätigen tippen."
+          hint="Bitte Ultreia von Akku-Optimierungen ausnehmen (Doze). Danach unten Bestätigen tippen."
           extra={
             <Pressable onPress={markBatteryConfirmed} style={styles.secondaryBtn}>
               <Text style={styles.secondaryBtnLabel}>Ich habe es ausgeschaltet ✓</Text>

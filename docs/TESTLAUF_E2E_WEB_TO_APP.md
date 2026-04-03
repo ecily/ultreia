@@ -1,7 +1,7 @@
 # Stepsmatch E2E Testlauf (Web -> App -> Backend-Service)
 
 ## Ziel
-End-to-End pruefen, dass ein neu angelegtes Anbieter-Angebot ueber `stepsmatch.com` fuer einen neuen Mobile-User relevant ist und der Backend-Service inkl. Background-Kette sauber arbeitet.
+End-to-End pruefen, dass ein neu angelegtes Anbieter-Angebot ueber `ultreia.app` fuer einen neuen Mobile-User relevant ist und der Backend-Service inkl. Background-Kette sauber arbeitet.
 
 ## Voraussetzungen
 - Backend/API auf Produktion erreichbar.
@@ -10,7 +10,7 @@ End-to-End pruefen, dass ein neu angelegtes Anbieter-Angebot ueber `stepsmatch.c
 - Testort in deiner Naehe vorab festgelegt (Adresse + ungefaehre Koordinaten).
 
 ## 1. Anbieter im Frontend registrieren und Angebot anlegen
-1. Oeffne `https://www.stepsmatch.com`.
+1. Oeffne `https://www.ultreia.app`.
 2. Registriere einen neuen Anbieter-Account (oder melde einen frischen Test-Account an).
 3. Gehe in den Anbieterbereich und erstelle einen neuen Provider/Standort:
    - Name: eindeutig, z. B. `E2E Test Anbieter <Datum/Uhrzeit>`
@@ -81,4 +81,5 @@ End-to-End pruefen, dass ein neu angelegtes Anbieter-Angebot ueber `stepsmatch.c
 - Push-Tap routing ok (ja/nein):
 - Ergebnis: PASS/FAIL
 - Auffaelligkeiten:
+
 

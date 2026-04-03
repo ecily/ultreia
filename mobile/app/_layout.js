@@ -22,7 +22,7 @@ import { clearStopUntilRestart } from '../components/push/service-control';
 
 const API_BASE =
   (Constants?.expoConfig?.extra?.apiBase || Constants?.manifest?.extra?.apiBase) ??
-  'https://lobster-app-ie9a5.ondigitalocean.app/api';
+  'https://api.ultreia.app/api';
 
 async function postNotifAction(action, data = {}, minutes) {
   try {
@@ -158,4 +158,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
 

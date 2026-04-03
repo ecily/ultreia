@@ -11,7 +11,7 @@ async function run() {
   if (!MONGO_URI) throw new Error('MONGO_URI missing');
   await mongoose.connect(MONGO_URI);
 
-  const email = `seed+${SEED_TAG}@stepsmatch.local`;
+  const email = `seed+${SEED_TAG}@ultreia.local`;
   const user = await User.findOne({ email }).lean();
   const userId = user?._id || null;
 
@@ -28,3 +28,4 @@ run().catch(async (e) => {
   try { await mongoose.disconnect(); } catch {}
   process.exit(1);
 });
+

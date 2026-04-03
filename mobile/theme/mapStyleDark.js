@@ -1,4 +1,4 @@
-// Helles, modernes StepsMatch-Map-Theme
+// Helles, modernes Ultreia-Map-Theme
 // Fokus: klare Straßen (weiß), dezente Flächen (hellgrau), Wasser hellblau,
 // Parks sanft grün, Labels dunkelgrau, POIs reduziert.
 export default [

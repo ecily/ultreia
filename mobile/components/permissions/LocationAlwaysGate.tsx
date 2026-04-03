@@ -84,7 +84,7 @@ export default function LocationAlwaysGate() {
             }}
             numberOfLines={3}
           >
-            Damit StepsMatch Angebote im Hintergrund finden kann, aktiviere bitte
+            Damit Ultreia Angebote im Hintergrund finden kann, aktiviere bitte
             „Immer erlauben“ in den Android-Einstellungen.
           </Text>
         </View>

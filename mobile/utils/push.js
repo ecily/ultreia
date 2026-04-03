@@ -3,7 +3,7 @@ import { Expo } from 'expo-server-sdk';
 import PushToken from '../models/PushToken.js';
 
 /**
- * Centralized Expo Push Client (StepsMatch)
+ * Centralized Expo Push Client (Ultreia)
  * - Forces correct channelId default (offers-v2) to match the app's Android channel
  * - Uses Expo projectId header so tokens are scoped correctly (avoids DeviceNotRegistered)
  * - Sends in chunks, collects tickets & receipts
@@ -64,7 +64,7 @@ export async function pushToTokens(tokens, message = {}) {
 
   // Default payload (Android requires an existing channelId, we default to offers-v2)
   const baseMsg = {
-    title: message.title ?? 'StepsMatch',
+    title: message.title ?? 'Ultreia',
     body: message.body ?? '',
     data: message.data ?? {},
     sound: message.sound ?? 'default',

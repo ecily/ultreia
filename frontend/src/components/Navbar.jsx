@@ -1,17 +1,23 @@
-﻿import React from "react";
+import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import brandLockup from "../assets/stepsmatch-logo-horizontal-dark.svg";
-
-const navItems = [
-  { to: "/home", label: "Home" },
-  { to: "/why", label: "Warum StepsMatch" },
-  { to: "/pitch", label: "Investor Pitch" },
-  { to: "/admin/offers", label: "Admin Demo" },
-];
+import brandLockup from "../assets/ultreia-logo-horizontal-dark.svg";
+import { useI18n, SUPPORTED_LOCALES } from "../i18n";
+import { BRAND_NAME } from "../config/brand";
 
 export default function Navbar() {
   const [open, setOpen] = React.useState(false);
+  const { locale, setLocale, t } = useI18n();
+
+  const navItems = React.useMemo(
+    () => [
+      { to: "/home", label: t("nav.home", "Home") },
+      { to: "/why", label: t("nav.why", "Warum Ultreia") },
+      { to: "/pitch", label: t("nav.pitch", "Investor Pitch") },
+      { to: "/admin/offers", label: t("nav.admin", "Admin Demo") },
+    ],
+    [t]
+  );
 
   React.useEffect(() => {
     const onResize = () => {
@@ -27,10 +33,10 @@ export default function Navbar() {
   return (
     <header className="sm-glass-nav">
       <div className="sm-shell flex h-20 items-center justify-between gap-4 py-2">
-        <Link to="/home" className="inline-flex items-center gap-3" aria-label="StepsMatch Startseite">
+        <Link to="/home" className="inline-flex items-center gap-3" aria-label={t("nav.brandHome", "Ultreia Startseite")}>
           <img
             src={brandLockup}
-            alt="StepsMatch"
+            alt={BRAND_NAME}
             className="h-10 w-auto sm:h-11 lg:h-12"
             loading="eager"
           />
@@ -45,11 +51,22 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 sm:flex">
+          <label className="sr-only" htmlFor="langSelectTop">{t("common.language", "Sprache")}</label>
+          <select
+            id="langSelectTop"
+            value={locale}
+            onChange={(e) => setLocale(e.target.value)}
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+          >
+            {SUPPORTED_LOCALES.map((lng) => (
+              <option key={lng} value={lng}>{lng.toUpperCase()}</option>
+            ))}
+          </select>
           <Link to="/login" className="sm-btn-secondary">
-            Login
+            {t("nav.login", "Login")}
           </Link>
           <Link to="/register" className="sm-btn-primary">
-            Anbieter starten
+            {t("nav.startProvider", "Anbieter starten")}
           </Link>
         </div>
 
@@ -57,7 +74,7 @@ export default function Navbar() {
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/90 text-slate-700 lg:hidden"
-          aria-label={open ? "Navigation schließen" : "Navigation öffnen"}
+          aria-label={open ? "Navigation schliessen" : "Navigation oeffnen"}
           aria-expanded={open}
         >
           {open ? <X size={18} /> : <Menu size={18} />}
@@ -78,11 +95,21 @@ export default function Navbar() {
               </NavLink>
             ))}
             <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <select
+                value={locale}
+                onChange={(e) => setLocale(e.target.value)}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 sm:col-span-2"
+                aria-label={t("common.language", "Sprache")}
+              >
+                {SUPPORTED_LOCALES.map((lng) => (
+                  <option key={lng} value={lng}>{lng.toUpperCase()}</option>
+                ))}
+              </select>
               <Link to="/login" className="sm-btn-secondary" onClick={() => setOpen(false)}>
-                Login
+                {t("nav.login", "Login")}
               </Link>
               <Link to="/register" className="sm-btn-primary" onClick={() => setOpen(false)}>
-                Anbieter starten
+                {t("nav.startProvider", "Anbieter starten")}
               </Link>
             </div>
           </div>

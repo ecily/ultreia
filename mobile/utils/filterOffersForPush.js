@@ -40,7 +40,7 @@ function ymdLocalVienna(d = new Date(), tz = 'Europe/Vienna') {
 
 /** Einmal-pro-Tag-Keys pro Offer */
 function pushedKey(offerId, tz = 'Europe/Vienna', d = new Date()) {
-  return `stepsmatch:push:${offerId}:${ymdLocalVienna(d, tz)}`;
+  return `ultreia:push:${offerId}:${ymdLocalVienna(d, tz)}`;
 }
 export async function hasPushedToday(offerId, tz = 'Europe/Vienna') {
   try { return (await AsyncStorage.getItem(pushedKey(offerId, tz))) === '1'; } catch { return false; }

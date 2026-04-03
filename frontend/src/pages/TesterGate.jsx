@@ -1,9 +1,12 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { KeyRound, ShieldCheck } from "lucide-react";
 
 import axiosInstance from "../api/axios";
-import logoIcon from "../assets/stepsmatch-icon.svg";
+import logoIcon from "../assets/ultreia-icon.svg";
+
+const NDA_ACCEPTED_KEY = "ultreia_nda_accepted";
+const NDA_ACCEPTED_LEGACY_KEY = "ultreia_ndaa_accepted";
 
 function SpecialMessageModal({ open, message, onClose }) {
   if (!open) return null;
@@ -36,13 +39,15 @@ export default function TesterGate() {
   const [specialMessage, setSpecialMessage] = useState("");
 
   useEffect(() => {
-    const accepted = localStorage.getItem("stepsmatch_ndaa_accepted") === "1";
+    const accepted =
+      localStorage.getItem(NDA_ACCEPTED_KEY) === "1" ||
+      localStorage.getItem(NDA_ACCEPTED_LEGACY_KEY) === "1";
     if (accepted) navigate(next, { replace: true });
   }, [navigate, next]);
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("stepsmatch_tester_key");
+      const saved = localStorage.getItem("ultreia_tester_key");
       if (saved && typeof saved === "string") setKey(saved);
     } catch (e) {
       void e;
@@ -62,9 +67,9 @@ export default function TesterGate() {
     try {
       const res = await axiosInstance.post("/testers/validate", { key: trimmed });
       if (res?.data?.ok) {
-        localStorage.setItem("stepsmatch_tester_key", trimmed);
+        localStorage.setItem("ultreia_tester_key", trimmed);
         const testerPayload = res?.data?.tester || {};
-        localStorage.setItem("stepsmatch_tester_info", JSON.stringify(testerPayload));
+        localStorage.setItem("ultreia_tester_info", JSON.stringify(testerPayload));
 
         const modalMessage = String(testerPayload?.gateModalMessage || "").trim();
         if (modalMessage) {
@@ -74,10 +79,10 @@ export default function TesterGate() {
 
         navigate("/nda", { replace: true });
       } else {
-        setErrorMsg("Ungültiger Key. Bitte überprüfe deine Eingabe.");
+        setErrorMsg("Ungueltiger Key. Bitte ueberpruefe deine Eingabe.");
       }
     } catch (err) {
-      setErrorMsg(err?.response?.data?.message || "Validierung derzeit nicht möglich.");
+      setErrorMsg(err?.response?.data?.message || "Validierung derzeit nicht moeglich.");
     } finally {
       setLoading(false);
     }
@@ -99,25 +104,25 @@ export default function TesterGate() {
           <div className="grid w-full max-w-5xl gap-6 lg:grid-cols-[1.08fr_0.92fr]">
             <section className="sm-card-strong p-7 sm:p-9 sm-rise">
               <p className="sm-chip !border-white/30 !bg-white/10 !text-white">Private Testphase</p>
-              <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">Willkommen im StepsMatch MVP-Access</h1>
+              <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">Willkommen im Ultreia MVP-Access</h1>
               <p className="mt-3 max-w-xl text-blue-50 sm:text-lg">
-                Zugang zur Testumgebung erfolgt über persönlichen Tester-Key und NDA-Akzeptanz.
+                Zugang zur Testumgebung erfolgt ueber persoenlichen Tester-Key und NDA-Akzeptanz.
                 Danach steht dir die komplette Frontend-Strecke offen.
               </p>
               <div className="mt-6 grid gap-3 text-sm text-blue-50">
-                <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Zugang nur für eingeladene Tester</div>
-                <div className="flex items-center gap-2"><KeyRound className="h-4 w-4" /> Key-Prüfung gegen Backend-Validierung</div>
+                <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Zugang nur fuer eingeladene Tester</div>
+                <div className="flex items-center gap-2"><KeyRound className="h-4 w-4" /> Key-Pruefung gegen Backend-Validierung</div>
               </div>
             </section>
 
             <section className="sm-card p-7 sm:p-8 sm-rise sm-delay-1">
               <div className="flex items-center gap-2">
-                <img src={logoIcon} alt="StepsMatch" className="h-6 w-6" />
+                <img src={logoIcon} alt="Ultreia" className="h-6 w-6" />
                 <p className="text-sm font-semibold text-slate-600">Tester-Zugang</p>
               </div>
 
               <h2 className="mt-4 text-2xl font-extrabold">Zugang freischalten</h2>
-              <p className="mt-2 text-slate-600">Bitte Key eingeben, um zur NDA und anschließend in die App-Preview zu gelangen.</p>
+              <p className="mt-2 text-slate-600">Bitte Key eingeben, um zur NDA und anschliessend in die App-Preview zu gelangen.</p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div>
@@ -136,7 +141,7 @@ export default function TesterGate() {
                 {errorMsg ? <div className="sm-error">{errorMsg}</div> : null}
 
                 <button type="submit" disabled={loading} className="sm-btn-primary !w-full">
-                  {loading ? "Prüfe Key..." : "Weiter zur NDA"}
+                  {loading ? "Pruefe Key..." : "Weiter zur NDA"}
                 </button>
               </form>
             </section>

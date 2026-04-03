@@ -4,7 +4,7 @@ import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
 import { GEOFENCE_TASK } from '../background/geofencingTask';
 
-const API_BASE = 'https://lobster-app-ie9a5.ondigitalocean.app';
+const API_BASE = 'https://api.ultreia.app';
 
 export type GeofenceItem = {
   offerId: string;
@@ -98,3 +98,4 @@ export async function refreshGeofencesAsync() {
   const items = await fetchNearbyGeofencesAsync();
   await startGeofencingAsync(items);
 }
+

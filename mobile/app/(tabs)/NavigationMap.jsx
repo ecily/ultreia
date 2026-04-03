@@ -6,12 +6,12 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeProvider';
-import mapStyleStepsmatchLight from '../../theme/mapStyleDark';
+import mapStyleUltreiaLight from '../../theme/mapStyleDark';
 import { isOfferActiveNow } from '../../utils/isOfferActiveNow';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 
-const API_BASE_URL = (Constants.expoConfig?.extra?.apiBase || 'https://lobster-app-ie9a5.ondigitalocean.app/api').replace(/\/$/, '');
+const API_BASE_URL = (Constants.expoConfig?.extra?.apiBase || 'https://api.ultreia.app/api').replace(/\/$/, '');
 const FALLBACK_CENTER = { latitude: 47.0707, longitude: 15.4395 };
 const VISIBLE_RADIUS_M = 900;
 const WALKING_SPEED_MPS = 1.33;
@@ -215,7 +215,7 @@ export default function NavigationMap() {
           provider={PROVIDER_GOOGLE}
           initialRegion={regionForRadius(userPos || FALLBACK_CENTER, VISIBLE_RADIUS_M)}
           mapType={mapType}
-          customMapStyle={mapType === 'standard' ? mapStyleStepsmatchLight : undefined}
+          customMapStyle={mapType === 'standard' ? mapStyleUltreiaLight : undefined}
           showsUserLocation
           showsMyLocationButton={false}
           zoomControlEnabled={false}
@@ -443,4 +443,5 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 });
+
 

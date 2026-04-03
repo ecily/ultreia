@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Building2, Gauge, Target } from "lucide-react";
 
@@ -57,7 +57,7 @@ export default function Pitch() {
           <div className="sm-card-soft p-7 sm:p-10 sm-rise">
             <p className="sm-badge">Investor Summary</p>
             <h1 className="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-              StepsMatch baut die Infrastruktur
+              Ultreia baut die Infrastruktur
               <br />
               für Zero-Search im Alltag.
             </h1>
@@ -84,7 +84,7 @@ export default function Pitch() {
           <div className="sm-card p-6 sm:p-8 sm-rise sm-delay-1">
             <h2 className="text-2xl font-extrabold sm:text-3xl">Competitive Lens</h2>
             <p className="mt-2 text-slate-600">
-              StepsMatch adressiert nicht "noch mehr Reichweite", sondern den präzisen Moment der Relevanz.
+              Ultreia adressiert nicht "noch mehr Reichweite", sondern den präzisen Moment der Relevanz.
             </p>
 
             <div className="mt-5 overflow-x-auto">
@@ -105,7 +105,7 @@ export default function Pitch() {
                     </tr>
                   ))}
                   <tr className="align-top">
-                    <td className="py-3 pr-4 font-semibold text-blue-800">StepsMatch</td>
+                    <td className="py-3 pr-4 font-semibold text-blue-800">Ultreia</td>
                     <td className="py-3 pr-4 text-slate-700">Ort + Zeit + Interesse als Trigger im echten Kontext</td>
                     <td className="py-3 text-slate-700">Skalierung über regionale Angebotsdichte und Partneraufbau</td>
                   </tr>
@@ -130,11 +130,11 @@ export default function Pitch() {
           <div className="sm-card-strong p-8 sm:p-10 sm-rise sm-delay-2">
             <h3 className="text-3xl font-extrabold sm:text-4xl">Lokale Nachfrage in Echtzeit ist ein klarer Category-Fit</h3>
             <p className="mt-3 max-w-3xl text-blue-50 sm:text-lg">
-              StepsMatch verbindet Angebotsdichte, Laufwege und persönliche Präferenzen
+              Ultreia verbindet Angebotsdichte, Laufwege und persönliche Präferenzen
               zu einem Live-Marketplace mit hoher operativer Präzision.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="mailto:hello@stepsmatch.com" className="sm-btn-secondary gap-2">
+              <a href="mailto:hello@ultreia.app" className="sm-btn-secondary gap-2">
                 Investor Kontakt <ArrowUpRight size={16} />
               </a>
               <Link to="/home" className="sm-btn-ghost">

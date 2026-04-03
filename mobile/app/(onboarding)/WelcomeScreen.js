@@ -12,7 +12,7 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: t.colors.background }]} edges={['top', 'bottom']}>
       <View style={styles.container}>
-        <Text style={[styles.kicker, { color: t.colors.primary }]}>StepsMatch</Text>
+        <Text style={[styles.kicker, { color: t.colors.primary }]}>Ultreia</Text>
         <Text style={[styles.headline, { color: t.colors.inkHigh }]}>Finden. Nicht suchen.</Text>
         <Text style={[styles.subheadline, { color: t.colors.inkLow }]}>Erhalte relevante Angebote zur richtigen Zeit am richtigen Ort.</Text>
         <View style={{ width: '100%', marginTop: 20 }}>

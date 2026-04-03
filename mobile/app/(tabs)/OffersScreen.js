@@ -24,7 +24,7 @@ import OfferDistanceBadge from '../../components/DistanceBadge';
 import colors from '../../theme/colors';
 
 const API_BASE_URL =
-  (process.env.EXPO_PUBLIC_API_BASE_URL || 'https://lobster-app-ie9a5.ondigitalocean.app/api').replace(/\/$/, '');
+  (process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.ultreia.app/api').replace(/\/$/, '');
 
 const SCREEN_W = Dimensions.get('window').width;
 
@@ -767,4 +767,5 @@ const styles = StyleSheet.create({
   ctaGhost: { backgroundColor: '#eef2ff' },
   ctaGhostText: { color: '#111827', fontWeight: '700' },
 });
+
 

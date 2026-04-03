@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import Category from '../models/Category.js';
@@ -371,7 +371,7 @@ async function ensureCatalog() {
 }
 
 async function ensureSeedUser() {
-  const email = `seed+${SEED_TAG}@stepsmatch.local`;
+  const email = `seed+${SEED_TAG}@ultreia.local`;
   let user = await User.findOne({ email });
   if (!user) {
     const password = await bcrypt.hash('seed-password-123', 10);
@@ -381,7 +381,7 @@ async function ensureSeedUser() {
 }
 
 async function cleanupExistingTestData() {
-  const seedUsers = await User.find({ email: /^seed\+.*@stepsmatch\.local$/i }).select('_id');
+  const seedUsers = await User.find({ email: /^seed\+.*@ultreia\.local$/i }).select('_id');
   const seedUserIds = seedUsers.map((u) => u._id);
 
   const providersBySeedUser = seedUserIds.length
@@ -405,14 +405,14 @@ async function cleanupExistingTestData() {
     ],
   });
 
-  const userDel = await User.deleteMany({ email: /^seed\+.*@stepsmatch\.local$/i });
+  const userDel = await User.deleteMany({ email: /^seed\+.*@ultreia\.local$/i });
 
   console.log(`[cleanup] offers=${offerDel.deletedCount} providers=${providerDel.deletedCount} users=${userDel.deletedCount}`);
 }
 
 async function geocodeSingle(query) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
-  const res = await fetch(url, { headers: { 'User-Agent': 'stepsmatch-seed/1.0' } });
+  const res = await fetch(url, { headers: { 'User-Agent': 'ultreia-seed/1.0' } });
   if (!res.ok) throw new Error(`nominatim failed: ${res.status}`);
   const rows = await res.json();
   if (!Array.isArray(rows) || !rows.length) throw new Error('nominatim no result');
@@ -466,7 +466,7 @@ async function overpassFetchAround(center, radiusM) {
         signal: AbortSignal.timeout(45000),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'stepsmatch-seed/1.0',
+          'User-Agent': 'ultreia-seed/1.0',
         },
         body: `data=${encodeURIComponent(query)}`,
       });
@@ -607,7 +607,7 @@ async function resolveCategoryImage(category) {
 
   try {
     const uploaded = await cloudinary.uploader.upload(sourceUrl, {
-      folder: `stepsmatch/seeds/${SEED_TAG}/${slugify(category)}`,
+      folder: `ultreia/seeds/${SEED_TAG}/${slugify(category)}`,
       public_id: `${slugify(category)}_${Date.now()}_${randInt(100, 999)}`,
       overwrite: true,
       resource_type: 'image',
@@ -734,3 +734,4 @@ run().catch(async (e) => {
   try { await mongoose.disconnect(); } catch {}
   process.exit(1);
 });
+

@@ -144,7 +144,7 @@ if (!TaskManager.isTaskDefined(GEOFENCE_TASK)) {
         try {
           const token = await getCurrentExpoToken();
           const deviceId = await getPersistentDeviceId();
-          fetch('https://lobster-app-ie9a5.ondigitalocean.app/api/location/geofence-enter', {
+          fetch('https://api.ultreia.app/api/location/geofence-enter', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -193,3 +193,4 @@ async function safeGetMeta(offerId: string) {
 }
 
 export {};
+

@@ -1,4 +1,4 @@
-# StepsMatch Release Runbook (April 1, 2026)
+# Ultreia Release Runbook (April 1, 2026)
 
 ## Ziel
 Release-fähiger MVP für Demo-Publikum mit stabiler Kernfunktion:
@@ -39,7 +39,7 @@ Background-Standort + Geofence/Heartbeat + Angebotsausspielung.
 
 ## Smoke-Test Ablauf (Morgen, Reihenfolge)
 1. Backend/API
-   - `pwsh -File docs/release-smoke.ps1 -ApiBase "https://lobster-app-ie9a5.ondigitalocean.app"`
+   - `pwsh -File docs/release-smoke.ps1 -ApiBase "https://api.ultreia.app"`
 2. Frontend
    - Landing öffnen, Login/Register, Anbieter-Dashboard prüfen.
 3. Mobile User-Flow
@@ -74,3 +74,4 @@ Background-Standort + Geofence/Heartbeat + Angebotsausspielung.
 ## Release-Entscheidung
 - Wenn alle Go/No-Go Punkte `PASS`: Release freigeben.
 - Wenn ein Punkt `FAIL`: kein öffentlicher Rollout, nur kontrollierte Demo.
+

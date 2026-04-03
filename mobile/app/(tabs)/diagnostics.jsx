@@ -33,13 +33,13 @@ const GLOBAL_STATE_KEY = 'offerPushState.__global';
 
 // ⚠️ Muss exakt der FG_CHANNEL_ID aus PushInitializer + app.config.js entsprechen:
 const OFFERS_CHANNEL_ID = 'offers-v2';
-const BG_CHANNEL_IDS = ['stepsmatch-bg-location-task', 'com.ecily.mobile:stepsmatch-bg-location-task'];
-const HEARTBEAT_FETCH_TASK = 'stepsmatch-heartbeat-fetch';
+const BG_CHANNEL_IDS = ['ultreia-bg-location-task', 'com.ecily.mobile:ultreia-bg-location-task'];
+const HEARTBEAT_FETCH_TASK = 'ultreia-heartbeat-fetch';
 
 // Backend (wie im PushInitializer)
 const API_BASE =
   (Constants?.expoConfig?.extra?.apiBase) ??
-  'https://lobster-app-ie9a5.ondigitalocean.app/api';
+  'https://api.ultreia.app/api';
 
 // ▶️ Akku-Keys JETZT konsistent zum PermissionGate
 const BATTERY_CONFIRM_KEY = 'batteryOptOut.confirmed';
@@ -241,10 +241,10 @@ export default function Diagnostics() {
     } catch {}
 
     try {
-      setBgStarted(await Location.hasStartedLocationUpdatesAsync('stepsmatch-bg-location-task'));
+      setBgStarted(await Location.hasStartedLocationUpdatesAsync('ultreia-bg-location-task'));
     } catch { setBgStarted(false); }
     try {
-      setGfStarted(await Location.hasStartedGeofencingAsync('stepsmatch-geofence-task'));
+      setGfStarted(await Location.hasStartedGeofencingAsync('ultreia-geofence-task'));
     } catch { setGfStarted(false); }
     try {
       const s = await BackgroundFetch.getStatusAsync();
@@ -322,7 +322,7 @@ export default function Diagnostics() {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'StepsMatch – Local Test',
+          title: 'Ultreia – Local Test',
           body: 'Sofortige Local-Notification',
           data: { offerId: 'LOCAL_TEST' },
           channelId: OFFERS_CHANNEL_ID,
@@ -749,4 +749,5 @@ const v = StyleSheet.create({
   warn: { backgroundColor: '#fef3c7', color: '#92400e', borderWidth: 1, borderColor: '#fcd34d' },
   fail: { backgroundColor: '#fee2e2', color: '#991b1b', borderWidth: 1, borderColor: '#fca5a5' },
 });
+
 

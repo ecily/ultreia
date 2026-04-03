@@ -23,7 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-const API_URL = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+const API_URL = 'https://api.ultreia.app/api';
 const api = axios.create({ baseURL: API_URL, timeout: 12000 });
 const OID24 = /^[0-9a-fA-F]{24}$/;
 const SCREEN_W = Dimensions.get('window').width;

@@ -5,6 +5,7 @@ import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { API_DOMAIN, BRAND_DOMAIN, DEFAULT_APK_URL } from './config/brand.js';
 
 import connectDB from './config/db.js';
 import offerRoutes from './routes/offers.js';
@@ -47,13 +48,11 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
    CORS (Whitelist + ENV-Merge)
    ───────────────────────────────────────────────────────────── */
 const DEFAULT_ORIGINS = [
-  // Prod Frontend (DO Static Site)
-  'https://lobster-app-2-68c6f.ondigitalocean.app',
-  // API-Domain (Same-Origin in DO)
-  'https://lobster-app-ie9a5.ondigitalocean.app',
-  // Deine Domain
-  'https://www.stepsmatch.com',
-  'https://stepsmatch.com',
+  // Prod Frontend/Domain
+  BRAND_DOMAIN,
+  BRAND_DOMAIN.replace('https://www.', 'https://'),
+  // API domain
+  API_DOMAIN,
   // Dev
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -138,9 +137,6 @@ app.get('/api/_readyz', (_req, res) => res.json({ ok: true }));
    - Liest Ziel-URL aus ENV APK_TARGET_URL
    - Unterstützt GET & HEAD (curl -I) und /apk wie auch /api/apk
    ───────────────────────────────────────────────────────────── */
-const DEFAULT_APK_URL =
-  'https://stepsmatch.fra1.digitaloceanspaces.com/Stepsmatch_Alpha_V1_1.apk';
-
 function buildRedirectTarget(baseUrl, req) {
   // Base aus ENV oder Default
   const targetBase = (process.env.APK_TARGET_URL || DEFAULT_APK_URL).trim();
@@ -247,3 +243,4 @@ async function shutdown(signal = 'SIGTERM') {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+

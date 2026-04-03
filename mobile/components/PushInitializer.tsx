@@ -50,7 +50,7 @@ const EXTRA = (Constants as any)?.expoConfig?.extra || {};
  * oder Sonderzeichen/Namensräume (z. B. "com.pkg:channel") enthält.
  * → Kanal-ID vereinheitlichen: einfache, paketlose ID ohne ":".
  */
-function sanitizeChannelId(id: any, fallback = 'stepsmatch-bg-location-task'): string {
+function sanitizeChannelId(id: any, fallback = 'ultreia-bg-location-task'): string {
   try {
     let s = String(id || '').trim();
     if (!s) return fallback;
@@ -63,20 +63,20 @@ function sanitizeChannelId(id: any, fallback = 'stepsmatch-bg-location-task'): s
 }
 
 const RAW_FG_CHANNEL_ID: string =
-  EXTRA?.fgChannelId || 'com.ecily.mobile:stepsmatch-bg-location-task';
-const FG_CHANNEL_ID: string = sanitizeChannelId(RAW_FG_CHANNEL_ID, 'stepsmatch-bg-location-task');
+  EXTRA?.fgChannelId || 'com.ecily.mobile:ultreia-bg-location-task';
+const FG_CHANNEL_ID: string = sanitizeChannelId(RAW_FG_CHANNEL_ID, 'ultreia-bg-location-task');
 
 const OFFER_CHANNEL_ID: string =
   EXTRA?.offerChannelId || 'offers-v2';
 const BG_LOCATION_TASK: string =
-  EXTRA?.bgLocationTask || 'stepsmatch-bg-location-task';
+  EXTRA?.bgLocationTask || 'ultreia-bg-location-task';
 const GEOFENCE_TASK: string =
-  EXTRA?.geofenceTask || 'stepsmatch-geofence-task';
+  EXTRA?.geofenceTask || 'ultreia-geofence-task';
 const HEARTBEAT_FETCH_TASK: string =
-  EXTRA?.heartbeatFetchTask || 'stepsmatch-heartbeat-fetch';
+  EXTRA?.heartbeatFetchTask || 'ultreia-heartbeat-fetch';
 
 const API_BASE: string =
-  EXTRA?.apiBase || 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+  EXTRA?.apiBase || 'https://api.ultreia.app/api';
 const EUROPE_VIENNA = 'Europe/Vienna';
 
 // Geofencing
@@ -137,7 +137,7 @@ const BRAND_BLUE = '#0d4ea6';
 const STRONG_PATTERN = [0, 450, 180, 900, 300, 1200];
 
 // FGS-Text exakt wie im Manifest (für ADB-Grep & MIUI)
-const FGS_NOTIFICATION_TITLE = 'StepsMatch ist aktiv';
+const FGS_NOTIFICATION_TITLE = 'Ultreia ist aktiv';
 const FGS_NOTIFICATION_BODY  = 'Standortaktualisierung läuft';
 
 // Laufzeit-Cache
@@ -473,14 +473,14 @@ function isOfferActiveNowSafe(offer: any, tz = EUROPE_VIENNA): boolean {
 async function ensureChannels() {
   if (CHANNELS_READY_ONCE) return;
   try {
-    await Notifications.setNotificationChannelAsync('stepsmatch-default-v2', {
-      name: 'StepsMatch – Benachrichtigungen',
+    await Notifications.setNotificationChannelAsync('ultreia-default-v2', {
+      name: 'Ultreia – Benachrichtigungen',
       importance: Notifications.AndroidImportance.HIGH,
       sound: 'default' as any,
       vibrationPattern: [0, 150, 120, 150],
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
       showBadge: true,
-      description: 'Allgemeine Benachrichtigungen von StepsMatch',
+      description: 'Allgemeine Benachrichtigungen von Ultreia',
     } as any);
 
     // Offers (primary)
@@ -512,7 +512,7 @@ async function ensureChannels() {
 
     // Foreground service channel – FIX: stets die SANITIZED ID ohne ":" anlegen
     await Notifications.setNotificationChannelAsync(FG_CHANNEL_ID, {
-      name: 'StepsMatch – Standort aktiv',
+      name: 'Ultreia – Standort aktiv',
       importance: Notifications.AndroidImportance.DEFAULT,
       sound: null as any,
       vibrationPattern: [0],
@@ -1960,7 +1960,7 @@ export async function roundtripTest(offerId: string) {
     }
 
     await safePresentNotification({
-      title: 'StepsMatch – Roundtrip',
+      title: 'Ultreia – Roundtrip',
       body: ok ? 'Backend-Push ausgelöst.' : `Backend nicht erreichbar (status=${lastStatus}).`,
       data: { kind: 'roundtrip', ok } as any,
       channelId: OFFER_CHANNEL_ID,
@@ -2205,6 +2205,7 @@ export async function getBgStatus() {
 export async function kickstartBackgroundLocation() { await startAggressiveBgLocation(); }
 export const sendHeartbeat = sendHeartbeatOnce;
 export const sendRoundtripTest = roundtripTest;
+
 
 
 

@@ -8,11 +8,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import directionsFetch from '../../services/directions';
 import { useTheme } from '../../theme/ThemeProvider';
-import mapStyleStepsmatchLight from '../../theme/mapStyleDark';
+import mapStyleUltreiaLight from '../../theme/mapStyleDark';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 
-const API_URL = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+const API_URL = 'https://api.ultreia.app/api';
 const OID24 = /^[0-9a-fA-F]{24}$/;
 const FALLBACK_CENTER = { latitude: 47.0707, longitude: 15.4395 };
 const ARRIVAL_THRESHOLD_METERS = 15;
@@ -318,7 +318,7 @@ export default function NavigationScreen() {
         provider={PROVIDER_GOOGLE}
         initialRegion={initialRegion}
         mapType={mapType}
-        customMapStyle={mapType === 'standard' ? mapStyleStepsmatchLight : []}
+        customMapStyle={mapType === 'standard' ? mapStyleUltreiaLight : []}
         showsUserLocation
         showsMyLocationButton={false}
         rotateEnabled={false}
@@ -506,3 +506,4 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: '#fff', fontWeight: '800' },
 });
+

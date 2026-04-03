@@ -11,8 +11,8 @@ export const BRAND_BLUE = '#0d4ea6' as const;
 export const CHANNELS = {
   offers: 'offers-v2',
   offersLegacy: 'offers',
-  default: 'stepsmatch-default-v2',
-  bg: 'com.ecily.mobile:stepsmatch-bg-location-task',
+  default: 'ultreia-default-v2',
+  bg: 'com.ecily.mobile:ultreia-bg-location-task',
 } as const;
 
 export const CATEGORIES = {
@@ -30,10 +30,10 @@ export interface OfferMeta {
 }
 
 /**
- * Baut den mehrzeiligen Body im StepsMatch-Stil.
+ * Baut den mehrzeiligen Body im Ultreia-Stil.
  * Format (max. 3 Zeilen):
  *   1) {offerTitle}
- *   2) • Entfernung: {distanceBadge}   • gueltig: {validityBadge}
+ *   2) - Entfernung: {distanceBadge}   - gueltig: {validityBadge}
  *   3) {providerName} - {address}
  *
  * Uebergib nur bereits ermittelte Strings (keine IO in dieser Funktion).
@@ -56,8 +56,8 @@ export function buildOfferBody({
   if (offerTitle) lines.push(offerTitle);
 
   const metaParts: string[] = [];
-  if (distanceBadge) metaParts.push(`• Entfernung: ${distanceBadge}`);
-  if (validityBadge) metaParts.push(`• gueltig: ${validityBadge}`);
+  if (distanceBadge) metaParts.push(`- Entfernung: ${distanceBadge}`);
+  if (validityBadge) metaParts.push(`- gueltig: ${validityBadge}`);
 
   const metaLine = metaParts.join('   ');
   if (metaLine) lines.push(metaLine);
@@ -125,7 +125,7 @@ export function buildOfferNotificationContent({
  * Gruppenzusammenfassung (Anti-Spam).
  * Titel:
  *   - wenn providerName:  "{providerName}: {count} Angebote in deiner Naehe"
- *   - sonst:              "StepsMatch - {count} Angebote in deiner Naehe"
+ *   - sonst:              "Ultreia - {count} Angebote in deiner Naehe"
  *
  * Body: "Tippe, um alle zu sehen."
  */
@@ -140,7 +140,7 @@ export function buildGroupSummaryContent({
 }) {
   const title = providerName
     ? `${providerName}: ${count} Angebote in deiner Naehe`
-    : `StepsMatch - ${count} Angebote in deiner Naehe`;
+    : `Ultreia - ${count} Angebote in deiner Naehe`;
 
   return {
     content: {

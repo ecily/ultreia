@@ -1,9 +1,9 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BadgeCheck, Clock3, Radar } from "lucide-react";
 
 import Navbar from "../components/Navbar";
-import logoIcon from "../assets/stepsmatch-icon.svg";
+import logoIcon from "../assets/ultreia-icon.svg";
 
 const pillars = [
   {
@@ -23,7 +23,7 @@ const pillars = [
   },
 ];
 
-export default function WhyStepsMatch() {
+export default function WhyUltreia() {
   return (
     <div className="sm-page">
       <div className="sm-stack">
@@ -32,8 +32,8 @@ export default function WhyStepsMatch() {
         <section className="sm-shell py-10 sm:py-14 lg:py-16">
           <div className="sm-card-soft p-7 sm:p-10 sm-rise">
             <p className="sm-badge">
-              <img src={logoIcon} alt="StepsMatch" className="h-4 w-4" />
-              Warum StepsMatch neu ist
+              <img src={logoIcon} alt="Ultreia" className="h-4 w-4" />
+              Warum Ultreia neu ist
             </p>
             <h1 className="sm-hero-title mt-5 max-w-4xl text-[clamp(2.2rem,6vw,4.5rem)]">
               Relevanz im richtigen Moment.
@@ -41,7 +41,7 @@ export default function WhyStepsMatch() {
               Nicht im falschen Feed.
             </h1>
             <p className="sm-section-copy max-w-4xl">
-              StepsMatch verschiebt den Fokus von permanenter Suche auf situative Relevanz.
+              Ultreia verschiebt den Fokus von permanenter Suche auf situative Relevanz.
               Das Produkt arbeitet mit Kontextsignalen statt mit Aufmerksamkeitsschleifen.
             </p>
           </div>

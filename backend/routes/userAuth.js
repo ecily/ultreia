@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import User from '../models/User.js';
 import Provider from '../models/Provider.js';
 import sendPushNotification from '../utils/sendPushNotification.js';
+import { BRAND_NAME } from '../config/brand.js';
 
 const router = express.Router();
 const DEFAULT_PROVIDER_CATEGORY = 'Dienstleistungen';
@@ -73,9 +74,9 @@ async function sendVerificationEmail({ email, code, displayName }) {
       body: JSON.stringify({
         from,
         to: [email],
-        subject: 'Dein StepsMatch Verifizierungscode',
+        subject: `Dein ${BRAND_NAME} Verifizierungscode`,
         html: `<div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827;">
-          <p>Hallo ${displayName || 'bei StepsMatch'},</p>
+          <p>Hallo ${displayName || `bei ${BRAND_NAME}`},</p>
           <p>dein Verifizierungscode lautet:</p>
           <p style="font-size:28px;font-weight:700;letter-spacing:6px;margin:16px 0;">${code}</p>
           <p>Der Code ist ${VERIFICATION_TTL_MINUTES} Minuten gueltig.</p>
@@ -428,7 +429,7 @@ router.post('/test-push/:userId', async (req, res) => {
 
     const result = await sendPushNotification(user.expoPushToken, {
       title: 'Push funktioniert!',
-      body: 'Dies ist eine Testnachricht von StepsMatch.',
+      body: `Dies ist eine Testnachricht von ${BRAND_NAME}.`,
       data: { screen: 'Home' },
     });
 

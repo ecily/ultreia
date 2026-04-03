@@ -115,7 +115,7 @@ export async function _sendHeartbeatWithCoords({
     const token = await getCurrentExpoToken();
     const deviceId = await getPersistentDeviceId();
     const res = await fetch(
-      `https://lobster-app-ie9a5.ondigitalocean.app/api/location/heartbeat`,
+      `https://api.ultreia.app/api/location/heartbeat`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -225,9 +225,9 @@ function getBgChannelId(): string {
     const id = (CHANNELS as any)?.bg;
     return typeof id === 'string' && id.length
       ? id
-      : 'com.ecily.mobile:stepsmatch-bg-location-task';
+      : 'com.ecily.mobile:ultreia-bg-location-task';
   } catch {
-    return 'com.ecily.mobile:stepsmatch-bg-location-task';
+    return 'com.ecily.mobile:ultreia-bg-location-task';
   }
 }
 
@@ -277,7 +277,7 @@ export async function startAggressiveBgLocation() {
       showsBackgroundLocationIndicator: false,
       mayShowUserSettingsDialog: true,
       foregroundService: {
-        notificationTitle: 'StepsMatch ist aktiv',
+        notificationTitle: 'Ultreia ist aktiv',
         notificationBody: 'Standort wird im Hintergrund aktualisiert.',
         notificationChannelId: channelId, // safe
         killServiceOnDestroy: false,
@@ -466,4 +466,5 @@ export function useLocationWatchdog() {  const timerRef = useRef<any>(null);
     };
   }, []);
 }
+
 

@@ -1,25 +1,25 @@
 // stepsmatch/mobile/components/push/push-constants.ts
 
 /** ───── Backend Base URL ───── */
-export const API_BASE = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+export const API_BASE = 'https://api.ultreia.app/api';
 export const HTTP_TIMEOUT_MS = 6000;
 export const HTTP_RETRY_ATTEMPTS = 3;
 
 /** ───── Tasks (IDs müssen zu euren Registrierungen passen) ───── */
-export const BG_LOCATION_TASK = 'stepsmatch-bg-location-task';
-export const GEOFENCE_TASK    = 'stepsmatch-geofence-task';
+export const BG_LOCATION_TASK = 'ultreia-bg-location-task';
+export const GEOFENCE_TASK    = 'ultreia-geofence-task';
 
 /** ───── Notification Channels & Categories ─────
  * Bestehende Channel-IDs aus eurem Setup:
  *  - offers-v2
- *  - stepsmatch-default-v2
- *  - com.ecily.mobile:stepsmatch-bg-location-task
+ *  - ultreia-default-v2
+ *  - com.ecily.mobile:ultreia-bg-location-task
  */
 export const CHANNELS = {
-  default: 'stepsmatch-default-v2',
+  default: 'ultreia-default-v2',
   offers: 'offers-v2',
   offersLegacy: 'offers-legacy',
-  bg: 'com.ecily.mobile:stepsmatch-bg-location-task',
+  bg: 'com.ecily.mobile:ultreia-bg-location-task',
 } as const;
 
 export const CATEGORIES = {
@@ -56,3 +56,4 @@ export const SUMMARY_WINDOW_MS = 60_000;
 
 /** ───── Expo Project ID (fix, nie dynamisch) ───── */
 export const RESOLVED_PROJECT_ID = '08559a29-b307-47e9-a130-d3b31f73b4ed';
+

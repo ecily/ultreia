@@ -4,16 +4,16 @@ import { MongoClient } from 'mongodb';
 
 // ⚠️ Deine URI (wie gepostet). Optional kann stattdessen process.env.MONGODB_URI genutzt werden.
 const URI = process.env.MONGODB_URI
-  || 'mongodb+srv://ecily:wSOf4GQZ7fyBqy6x@ultreia.sxs9dfq.mongodb.net/stepsmatch?retryWrites=true&w=majority&appName=ultreia';
+  || 'mongodb+srv://ecily:wSOf4GQZ7fyBqy6x@ultreia.sxs9dfq.mongodb.net/ultreia?retryWrites=true&w=majority&appName=ultreia';
 
 const client = new MongoClient(URI);
 
 async function run() {
   await client.connect();
-  // DB aus URI ziehen; fallback 'stepsmatch'
+  // DB aus URI ziehen; fallback 'ultreia'
   const path = new URL(URI.replace('mongodb+srv://','mongodb://')).pathname || '';
-  const dbName = path.startsWith('/') ? path.slice(1) : (path || 'stepsmatch');
-  const db = client.db(dbName || 'stepsmatch');
+  const dbName = path.startsWith('/') ? path.slice(1) : (path || 'ultreia');
+  const db = client.db(dbName || 'ultreia');
 
   // Kandidaten-Collections (unterschiedliche Schreibweisen)
   const tokenCollections = ['pushTokens', 'pushtokens'];

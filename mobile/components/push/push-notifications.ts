@@ -176,13 +176,13 @@ export async function ensureChannels() {
   try {
     // Default
     await Notifications.setNotificationChannelAsync(CHANNELS.default, {
-      name: 'StepsMatch',
+      name: 'Ultreia',
       importance: Notifications.AndroidImportance.HIGH,
       sound: 'default',
       vibrationPattern: [0, 150, 120, 150],
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
       bypassDnd: false, showBadge: true,
-      description: 'Allgemeine Benachrichtigungen von StepsMatch',
+      description: 'Allgemeine Benachrichtigungen von Ultreia',
     });
 
     // Bevorzugter Offer-Kanal 'offers-v2' - MUSS existieren, sonst zeigt Android nichts
@@ -237,7 +237,7 @@ export async function ensureChannels() {
 
     // BG-Service Kanal
     await Notifications.setNotificationChannelAsync(CHANNELS.bg, {
-      name: 'StepsMatch - Standort aktiv',
+      name: 'Ultreia - Standort aktiv',
       importance: Notifications.AndroidImportance.DEFAULT,
       sound: null,
       vibrationPattern: [0],
@@ -302,7 +302,7 @@ export async function presentLocalOfferNotification(
   let offerTitle   = meta?.title || 'Angebot';
   let address      = '';
   try {
-    const res = await fetch(`https://lobster-app-ie9a5.ondigitalocean.app/api/offers/${offerId}?withProvider=1`, { method: 'GET' });
+    const res = await fetch(`https://api.ultreia.app/api/offers/${offerId}?withProvider=1`, { method: 'GET' });
     if (res.ok) {
       const offer = await res.json();
       providerName = offer?.provider?.name || providerName || '';
@@ -355,5 +355,6 @@ export async function presentLocalOfferNotification(
     await setGroupState(groupId, { lastPushedAt: now, lastSummaryAt: now, events: pruned });
   }
 }
+
 
 

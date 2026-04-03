@@ -45,7 +45,7 @@ function uploadBufferToCloudinary(buffer, opts = {}) {
     const stream = cloudinary.uploader.upload_stream(
       {
         resource_type: 'image',
-        folder: process.env.CLOUDINARY_FOLDER || 'stepsmatch',
+        folder: process.env.CLOUDINARY_FOLDER || 'ultreia',
         ...opts,
       },
       (error, result) => (error ? reject(error) : resolve(result))
@@ -109,7 +109,7 @@ router.get('/_debug', (req, res) => {
     cloud_name_present: Boolean(cfg?.cloud_name),
     api_key_present: Boolean(cfg?.api_key),
     api_secret_present: Boolean(cfg?.api_secret),
-    folder: process.env.CLOUDINARY_FOLDER || 'stepsmatch',
+    folder: process.env.CLOUDINARY_FOLDER || 'ultreia',
   });
 });
 
@@ -169,7 +169,7 @@ router.post('/', (req, res) => {
       if (!req.file?.buffer?.length) {
         return res.status(400).json({ ok: false, error: 'Kein Bild erhalten (Feldname "image").' });
       }
-      const folder = req.query.folder || process.env.CLOUDINARY_FOLDER || 'stepsmatch';
+      const folder = req.query.folder || process.env.CLOUDINARY_FOLDER || 'ultreia';
       const result = await uploadBufferToCloudinary(req.file.buffer, { folder });
 
       return res.json({
@@ -228,7 +228,7 @@ router.post('/images', (req, res) => {
         return res.status(400).json({ ok: false, error: 'Keine Bilder erhalten (Feldname "images").' });
       }
 
-      const folder = req.query.folder || process.env.CLOUDINARY_FOLDER || 'stepsmatch';
+      const folder = req.query.folder || process.env.CLOUDINARY_FOLDER || 'ultreia';
       const uploaded = [];
 
       for (const f of files) {

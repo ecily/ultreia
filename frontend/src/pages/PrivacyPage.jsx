@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             <h1 className="sm-section-title">Datenschutz und Cookie-Hinweise</h1>
             <p className="sm-section-copy">
               Transparente Informationen zur aktuellen Verarbeitung technischer Daten auf
-              der StepsMatch-Plattform.
+              der Ultreia-Plattform.
             </p>
           </section>
 

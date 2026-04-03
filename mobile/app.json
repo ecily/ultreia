@@ -1,19 +1,20 @@
-// C:\Users\Lenovo\stepsmatch\mobile\app.json
 {
   "expo": {
-    "name": "Stepsmatch",
-    "slug": "mobile",
+    "name": "Ultreia",
+    "slug": "ultreia-mobile",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "mobile",
+    "scheme": "ultreia",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
       "backgroundColor": "#0d4ea6"
     },
-    "ios": { "supportsTablet": true },
+    "ios": {
+      "supportsTablet": true
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -36,14 +37,17 @@
         "FOREGROUND_SERVICE_LOCATION",
         "WAKE_LOCK",
         "POST_NOTIFICATIONS",
-        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+        "INTERNET"
       ],
       "foregroundService": {
-        "notificationTitle": "StepsMatch ist aktiv",
-        "notificationBody": "Dein Standort wird verwendet, um passende Angebote zu finden.",
-        "notificationChannelId": "com.ecily.mobile:stepsmatch-bg-location-task"
+        "notificationTitle": "Ultreia läuft. Angebote aktiv.",
+        "notificationBody": "Sorgt für regelmäßigen Abgleich im Hintergrund.",
+        "notificationChannelId": "ultreia-bg-location-task"
       },
-      "foregroundServiceType": ["location"]
+      "foregroundServiceType": [
+        "location"
+      ]
     },
     "notification": {
       "icon": "./assets/notification-icon.png",
@@ -55,17 +59,41 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      ["expo-splash-screen", { "image": "./assets/splash.png", "resizeMode": "cover", "backgroundColor": "#0d4ea6" } ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#0d4ea6"
+        }
+      ],
       "expo-font",
-      ["expo-notifications", { "sounds": ["./assets/sounds/arrival.mp3"] } ],
-      ["expo-location", { "isAndroidBackgroundLocationEnabled": true } ],
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/sounds/arrival.mp3"
+          ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
       "expo-secure-store"
-      /* ❌ kein "expo-intent-launcher" hier */
     ],
-    "experiments": { "typedRoutes": true },
-    "extra": {
-      "eas": { "projectId": "08559a29-b307-47e9-a130-d3b31f73b4ed" }
+    "experiments": {
+      "typedRoutes": true
     },
-    "updates": { "enabled": false }
+    "extra": {
+      "eas": {
+        "projectId": "08559a29-b307-47e9-a130-d3b31f73b4ed"
+      }
+    },
+    "updates": {
+      "enabled": false
+    }
   }
 }

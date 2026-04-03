@@ -7,7 +7,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 import Button from '../../components/ui/Button';
 import { persistAuthSession } from '../../utils/authSession';
 
-const API_URL = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+const API_URL = 'https://api.ultreia.app/api';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -106,3 +106,4 @@ const styles = StyleSheet.create({
   error: { fontSize: 13 },
   link: { marginTop: 8, textAlign: 'center', fontWeight: '600' },
 });
+
