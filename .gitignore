@@ -11,6 +11,11 @@ build/
 .cache/
 *.tmp
 *.swp
+*.apk
+*.aab
+frontend/public/*.apk
+mobile/android/app/build/outputs/apk/
+mobile/android/app/build/outputs/bundle/
 
 # Android (React Native)
 *.iml
