@@ -1,0 +1,39 @@
+name: 🔍 Project Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Manuelles Klonen via CLONE_URL
+        run: |
+          git clone "${{ secrets.CLONE_URL }}" project
+          ls -la project
+
+      - name: 📁 Struktur erfassen
+        run: |
+          cd project
+          mkdir -p analysis
+          echo '# 📂 Projektstruktur (tree -L 3)' > analysis/overview.md
+          tree -L 3 -h >> analysis/overview.md
+
+      - name: 📦 package.json Inhalte erfassen
+        run: |
+          cd project
+          echo -e '\n---\n## 📦 package.json Dateien' >> analysis/overview.md
+          for dir in mobile frontend backend; do
+            if [ -f "$dir/package.json" ]; then
+              echo -e "\n### $dir/package.json\n" >> analysis/overview.md
+              cat "$dir/package.json" >> analysis/overview.md
+            fi
+          done
+
+      - name: 💾 Analysebericht bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: stepsmatch-analysis
+          path: project/analysis/overview.md
+

@@ -1,0 +1,71 @@
+// C:\Users\Lenovo\stepsmatch\mobile\app.json
+{
+  "expo": {
+    "name": "Stepsmatch",
+    "slug": "mobile",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "mobile",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0d4ea6"
+    },
+    "ios": { "supportsTablet": true },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B3B68"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.ecily.mobile",
+      "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+          "apiKey": "REPLACED_BY_app.config.js"
+        }
+      },
+      "permissions": [
+        "VIBRATE",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "WAKE_LOCK",
+        "POST_NOTIFICATIONS",
+        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+      ],
+      "foregroundService": {
+        "notificationTitle": "StepsMatch ist aktiv",
+        "notificationBody": "Dein Standort wird verwendet, um passende Angebote zu finden.",
+        "notificationChannelId": "com.ecily.mobile:stepsmatch-bg-location-task"
+      },
+      "foregroundServiceType": ["location"]
+    },
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#0d4ea6"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      ["expo-splash-screen", { "image": "./assets/splash.png", "resizeMode": "cover", "backgroundColor": "#0d4ea6" } ],
+      "expo-font",
+      ["expo-notifications", { "sounds": ["./assets/sounds/arrival.mp3"] } ],
+      ["expo-location", { "isAndroidBackgroundLocationEnabled": true } ],
+      "expo-secure-store"
+      /* ❌ kein "expo-intent-launcher" hier */
+    ],
+    "experiments": { "typedRoutes": true },
+    "extra": {
+      "eas": { "projectId": "08559a29-b307-47e9-a130-d3b31f73b4ed" }
+    },
+    "updates": { "enabled": false }
+  }
+}

@@ -1,0 +1,95 @@
+﻿<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StepsMatch · Seite wird geladen</title>
+    <style>
+      :root {
+        --bg: #eef4f8;
+        --ink: #122a3f;
+        --muted: #5a7083;
+        --primary: #0f6fff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(700px 420px at 0% 0%, rgba(15, 111, 255, 0.15), transparent 60%),
+          radial-gradient(580px 340px at 100% 0%, rgba(16, 176, 163, 0.12), transparent 58%),
+          var(--bg);
+      }
+      .card {
+        width: min(92vw, 560px);
+        border-radius: 24px;
+        border: 1px solid #d5e0ea;
+        background: #ffffff;
+        box-shadow: 0 22px 44px rgba(19, 56, 82, 0.14);
+        padding: 28px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(1.9rem, 6vw, 2.6rem);
+        line-height: 1.05;
+      }
+      p {
+        margin: 12px 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      a {
+        margin-top: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-weight: 700;
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(140deg, var(--primary), #0a56cb);
+      }
+      .small {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #72879a;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>StepsMatch lädt deine Seite neu</h1>
+      <p>
+        Für Deep-Links wird die SPA-Startseite geöffnet. Falls du nicht automatisch
+        weitergeleitet wirst, gehe direkt zur Startseite.
+      </p>
+      <a id="fallback-link" href="/">Zur Startseite</a>
+      <p class="small">Automatische Weiterleitung in wenigen Augenblicken…</p>
+    </main>
+
+    <script>
+      (function () {
+        var targetPath = window.location.pathname + window.location.search + window.location.hash;
+        var redirectTo = "/";
+
+        if (targetPath && targetPath !== "/") {
+          redirectTo = "/?redirect=" + encodeURIComponent(targetPath);
+        }
+
+        var link = document.getElementById("fallback-link");
+        if (link) {
+          link.setAttribute("href", redirectTo);
+        }
+
+        setTimeout(function () {
+          window.location.replace(redirectTo);
+        }, 120);
+      })();
+    </script>
+  </body>
+</html>

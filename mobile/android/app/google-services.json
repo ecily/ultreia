@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "469265595395",
+    "project_id": "stepsmatch",
+    "storage_bucket": "stepsmatch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469265595395:android:8acef546d8ff2c4b692236",
+        "android_client_info": {
+          "package_name": "com.ecily.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAviZe-5GJ5Shv-Suij2j54PJ5ZJojidys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469265595395:android:6d31d44c224cc95d692236",
+        "android_client_info": {
+          "package_name": "com.ecily.stepsmatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAviZe-5GJ5Shv-Suij2j54PJ5ZJojidys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

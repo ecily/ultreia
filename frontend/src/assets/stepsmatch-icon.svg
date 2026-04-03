@@ -1,0 +1,19 @@
+
+<svg width="512" height="512" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pinGradIcon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <filter id="shadowI" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <g transform="translate(0,2)" filter="url(#shadowI)">
+    <path d="M110 0C68 0 34 34 34 76C34 132 110 214 110 214C110 214 186 132 186 76C186 34 152 0 110 0Z" fill="url(#pinGradIcon)"/>
+    <circle cx="110" cy="82" r="40" fill="#FFFFFF" opacity="0.96"/>
+    <circle cx="90" cy="88" r="7" fill="#10B981"/>
+    <circle cx="105" cy="98" r="8" fill="#10B981"/>
+    <circle cx="122" cy="88" r="9" fill="#10B981"/>
+  </g>
+</svg>

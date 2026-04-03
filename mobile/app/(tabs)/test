@@ -1,0 +1,613 @@
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  RefreshControl,
+  AppState,
+  Animated,
+  Easing,
+} from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import * as Location from 'expo-location';
+import colors from '../../theme/colors';
+
+const API_URL = 'https://lobster-app-ie9a5.ondigitalocean.app/api';
+
+/* ───────────── Helpers ───────────── */
+
+function withTimeout(promise, ms, label = 'operation') {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      (timer = setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms))
+    ),
+  ]).finally(() => clearTimeout(timer));
+}
+
+const api = axios.create({ baseURL: API_URL, timeout: 12000 });
+
+function groupByCategory(list) {
+  const m = {};
+  for (const o of list) {
+    const cat = o.category || 'Andere';
+    if (!m[cat]) m[cat] = [];
+    m[cat].push(o);
+  }
+  return m;
+}
+
+function toNumber(val) {
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string') {
+    const n = parseFloat(val);
+    return isNaN(n) ? null : n;
+  }
+  return null;
+}
+
+function haversineMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+function formatDistance(metersLike) {
+  const meters = toNumber(metersLike);
+  if (meters == null) return null;
+  return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
+}
+
+function isNear(metersLike) {
+  const m = toNumber(metersLike);
+  return m != null && m <= 500;
+}
+
+// Restlaufzeit lesen (best effort)
+function getRemainingMs(item) {
+  const keys = [
+    'activeUntil', 'activeEnd', 'validUntil', 'endAt',
+    'validTo', 'dateTo', 'activeWindowEnd', 'endTime'
+  ];
+  for (const k of keys) {
+    const v = item?.[k];
+    if (!v) continue;
+    const d = new Date(v);
+    if (!isNaN(d.getTime())) {
+      const diff = d.getTime() - Date.now();
+      if (diff > 0) return diff;
+    }
+  }
+  return null;
+}
+
+function formatRemaining(diffMs) {
+  if (diffMs == null) return 'Rest: —';
+  const totalMin = Math.ceil(diffMs / 60000);
+  if (totalMin <= 0) return 'Rest: —';
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h <= 0) return `Rest: ${m}\u00A0min`;
+  if (m === 0) return `Rest: ${h}\u00A0h`;
+  return `Rest: ${h}\u00A0h ${m}\u00A0min`;
+}
+
+/* ───────────── Skeletons ───────────── */
+
+function SkeletonCard() {
+  return (
+    <View style={[styles.card, { overflow: 'hidden' }]}>
+      <View style={[styles.skel, { width: 80, height: 12, marginBottom: 10 }]} />
+      <View style={[styles.skel, { width: 160, height: 16, marginBottom: 8 }]} />
+      <View style={[styles.skel, { width: 200, height: 12, marginBottom: 12 }]} />
+      <View style={{ flexDirection: 'row', marginTop: 8 }}>
+        <View style={styles.skelImg} />
+        <View style={styles.skelImg} />
+        <View style={styles.skelImg} />
+      </View>
+    </View>
+  );
+}
+
+function SkeletonSection({ titleWidth = 140 }) {
+  return (
+    <View style={styles.categoryBlock}>
+      <View style={[styles.skel, { width: titleWidth, height: 20, marginBottom: 12 }]} />
+      <FlatList
+        data={[1, 2, 3, 4]}
+        keyExtractor={(i) => `skel-${i}`}
+        renderItem={() => <SkeletonCard />}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.horizontalList}
+        style={{ marginBottom: 26 }}
+      />
+    </View>
+  );
+}
+
+/* ───────────── Screen ───────────── */
+
+export default function HomeTab() {
+  const router = useRouter();
+
+  // Data
+  const [offers, setOffers] = useState([]);
+  const [grouped, setGrouped] = useState({});
+  // Paging
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
+  const [hasMore, setHasMore] = useState(false);
+  // Loading
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  // Error/Info
+  const [err, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  // User Location (für Distanz‑Fallback)
+  const [userLoc, setUserLoc] = useState(null); // {lat,lng}
+
+  // Refs
+  const mountedRef = useRef(true);
+  const inFlightRef = useRef(false);
+  const abortRef = useRef(null);
+  const refreshTimerRef = useRef(null);
+  const lastFocusAtRef = useRef(0);
+  const appState = useRef(AppState.currentState);
+
+  // Ref hält IMMER die neueste fetch-Funktion
+  const fetchFnRef = useRef(null);
+
+  const interestsCSVFromStorage = useCallback(async () => {
+    try {
+      const raw = await AsyncStorage.getItem('userInterests');
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr) && arr.length) return arr.join(',');
+    } catch {}
+    return '';
+  }, []);
+
+  const getLocation = useCallback(async () => {
+    const { status } = await withTimeout(
+      Location.requestForegroundPermissionsAsync(),
+      5000,
+      'location permission'
+    );
+    if (status !== 'granted') throw new Error('Location permission denied');
+
+    let pos = await Location.getLastKnownPositionAsync();
+    if (!pos) {
+      pos = await withTimeout(
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        7000,
+        'getCurrentPosition'
+      );
+    }
+    return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+  }, []);
+
+  // STABILE Fetch-Funktion
+  const fetchPage = useCallback(
+    async ({ pageToLoad = 1, mode = 'initial' } = {}) => {
+      if (inFlightRef.current) return;
+      inFlightRef.current = true;
+
+      if (abortRef.current) { try { abortRef.current.abort(); } catch {} }
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      if (mode === 'initial' && !hasLoadedOnce) {
+        setInitialLoading(true);
+        setError(null);
+      }
+      if (mode === 'pull') { setRefreshing(true); setError(null); }
+      if (mode === 'more') { setLoadingMore(true); }
+
+      try {
+        const [interestsCSV, loc] = await Promise.all([
+          interestsCSVFromStorage(),
+          getLocation(),
+        ]);
+        setUserLoc(loc);
+
+        const params = {
+          lat: loc.lat,
+          lng: loc.lng,
+          maxDistanceM: 1500,
+          activeNow: 1,
+          withProvider: 1,
+          page: pageToLoad,
+          limit,
+          // mögliche Endzeit-Felder + distance
+          fields:
+            '_id,name,description,category,subcategory,location,images,provider,distance,' +
+            'activeUntil,activeEnd,validUntil,endAt,validTo,dateTo,activeWindowEnd,endTime',
+        };
+        if (interestsCSV) params.interests = interestsCSV;
+
+        const t0 = performance.now();
+        const res = await api.get('/offers', { params, signal: controller.signal });
+        const t1 = performance.now();
+
+        const payload = res?.data || {};
+        const newData = Array.isArray(payload.data) ? payload.data : [];
+        const serverHasMore = !!payload.hasMore;
+
+        if (!mountedRef.current) return;
+
+        setLastUpdated(new Date());
+        setHasMore(serverHasMore);
+        setPage(pageToLoad);
+
+        if (pageToLoad === 1) {
+          setOffers(() => {
+            setGrouped(groupByCategory(newData));
+            return newData;
+          });
+        } else {
+          setOffers(prev => {
+            const merged = [...prev, ...newData];
+            setGrouped(groupByCategory(merged));
+            return merged;
+          });
+        }
+
+        if (!hasLoadedOnce) setHasLoadedOnce(true);
+
+        const netMs = (t1 - t0).toFixed(0);
+        console.log(`[HomeTab] GET /offers p=${pageToLoad} n=${newData.length} hasMore=${serverHasMore} net=${netMs}ms took=${payload.tookMs ?? '—'}ms`);
+      } catch (e) {
+        if (mountedRef.current) {
+          const msg = e?.message?.includes('timeout')
+            ? 'Zeitüberschreitung – bitte erneut versuchen.'
+            : 'Fehler beim Laden der Angebote.';
+          setError(msg);
+          console.warn('[HomeTab] fetch error:', e?.message || e);
+        }
+      } finally {
+        inFlightRef.current = false;
+        if (!mountedRef.current) return;
+        if (mode === 'initial' && !hasLoadedOnce) setInitialLoading(false);
+        if (mode === 'pull') setRefreshing(false);
+        if (mode === 'more') setLoadingMore(false);
+      }
+    },
+    [limit, interestsCSVFromStorage, getLocation, hasLoadedOnce]
+  );
+
+  useEffect(() => { fetchFnRef.current = fetchPage; }, [fetchPage]);
+
+  /* Initial load – nur EINMAL */
+  useEffect(() => {
+    mountedRef.current = true;
+    fetchFnRef.current?.({ pageToLoad: 1, mode: 'initial' });
+    return () => {
+      mountedRef.current = false;
+      if (abortRef.current) try { abortRef.current.abort(); } catch {}
+      if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
+    };
+  }, []);
+
+  /* Pull-to-Refresh */
+  const onRefresh = useCallback(() => {
+    fetchFnRef.current?.({ pageToLoad: 1, mode: 'pull' });
+  }, []);
+
+  /* Auto-Refresh */
+  useEffect(() => {
+    const handleAppState = (next) => {
+      const prev = appState.current;
+      appState.current = next;
+      if (prev?.match(/inactive|background/) && next === 'active') {
+        const now = Date.now();
+        if (now - lastFocusAtRef.current > 5000) {
+          lastFocusAtRef.current = now;
+          fetchFnRef.current?.({ pageToLoad: 1, mode: 'auto' });
+        }
+      }
+    };
+    const sub = AppState.addEventListener('change', handleAppState);
+
+    refreshTimerRef.current = setInterval(() => {
+      fetchFnRef.current?.({ pageToLoad: 1, mode: 'auto' });
+    }, 180000);
+
+    return () => {
+      sub.remove();
+      if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
+    };
+  }, []);
+
+  /* UI */
+
+  const groupedEntries = useMemo(() => Object.entries(grouped), [grouped]);
+
+  if (!hasLoadedOnce && initialLoading) {
+    return (
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.categoryContainer}>
+          <SkeletonSection titleWidth={140} />
+          <SkeletonSection titleWidth={120} />
+          <SkeletonSection titleWidth={160} />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  if (err && !hasLoadedOnce) {
+    return (
+      <View style={styles.containerCenter}>
+        <Text style={styles.error}>{err}</Text>
+        <TouchableOpacity
+          onPress={() => fetchFnRef.current?.({ pageToLoad: 1, mode: 'pull' })}
+          style={[styles.card, { marginTop: 16, paddingVertical: 12, width: 220, alignItems: 'center' }]}
+          activeOpacity={0.9}
+        >
+          <Text style={{ color: colors.primary, fontWeight: '700' }}>Erneut versuchen</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.categoryContainer}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {lastUpdated && (
+          <Text style={styles.updatedHint}>Aktualisiert: {lastUpdated.toLocaleTimeString()}</Text>
+        )}
+
+        {groupedEntries.length === 0 ? (
+          <Text style={styles.empty}>Zurzeit leider keine passenden Angebote in deiner Nähe!</Text>
+        ) : (
+          groupedEntries.map(([category, catOffers]) => (
+            <View key={category} style={styles.categoryBlock}>
+              <Text style={styles.categoryTitle}>{category}</Text>
+              <FlatList
+                data={catOffers}
+                keyExtractor={(it) => it._id}
+                renderItem={({ item, index }) => (
+                  <AnimatedOfferCard
+                    item={item}
+                    index={index}
+                    userLoc={userLoc}
+                    onPress={() => router.push(`/offers/${item._id}`)}
+                  />
+                )}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalList}
+                style={{ marginBottom: 26 }}
+              />
+            </View>
+          ))
+        )}
+
+        {hasMore && (
+          <View style={{ alignItems: 'center', marginTop: 4 }}>
+            {loadingMore ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <TouchableOpacity
+                style={styles.loadMoreBtn}
+                onPress={() => fetchFnRef.current?.({ pageToLoad: page + 1, mode: 'more' })}
+                activeOpacity={0.9}
+              >
+                <Text style={styles.loadMoreText}>Mehr laden</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+/* ───────────── Card mit sanftem Fade-in ───────────── */
+
+function AnimatedOfferCard({ item, index, onPress, userLoc }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(6)).current;
+
+  useEffect(() => {
+    const delay = Math.min(index * 50, 250);
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 200, delay, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 200, delay, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+    ]).start();
+  }, [index, opacity, translateY]);
+
+  // Distanz: erst server, dann Fallback auf Haversine
+  let distanceMeters = toNumber(item.distance);
+  if (distanceMeters == null && userLoc && item?.location?.coordinates?.length === 2) {
+    const [lng, lat] = item.location.coordinates; // GeoJSON: [lng, lat]
+    distanceMeters = haversineMeters(userLoc.lat, userLoc.lng, lat, lng);
+  }
+  const distanceText = formatDistance(distanceMeters);
+  const near = isNear(distanceMeters);
+
+  const isActiveNow = true; // weil wir mit activeNow=1 filtern
+  const remainingMs = getRemainingMs(item); // kann null sein
+  const remainingLabel = formatRemaining(remainingMs);
+  const hurry = remainingMs != null && remainingMs <= 60 * 60 * 1000;
+
+  // exakt 3 Bild-Slots, leere Slots sind unsichtbar (halten Raster)
+  const imgs = (item.images || []).slice(0, 3);
+  while (imgs.length < 3) imgs.push(null);
+
+  return (
+    <Animated.View style={[styles.card, { opacity, transform: [{ translateY }], overflow: 'hidden' }]}>
+      <TouchableOpacity style={{ flex: 1 }} onPress={onPress} activeOpacity={0.9}>
+        <View style={styles.badgeRow}>
+          {isActiveNow && (
+            <View style={[styles.badge, styles.badgeNow]}>
+              <Text style={styles.badgeText}>Jetzt gültig</Text>
+            </View>
+          )}
+
+          {/* Rest-Badge: IMMER sichtbar */}
+          <View style={[styles.badge, styles.badgeRest]}>
+            <Text style={[styles.badgeText, { color: '#7c2d12' }]}>{remainingLabel}</Text>
+          </View>
+
+          {/* Distanz-Badge: sichtbar mit Fallback-Berechnung */}
+          <View style={[styles.badge, styles.badgeDistance]}>
+            <Text style={[styles.badgeText, { color: '#0f172a' }]}>{distanceText ?? '—'}</Text>
+          </View>
+
+          {/* Nähe-Info optional */}
+          {near && (
+            <View style={[styles.badge, styles.badgeNear]}>
+              <Text style={styles.badgeText}>In der Nähe</Text>
+            </View>
+          )}
+
+          {!!item.category && (
+            <View style={[styles.badge, styles.badgeCategory]}>
+              <Text style={[styles.badgeText, { color: '#374151' }]} numberOfLines={1}>
+                {item.subcategory ? `${item.category} · ${item.subcategory}` : item.category}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {hurry && <Text style={styles.hurryText}>Beeilung! Läuft bald aus!</Text>}
+
+        <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
+
+        {!!item.description && (
+          <Text style={styles.desc} numberOfLines={3}>{item.description}</Text>
+        )}
+
+        <View style={styles.imagesRow}>
+          {imgs.map((src, i) =>
+            src ? (
+              <Image key={i} source={{ uri: src }} style={styles.offerImage} />
+            ) : (
+              <View key={i} style={styles.offerImageTransparent} />
+            )
+          )}
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
+/* ───────────── Styles ───────────── */
+
+// Card: 260 breit; innen 16 Padding → 228 nutzbar
+// 3 Bilder + 2x8 Abstand → 212 / 3 ≈ 70
+const CARD_WIDTH = 260;
+const CARD_MIN_HEIGHT = 216;
+
+const IMAGE_MARGIN = 8;
+const IMAGE_WIDTH = 70;
+const IMAGE_HEIGHT = 54;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#fff' },
+  categoryContainer: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40 },
+  containerCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+
+  categoryBlock: { marginBottom: 8 },
+  categoryTitle: { fontSize: 20, fontWeight: '700', color: '#1f2937', marginBottom: 10 },
+
+  horizontalList: { paddingLeft: 2, paddingRight: 2 },
+
+  updatedHint: { color: '#6b7280', fontSize: 12, marginBottom: 8 },
+
+  card: {
+    backgroundColor: '#f7f8fb',
+    borderRadius: 16,
+    padding: 16,
+    marginRight: 14,
+    width: CARD_WIDTH,
+    minHeight: CARD_MIN_HEIGHT,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    justifyContent: 'flex-start',
+    overflow: 'hidden',
+  },
+
+  badgeRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' },
+
+  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, borderWidth: 1, marginRight: 6, marginBottom: 6 },
+  badgeNear: { backgroundColor: '#ecfdf5', borderColor: '#a7f3d0' },
+  badgeNow: { backgroundColor: '#eef2ff', borderColor: '#c7d2fe' },
+  badgeCategory: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
+  badgeDistance: { backgroundColor: '#e5f0ff', borderColor: '#bfdbfe' },
+  badgeRest: { backgroundColor: '#fff7ed', borderColor: '#fed7aa' },
+
+  badgeText: { fontSize: 12, fontWeight: '700', color: '#0f172a' },
+
+  hurryText: { fontSize: 12, color: '#b45309', marginBottom: 4, fontWeight: '600' },
+
+  title: { fontSize: 18, fontWeight: '800', color: colors.primary, marginBottom: 6, lineHeight: 22 },
+  desc: { fontSize: 14, color: '#4b5563', marginBottom: 10, lineHeight: 19 },
+
+  imagesRow: {
+    flexDirection: 'row',
+    marginTop: 6,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    minHeight: IMAGE_HEIGHT,
+  },
+  offerImage: {
+    width: IMAGE_WIDTH,
+    height: IMAGE_HEIGHT,
+    borderRadius: 10,
+    backgroundColor: '#eee',
+    marginRight: IMAGE_MARGIN,
+  },
+  // unsichtbar, hält Raster
+  offerImageTransparent: {
+    width: IMAGE_WIDTH,
+    height: IMAGE_HEIGHT,
+    borderRadius: 10,
+    marginRight: IMAGE_MARGIN,
+    opacity: 0,
+  },
+
+  /* Skeleton */
+  skel: { backgroundColor: '#e9eef5', borderRadius: 8 },
+  skelImg: {
+    width: IMAGE_WIDTH,
+    height: IMAGE_HEIGHT,
+    borderRadius: 10,
+    backgroundColor: '#e9eef5',
+    marginRight: IMAGE_MARGIN,
+  },
+
+  /* Footer */
+  loadMoreBtn: {
+    marginTop: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#eef2ff',
+  },
+  loadMoreText: { color: colors.primary, fontWeight: '700' },
+
+  error: { color: 'red', marginTop: 30, textAlign: 'center' },
+  empty: { color: '#999', marginTop: 20, textAlign: 'center', fontSize: 16 },
+});
