@@ -355,6 +355,55 @@ Stand nach ADR-0009: Runtime-/Hosting-/DNS-Strategie ist entschieden. Ultreia bl
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
+## Infrastructure / DigitalOcean / DNS
+
+Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.
+
+DigitalOcean:
+
+- Projekt: Ultreia
+- Projekt-ID gekürzt: `a4b57180...`
+- Region für Staging-Komponenten: `fra1`
+
+Managed MongoDB Staging:
+
+- Name: `ultreia-mongodb-staging`
+- DB-ID gekürzt: `5b6fc790...`
+- Engine: MongoDB 8
+- Region: `fra1`
+- Status: online
+- Size: `db-s-1vcpu-1gb`
+- Kein MongoDB-Connection-String ist im Repo oder in den Docs dokumentiert.
+
+Frontend App Platform Staging:
+
+- Name: `ultreia-frontend-staging`
+- App-ID gekürzt: `d6d75367...`
+- Type: Static Site
+- Component: `ultreia-frontend`
+- Source: GitHub `ecily/ultreia`
+- Branch: `main`
+- Source directory: `frontend`
+- Region: `fra1`
+- Status: healthy/live
+- Default ingress: `sea-turtle-app-kuo98.ondigitalocean.app`
+
+Domains:
+
+- `https://ultreia.app` funktioniert.
+- `https://www.ultreia.app` funktioniert.
+- DNS Provider bleibt EDIS.
+- `ultreia.app` nutzt DigitalOcean App Platform A Records: `162.159.140.98`, `172.66.0.96`.
+- `www.ultreia.app` CNAME zeigt auf `sea-turtle-app-kuo98.ondigitalocean.app.`
+- Mail-Records bleiben bei EDIS unverändert.
+- Wildcard `*` A `91.227.204.35` bleibt vorerst unverändert.
+
+Noch nicht vorhanden:
+
+- Keine Backend-App.
+- Keine API-Domain `api.ultreia.app`.
+- Keine dokumentierten Secrets, Tokens, Credentials oder Connection Strings.
+
 ## Kommunikationsregeln
 
 Erlaubt:
