@@ -40,6 +40,8 @@ Taxonomie-Entscheidung: Die Need-/Kategorie-Taxonomie wurde recherchiert und fac
 
 i18n-Entscheidung: Deutsch, Englisch und Spanisch sind ab Projektstart Pflicht. Das gilt für Mobile App, öffentliches Web und Anbieter-/Provider-Frontend. Dokumentiert in `docs/adr/ADR-0005-i18n-from-start.md`.
 
+Datenmodell-Entscheidung: Die fachlichen und technischen Datenmodell-Grundsätze sind entschieden, aber noch ohne Code, Mongoose-Schemas oder MongoDB-Migrationen. Dokumentiert in `docs/adr/ADR-0006-data-model-principles.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -336,6 +338,8 @@ Die Need-Kategorien sind nur eine Arbeitsliste aus ADR-0003. Vor einer MongoDB-S
 Stand nach ADR-0004: Need-/Kategorie-Taxonomie ist fachlich priorisiert, aber noch kein MongoDB-Schema. Kategorien werden vorläufig als Zusammenspiel aus `NeedCategory`, `PlaceType`, `PushSuitability` und `DataRisk` gedacht. Die nächste Architekturentscheidung muss Datenmodell und Schema klären.
 
 Stand nach ADR-0005: Mehrsprachigkeit ist Produktgrundlage ab Projektstart. Systemtexte und Kernlabels müssen vollständig in `de`, `en` und `es` gepflegt werden; redaktionelle und provider-generierte Inhalte müssen mehrsprachig möglich sein und klare Fallback-Regeln bekommen.
+
+Stand nach ADR-0006: Ultreia modelliert eigene Camino-Kernobjekte statt StepsMatch-Offers nachzubauen. Das Datenmodell muss `NeedCategory`, `PlaceType`, `RouteContext`, `PromptRules`, `TrustLabels`, i18n und Logging/MatchEvents berücksichtigen. Noch gibt es kein konkretes Schema; die nächste Entscheidung kann Repo-/Code-Scaffold oder Backend/Mobile-Bootstrap-Strategie sein.
 
 ## Kommunikationsregeln
 
