@@ -353,6 +353,8 @@ Stand nach ADR-0008: `shared/taxonomy/` ist als zentrale Quelle für statische P
 
 Stand nach ADR-0009: Runtime-/Hosting-/DNS-Strategie ist entschieden. Ultreia bleibt lokal entwickelbar und wird auf DigitalOcean App Platform für Backend und Web/Frontend sowie DigitalOcean Managed MongoDB für Staging ausgerichtet. Environments starten mit `local` und `staging`; Production kommt später nur mit ausdrücklicher Freigabe. DNS bleibt zunächst bei EDIS und wird erst geändert, wenn konkrete DigitalOcean-Zielrecords vorliegen. Mail-Records bei EDIS werden nicht angefasst, solange Mail dort läuft.
 
+Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
+
 ## Kommunikationsregeln
 
 Erlaubt:
