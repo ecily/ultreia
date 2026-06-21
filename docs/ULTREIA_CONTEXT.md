@@ -357,6 +357,8 @@ Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `fronte
 
 Stand Landingpage: Erste gestaltete dreisprachige Landingpage in `frontend/` ist umgesetzt. Sticky Sprachmenü `DE`/`EN`/`ES`, kleines eigenes Jakobsmuschel-/Ultreia-Logo und eigene lokale Camino-Fotos für die Frontpage sind vorhanden. Weiterhin gibt es kein Backend, keine API, kein Tracking und kein Formular. `ultreia.app` und `www.ultreia.app` bleiben live über DigitalOcean Frontend-Staging.
 
+Stand Landingpage Fokus: Landingpage wurde marketing-/UX-seitig weiter fokussiert. Die dominanten Hero-Staging-Badges sind entfernt und in den Footer subtilisiert. Der USP ist stärker auf den Pilger-Need fokussiert: müde sein, nicht suchen wollen und relevante Hinweise bekommen. Camino-Blau/Gelb und warme Stein-/Sandtöne werden konsistenter verwendet. Weiterhin gibt es kein Backend, kein Formular, kein Tracking und keine API. Live-Deployment erfolgt erst nach Push zu `origin/main`.
+
 ## Infrastructure / DigitalOcean / DNS
 
 Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.
