@@ -1,27 +1,31 @@
-# Ultreia Frontend Placeholder
+# Ultreia Frontend
 
-This directory contains the minimal static placeholder for the future Ultreia public web frontend.
+This directory contains the static public landing page for Ultreia.app.
 
 ## Scope
 
-- Static placeholder for DigitalOcean App Platform.
+- Static site for DigitalOcean App Platform.
 - No framework.
 - No build step.
-- No JavaScript.
+- Vanilla JavaScript only for the language switcher.
 - No external assets.
+- No external fonts.
 - No tracking.
 - No cookies.
 - No API calls.
+
+The page uses local Camino photos copied into `frontend/assets/camino/`.
 
 ## DigitalOcean App Platform
 
 - Output/root directory: `frontend/`
 - Start file: `index.html`
 - Stylesheet: `styles.css`
+- Script: `app.js`
 
-Later domain targets:
+Current domain targets:
 
 - `ultreia.app`
 - `www.ultreia.app`
 
-DNS remains at EDIS until concrete DigitalOcean target records are available.
+DNS remains at EDIS. The frontend is served through DigitalOcean App Platform staging.

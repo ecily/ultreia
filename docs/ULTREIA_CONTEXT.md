@@ -355,6 +355,8 @@ Stand nach ADR-0009: Runtime-/Hosting-/DNS-Strategie ist entschieden. Ultreia bl
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
+Stand Landingpage: Erste gestaltete dreisprachige Landingpage in `frontend/` ist umgesetzt. Sticky Sprachmenü `DE`/`EN`/`ES`, kleines eigenes Jakobsmuschel-/Ultreia-Logo und eigene lokale Camino-Fotos für die Frontpage sind vorhanden. Weiterhin gibt es kein Backend, keine API, kein Tracking und kein Formular. `ultreia.app` und `www.ultreia.app` bleiben live über DigitalOcean Frontend-Staging.
+
 ## Infrastructure / DigitalOcean / DNS
 
 Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.
