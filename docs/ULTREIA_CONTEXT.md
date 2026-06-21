@@ -32,6 +32,8 @@ StepsMatch.com bleibt das technische Labor. Ultreia.app wird der erste echte, be
 
 Architekturentscheidung: Option C ist entschieden. Ultreia.app nutzt StepsMatch.com gezielt als technisches Labor, bleibt aber eigenständiges Repo und Produkt. Dokumentiert in `docs/adr/ADR-0001-technical-bootstrap-from-stepsmatch.md`.
 
+Architekturanalyse: Das StepsMatch-Modulinventar wurde als reine Analyse angelegt. Dokumentiert in `docs/adr/ADR-0002-stepsmatch-module-inventory.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -257,6 +259,8 @@ Ultreia braucht daher später zusätzlich:
 ## Technische Bausteine aus StepsMatch
 
 Option C ist die gültige Bootstrap-Strategie: keine Full-Copy-/Rebranding-Strategie, sondern bewusst geprüfte technische Übernahmen aus StepsMatch.
+
+Stand: Das StepsMatch-Modulinventar liegt als Analyse in ADR-0002 vor. Es erlaubt keine Dateiübernahme und keinen Code-Transfer.
 
 Ultreia darf technische Erkenntnisse und bewährte Bausteine aus StepsMatch übernehmen:
 
