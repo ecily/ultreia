@@ -36,6 +36,8 @@ Architekturanalyse: Das StepsMatch-Modulinventar wurde als reine Analyse angeleg
 
 MVP-Entscheidung: Der fachliche MVP-Scope ist entschieden. Ultreia startet geografisch mit dem gesamten Camino Francés von Saint-Jean-Pied-de-Port bis Santiago de Compostela, bleibt funktional aber ein MVP. Dokumentiert in `docs/adr/ADR-0003-ultreia-mvp-scope.md`.
 
+Taxonomie-Entscheidung: Die Need-/Kategorie-Taxonomie wurde recherchiert und fachlich priorisiert. Dokumentiert in `docs/adr/ADR-0004-need-category-research.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -326,6 +328,8 @@ Funktionaler MVP-Scope:
 - klare Unterscheidung zwischen redaktionellem Hinweis und offiziellem teilnehmenden Ort
 
 Die Need-Kategorien sind nur eine Arbeitsliste aus ADR-0003. Vor einer MongoDB-Schema-Entscheidung braucht es weitere Recherche und fachliche Prüfung, gegebenenfalls inklusive Wettbewerbs-, Forum- und Pilger-Community-Auswertung. Das Datenmodell muss flexibel genug bleiben, um Kategorien später zu ändern.
+
+Stand nach ADR-0004: Need-/Kategorie-Taxonomie ist fachlich priorisiert, aber noch kein MongoDB-Schema. Kategorien werden vorläufig als Zusammenspiel aus `NeedCategory`, `PlaceType`, `PushSuitability` und `DataRisk` gedacht. Die nächste Architekturentscheidung muss Datenmodell und Schema klären.
 
 ## Kommunikationsregeln
 
