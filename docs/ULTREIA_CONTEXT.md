@@ -34,6 +34,8 @@ Architekturentscheidung: Option C ist entschieden. Ultreia.app nutzt StepsMatch.
 
 Architekturanalyse: Das StepsMatch-Modulinventar wurde als reine Analyse angelegt. Dokumentiert in `docs/adr/ADR-0002-stepsmatch-module-inventory.md`.
 
+MVP-Entscheidung: Der fachliche MVP-Scope ist entschieden. Ultreia startet geografisch mit dem gesamten Camino Francés von Saint-Jean-Pied-de-Port bis Santiago de Compostela, bleibt funktional aber ein MVP. Dokumentiert in `docs/adr/ADR-0003-ultreia-mvp-scope.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -82,6 +84,8 @@ Ultreia ist ein ruhiger Camino-Begleiter, der Pilger unterwegs auf relevante Ort
 
 Geplanter erster Beachhead: Camino Francés.
 
+Fachlich entschieden: Der MVP umfasst geografisch den gesamten Camino Francés von Saint-Jean-Pied-de-Port bis Santiago de Compostela. Er ist nicht auf 3-5 Etappen beschränkt.
+
 Begründung:
 
 - klare Route
@@ -93,14 +97,7 @@ Begründung:
 - Anbieter knapp neben dem Camino sind oft unsichtbar
 - Zielgruppe ist über Camino-Foren, Gruppen, Blogs, Herbergen und Community-Kanäle grundsätzlich erreichbar
 
-Der genaue erste Abschnitt ist noch offen.
-
-Mögliche spätere Kandidaten:
-
-- Sarria bis Santiago
-- ausgewählte 3-5 Etappen
-- Abschnitt mit hoher Infrastruktur und gutem Testpotenzial
-- alternativ ein weniger überlaufener Abschnitt, wo "knapp abseits des Wegs" besonders wertvoll ist
+Wichtig: Der geografische Raum ist vollständig, aber die Funktionalität und POI-Abdeckung bleiben MVP-begrenzt. Es gibt keine Garantie auf vollständige POI-Abdeckung, Anbieterabdeckung, Verfügbarkeit, freie Betten, Preise oder Öffnungszeiten.
 
 ## Nutzer
 
@@ -159,6 +156,8 @@ Ein Ort darf nur als offizieller Anbieter/Partner erscheinen, wenn er selbst tei
 ## Content-Typen
 
 Ultreia sollte von Anfang an unterschiedliche Inhaltstypen sauber trennen.
+
+Stand MVP-Scope: ADR-0003 definiert erste Content-Typen als `editorial_place`, `official_participating_place` und `demo_test_place`.
 
 ### 1. Pilgrim Need
 
@@ -306,14 +305,18 @@ Ultreia funktioniert nur, wenn folgende Annahmen stimmen:
 
 ## MVP-Richtung
 
-Ein erster Ultreia-MVP sollte nicht den ganzen Camino lösen.
+Der erste Ultreia-MVP soll den Beachhead Camino Francés fachlich prüfen.
 
-Möglicher MVP-Scope:
+Entschiedener geografischer MVP-Scope:
 
-- ein klarer Camino-Abschnitt
-- 3-5 Etappen
-- 50-150 kuratierte POIs
-- 8-10 Need-Kategorien
+- gesamter Camino Francés
+- Start: Saint-Jean-Pied-de-Port
+- Ziel: Santiago de Compostela
+- keine Beschränkung auf wenige Etappen
+
+Funktionaler MVP-Scope:
+
+- vorläufige Need-Arbeitsliste, nicht final
 - route-basiertes Matching
 - starke Push-Regeln
 - Offline-/Cache-Konzept
@@ -321,6 +324,8 @@ Möglicher MVP-Scope:
 - keine Garantie auf Verfügbarkeit
 - keine falschen Partnerclaims
 - klare Unterscheidung zwischen redaktionellem Hinweis und offiziellem teilnehmenden Ort
+
+Die Need-Kategorien sind nur eine Arbeitsliste aus ADR-0003. Vor einer MongoDB-Schema-Entscheidung braucht es weitere Recherche und fachliche Prüfung, gegebenenfalls inklusive Wettbewerbs-, Forum- und Pilger-Community-Auswertung. Das Datenmodell muss flexibel genug bleiben, um Kategorien später zu ändern.
 
 ## Kommunikationsregeln
 
