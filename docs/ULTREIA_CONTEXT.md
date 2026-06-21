@@ -30,6 +30,8 @@ Ultreia.app nutzt bewährte Technik und Erkenntnisse aus StepsMatch.com, bleibt 
 
 StepsMatch.com bleibt das technische Labor. Ultreia.app wird der erste echte, belastbare Beachhead.
 
+Architekturentscheidung: Option C ist entschieden. Ultreia.app nutzt StepsMatch.com gezielt als technisches Labor, bleibt aber eigenständiges Repo und Produkt. Dokumentiert in `docs/adr/ADR-0001-technical-bootstrap-from-stepsmatch.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -253,6 +255,8 @@ Ultreia braucht daher später zusätzlich:
 - starke Push-Frequenzkontrolle
 
 ## Technische Bausteine aus StepsMatch
+
+Option C ist die gültige Bootstrap-Strategie: keine Full-Copy-/Rebranding-Strategie, sondern bewusst geprüfte technische Übernahmen aus StepsMatch.
 
 Ultreia darf technische Erkenntnisse und bewährte Bausteine aus StepsMatch übernehmen:
 
