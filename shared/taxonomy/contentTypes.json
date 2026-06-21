@@ -1,0 +1,41 @@
+[
+  {
+    "key": "editorial_place",
+    "labels": {
+      "de": "Redaktioneller Ort",
+      "en": "Editorial place",
+      "es": "Lugar editorial"
+    },
+    "description": {
+      "de": "Von Ultreia redaktionell erfasster Hinweis; kein offizieller Partnerstatus.",
+      "en": "A place curated editorially by Ultreia; not an official partner status.",
+      "es": "Lugar documentado editorialmente por Ultreia; no implica estado de socio oficial."
+    }
+  },
+  {
+    "key": "official_participating_place",
+    "labels": {
+      "de": "Offiziell teilnehmender Ort",
+      "en": "Official participating place",
+      "es": "Lugar participante oficial"
+    },
+    "description": {
+      "de": "Ort oder Anbieter, der selbst teilnimmt oder zugestimmt hat.",
+      "en": "A place or provider that participates directly or has given consent.",
+      "es": "Lugar o proveedor que participa directamente o ha dado su consentimiento."
+    }
+  },
+  {
+    "key": "demo_test_place",
+    "labels": {
+      "de": "Demo-/Test-Ort",
+      "en": "Demo/test place",
+      "es": "Lugar de demo/prueba"
+    },
+    "description": {
+      "de": "Nur für Tests oder Demos; klar von echten Orten und Partnern zu trennen.",
+      "en": "For tests or demos only; clearly separate from real places and partners.",
+      "es": "Solo para pruebas o demos; debe separarse claramente de lugares y socios reales."
+    }
+  }
+]

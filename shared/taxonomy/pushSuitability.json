@@ -1,0 +1,132 @@
+[
+  {
+    "key": "high_when_selected",
+    "labels": {
+      "de": "Hoch, wenn ausgewählt",
+      "en": "High when selected",
+      "es": "Alta si se selecciona"
+    },
+    "description": {
+      "de": "Darf aktiv melden, wenn der Pilger diese Kategorie bewusst aktiviert hat.",
+      "en": "May actively notify when the pilgrim has explicitly selected this category.",
+      "es": "Puede avisar activamente si el peregrino ha seleccionado esta categoría."
+    }
+  },
+  {
+    "key": "contextual_push",
+    "labels": {
+      "de": "Kontextbezogener Push",
+      "en": "Contextual push",
+      "es": "Aviso contextual"
+    },
+    "description": {
+      "de": "Push ist nur bei passendem Weg-, Zeit- oder Bedarfskontext sinnvoll.",
+      "en": "Push is useful only with relevant route, time, or need context.",
+      "es": "El aviso solo tiene sentido con contexto de ruta, hora o necesidad."
+    }
+  },
+  {
+    "key": "time_windowed",
+    "labels": {
+      "de": "Zeitfenster",
+      "en": "Time-windowed",
+      "es": "Según franja horaria"
+    },
+    "description": {
+      "de": "Push ist nur in bestimmten Tageszeiten oder Zeitfenstern angemessen.",
+      "en": "Push is appropriate only during specific times of day or time windows.",
+      "es": "El aviso solo es apropiado en determinadas horas o franjas horarias."
+    }
+  },
+  {
+    "key": "low_or_contextual",
+    "labels": {
+      "de": "Niedrig oder kontextbezogen",
+      "en": "Low or contextual",
+      "es": "Baja o contextual"
+    },
+    "description": {
+      "de": "Standardmäßig niedrige Push-Eignung, außer ein konkreter Kontext macht den Hinweis wichtig.",
+      "en": "Low push suitability by default unless a concrete context makes the hint important.",
+      "es": "Idoneidad baja por defecto salvo que un contexto concreto lo haga importante."
+    }
+  },
+  {
+    "key": "in_app",
+    "labels": {
+      "de": "In-App",
+      "en": "In-app",
+      "es": "Dentro de la app"
+    },
+    "description": {
+      "de": "Soll primär in der App oder Karte erscheinen, nicht als Push.",
+      "en": "Should primarily appear in the app or map, not as push.",
+      "es": "Debe aparecer principalmente en la app o el mapa, no como aviso push."
+    }
+  },
+  {
+    "key": "in_app_or_low",
+    "labels": {
+      "de": "In-App oder leise",
+      "en": "In-app or low",
+      "es": "En app o aviso suave"
+    },
+    "description": {
+      "de": "Primär In-App; höchstens leise oder niedrig priorisiert melden.",
+      "en": "Primarily in-app; notify only quietly or with low priority.",
+      "es": "Principalmente en la app; avisar solo de forma discreta o con baja prioridad."
+    }
+  },
+  {
+    "key": "in_app_or_time_windowed",
+    "labels": {
+      "de": "In-App oder Zeitfenster",
+      "en": "In-app or time-windowed",
+      "es": "En app o por franja horaria"
+    },
+    "description": {
+      "de": "Primär In-App; Push nur in sinnvollen Zeitfenstern.",
+      "en": "Primarily in-app; push only in meaningful time windows.",
+      "es": "Principalmente en la app; avisos solo en franjas horarias útiles."
+    }
+  },
+  {
+    "key": "contextual_or_problem_case",
+    "labels": {
+      "de": "Kontext oder Problemfall",
+      "en": "Contextual or problem case",
+      "es": "Contextual o caso de problema"
+    },
+    "description": {
+      "de": "Push ist vor allem bei konkretem Problem, Planänderung oder starkem Bedarf sinnvoll.",
+      "en": "Push is useful mainly for a concrete problem, plan change, or strong need.",
+      "es": "El aviso es útil sobre todo ante un problema concreto, cambio de plan o necesidad fuerte."
+    }
+  },
+  {
+    "key": "emergency_or_controlled",
+    "labels": {
+      "de": "Notfall oder kontrolliert",
+      "en": "Emergency or controlled",
+      "es": "Emergencia o controlado"
+    },
+    "description": {
+      "de": "Nur für besonders kontrollierte oder sicherheitsrelevante Fälle verwenden.",
+      "en": "Use only for highly controlled or safety-relevant cases.",
+      "es": "Usar solo para casos muy controlados o relevantes para la seguridad."
+    }
+  },
+  {
+    "key": "silent_only",
+    "labels": {
+      "de": "Nur still",
+      "en": "Silent only",
+      "es": "Solo silencioso"
+    },
+    "description": {
+      "de": "Keine unterbrechenden Pushes; nur stille oder sichtarme Hinweise.",
+      "en": "No interrupting push; only silent or low-visibility hints.",
+      "es": "Sin avisos interruptivos; solo indicaciones silenciosas o poco visibles."
+    }
+  }
+]

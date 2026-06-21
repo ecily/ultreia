@@ -1,0 +1,233 @@
+[
+  {
+    "key": "sleep",
+    "priority": "core",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Schlafen", "en": "Sleep", "es": "Dormir" },
+    "shortDescription": {
+      "de": "Unterkünfte und Schlafmöglichkeiten entlang des Camino.",
+      "en": "Accommodation and places to sleep along the Camino.",
+      "es": "Alojamientos y lugares para dormir en el Camino."
+    }
+  },
+  {
+    "key": "food",
+    "priority": "core",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Essen", "en": "Food", "es": "Comida" },
+    "shortDescription": {
+      "de": "Bars, Cafés, Restaurants und einfache Essensmöglichkeiten.",
+      "en": "Bars, cafes, restaurants, and simple food options.",
+      "es": "Bares, cafeterías, restaurantes y opciones sencillas de comida."
+    }
+  },
+  {
+    "key": "water",
+    "priority": "core",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Wasser", "en": "Water", "es": "Agua" },
+    "shortDescription": {
+      "de": "Wasserstellen und Orte, an denen Pilger Wasser bekommen können.",
+      "en": "Water points and places where pilgrims may get water.",
+      "es": "Puntos de agua y lugares donde los peregrinos pueden conseguir agua."
+    }
+  },
+  {
+    "key": "pharmacy",
+    "priority": "core",
+    "pushSuitability": "high_when_selected",
+    "labels": { "de": "Apotheke", "en": "Pharmacy", "es": "Farmacia" },
+    "shortDescription": {
+      "de": "Apotheken für Medikamente, Blasen, Schmerzen und kleine Beschwerden.",
+      "en": "Pharmacies for medicine, blisters, pain, and minor issues.",
+      "es": "Farmacias para medicinas, ampollas, dolor y molestias menores."
+    }
+  },
+  {
+    "key": "medical_help",
+    "priority": "core",
+    "pushSuitability": "emergency_or_controlled",
+    "labels": { "de": "Medizinische Hilfe", "en": "Medical help", "es": "Ayuda médica" },
+    "shortDescription": {
+      "de": "Gesundheitszentren, Kliniken, Krankenhäuser und Notfalldienste.",
+      "en": "Health centers, clinics, hospitals, and emergency services.",
+      "es": "Centros de salud, clínicas, hospitales y servicios de emergencia."
+    }
+  },
+  {
+    "key": "grocery",
+    "priority": "core",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Supermarkt", "en": "Grocery", "es": "Tienda de alimentación" },
+    "shortDescription": {
+      "de": "Supermärkte und kleine Läden für Proviant und Alltagsbedarf.",
+      "en": "Supermarkets and small shops for supplies and daily needs.",
+      "es": "Supermercados y tiendas pequeñas para provisiones y necesidades diarias."
+    }
+  },
+  {
+    "key": "cash",
+    "priority": "core",
+    "pushSuitability": "low_or_contextual",
+    "labels": { "de": "Bargeld", "en": "Cash", "es": "Efectivo" },
+    "shortDescription": {
+      "de": "Geldautomaten und Banken entlang oder nahe am Weg.",
+      "en": "ATMs and banks along or near the route.",
+      "es": "Cajeros y bancos a lo largo o cerca de la ruta."
+    }
+  },
+  {
+    "key": "stamp",
+    "priority": "core",
+    "pushSuitability": "low_or_contextual",
+    "labels": { "de": "Stempel", "en": "Stamp", "es": "Sello" },
+    "shortDescription": {
+      "de": "Orte, an denen Pilger einen Stempel bekommen können.",
+      "en": "Places where pilgrims may get a credential stamp.",
+      "es": "Lugares donde los peregrinos pueden obtener un sello."
+    }
+  },
+  {
+    "key": "transport",
+    "priority": "secondary",
+    "pushSuitability": "contextual_or_problem_case",
+    "labels": { "de": "Transport", "en": "Transport", "es": "Transporte" },
+    "shortDescription": {
+      "de": "Bus, Taxi, Bahn und Gepäcktransport für Planänderungen oder Probleme.",
+      "en": "Bus, taxi, train, and luggage transport for plan changes or problems.",
+      "es": "Bus, taxi, tren y transporte de equipaje para cambios de plan o problemas."
+    }
+  },
+  {
+    "key": "laundry",
+    "priority": "secondary",
+    "pushSuitability": "in_app_or_time_windowed",
+    "labels": { "de": "Wäsche", "en": "Laundry", "es": "Lavandería" },
+    "shortDescription": {
+      "de": "Waschmöglichkeiten in Unterkünften oder Waschsalons.",
+      "en": "Laundry options in accommodation or laundromats.",
+      "es": "Opciones de lavado en alojamientos o lavanderías."
+    }
+  },
+  {
+    "key": "gear",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Ausrüstung", "en": "Gear", "es": "Equipo" },
+    "shortDescription": {
+      "de": "Ausrüstung, Schuhe und Ersatzbedarf für unterwegs.",
+      "en": "Gear, shoes, and replacement supplies on the way.",
+      "es": "Equipo, calzado y repuestos durante el camino."
+    }
+  },
+  {
+    "key": "toilet",
+    "priority": "secondary",
+    "pushSuitability": "in_app",
+    "labels": { "de": "Toilette", "en": "Toilet", "es": "Baño" },
+    "shortDescription": {
+      "de": "Öffentliche oder nutzbare Toiletten, soweit verlässlich bekannt.",
+      "en": "Public or usable toilets where reliably known.",
+      "es": "Baños públicos o utilizables cuando se conozcan con fiabilidad."
+    }
+  },
+  {
+    "key": "rest_place",
+    "priority": "secondary",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Rastplatz", "en": "Rest place", "es": "Lugar de descanso" },
+    "shortDescription": {
+      "de": "Bänke, Schatten, Picknickplätze und ruhige Pausenorte.",
+      "en": "Benches, shade, picnic areas, and quiet places to rest.",
+      "es": "Bancos, sombra, áreas de picnic y lugares tranquilos para descansar."
+    }
+  },
+  {
+    "key": "wifi_mobile",
+    "priority": "secondary",
+    "pushSuitability": "in_app",
+    "labels": { "de": "WLAN & Mobilfunk", "en": "Wi-Fi & mobile", "es": "Wi-Fi y móvil" },
+    "shortDescription": {
+      "de": "Orte mit möglichem WLAN, Mobilfunkhilfe oder Telekommunikation.",
+      "en": "Places with possible Wi-Fi, mobile help, or telecom services.",
+      "es": "Lugares con posible Wi-Fi, ayuda móvil o servicios de telecomunicaciones."
+    }
+  },
+  {
+    "key": "sightseeing",
+    "priority": "discovery",
+    "pushSuitability": "silent_only",
+    "labels": { "de": "Sehenswürdigkeit", "en": "Sightseeing", "es": "Lugares de interés" },
+    "shortDescription": {
+      "de": "Kulturelle oder besondere Orte entlang des Camino.",
+      "en": "Cultural or special places along the Camino.",
+      "es": "Lugares culturales o especiales a lo largo del Camino."
+    }
+  },
+  {
+    "key": "church",
+    "priority": "discovery",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Kirche", "en": "Church", "es": "Iglesia" },
+    "shortDescription": {
+      "de": "Kirchen, Kapellen und spirituelle Orte am Weg.",
+      "en": "Churches, chapels, and spiritual places on the route.",
+      "es": "Iglesias, capillas y lugares espirituales en la ruta."
+    }
+  },
+  {
+    "key": "viewpoint",
+    "priority": "discovery",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Aussichtspunkt", "en": "Viewpoint", "es": "Mirador" },
+    "shortDescription": {
+      "de": "Aussichtspunkte und besondere Blicke entlang des Wegs.",
+      "en": "Viewpoints and notable views along the route.",
+      "es": "Miradores y vistas destacadas a lo largo de la ruta."
+    }
+  },
+  {
+    "key": "quiet_place",
+    "priority": "discovery",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Ruhiger Ort", "en": "Quiet place", "es": "Lugar tranquilo" },
+    "shortDescription": {
+      "de": "Ruhige Orte für Pause, Reflexion oder Abstand.",
+      "en": "Quiet places for rest, reflection, or space.",
+      "es": "Lugares tranquilos para descansar, reflexionar o tomar distancia."
+    }
+  },
+  {
+    "key": "pilgrim_office",
+    "priority": "discovery",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Pilgerbüro", "en": "Pilgrim office", "es": "Oficina del peregrino" },
+    "shortDescription": {
+      "de": "Pilgerbüros und offizielle Anlaufstellen für Pilger.",
+      "en": "Pilgrim offices and official contact points for pilgrims.",
+      "es": "Oficinas del peregrino y puntos oficiales de atención."
+    }
+  },
+  {
+    "key": "bike_info",
+    "priority": "discovery",
+    "pushSuitability": "in_app",
+    "labels": { "de": "Rad-Info", "en": "Bike info", "es": "Información para bicicleta" },
+    "shortDescription": {
+      "de": "Hinweise und Orte, die für Radpilger relevant sein können.",
+      "en": "Hints and places that may be relevant for bike pilgrims.",
+      "es": "Indicaciones y lugares que pueden ser relevantes para bicigrinos."
+    }
+  },
+  {
+    "key": "warning",
+    "priority": "controlled_later",
+    "pushSuitability": "emergency_or_controlled",
+    "labels": { "de": "Warnung", "en": "Warning", "es": "Aviso" },
+    "shortDescription": {
+      "de": "Sicherheits- oder Störungshinweise, nur mit klarer Quelle und Verantwortung.",
+      "en": "Safety or disruption notices, only with clear source and responsibility.",
+      "es": "Avisos de seguridad o incidencias, solo con fuente y responsabilidad claras."
+    }
+  }
+]

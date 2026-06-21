@@ -1,0 +1,32 @@
+[
+  {
+    "code": "de",
+    "label": "German",
+    "nativeLabel": "Deutsch",
+    "labels": {
+      "de": "Deutsch",
+      "en": "German",
+      "es": "Alemán"
+    }
+  },
+  {
+    "code": "en",
+    "label": "English",
+    "nativeLabel": "English",
+    "labels": {
+      "de": "Englisch",
+      "en": "English",
+      "es": "Inglés"
+    }
+  },
+  {
+    "code": "es",
+    "label": "Spanish",
+    "nativeLabel": "Español",
+    "labels": {
+      "de": "Spanisch",
+      "en": "Spanish",
+      "es": "Español"
+    }
+  }
+]

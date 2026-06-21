@@ -347,6 +347,8 @@ Stand nach ADR-0007: Monorepo-/Scaffold-Strategie ist entschieden. Noch ist kein
 
 Stand Scaffold: Minimaler Monorepo-Scaffold mit `backend/`, `mobile/`, `frontend/` und `shared/` ist angelegt. Es wurden keine Frameworks installiert, kein produktiver Code erstellt und keine StepsMatch-Dateien kopiert.
 
+Stand Shared Taxonomy: Erste gemeinsame Taxonomy-/i18n-Konfiguration liegt in `shared/taxonomy/`. Systemlabels sind vollständig dreisprachig (`de`, `en`, `es`). Validierungsskript vorhanden: `shared/taxonomy/validate-taxonomy.mjs`. Es gibt weiterhin kein Backend-/Mobile-/Frontend-Framework, kein MongoDB-Schema und keine kopierten StepsMatch-Dateien.
+
 ## Kommunikationsregeln
 
 Erlaubt:

@@ -1,0 +1,67 @@
+[
+  {
+    "key": "editorial",
+    "labels": {
+      "de": "Redaktionell",
+      "en": "Editorial",
+      "es": "Editorial"
+    },
+    "description": {
+      "de": "Von Ultreia redaktionell erfasst, ohne offiziellen Partnerstatus.",
+      "en": "Curated by Ultreia editorially, without official partner status.",
+      "es": "Documentado editorialmente por Ultreia, sin estado de socio oficial."
+    }
+  },
+  {
+    "key": "official",
+    "labels": {
+      "de": "Offiziell",
+      "en": "Official",
+      "es": "Oficial"
+    },
+    "description": {
+      "de": "Der Ort oder Anbieter nimmt offiziell teil oder hat zugestimmt.",
+      "en": "The place or provider participates officially or has given consent.",
+      "es": "El lugar o proveedor participa oficialmente o ha dado su consentimiento."
+    }
+  },
+  {
+    "key": "demo",
+    "labels": {
+      "de": "Demo",
+      "en": "Demo",
+      "es": "Demo"
+    },
+    "description": {
+      "de": "Nur für Tests oder Demonstrationen, nicht als echte Information nutzen.",
+      "en": "For tests or demonstrations only, not for real-world information.",
+      "es": "Solo para pruebas o demostraciones, no para información real."
+    }
+  },
+  {
+    "key": "unverified",
+    "labels": {
+      "de": "Ungeprüft",
+      "en": "Unverified",
+      "es": "No verificado"
+    },
+    "description": {
+      "de": "Information ist noch nicht geprüft oder nicht ausreichend bestätigt.",
+      "en": "Information has not yet been checked or sufficiently confirmed.",
+      "es": "La información aún no ha sido comprobada o confirmada suficientemente."
+    }
+  },
+  {
+    "key": "last_verified_unknown",
+    "labels": {
+      "de": "Letzte Prüfung unbekannt",
+      "en": "Last verification unknown",
+      "es": "Última verificación desconocida"
+    },
+    "description": {
+      "de": "Es ist nicht bekannt, wann die Information zuletzt geprüft wurde.",
+      "en": "It is unknown when the information was last verified.",
+      "es": "No se sabe cuándo se verificó la información por última vez."
+    }
+  }
+]
