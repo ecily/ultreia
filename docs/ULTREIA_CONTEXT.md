@@ -38,6 +38,8 @@ MVP-Entscheidung: Der fachliche MVP-Scope ist entschieden. Ultreia startet geogr
 
 Taxonomie-Entscheidung: Die Need-/Kategorie-Taxonomie wurde recherchiert und fachlich priorisiert. Dokumentiert in `docs/adr/ADR-0004-need-category-research.md`.
 
+i18n-Entscheidung: Deutsch, Englisch und Spanisch sind ab Projektstart Pflicht. Das gilt für Mobile App, öffentliches Web und Anbieter-/Provider-Frontend. Dokumentiert in `docs/adr/ADR-0005-i18n-from-start.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -160,6 +162,8 @@ Ein Ort darf nur als offizieller Anbieter/Partner erscheinen, wenn er selbst tei
 Ultreia sollte von Anfang an unterschiedliche Inhaltstypen sauber trennen.
 
 Stand MVP-Scope: ADR-0003 definiert erste Content-Typen als `editorial_place`, `official_participating_place` und `demo_test_place`.
+
+Stand i18n: Alle Oberflächen und Systemtexte müssen Deutsch, Englisch und Spanisch unterstützen. Spanisch ist für Anbieter entlang des Camino wahrscheinlich die erste Arbeitssprache. Push-Texte und Systemlabels müssen die bevorzugte Sprache respektieren.
 
 ### 1. Pilgrim Need
 
@@ -330,6 +334,8 @@ Funktionaler MVP-Scope:
 Die Need-Kategorien sind nur eine Arbeitsliste aus ADR-0003. Vor einer MongoDB-Schema-Entscheidung braucht es weitere Recherche und fachliche Prüfung, gegebenenfalls inklusive Wettbewerbs-, Forum- und Pilger-Community-Auswertung. Das Datenmodell muss flexibel genug bleiben, um Kategorien später zu ändern.
 
 Stand nach ADR-0004: Need-/Kategorie-Taxonomie ist fachlich priorisiert, aber noch kein MongoDB-Schema. Kategorien werden vorläufig als Zusammenspiel aus `NeedCategory`, `PlaceType`, `PushSuitability` und `DataRisk` gedacht. Die nächste Architekturentscheidung muss Datenmodell und Schema klären.
+
+Stand nach ADR-0005: Mehrsprachigkeit ist Produktgrundlage ab Projektstart. Systemtexte und Kernlabels müssen vollständig in `de`, `en` und `es` gepflegt werden; redaktionelle und provider-generierte Inhalte müssen mehrsprachig möglich sein und klare Fallback-Regeln bekommen.
 
 ## Kommunikationsregeln
 
