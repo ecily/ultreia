@@ -349,6 +349,8 @@ Stand Scaffold: Minimaler Monorepo-Scaffold mit `backend/`, `mobile/`, `frontend
 
 Stand Shared Taxonomy: Erste gemeinsame Taxonomy-/i18n-Konfiguration liegt in `shared/taxonomy/`. Systemlabels sind vollständig dreisprachig (`de`, `en`, `es`). Validierungsskript vorhanden: `shared/taxonomy/validate-taxonomy.mjs`. Es gibt weiterhin kein Backend-/Mobile-/Frontend-Framework, kein MongoDB-Schema und keine kopierten StepsMatch-Dateien.
 
+Stand nach ADR-0008: `shared/taxonomy/` ist als zentrale Quelle für statische Produktkonfiguration entschieden. Backend, Mobile, öffentliches Web, Provider-Frontend und spätere Admin-/Content-Tools sollen diese Keys und Labels konsumieren, statt eigene harte Listen zu pflegen. Taxonomy-Änderungen müssen mit `node shared/taxonomy/validate-taxonomy.mjs` validiert werden.
+
 ## Kommunikationsregeln
 
 Erlaubt:
