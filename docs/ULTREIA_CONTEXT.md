@@ -42,6 +42,8 @@ i18n-Entscheidung: Deutsch, Englisch und Spanisch sind ab Projektstart Pflicht. 
 
 Datenmodell-Entscheidung: Die fachlichen und technischen Datenmodell-Grundsätze sind entschieden, aber noch ohne Code, Mongoose-Schemas oder MongoDB-Migrationen. Dokumentiert in `docs/adr/ADR-0006-data-model-principles.md`.
 
+Repo-Entscheidung: Ultreia wird als eigenständiges Monorepo mit `backend/`, `mobile/`, `frontend/`, `shared/` und `docs/` aufgebaut. Dokumentiert in `docs/adr/ADR-0007-repo-code-scaffold.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -340,6 +342,8 @@ Stand nach ADR-0004: Need-/Kategorie-Taxonomie ist fachlich priorisiert, aber no
 Stand nach ADR-0005: Mehrsprachigkeit ist Produktgrundlage ab Projektstart. Systemtexte und Kernlabels müssen vollständig in `de`, `en` und `es` gepflegt werden; redaktionelle und provider-generierte Inhalte müssen mehrsprachig möglich sein und klare Fallback-Regeln bekommen.
 
 Stand nach ADR-0006: Ultreia modelliert eigene Camino-Kernobjekte statt StepsMatch-Offers nachzubauen. Das Datenmodell muss `NeedCategory`, `PlaceType`, `RouteContext`, `PromptRules`, `TrustLabels`, i18n und Logging/MatchEvents berücksichtigen. Noch gibt es kein konkretes Schema; die nächste Entscheidung kann Repo-/Code-Scaffold oder Backend/Mobile-Bootstrap-Strategie sein.
+
+Stand nach ADR-0007: Monorepo-/Scaffold-Strategie ist entschieden. Noch ist kein Code-Scaffold angelegt; der nächste Schritt kann ein minimaler Scaffold mit `backend/`, `mobile/`, `frontend/`, `shared/` und Platzhaltern sein.
 
 ## Kommunikationsregeln
 
