@@ -23,13 +23,13 @@
 
       <nav class="language-switcher" aria-label="Language">
         <button type="button" data-language-button="de" aria-label="Deutsch">
-          <span aria-hidden="true">DE</span>
+          <span class="flag flag-de" aria-hidden="true"></span>
         </button>
         <button type="button" data-language-button="en" aria-label="English">
-          <span aria-hidden="true">EN</span>
+          <span class="flag flag-gb" aria-hidden="true"></span>
         </button>
         <button type="button" data-language-button="es" aria-label="Español">
-          <span aria-hidden="true">ES</span>
+          <span class="flag flag-es" aria-hidden="true"></span>
         </button>
       </nav>
     </header>
@@ -39,95 +39,153 @@
         <div class="hero-media" aria-hidden="true"></div>
         <div class="hero-inner">
           <p class="route-line">
-            <span data-lang="de">Camino Francés · Saint-Jean-Pied-de-Port bis Santiago</span>
-            <span data-lang="en">Camino Francés · Saint-Jean-Pied-de-Port to Santiago</span>
-            <span data-lang="es">Camino Francés · Saint-Jean-Pied-de-Port a Santiago</span>
+            <span data-lang="de">Camino Francés · Saint-Jean bis Santiago</span>
+            <span data-lang="en">Camino Francés · Saint-Jean to Santiago</span>
+            <span data-lang="es">Camino Francés · Saint-Jean a Santiago</span>
           </p>
 
           <h1 id="hero-title">
-            <span data-lang="de">Gehen. Nicht suchen.</span>
-            <span data-lang="en">Walk more. Search less.</span>
-            <span data-lang="es">Camina. Busca menos.</span>
+            <span data-lang="de">Gehen.<br>Nicht suchen.</span>
+            <span data-lang="en">Walk more.<br>Search less.</span>
+            <span data-lang="es">Camina.<br>Busca menos.</span>
           </h1>
 
           <p class="hero-copy">
             <span data-lang="de">
-              Ultreia ist als ruhige App für Pilger gedacht: Needs wählen, Handy wegstecken,
-              und nur dann einen Hinweis bekommen, wenn etwas Relevantes in der Nähe ist.
+              Wähle, was du gerade brauchst. Dann kann Ultreia im Hintergrund bleiben
+              und dich nur melden, wenn etwas Passendes in der Nähe liegt.
             </span>
             <span data-lang="en">
-              Ultreia is designed as a quiet app for pilgrims: choose your needs, put the
-              phone away, and hear from it only when something relevant is nearby.
+              Choose what you need right now. Then Ultreia can stay in the background
+              and let you know only when something useful is nearby.
             </span>
             <span data-lang="es">
-              Ultreia está pensada como una app tranquila para peregrinos: eliges tus
-              necesidades, guardas el móvil y recibes avisos solo cuando algo relevante está cerca.
+              Elige lo que necesitas ahora. Después Ultreia puede quedarse en segundo plano
+              y avisarte solo cuando haya algo útil cerca.
             </span>
           </p>
 
-          <div class="hero-signals" aria-label="Core product signals">
+          <div class="hero-signals" aria-label="Core needs">
             <p>
-              <span data-lang="de">Bett · Essen · Wasser · Apotheke · Stempel · Hinweise</span>
-              <span data-lang="en">Bed · Food · Water · Pharmacy · Stamp · Hints</span>
-              <span data-lang="es">Cama · Comida · Agua · Farmacia · Sello · Avisos</span>
+              <span data-lang="de">Wasser · Supermarkt · Apotheke · Wäsche</span>
+              <span data-lang="en">Water · Grocery · Pharmacy · Laundry</span>
+              <span data-lang="es">Agua · Tienda · Farmacia · Lavandería</span>
             </p>
             <p>
-              <span data-lang="de">Früher MVP · Camino Francés · Keine Verfügbarkeitsgarantie</span>
-              <span data-lang="en">Early MVP · Camino Francés · No availability guarantee</span>
-              <span data-lang="es">MVP temprano · Camino Francés · Sin garantía de disponibilidad</span>
+              <span data-lang="de">MVP · ohne Garantien · vor Ort prüfen</span>
+              <span data-lang="en">MVP · no guarantees · verify locally</span>
+              <span data-lang="es">MVP · sin garantías · comprobar en el lugar</span>
             </p>
           </div>
         </div>
       </section>
 
-      <section class="intro-section" aria-labelledby="intro-title">
-        <div class="section-wrap split-layout">
+      <section class="help-section" aria-labelledby="help-title">
+        <div class="section-wrap help-layout">
           <div class="section-copy">
             <p class="section-label">
-              <span data-lang="de">Was ist Ultreia?</span>
-              <span data-lang="en">What is Ultreia?</span>
-              <span data-lang="es">¿Qué es Ultreia?</span>
+              <span data-lang="de">So hilft dir Ultreia</span>
+              <span data-lang="en">How Ultreia helps</span>
+              <span data-lang="es">Cómo ayuda Ultreia</span>
             </p>
-            <h2 id="intro-title">
-              <span data-lang="de">Ein stiller Begleiter für unterwegs.</span>
-              <span data-lang="en">A quiet companion on the way.</span>
-              <span data-lang="es">Un compañero tranquilo para el camino.</span>
+            <h2 id="help-title">
+              <span data-lang="de">Für die kleinen Fragen unterwegs.</span>
+              <span data-lang="en">For the small questions on the way.</span>
+              <span data-lang="es">Para las pequeñas dudas del camino.</span>
             </h2>
             <p>
               <span data-lang="de">
-                Die Idee ist einfach: Die App soll Wegkontext, Nähe und deine aktuellen
-                Bedürfnisse zusammenbringen. Nicht als lauter Tourismus-Guide, sondern als
-                zurückhaltender Hinweisgeber für den Moment, in dem es wirklich hilft.
+                Auf dem Camino brauchst du oft einfache Dinge: Wasser, Essen, eine Apotheke
+                oder einen Ort zum Ausruhen. Ultreia soll diese Momente erkennen, ohne dich
+                ständig auf das Display zu holen.
               </span>
               <span data-lang="en">
-                The idea is simple: the app should connect route context, proximity and your
-                current needs. Not as a loud tourism guide, but as a calm signal when it is useful.
+                On the Camino you often need simple things: water, food, a pharmacy or a quiet
+                place to pause. Ultreia is meant to notice these moments without pulling you
+                back to the screen all the time.
               </span>
               <span data-lang="es">
-                La idea es sencilla: la app conecta el contexto de la ruta, la cercanía y tus
-                necesidades actuales. No como una guía turística ruidosa, sino como una señal discreta.
+                En el Camino a menudo necesitas cosas sencillas: agua, comida, una farmacia
+                o un lugar tranquilo para parar. Ultreia quiere reconocer esos momentos sin
+                llevarte todo el tiempo a la pantalla.
               </span>
             </p>
           </div>
 
-          <figure class="photo-frame photo-frame-tall">
-            <img src="assets/camino/camino-detail-2.jpg" alt="A pilgrim path marker on the Camino.">
-          </figure>
+          <div class="example-stack" aria-label="Examples">
+            <article class="example-card">
+              <span class="example-number">01</span>
+              <h3>
+                <span data-lang="de">Wasser oder Supermarkt</span>
+                <span data-lang="en">Water or groceries</span>
+                <span data-lang="es">Agua o tienda</span>
+              </h3>
+              <p>
+                <span data-lang="de">
+                  Du brauchst Wasser oder einen Supermarkt? Wähle den Need aus. Wenn ein
+                  passender Ort in deiner Nähe liegt, meldet sich Ultreia.
+                </span>
+                <span data-lang="en">
+                  Need water or a small grocery stop? Choose the need. When a useful place
+                  is nearby, Ultreia lets you know.
+                </span>
+                <span data-lang="es">
+                  ¿Necesitas agua o una pequeña tienda? Elige lo que necesitas. Cuando haya
+                  un lugar útil cerca, Ultreia te avisa.
+                </span>
+              </p>
+            </article>
+
+            <article class="example-card">
+              <span class="example-number">02</span>
+              <h3>
+                <span data-lang="de">Später daran erinnert werden</span>
+                <span data-lang="en">A reminder for later</span>
+                <span data-lang="es">Un aviso para más adelante</span>
+              </h3>
+              <p>
+                <span data-lang="de">
+                  Du suchst später eine Apotheke, Waschmöglichkeit oder einen ruhigen Ort?
+                  Ultreia kann dich daran erinnern, wenn es unterwegs passt.
+                </span>
+                <span data-lang="en">
+                  Looking for a pharmacy, laundry stop or quiet place later? Ultreia can
+                  remind you when it fits your way.
+                </span>
+                <span data-lang="es">
+                  ¿Buscas una farmacia, lavandería o un lugar tranquilo más adelante?
+                  Ultreia puede avisarte cuando encaje con tu camino.
+                </span>
+              </p>
+            </article>
+          </div>
         </div>
+      </section>
+
+      <section class="photo-strip" aria-label="Camino impressions">
+        <figure class="strip-photo strip-photo-large">
+          <img src="assets/camino/camino-way-sign.jpg" alt="A Camino way sign under a wide sky.">
+        </figure>
+        <figure class="strip-photo">
+          <img src="assets/camino/camino-credential-stamp.jpg" alt="A pilgrim credential with Camino stamps.">
+        </figure>
+        <figure class="strip-photo">
+          <img src="assets/camino/camino-rain-road.jpg" alt="A long Camino road in rainy weather.">
+        </figure>
       </section>
 
       <section class="process-section" aria-labelledby="process-title">
         <div class="section-wrap">
           <div class="section-heading">
             <p class="section-label">
-              <span data-lang="de">Wie funktioniert es?</span>
+              <span data-lang="de">So funktioniert es</span>
               <span data-lang="en">How it works</span>
               <span data-lang="es">Cómo funciona</span>
             </p>
             <h2 id="process-title">
-              <span data-lang="de">Drei ruhige Schritte statt permanenter Suche.</span>
-              <span data-lang="en">Three quiet steps instead of constant searching.</span>
-              <span data-lang="es">Tres pasos tranquilos en vez de buscar sin parar.</span>
+              <span data-lang="de">Einfach einstellen und weitergehen.</span>
+              <span data-lang="en">Set it once and keep walking.</span>
+              <span data-lang="es">Configúralo y sigue caminando.</span>
             </h2>
           </div>
 
@@ -135,14 +193,14 @@
             <article class="step-card">
               <span class="step-number">01</span>
               <h3>
-                <span data-lang="de">Needs wählen</span>
-                <span data-lang="en">Choose needs</span>
-                <span data-lang="es">Elegir necesidades</span>
+                <span data-lang="de">Need wählen</span>
+                <span data-lang="en">Choose a need</span>
+                <span data-lang="es">Elige una necesidad</span>
               </h3>
               <p>
-                <span data-lang="de">Zum Beispiel Wasser, Apotheke, Schlafplatz, Essen oder Stempel.</span>
-                <span data-lang="en">For example water, pharmacy, sleep, food or stamp.</span>
-                <span data-lang="es">Por ejemplo agua, farmacia, alojamiento, comida o sello.</span>
+                <span data-lang="de">Zum Beispiel Wasser, Essen, Apotheke, Wäsche oder ruhiger Ort.</span>
+                <span data-lang="en">For example water, food, pharmacy, laundry or quiet place.</span>
+                <span data-lang="es">Por ejemplo agua, comida, farmacia, lavandería o lugar tranquilo.</span>
               </p>
             </article>
 
@@ -151,69 +209,28 @@
               <h3>
                 <span data-lang="de">Handy wegstecken</span>
                 <span data-lang="en">Put the phone away</span>
-                <span data-lang="es">Guardar el móvil</span>
+                <span data-lang="es">Guarda el móvil</span>
               </h3>
               <p>
-                <span data-lang="de">Ultreia soll im Hintergrund auf relevante Nähe achten.</span>
-                <span data-lang="en">Ultreia is meant to watch quietly for relevant proximity.</span>
-                <span data-lang="es">Ultreia observa en silencio si hay algo relevante cerca.</span>
+                <span data-lang="de">Ultreia soll im Hintergrund prüfen, ob etwas Sinnvolles in der Nähe ist.</span>
+                <span data-lang="en">Ultreia is meant to check quietly if something useful is nearby.</span>
+                <span data-lang="es">Ultreia comprueba en silencio si hay algo útil cerca.</span>
               </p>
             </article>
 
             <article class="step-card">
               <span class="step-number">03</span>
               <h3>
-                <span data-lang="de">Nur passende Hinweise</span>
-                <span data-lang="en">Only fitting hints</span>
-                <span data-lang="es">Solo avisos útiles</span>
+                <span data-lang="de">Nur melden, wenn es passt</span>
+                <span data-lang="en">Only speak up when it fits</span>
+                <span data-lang="es">Avisar solo cuando encaja</span>
               </h3>
               <p>
-                <span data-lang="de">Ort, Zeit, Wegnähe und Bedürfnis müssen zusammenpassen.</span>
-                <span data-lang="en">Place, time, route proximity and need should fit together.</span>
-                <span data-lang="es">Lugar, momento, cercanía a la ruta y necesidad deben coincidir.</span>
+                <span data-lang="de">Der Hinweis soll zu deinem Need, zum Weg und zum Moment passen.</span>
+                <span data-lang="en">The hint should fit your need, your route and the moment.</span>
+                <span data-lang="es">El aviso debe encajar con tu necesidad, tu ruta y el momento.</span>
               </p>
             </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="audience-section" aria-labelledby="audience-title">
-        <div class="section-wrap split-layout reversed">
-          <figure class="photo-frame photo-frame-wide">
-            <img src="assets/camino/camino-hero-2.jpg" alt="A quiet Camino path between stone walls.">
-          </figure>
-
-          <div class="section-copy">
-            <p class="section-label">
-              <span data-lang="de">Für wen?</span>
-              <span data-lang="en">Who it is for</span>
-              <span data-lang="es">Para quién</span>
-            </p>
-            <h2 id="audience-title">
-              <span data-lang="de">Für Pilger, die präsent bleiben wollen.</span>
-              <span data-lang="en">For pilgrims who want to stay present.</span>
-              <span data-lang="es">Para peregrinos que quieren estar presentes.</span>
-            </h2>
-            <p>
-              <span data-lang="de">
-                Besonders für Menschen auf dem Camino Francés, die unterwegs klare Bedürfnisse
-                haben, aber nicht dauernd Karten, Listen oder Suchergebnisse prüfen möchten.
-              </span>
-              <span data-lang="en">
-                Especially for people on the Camino Francés who have clear needs on the way,
-                but do not want to keep checking maps, lists or search results.
-              </span>
-              <span data-lang="es">
-                Especialmente para personas en el Camino Francés que tienen necesidades claras,
-                pero no quieren revisar mapas, listas o búsquedas todo el tiempo.
-              </span>
-            </p>
-
-            <ul class="language-list" aria-label="Supported languages">
-              <li>Deutsch</li>
-              <li>English</li>
-              <li>Español</li>
-            </ul>
           </div>
         </div>
       </section>
@@ -222,35 +239,52 @@
         <div class="section-wrap scope-grid">
           <div>
             <p class="section-label">
-              <span data-lang="de">Camino-Francés-Scope</span>
-              <span data-lang="en">Camino Francés scope</span>
-              <span data-lang="es">Alcance Camino Francés</span>
+              <span data-lang="de">Für den Camino Francés</span>
+              <span data-lang="en">For the Camino Francés</span>
+              <span data-lang="es">Para el Camino Francés</span>
             </p>
             <h2 id="scope-title">
-              <span data-lang="de">Geografisch komplett gedacht, funktional bewusst MVP.</span>
-              <span data-lang="en">Geographically complete in intent, deliberately MVP in function.</span>
-              <span data-lang="es">Completo en intención geográfica, deliberadamente MVP en función.</span>
+              <span data-lang="de">Die Route ist groß. Der Start bleibt bewusst einfach.</span>
+              <span data-lang="en">The route is long. The first version stays simple.</span>
+              <span data-lang="es">La ruta es larga. La primera versión sigue siendo sencilla.</span>
             </h2>
+            <p>
+              <span data-lang="de">
+                Ultreia denkt den Camino Francés von Saint-Jean-Pied-de-Port bis Santiago.
+                Trotzdem bleibt die erste Version ein MVP: hilfreich testen, sauber lernen,
+                keine falschen Versprechen machen.
+              </span>
+              <span data-lang="en">
+                Ultreia is shaped around the Camino Francés from Saint-Jean-Pied-de-Port
+                to Santiago. The first version is still an MVP: test the value, learn clearly,
+                and avoid false promises.
+              </span>
+              <span data-lang="es">
+                Ultreia se piensa para el Camino Francés desde Saint-Jean-Pied-de-Port
+                hasta Santiago. La primera versión sigue siendo un MVP: probar el valor,
+                aprender con claridad y no prometer de más.
+              </span>
+            </p>
           </div>
 
           <aside class="trust-box" aria-label="Product boundaries">
             <h3>
-              <span data-lang="de">Was Ultreia bewusst nicht verspricht</span>
-              <span data-lang="en">What Ultreia deliberately does not promise</span>
-              <span data-lang="es">Lo que Ultreia no promete</span>
+              <span data-lang="de">Wichtig vor Ort</span>
+              <span data-lang="en">Important on the way</span>
+              <span data-lang="es">Importante en el camino</span>
             </h3>
             <p>
               <span data-lang="de">
-                Frühe Version. Keine Garantie auf vollständige Abdeckung, Verfügbarkeit,
-                Öffnungszeiten, freie Betten oder Preise. Informationen bitte vor Ort prüfen.
+                Keine Garantie auf Vollständigkeit, Öffnungszeiten, Verfügbarkeit, freie
+                Betten oder Preise. Bitte prüfe wichtige Informationen vor Ort.
               </span>
               <span data-lang="en">
-                Early version. No guarantee of complete coverage, availability, opening hours,
-                free beds or prices. Please verify information locally.
+                No guarantee of complete coverage, opening hours, availability, free beds
+                or prices. Please verify important information locally.
               </span>
               <span data-lang="es">
-                Versión temprana. Sin garantía de cobertura completa, disponibilidad, horarios,
-                camas libres o precios. Comprueba la información en el lugar.
+                Sin garantía de cobertura completa, horarios, disponibilidad, camas libres
+                o precios. Comprueba la información importante en el lugar.
               </span>
             </p>
           </aside>

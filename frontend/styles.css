@@ -1,18 +1,18 @@
 :root {
   color-scheme: light;
-  --blue-950: #08243b;
-  --blue-850: #123f5f;
-  --blue-650: #276a8f;
-  --gold-500: #e5b534;
-  --gold-200: #f7df9a;
+  --blue-950: #09243a;
+  --blue-850: #123e5d;
+  --blue-650: #2a6c8f;
+  --gold-500: #e6b63a;
+  --gold-200: #f7e0a4;
   --stone-100: #f7f0e5;
-  --stone-200: #ece1d0;
+  --stone-200: #eadfcd;
   --cream: #fffaf0;
   --white: #ffffff;
   --ink: #172331;
-  --muted: #5e6c75;
-  --line: rgba(18, 63, 95, 0.16);
-  --shadow: 0 22px 70px rgba(8, 36, 59, 0.16);
+  --muted: #5d6b74;
+  --line: rgba(18, 62, 93, 0.15);
+  --shadow: 0 22px 70px rgba(9, 36, 58, 0.16);
   --wrap: min(1120px, calc(100% - 40px));
 }
 
@@ -78,10 +78,10 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   gap: 16px;
   min-height: 64px;
   padding: 10px max(20px, calc((100vw - 1120px) / 2));
-  background: rgba(255, 250, 240, 0.92);
-  border-bottom: 1px solid rgba(18, 63, 95, 0.1);
-  backdrop-filter: blur(16px);
   overflow: hidden;
+  background: rgba(255, 250, 240, 0.93);
+  border-bottom: 1px solid rgba(18, 62, 93, 0.1);
+  backdrop-filter: blur(16px);
 }
 
 .brand {
@@ -92,12 +92,12 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   color: var(--blue-950);
   text-decoration: none;
   font-size: 1.06rem;
-  font-weight: 800;
+  font-weight: 820;
 }
 
 .brand:focus-visible,
 .language-switcher button:focus-visible {
-  outline: 3px solid rgba(39, 106, 143, 0.36);
+  outline: 3px solid rgba(42, 108, 143, 0.34);
   outline-offset: 3px;
 }
 
@@ -107,7 +107,7 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   flex: 0 0 auto;
   padding: 7px;
   background: var(--blue-950);
-  border: 1px solid rgba(247, 223, 154, 0.72);
+  border: 1px solid rgba(247, 224, 164, 0.72);
   border-radius: 50%;
   fill: var(--gold-500);
   stroke: var(--cream);
@@ -128,29 +128,57 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
 }
 
 .language-switcher button {
-  min-width: 48px;
-  min-height: 42px;
-  padding: 8px 12px;
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  padding: 0;
   color: var(--blue-950);
   background: var(--white);
-  border: 1px solid rgba(18, 63, 95, 0.18);
-  border-radius: 999px;
+  border: 1px solid rgba(18, 62, 93, 0.18);
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 850;
 }
 
 .language-switcher button:hover,
 .language-switcher:not(:has(button.is-active)) button[data-language-button="en"],
 .language-switcher button.is-active {
-  color: var(--blue-950);
   background: var(--gold-500);
-  border-color: rgba(8, 36, 59, 0.22);
+  border-color: rgba(9, 36, 58, 0.26);
+  box-shadow: 0 8px 20px rgba(9, 36, 58, 0.12);
+}
+
+.flag {
+  position: relative;
+  display: block;
+  width: 24px;
+  height: 16px;
+  overflow: hidden;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(9, 36, 58, 0.18);
+}
+
+.flag-de {
+  background: linear-gradient(#111 0 33.333%, #d71920 33.333% 66.666%, #f6c400 66.666%);
+}
+
+.flag-es {
+  background: linear-gradient(#c8102e 0 25%, #ffc400 25% 75%, #c8102e 75%);
+}
+
+.flag-gb {
+  background:
+    linear-gradient(34deg, transparent 0 42%, #fff 42% 47%, #c8102e 47% 53%, #fff 53% 58%, transparent 58%),
+    linear-gradient(-34deg, transparent 0 42%, #fff 42% 47%, #c8102e 47% 53%, #fff 53% 58%, transparent 58%),
+    linear-gradient(90deg, transparent 0 40%, #fff 40% 45%, #c8102e 45% 55%, #fff 55% 60%, transparent 60%),
+    linear-gradient(0deg, transparent 0 35%, #fff 35% 43%, #c8102e 43% 57%, #fff 57% 65%, transparent 65%),
+    #012169;
 }
 
 .hero {
   position: relative;
-  min-height: clamp(560px, 74svh, 700px);
+  min-height: clamp(570px, 76svh, 710px);
   display: grid;
   align-items: end;
   isolation: isolate;
@@ -163,9 +191,9 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   inset: 0;
   z-index: -2;
   background:
-    linear-gradient(90deg, rgba(8, 36, 59, 0.88) 0%, rgba(8, 36, 59, 0.68) 44%, rgba(8, 36, 59, 0.2) 100%),
-    linear-gradient(0deg, rgba(8, 36, 59, 0.68) 0%, rgba(8, 36, 59, 0.08) 58%),
-    url("assets/camino/camino-hero-1.jpg") center / cover no-repeat;
+    linear-gradient(90deg, rgba(9, 36, 58, 0.86) 0%, rgba(9, 36, 58, 0.6) 42%, rgba(9, 36, 58, 0.08) 100%),
+    linear-gradient(0deg, rgba(9, 36, 58, 0.54) 0%, rgba(9, 36, 58, 0.03) 58%),
+    url("assets/camino/camino-walk-hero.jpg") center / cover no-repeat;
 }
 
 .hero::after {
@@ -180,7 +208,7 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
 .hero-inner {
   width: var(--wrap);
   margin: 0 auto;
-  padding: clamp(68px, 10vh, 112px) 0 clamp(56px, 9vh, 96px);
+  padding: clamp(72px, 10vh, 118px) 0 clamp(58px, 9vh, 98px);
   color: var(--cream);
 }
 
@@ -188,17 +216,17 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   max-width: 760px;
   margin-bottom: 18px;
   color: var(--gold-200);
-  font-size: clamp(0.78rem, 1vw, 0.94rem);
+  font-size: clamp(0.76rem, 1vw, 0.92rem);
   font-weight: 850;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 h1 {
-  max-width: 920px;
+  max-width: 880px;
   margin-bottom: 20px;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(3.4rem, 7vw, 6.8rem);
+  font-size: clamp(3.35rem, 7vw, 6.8rem);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.92;
@@ -206,17 +234,17 @@ h1 {
 }
 
 .hero-copy {
-  max-width: 720px;
-  margin-bottom: 26px;
-  color: rgba(255, 250, 240, 0.94);
-  font-size: clamp(1.08rem, 2vw, 1.42rem);
-  font-weight: 500;
-  line-height: 1.34;
+  max-width: 700px;
+  margin-bottom: 24px;
+  color: rgba(255, 250, 240, 0.95);
+  font-size: clamp(1.08rem, 1.75vw, 1.34rem);
+  font-weight: 540;
+  line-height: 1.38;
 }
 
 .hero-signals {
   display: grid;
-  width: min(720px, 100%);
+  width: min(740px, 100%);
   gap: 10px;
 }
 
@@ -226,10 +254,10 @@ h1 {
   margin-bottom: 0;
   padding: 9px 13px;
   color: var(--gold-200);
-  background: rgba(8, 36, 59, 0.5);
-  border: 1px solid rgba(247, 223, 154, 0.28);
+  background: rgba(9, 36, 58, 0.55);
+  border: 1px solid rgba(247, 224, 164, 0.3);
   border-radius: 999px;
-  font-size: clamp(0.86rem, 1.4vw, 1rem);
+  font-size: clamp(0.84rem, 1.25vw, 0.98rem);
   font-weight: 760;
 }
 
@@ -238,44 +266,29 @@ h1 {
   margin: 0 auto;
 }
 
-.intro-section,
+.help-section,
 .process-section,
-.audience-section,
 .scope-section {
-  padding: clamp(66px, 10vw, 124px) 0;
+  padding: clamp(66px, 10vw, 122px) 0;
 }
 
-.intro-section {
+.help-section,
+.scope-section {
   background: var(--cream);
 }
 
 .process-section {
   background: var(--stone-100);
-  border-top: 1px solid rgba(18, 63, 95, 0.08);
-  border-bottom: 1px solid rgba(18, 63, 95, 0.08);
+  border-top: 1px solid rgba(18, 62, 93, 0.08);
+  border-bottom: 1px solid rgba(18, 62, 93, 0.08);
 }
 
-.audience-section {
-  background: var(--cream);
-}
-
-.scope-section {
-  background:
-    linear-gradient(90deg, rgba(8, 36, 59, 0.94), rgba(18, 63, 95, 0.88)),
-    url("assets/camino/camino-detail-1.jpg") center / cover no-repeat;
-  color: var(--cream);
-}
-
-.split-layout,
+.help-layout,
 .scope-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.78fr);
+  grid-template-columns: minmax(0, 0.92fr) minmax(300px, 1.08fr);
   gap: clamp(34px, 7vw, 86px);
-  align-items: center;
-}
-
-.split-layout.reversed {
-  grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1fr);
+  align-items: start;
 }
 
 .section-label {
@@ -287,88 +300,51 @@ h1 {
   text-transform: uppercase;
 }
 
-.scope-section .section-label {
-  color: var(--gold-200);
-}
-
 h2 {
-  max-width: 820px;
+  max-width: 790px;
   margin-bottom: 20px;
   color: var(--blue-950);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.2rem, 5.1vw, 4.8rem);
+  font-size: clamp(2.2rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.02;
   text-wrap: balance;
-}
-
-.scope-section h2 {
-  color: var(--cream);
 }
 
 .section-copy p:not(.section-label),
 .scope-grid p {
   max-width: 690px;
   color: #2a3b49;
-  font-size: clamp(1.04rem, 1.7vw, 1.22rem);
+  font-size: clamp(1.04rem, 1.55vw, 1.18rem);
 }
 
-.scope-grid p {
-  color: rgba(255, 250, 240, 0.84);
-}
-
-.photo-frame {
-  position: relative;
-  margin: 0;
-  overflow: hidden;
-  background: var(--stone-200);
-  border: 10px solid var(--white);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-}
-
-.photo-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.photo-frame-tall {
-  aspect-ratio: 4 / 5;
-}
-
-.photo-frame-wide {
-  aspect-ratio: 5 / 4;
-}
-
-.section-heading {
-  max-width: 880px;
-  margin-bottom: clamp(28px, 5vw, 44px);
-}
-
-.step-grid {
+.example-stack {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
-.step-card {
-  min-height: 260px;
-  padding: clamp(22px, 3vw, 30px);
+.example-card,
+.step-card,
+.trust-box {
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 14px 46px rgba(8, 36, 59, 0.08);
+  box-shadow: 0 14px 46px rgba(9, 36, 58, 0.08);
 }
 
+.example-card {
+  padding: clamp(22px, 3vw, 30px);
+}
+
+.example-number,
 .step-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 42px;
   height: 42px;
-  margin-bottom: 36px;
+  margin-bottom: 26px;
   color: var(--blue-950);
   background: var(--gold-500);
   border-radius: 50%;
@@ -379,52 +355,73 @@ h2 {
 h3 {
   margin-bottom: 12px;
   color: var(--blue-950);
-  font-size: clamp(1.28rem, 2vw, 1.62rem);
-  line-height: 1.12;
+  font-size: clamp(1.24rem, 1.8vw, 1.55rem);
+  line-height: 1.16;
 }
 
-.step-card p {
+.example-card p,
+.step-card p,
+.trust-box p {
   margin-bottom: 0;
   color: var(--muted);
   font-size: 1rem;
 }
 
-.language-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 0;
-  margin: 28px 0 0;
-  list-style: none;
+.photo-strip {
+  width: var(--wrap);
+  margin: 0 auto clamp(54px, 8vw, 92px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(190px, 0.8fr) minmax(190px, 0.8fr);
+  gap: 14px;
 }
 
-.language-list li {
-  padding: 9px 13px;
-  color: var(--blue-950);
-  background: var(--stone-100);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 0.92rem;
-  font-weight: 820;
+.strip-photo {
+  min-height: 220px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--stone-200);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.strip-photo-large {
+  min-height: 300px;
+}
+
+.strip-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.section-heading {
+  max-width: 860px;
+  margin-bottom: clamp(28px, 5vw, 44px);
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.step-card {
+  min-height: 255px;
+  padding: clamp(22px, 3vw, 30px);
+}
+
+.scope-grid {
+  align-items: center;
 }
 
 .trust-box {
   padding: clamp(24px, 4vw, 34px);
   color: var(--blue-950);
-  background: rgba(255, 250, 240, 0.94);
-  border: 1px solid rgba(247, 223, 154, 0.34);
-  border-radius: 8px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .trust-box h3 {
   margin-bottom: 12px;
-}
-
-.trust-box p {
-  margin-bottom: 0;
-  color: #344657;
-  font-size: 1rem;
 }
 
 .site-footer {
@@ -458,25 +455,26 @@ h3 {
   }
 
   .hero {
-    min-height: 720px;
+    min-height: 710px;
   }
 
   .hero-media {
     background:
-      linear-gradient(90deg, rgba(8, 36, 59, 0.9), rgba(8, 36, 59, 0.56)),
-      linear-gradient(0deg, rgba(8, 36, 59, 0.72), rgba(8, 36, 59, 0.14)),
-      url("assets/camino/camino-hero-1.jpg") 58% center / cover no-repeat;
+      linear-gradient(90deg, rgba(9, 36, 58, 0.88), rgba(9, 36, 58, 0.48)),
+      linear-gradient(0deg, rgba(9, 36, 58, 0.66), rgba(9, 36, 58, 0.1)),
+      url("assets/camino/camino-walk-hero.jpg") 56% center / cover no-repeat;
   }
 
-  .split-layout,
-  .split-layout.reversed,
+  .help-layout,
   .scope-grid,
-  .step-grid {
+  .step-grid,
+  .photo-strip {
     grid-template-columns: 1fr;
   }
 
-  .photo-frame-tall,
-  .photo-frame-wide {
+  .strip-photo,
+  .strip-photo-large {
+    min-height: 0;
     aspect-ratio: 16 / 10;
   }
 
@@ -484,8 +482,9 @@ h3 {
     min-height: 0;
   }
 
+  .example-number,
   .step-number {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
   }
 }
 
@@ -515,53 +514,60 @@ h3 {
   }
 
   .language-switcher button {
-    min-width: 44px;
-    min-height: 40px;
-    padding: 7px 9px;
-    font-size: 0.76rem;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+  }
+
+  .flag {
+    width: 22px;
+    height: 15px;
   }
 
   .hero {
-    min-height: 650px;
+    min-height: 630px;
   }
 
   .hero-inner {
-    padding: 76px 0 64px;
+    padding: 70px 0 60px;
   }
 
   .route-line {
     margin-bottom: 14px;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
   }
 
   h1 {
     margin-bottom: 16px;
-    font-size: clamp(2.7rem, 11.5vw, 3.8rem);
+    font-size: clamp(2.35rem, 10.5vw, 3.35rem);
     line-height: 0.96;
   }
 
   .hero-copy {
     margin-bottom: 20px;
-    font-size: 1.04rem;
+    font-size: 1.03rem;
     line-height: 1.42;
   }
 
   .hero-signals p {
     width: 100%;
     border-radius: 8px;
-    font-size: 0.84rem;
+    font-size: 0.82rem;
   }
 
-  .intro-section,
+  .help-section,
   .process-section,
-  .audience-section,
   .scope-section {
     padding: 56px 0;
   }
 
+  .photo-strip {
+    margin-bottom: 56px;
+  }
+
   h2 {
     font-size: clamp(2rem, 10vw, 3rem);
-    line-height: 1.03;
+    line-height: 1.04;
   }
 
   .section-copy p:not(.section-label),
@@ -569,17 +575,14 @@ h3 {
     font-size: 1rem;
   }
 
-  .photo-frame {
-    border-width: 7px;
-  }
-
-  .photo-frame-tall,
-  .photo-frame-wide {
-    aspect-ratio: 4 / 3;
-  }
-
+  .example-stack,
   .step-grid {
     gap: 14px;
+  }
+
+  .strip-photo,
+  .strip-photo-large {
+    aspect-ratio: 4 / 3;
   }
 
   .site-footer {
@@ -618,9 +621,8 @@ h3 {
   }
 
   .language-switcher button {
+    width: 38px;
     min-width: 38px;
-    min-height: 38px;
-    padding-inline: 6px;
-    font-size: 0.72rem;
+    height: 38px;
   }
 }
