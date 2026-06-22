@@ -11,10 +11,10 @@
     }
   },
   {
-    "key": "food",
+    "key": "eat",
     "priority": "core",
     "pushSuitability": "time_windowed",
-    "labels": { "de": "Essen", "en": "Food", "es": "Comida" },
+    "labels": { "de": "Essen", "en": "Food", "es": "Comer" },
     "shortDescription": {
       "de": "Bars, Cafés, Restaurants und einfache Essensmöglichkeiten.",
       "en": "Bars, cafes, restaurants, and simple food options.",
@@ -44,7 +44,7 @@
     }
   },
   {
-    "key": "medical_help",
+    "key": "medical",
     "priority": "core",
     "pushSuitability": "emergency_or_controlled",
     "labels": { "de": "Medizinische Hilfe", "en": "Medical help", "es": "Ayuda médica" },

@@ -3,6 +3,22 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REQUIRED_LANGUAGES = ['de', 'en', 'es'];
+const REQUIRED_MVP_NEED_KEYS = [
+  'sleep',
+  'eat',
+  'water',
+  'grocery',
+  'pharmacy',
+  'medical',
+  'cash',
+  'stamp',
+  'gear',
+  'laundry',
+  'sightseeing',
+  'quiet_place',
+  'transport',
+];
+const DISALLOWED_NEED_KEYS = ['food', 'medical_help', 'quiet place'];
 const here = dirname(fileURLToPath(import.meta.url));
 
 const files = {
@@ -104,6 +120,12 @@ validateLocalizedItems(data.languages, files.languages, 'code');
 
 const pushSuitabilityKeys = requireUnique(data.pushSuitability, files.pushSuitability, 'key');
 const needCategoryKeys = requireUnique(data.needCategories, files.needCategories, 'key');
+for (const needKey of REQUIRED_MVP_NEED_KEYS) {
+  if (!needCategoryKeys.has(needKey)) fail(`${files.needCategories} missing MVP NeedCategory: ${needKey}`);
+}
+for (const needKey of DISALLOWED_NEED_KEYS) {
+  if (needCategoryKeys.has(needKey)) fail(`${files.needCategories} contains legacy NeedCategory: ${needKey}`);
+}
 requireUnique(data.placeTypes, files.placeTypes, 'key');
 requireUnique(data.contentTypes, files.contentTypes, 'key');
 requireUnique(data.trustLabels, files.trustLabels, 'key');

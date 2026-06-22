@@ -49,10 +49,10 @@ This list is not final. It is a researched working list for MVP thinking, not a 
 ### Priority A
 
 - sleep
-- food
+- eat
 - water
 - pharmacy
-- medical_help
+- medical
 - grocery
 - cash
 - stamp

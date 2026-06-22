@@ -54,9 +54,9 @@ After this ADR, Ultreia needs a separate ADR for data model and schema design.
 - DataRisk: high
 - Reason: Sleep is one of the strongest Camino needs, but availability, prices, opening status, and booking state are sensitive. Ultreia must not imply free-bed guarantees or booking certainty.
 
-### food
+### eat
 
-- NeedCategory: `food`
+- NeedCategory: `eat`
 - Typical PlaceTypes: `bar`, `cafe`, `restaurant`, `bakery`
 - PushSuitability: `time_windowed`
 - DataRisk: medium
@@ -78,9 +78,9 @@ After this ADR, Ultreia needs a separate ADR for data model and schema design.
 - DataRisk: medium/high
 - Reason: Pharmacy access is valuable for blisters, pain, minor injuries, and medication, but opening hours and night-duty pharmacies are volatile.
 
-### medical_help
+### medical
 
-- NeedCategory: `medical_help`
+- NeedCategory: `medical`
 - Typical PlaceTypes: `health_center`, `clinic`, `hospital`, `emergency_service`
 - PushSuitability: `high_when_selected_or_emergency_context`
 - DataRisk: high

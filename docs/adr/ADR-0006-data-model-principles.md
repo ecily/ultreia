@@ -51,7 +51,7 @@ Place must allow i18n-capable titles and descriptions. It must contain source, t
 
 ### NeedCategory
 
-Purpose: a pilgrim need such as `sleep`, `food`, `water`, `pharmacy`, `medical_help`, `grocery`, `cash`, or `stamp`.
+Purpose: a pilgrim need such as `sleep`, `eat`, `water`, `pharmacy`, `medical`, `grocery`, `cash`, or `stamp`.
 
 NeedCategory must support labels in `de`, `en`, and `es`. It is fachlich configurable and must not be hidden as hardcoded application logic.
 

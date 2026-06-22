@@ -101,6 +101,7 @@ Regeln:
 
 - Keine duplizierten Kategorienlisten in Backend, Mobile, Frontend, Provider-Frontend oder Admin.
 - NeedCategories, Labels und statische Keys kommen aus `shared/taxonomy/`.
+- Kanonische MVP-Keys verwenden `eat` statt `food` und `medical` statt `medical_help`.
 - Taxonomy-Änderungen mit `node shared/taxonomy/validate-taxonomy.mjs` validieren.
 - Aktuelle Systemlabels sind dreisprachig (`de`, `en`, `es`).
 

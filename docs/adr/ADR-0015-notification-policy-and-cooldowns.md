@@ -387,7 +387,7 @@ Push Policy may consider time of day.
 Examples:
 
 - `sleep` becomes more relevant toward evening
-- `grocery` / `food` depend on time of day
+- `grocery` / `eat` depend on time of day
 - `pharmacy` / `medical` can be prioritized
 - `sightseeing` should usually not push without an active Need
 
