@@ -48,6 +48,8 @@ Camino-Route-Entscheidung: Ultreia modelliert den Camino und alle testbaren Rout
 
 Pilger-Identitätsentscheidung: Ultreia braucht ab MVP eine eigene Pilger-Identität mit Registrierung, Login und Onboarding für Mobile und Web/Frontend. PilgrimUser und ProviderUser bleiben strikt getrennt. Dokumentiert in `docs/adr/ADR-0011-pilgrim-identity-auth-onboarding.md`.
 
+POI-/Service-/Provider-Datenmodell-Entscheidung: Ultreia trennt strikt zwischen POI, Service, ProviderAccount, ProviderProfile und Claim. POI, Service und Provider sind nicht identisch; RouteContext gehört primär an den POI. Dokumentiert in `docs/adr/ADR-0012-poi-service-provider-data-model.md`.
+
 Distanzstrategie-Entscheidung: Ultreia verwendet Luftlinie nicht als fachliche Distanz für Relevanz oder Push. Die fachliche Distanz basiert auf RouteKm, Segment-/Korridorlogik und Walking Directions für wenige Top-Kandidaten. Dokumentiert in `docs/adr/ADR-0013-distance-strategy-routekm-corridor-walking-directions.md`.
 
 ## Projektgrenze
@@ -363,13 +365,15 @@ Stand nach ADR-0010: Camino Route Model ist entschieden. Der Camino Francés ist
 
 Stand nach ADR-0011: Pilger-Identität, Auth und Onboarding sind als MVP-Grundlage entschieden. Zweck ist nicht Social, sondern Personalisierung, Sprache, Needs, Permission-Status, Push-/Gerätebindung, Disclaimer-/Terms-Akzeptanz, Notification-Dedupe und Field-Test-/Diagnose-Zuordnung. PilgrimUser und ProviderUser bleiben strikt getrennt; Provider-Claiming kommt später.
 
+Stand nach ADR-0012: POI / Service / Provider Data Model ist entschieden. Ein POI ist ein physischer route-relevanter Ort; ein Service beschreibt den konkreten Nutzen für einen Need; ProviderAccount ist Login/Zugriff; ProviderProfile enthält Betreiber-Stammdaten; Claim beschreibt spätere Verwaltung oder Bestätigung eines POI. POIs und Services dürfen ohne Provider existieren; Provider-Claiming blockiert den MVP nicht. Services nutzen NeedCategories aus `shared/taxonomy/`; RouteKm, Segment, Korridor, Directions und Distanzberechnung beziehen sich primär auf POI-Standorte.
+
 Stand nach ADR-0013: Distanzlogik ist route-first entschieden. Luftlinie ist höchstens technischer Vorfilter, nicht fachliche Relevanzdistanz. RouteKm und Korridorlogik sind Pflichtlogik; Walking Directions validieren nur wenige Top-Kandidaten pro Heartbeat/Need und müssen gecacht werden. Push-Texte bleiben vorsichtig und dürfen keine exakten Garantien zu Verfügbarkeit, Öffnungszeiten, Betten, Preisen oder medizinischer Sicherheit geben.
 
 ADR-Reihenfolge ab ADR-0010:
 
 - ADR-0010: Camino Route Model (entschieden)
 - ADR-0011: Pilgrim Identity, Auth and Onboarding (entschieden)
-- ADR-0012: POI / Service / Provider Data Model
+- ADR-0012: POI / Service / Provider Data Model (entschieden)
 - ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions (entschieden)
 - ADR-0014: Matching v1 Along Route
 - ADR-0015: Notification Policy and Cooldowns
@@ -378,7 +382,7 @@ ADR-Reihenfolge ab ADR-0010:
 - ADR-0018: Admin and Diagnostics v1
 - ADR-0019: Provider Claiming Later
 
-Nur ADR-0010, ADR-0011 und ADR-0013 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0012 und ADR-0014 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
+ADR-0010, ADR-0011, ADR-0012 und ADR-0013 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0014 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
