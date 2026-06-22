@@ -56,6 +56,8 @@ Matching-v1-Entscheidung: Ultreia Matching v1 entscheidet route-first entlang de
 
 Notification-Policy-Entscheidung: Ultreia trennt Matching und Push strikt. Ein Match ist noch keine Push Notification; ADR-0015 entscheidet, ob, wann und wie aus einem Match eine Push Notification werden darf. Cooldowns, Tageslimits, Push-Permissions, Push-Token-Status, Silence/Pause-Modus, Datenqualität und Garantieverbot sind Pflichtbestandteile. Dokumentiert in `docs/adr/ADR-0015-notification-policy-and-cooldowns.md`.
 
+Datenquellenstrategie-Entscheidung: Ultreia befüllt den MVP nicht primär über Provider-Onboarding, sondern über einen kontrollierten, kuratierten Startdatenbestand entlang des Camino Francés plus strikt getrennte lokale Testdaten. Datenstrategie ist Vertrauensarchitektur: Jeder öffentliche POI/Service braucht Quelle, Vertrauensgrad, Prüfstatus und klare Verantwortlichkeitskommunikation. Dokumentiert in `docs/adr/ADR-0016-mvp-data-source-strategy.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -388,6 +390,8 @@ Stand nach ADR-0014: Matching v1 entlang der Route ist entschieden. Die Pipeline
 
 Stand nach ADR-0015: Notification Policy und Cooldowns sind entschieden. Push ist nur erlaubt, wenn ein aktiver Need, ausreichend starker Match, plausible RouteKm-/Korridor-/Distanzlage, ausreichende Datenqualität, aktive Push-Permission, gültiger Push-Token und keine Cooldowns/Silence-Regeln dagegen sprechen. Global-, Need- und POI-/Service-Cooldowns, Tageslimit und Silence/Pause-Modus sind Pflichtkonzepte, konkrete Minuten-/Stundenwerte bleiben konfigurierbar. DE/EN/ES sind für Push-Texte, Notification Keys, Disclaimer, Datenquellen-/Verantwortlichkeits-Labels und sichtbare Systemtexte Pflicht. Preise, Öffnungszeiten, Verfügbarkeiten, Provider-Infos und Fotos dürfen angezeigt werden, wenn sie hinterlegt sind, dürfen aber nie garantiert werden.
 
+Stand nach ADR-0016: MVP Data Source Strategy ist entschieden. Ultreia startet mit kontrolliert kuratierten Camino-Francés-Startdaten und strikt getrennten Development-/Staging-Testdaten statt primär mit Provider-Onboarding. Datenstrategie ist Vertrauensarchitektur, nicht nur Importtechnik. Erlaubte Quellen können manuelle Ultreia-Kuration, öffentliche/offene Quellen, OSM als Ausgangspunkt, veröffentlichte Anbieter-/Ortswebseiten, später Provider-Pflege und später Pilger-Feedback sein. Jeder öffentliche Eintrag braucht sourceType, confidence, verificationStatus, dataScope, environmentScope und visibilityStatus; lokale Testdaten dürfen nie öffentlich als echte Camino-Daten erscheinen.
+
 ADR-Reihenfolge ab ADR-0010:
 
 - ADR-0010: Camino Route Model (entschieden)
@@ -396,12 +400,12 @@ ADR-Reihenfolge ab ADR-0010:
 - ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions (entschieden)
 - ADR-0014: Matching v1 Along Route (entschieden)
 - ADR-0015: Notification Policy and Cooldowns (entschieden)
-- ADR-0016: MVP Data Source Strategy
+- ADR-0016: MVP Data Source Strategy (entschieden)
 - ADR-0017: Mobile MVP Scope
 - ADR-0018: Admin and Diagnostics v1
 - ADR-0019: Provider Claiming Later
 
-ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014 und ADR-0015 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0016 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
+ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0015 und ADR-0016 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0017 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
