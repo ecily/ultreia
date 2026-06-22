@@ -10,6 +10,8 @@ const config = {
   serviceName: 'ultreia-backend',
   version: '0.1.0',
   commitShort: 'unknown',
+  mongodbUri: '',
+  mongodbDbName: 'ultreia_staging',
 };
 
 describe('GET /api/health', () => {
@@ -48,7 +50,11 @@ describe('GET /api/health', () => {
     assert.equal(body.version, '0.1.0');
     assert.equal(body.commitShort, 'unknown');
     assert.match(body.timestamp, /^\d{4}-\d{2}-\d{2}T/);
-    assert.equal(Object.hasOwn(body, 'database'), false);
+    assert.deepEqual(body.database, {
+      configured: false,
+      connected: false,
+      status: 'not_configured',
+    });
     assert.equal(Object.hasOwn(body, 'commitSha'), false);
   });
 

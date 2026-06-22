@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-export function createHealthRouter(config) {
+export function createHealthRouter(config, databaseService) {
   const router = Router();
 
   router.get('/health', (req, res) => {
@@ -12,6 +12,7 @@ export function createHealthRouter(config) {
       version: config.version,
       timestamp: new Date().toISOString(),
       commitShort: config.commitShort,
+      database: databaseService.getStatus(),
     });
   });
 

@@ -6,7 +6,7 @@ Minimal Node.js/Express backend foundation for Ultreia Phase 1.
 
 - Health endpoint only.
 - No authentication.
-- No MongoDB connection.
+- Optional MongoDB connection foundation.
 - No domain models.
 - No heartbeat, matching, push, or directions logic.
 - No secrets in repository files.
@@ -25,10 +25,20 @@ Development mode:
 npm run dev
 ```
 
+## Environment
+
+Copy `.env.example` to a local `.env` file if needed. Keep real values out of Git.
+
+```bash
+cp .env.example .env
+```
+
+`MONGODB_URI` is optional. If it is empty, the backend still starts and health reports `not_configured`.
+
 ## Health
 
 ```text
 GET /api/health
 ```
 
-The response confirms process-level health only. It does not imply database connectivity or product feature readiness.
+The response confirms process-level health and includes optional database status. It does not imply product feature readiness.

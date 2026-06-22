@@ -573,17 +573,22 @@ Eigenschaften:
 
 - Node.js / Express
 - `GET /api/health`
+- Health zeigt optionalen MongoDB-Status ohne Secrets oder Connection String
 - `GET /api/taxonomy/needs?locale=de|en|es`
 - Backend liest NeedCategories direkt aus `shared/taxonomy/`
 - DE / EN / ES Need-Labels sind technisch verfuegbar
 - Locale-Fallback: gewuenschte Locale -> `en` -> Key
 - `backend/.env.example` ohne echte Werte
+- MongoDB-Konzept ist env-basiert: `MONGODB_URI` bleibt leer, `MONGODB_DB_NAME` ist Beispielname
 - `backend/package.json` und `backend/package-lock.json`
 - Health-Test mit Node Test Runner
+- MongoDB-Service-Test mit Node Test Runner
 - Taxonomy-Service- und Route-Tests mit Node Test Runner
 - keine Auth
-- keine MongoDB-Verbindung
+- keine erzwungene MongoDB-Verbindung ohne Env-Konfiguration
 - keine Domain-Models
+- keine DB-Mutation, keine Collections, kein Import
+- MongoDB-Staging ist nur fuer Ultreia vorgesehen; keine StepsMatch-DB-Nutzung
 - kein Heartbeat, Matching, Push oder Google Directions
 - kein Deploy
 

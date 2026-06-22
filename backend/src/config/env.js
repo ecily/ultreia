@@ -34,6 +34,8 @@ export function loadConfig(env = process.env) {
     nodeEnv: env.NODE_ENV || 'development',
     port: parsePort(env.PORT),
     corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
+    mongodbUri: env.MONGODB_URI || '',
+    mongodbDbName: env.MONGODB_DB_NAME || 'ultreia_staging',
     logLevel: env.LOG_LEVEL || DEFAULT_LOG_LEVEL,
     serviceName: SERVICE_NAME,
     version: env.npm_package_version || env.APP_VERSION || '0.1.0',

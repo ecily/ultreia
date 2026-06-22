@@ -1,5 +1,6 @@
 import express from 'express';
 import { loadConfig } from './config/env.js';
+import { createMongoService } from './db/mongoClient.js';
 import { createHealthRouter } from './routes/health.js';
 import { createTaxonomyRouter } from './routes/taxonomy.js';
 
@@ -22,14 +23,15 @@ function createCorsMiddleware(corsOrigins) {
   };
 }
 
-export function createApp(config = loadConfig()) {
+export function createApp(config = loadConfig(), services = {}) {
   const app = express();
+  const databaseService = services.databaseService || createMongoService(config);
 
   app.disable('x-powered-by');
   app.use(createCorsMiddleware(config.corsOrigins));
   app.use(express.json({ limit: '100kb' }));
 
-  app.use('/api', createHealthRouter(config));
+  app.use('/api', createHealthRouter(config, databaseService));
   app.use('/api/taxonomy', createTaxonomyRouter());
 
   app.use((req, res) => {
