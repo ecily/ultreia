@@ -60,6 +60,8 @@ Datenquellenstrategie-Entscheidung: Ultreia befüllt den MVP nicht primär über
 
 Mobile-MVP-Entscheidung: Die Mobile App ist das Hauptprodukt des Ultreia MVP. Der MVP umfasst die vollständige Kernschleife aus Registrierung/Login, Onboarding, Sprache DE/EN/ES, Standort- und Pushfreigabe, Need-Auswahl, GPS Heartbeat, Backend-Matching, Push, Hinweisdetail, Route/Directions und Diagnosemodus. Camino Mode und lokaler Development/Test Mode sind Pflicht. Dokumentiert in `docs/adr/ADR-0017-mobile-mvp-scope.md`.
 
+Admin-/Diagnostics-Entscheidung: Admin und Diagnostics sind ab MVP Pflicht, damit Route-first Matching, Push Policy, Datenqualität und lokaler Development/Test Mode nachvollziehbar geprüft werden können. Sichtbare Admin-/Diagnose-Texte müssen DE/EN/ES-fähig bleiben; Secrets und vollständige PushTokens dürfen nicht offengelegt werden. Dokumentiert in `docs/adr/ADR-0018-admin-and-diagnostics-v1.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -396,6 +398,8 @@ Stand nach ADR-0016: MVP Data Source Strategy ist entschieden. Ultreia startet m
 
 Stand nach ADR-0017: Mobile MVP Scope ist entschieden. Die Mobile App ist das Hauptprodukt des MVP und priorisiert die vollständige Kernschleife: Registrierung/Login, Onboarding, DE/EN/ES, Standort- und Pushfreigabe, Need-Auswahl aus `shared/taxonomy`, GPS Heartbeat, Backend-Matching, Push, Hinweisdetail, Route/Directions und Diagnosemodus. Die App soll ruhig bleiben: Pilger wählen Needs, stecken das Handy weg und erhalten nur plausibel relevante Hinweise. Camino Mode und lokaler Development/Test Mode sind Pflicht, damit die echte Heartbeat-/Matching-/Push-/Diagnostics-Pipeline lokal mit Testdaten verifiziert werden kann.
 
+Stand nach ADR-0018: Admin and Diagnostics v1 ist entschieden. Admin/Diagnostics ist kein Nice-to-have, sondern MVP-Voraussetzung, um Heartbeats, RouteContext, Needs, POI-/Service-Kandidaten, MatchEvents, NotificationEvents, Push-Send/Suppress-Gründe, Datenqualität und `local_test` vs `real_camino` nachvollziehbar zu prüfen. Lokaler Development/Test Mode muss diagnostizierbar sein. Sichtbare Status-, Reject-/Suppress-, Permission-, Datenqualitäts-, Provider-/Source- und Testmodus-Labels müssen DE/EN/ES-fähig sein. ADR-0018 entscheidet keine produktive Datenmutation, kein Admin-Produktdesign und keinen vollständigen Claiming-Workflow; ADR-0019 bleibt dafür offen.
+
 ADR-Reihenfolge ab ADR-0010:
 
 - ADR-0010: Camino Route Model (entschieden)
@@ -406,10 +410,10 @@ ADR-Reihenfolge ab ADR-0010:
 - ADR-0015: Notification Policy and Cooldowns (entschieden)
 - ADR-0016: MVP Data Source Strategy (entschieden)
 - ADR-0017: Mobile MVP Scope (entschieden)
-- ADR-0018: Admin and Diagnostics v1
+- ADR-0018: Admin and Diagnostics v1 (entschieden)
 - ADR-0019: Provider Claiming Later
 
-ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016 und ADR-0017 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0018 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
+ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0017 und ADR-0018 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0019 bleibt offen, bis eine eigene ADR erstellt und akzeptiert wird.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
