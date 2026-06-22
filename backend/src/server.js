@@ -1,7 +1,9 @@
 import { createApp } from './app.js';
 import { loadConfig } from './config/env.js';
+import { loadLocalEnvFile } from './config/loadEnvFile.js';
 import { createMongoService } from './db/mongoClient.js';
 
+loadLocalEnvFile();
 const config = loadConfig();
 const databaseService = createMongoService(config);
 await databaseService.connect();

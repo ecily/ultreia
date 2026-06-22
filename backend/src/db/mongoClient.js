@@ -1,10 +1,51 @@
 import { MongoClient } from 'mongodb';
 
+function classifyMongoError(error) {
+  const details = `${error?.name || ''} ${error?.code || ''} ${error?.message || ''}`.toLowerCase();
+
+  if (details.includes('auth') || details.includes('bad auth') || error?.code === 18) {
+    return 'authentication_failed';
+  }
+
+  if (
+    details.includes('querysrv') ||
+    details.includes('enotfound') ||
+    details.includes('enodata') ||
+    details.includes('dns')
+  ) {
+    return 'dns_or_srv_failed';
+  }
+
+  if (
+    details.includes('tls') ||
+    details.includes('ssl') ||
+    details.includes('certificate') ||
+    details.includes('self-signed')
+  ) {
+    return 'tls_error';
+  }
+
+  if (details.includes('timeout') || details.includes('timed out') || details.includes('etimedout')) {
+    return 'timeout';
+  }
+
+  if (
+    details.includes('econnrefused') ||
+    details.includes('econnreset') ||
+    details.includes('ehostunreach') ||
+    details.includes('enetunreach')
+  ) {
+    return 'network_access_denied';
+  }
+
+  return 'unknown';
+}
+
 function safeError(error) {
   if (!error) return null;
 
   return {
-    code: error.name || 'MongoConnectionError',
+    code: classifyMongoError(error),
     message: 'MongoDB connection failed',
   };
 }

@@ -579,6 +579,7 @@ Eigenschaften:
 - DE / EN / ES Need-Labels sind technisch verfuegbar
 - Locale-Fallback: gewuenschte Locale -> `en` -> Key
 - `backend/.env.example` ohne echte Werte
+- Lokale `backend/.env` wird bei `npm start` geladen, bleibt aber ignoriert und darf nicht ausgegeben oder committed werden
 - MongoDB-Konzept ist env-basiert: `MONGODB_URI` bleibt leer, `MONGODB_DB_NAME` ist Beispielname
 - `backend/package.json` und `backend/package-lock.json`
 - Health-Test mit Node Test Runner

@@ -34,6 +34,7 @@ cp .env.example .env
 ```
 
 `MONGODB_URI` is optional. If it is empty, the backend still starts and health reports `not_configured`.
+`npm start` loads a local `.env` file when present. It does not log env values.
 
 ## Health
 

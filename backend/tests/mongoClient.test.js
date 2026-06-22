@@ -49,4 +49,18 @@ describe('mongo service', () => {
     assert.equal(status.error.message, 'MongoDB connection failed');
     assert.equal(JSON.stringify(status).includes('configured-placeholder'), false);
   });
+
+  it('maps connection errors to safe technical classes', async () => {
+    const service = createMongoService({
+      mongodbUri: 'configured-placeholder',
+      mongodbDbName: 'ultreia_staging',
+    });
+
+    const status = await service.connect();
+
+    assert.match(
+      status.error.code,
+      /^(network_access_denied|authentication_failed|dns_or_srv_failed|tls_error|timeout|unknown)$/
+    );
+  });
 });
