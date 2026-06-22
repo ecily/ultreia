@@ -1,6 +1,6 @@
 # Ultreia Context
 
-Stand: 2026-06-21
+Stand: 2026-06-22
 
 ## Projekt
 
@@ -360,6 +360,8 @@ Stand Landingpage: Erste gestaltete dreisprachige Landingpage in `frontend/` ist
 Stand Landingpage Fokus: Landingpage wurde marketing-/UX-seitig weiter fokussiert. Die dominanten Hero-Staging-Badges sind entfernt und in den Footer subtilisiert. Der USP ist stärker auf den Pilger-Need fokussiert: müde sein, nicht suchen wollen und relevante Hinweise bekommen. Camino-Blau/Gelb und warme Stein-/Sandtöne werden konsistenter verwendet. Weiterhin gibt es kein Backend, kein Formular, kein Tracking und keine API. Live-Deployment erfolgt erst nach Push zu `origin/main`.
 
 Stand Landingpage App-Klarheit: Landingpage erklärt im Hero klarer die App-Mechanik: Bedürfnisse wählen, App in den Hintergrund schicken und nur bei relevanter Nähe informiert werden. Sprachwahl zeigt sichtbar Flagge plus Code (`DE`, `EN`, `ES`). Hero ist kompakter für Desktop und Mobile. Weiterhin gibt es kein Backend, kein Formular, kein Tracking und keine API.
+
+Stand Landingpage Responsive UX: Statische Landingpage wurde optisch und strukturell überarbeitet. Hero, Abschnitte zu Produktidee, Funktionsweise, Zielgruppe, Mehrsprachigkeit, Camino-Francés-Scope und MVP-Grenzen sind klarer gegliedert. Bestehende lokale Camino-Fotos werden ruhiger eingesetzt. Responsive CSS für Mobile, Tablet und Desktop wurde neu strukturiert; Sprachumschaltung bleibt dreisprachig per bestehender Vanilla-JS-Logik. Weiterhin gibt es kein Framework, kein Backend, kein Formular, kein Tracking und keine API.
 
 ## Infrastructure / DigitalOcean / DNS
 
