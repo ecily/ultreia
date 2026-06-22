@@ -371,6 +371,8 @@ Stand Landingpage Content/Bilder Live-Verifikation: Commit `51add81` ist auf `or
 
 Stand Landingpage Camino Branding: Header-Logo und Hero-Motiv wurden auf vom Nutzer bereitgestellte Jakobsmuschel-/Camino-Bilder umgestellt. Die Landingpage-Palette ist stärker an Camino-Gelb, Camino-Blau und warmen natürlichen Hintergrundtönen ausgerichtet. Weiterhin kein Framework, kein Backend, kein Formular, kein Tracking, keine externe Bildquelle und keine API.
 
+Stand Landingpage Hero-Foto: Das Hero-Motiv wurde gegen ein ruhigeres Camino-Foto aus dem Nutzerfundus getauscht. Der Header nutzt weiterhin das Jakobsmuschel-Logo; das globale Camino-Farbdesign bleibt bestehen. Weiterhin kein Framework, kein Backend, kein Formular, kein Tracking, keine externe Bildquelle und keine API.
+
 ## Infrastructure / DigitalOcean / DNS
 
 Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.
