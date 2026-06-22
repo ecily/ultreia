@@ -565,6 +565,23 @@ DigitalOcean:
 
 DNS bleibt beim bestehenden Provider, bis Änderungen explizit freigegeben werden. Keine DNS-, DB-, Deploy- oder Infrastrukturänderung ohne Freigabe.
 
+## Backend-Stand
+
+Minimale Backend-Basis in `backend/` existiert.
+
+Eigenschaften:
+
+- Node.js / Express
+- `GET /api/health`
+- `backend/.env.example` ohne echte Werte
+- `backend/package.json` und `backend/package-lock.json`
+- Health-Test mit Node Test Runner
+- keine Auth
+- keine MongoDB-Verbindung
+- keine Domain-Models
+- kein Heartbeat, Matching, Push oder Google Directions
+- kein Deploy
+
 ## Frontend-Stand
 
 Statische Landingpage in `frontend/`.
@@ -585,8 +602,8 @@ Landingpage-Änderungen wurden in früheren Commits gepusht und live verifiziert
 
 ## Offene Umsetzung
 
-Die Architektur ADR-0010 bis ADR-0019 ist entschieden. Die eigentliche Produktimplementierung ist noch offen.
+Die Architektur ADR-0010 bis ADR-0019 ist entschieden. Die Backend-Basis ist angelegt; fachliche Produktimplementierung ist noch offen.
 
 Nächster sinnvoller Schritt nach dieser Konsolidierung:
 
-Phase 0 / Phase 1 starten: Repo-/Kontext-Basis prüfen, dann Backend-Basis mit Health Endpoint und sauberem Env-Konzept vorbereiten.
+Phase 1 fortsetzen: Backend-Konfiguration, Logging-Konzept und spaetere MongoDB-Anbindung vorbereiten, ohne Secrets zu dokumentieren oder fachliche Features vorwegzunehmen.
