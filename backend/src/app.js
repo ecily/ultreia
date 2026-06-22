@@ -1,6 +1,7 @@
 import express from 'express';
 import { loadConfig } from './config/env.js';
 import { createHealthRouter } from './routes/health.js';
+import { createTaxonomyRouter } from './routes/taxonomy.js';
 
 function createCorsMiddleware(corsOrigins) {
   return function corsMiddleware(req, res, next) {
@@ -29,6 +30,7 @@ export function createApp(config = loadConfig()) {
   app.use(express.json({ limit: '100kb' }));
 
   app.use('/api', createHealthRouter(config));
+  app.use('/api/taxonomy', createTaxonomyRouter());
 
   app.use((req, res) => {
     res.status(404).json({

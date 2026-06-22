@@ -573,9 +573,14 @@ Eigenschaften:
 
 - Node.js / Express
 - `GET /api/health`
+- `GET /api/taxonomy/needs?locale=de|en|es`
+- Backend liest NeedCategories direkt aus `shared/taxonomy/`
+- DE / EN / ES Need-Labels sind technisch verfuegbar
+- Locale-Fallback: gewuenschte Locale -> `en` -> Key
 - `backend/.env.example` ohne echte Werte
 - `backend/package.json` und `backend/package-lock.json`
 - Health-Test mit Node Test Runner
+- Taxonomy-Service- und Route-Tests mit Node Test Runner
 - keine Auth
 - keine MongoDB-Verbindung
 - keine Domain-Models
@@ -602,8 +607,8 @@ Landingpage-Änderungen wurden in früheren Commits gepusht und live verifiziert
 
 ## Offene Umsetzung
 
-Die Architektur ADR-0010 bis ADR-0019 ist entschieden. Die Backend-Basis ist angelegt; fachliche Produktimplementierung ist noch offen.
+Die Architektur ADR-0010 bis ADR-0019 ist entschieden. Die Backend-Basis und Shared-Taxonomy-/i18n-Anbindung sind angelegt; fachliche Produktimplementierung ist noch offen.
 
 Nächster sinnvoller Schritt nach dieser Konsolidierung:
 
-Phase 1 fortsetzen: Backend-Konfiguration, Logging-Konzept und spaetere MongoDB-Anbindung vorbereiten, ohne Secrets zu dokumentieren oder fachliche Features vorwegzunehmen.
+Phase 1/3 vorbereiten: Backend-Konfiguration, Logging-Konzept, spaetere MongoDB-Anbindung und Pilgrim Identity planen, ohne Secrets zu dokumentieren oder fachliche Features vorwegzunehmen.
