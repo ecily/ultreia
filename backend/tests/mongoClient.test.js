@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createMongoService } from '../src/db/mongoClient.js';
+import { classifyMongoError, createMongoService } from '../src/db/mongoClient.js';
 
 describe('mongo service', () => {
   it('is not configured when MONGODB_URI is missing', async () => {
@@ -46,7 +46,7 @@ describe('mongo service', () => {
     assert.equal(status.configured, true);
     assert.equal(status.connected, false);
     assert.equal(status.status, 'error');
-    assert.equal(status.error.message, 'MongoDB connection failed');
+    assert.equal(typeof status.errorClass, 'string');
     assert.equal(JSON.stringify(status).includes('configured-placeholder'), false);
   });
 
@@ -59,8 +59,23 @@ describe('mongo service', () => {
     const status = await service.connect();
 
     assert.match(
-      status.error.code,
-      /^(network_access_denied|authentication_failed|dns_or_srv_failed|tls_error|timeout|unknown)$/
+      status.errorClass,
+      /^(network_access_denied_or_timeout|authentication_failed|dns_or_srv_failed|tls_error|invalid_uri|server_selection_failed|unknown)$/
+    );
+  });
+
+  it('classifies representative MongoDB errors without exposing raw details', () => {
+    assert.equal(classifyMongoError({ name: 'MongoParseError', message: 'Invalid connection string' }), 'invalid_uri');
+    assert.equal(classifyMongoError({ name: 'MongoServerError', code: 18, message: 'Authentication failed' }), 'authentication_failed');
+    assert.equal(classifyMongoError({ name: 'Error', code: 'ENOTFOUND', message: 'querySrv ENOTFOUND' }), 'dns_or_srv_failed');
+    assert.equal(classifyMongoError({ name: 'MongoNetworkError', message: 'self-signed certificate' }), 'tls_error');
+    assert.equal(
+      classifyMongoError({ name: 'MongoServerSelectionError', message: 'Server selection timed out after 5000 ms' }),
+      'network_access_denied_or_timeout'
+    );
+    assert.equal(
+      classifyMongoError({ name: 'MongoServerSelectionError', message: 'ReplicaSetNoPrimary' }),
+      'server_selection_failed'
     );
   });
 });

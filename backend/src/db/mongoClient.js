@@ -1,7 +1,52 @@
 import { MongoClient } from 'mongodb';
 
-function classifyMongoError(error) {
-  const details = `${error?.name || ''} ${error?.code || ''} ${error?.message || ''}`.toLowerCase();
+function collectErrorDetails(error, seen = new Set()) {
+  if (!error || seen.has(error)) return '';
+  seen.add(error);
+
+  const parts = [
+    error.name,
+    error.code,
+    error.codeName,
+    error.message,
+    error.reason?.type,
+    error.reason?.message,
+    error.cause?.name,
+    error.cause?.code,
+    error.cause?.message,
+  ];
+
+  if (error.errors && typeof error.errors[Symbol.iterator] === 'function') {
+    for (const nestedError of error.errors) {
+      parts.push(collectErrorDetails(nestedError, seen));
+    }
+  }
+
+  if (error.reason?.servers && typeof error.reason.servers.values === 'function') {
+    for (const server of error.reason.servers.values()) {
+      parts.push(server?.type);
+      parts.push(server?.error?.name);
+      parts.push(server?.error?.code);
+      parts.push(server?.error?.message);
+    }
+  }
+
+  return parts.filter(Boolean).join(' ').toLowerCase();
+}
+
+export function classifyMongoError(error) {
+  const details = collectErrorDetails(error);
+  const errorName = `${error?.name || ''}`.toLowerCase();
+
+  if (
+    errorName.includes('parse') ||
+    errorName.includes('invalid') ||
+    details.includes('invalid scheme') ||
+    details.includes('invalid connection string') ||
+    details.includes('mongodb connection string')
+  ) {
+    return 'invalid_uri';
+  }
 
   if (details.includes('auth') || details.includes('bad auth') || error?.code === 18) {
     return 'authentication_failed';
@@ -25,17 +70,26 @@ function classifyMongoError(error) {
     return 'tls_error';
   }
 
-  if (details.includes('timeout') || details.includes('timed out') || details.includes('etimedout')) {
-    return 'timeout';
-  }
-
   if (
+    details.includes('timeout') ||
+    details.includes('timed out') ||
+    details.includes('etimedout') ||
     details.includes('econnrefused') ||
     details.includes('econnreset') ||
     details.includes('ehostunreach') ||
-    details.includes('enetunreach')
+    details.includes('enetunreach') ||
+    details.includes('server selection timed out')
   ) {
-    return 'network_access_denied';
+    return 'network_access_denied_or_timeout';
+  }
+
+  if (
+    errorName.includes('serverselection') ||
+    details.includes('server selection') ||
+    details.includes('replicasetnoprimary') ||
+    details.includes('unknown')
+  ) {
+    return 'server_selection_failed';
   }
 
   return 'unknown';
@@ -45,8 +99,7 @@ function safeError(error) {
   if (!error) return null;
 
   return {
-    code: classifyMongoError(error),
-    message: 'MongoDB connection failed',
+    errorClass: classifyMongoError(error),
   };
 }
 
@@ -81,7 +134,7 @@ export function createMongoService(config) {
         configured: true,
         connected: false,
         status: 'error',
-        error: safeError(lastError),
+        ...safeError(lastError),
       };
     }
 
