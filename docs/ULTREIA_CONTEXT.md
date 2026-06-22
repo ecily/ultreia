@@ -44,6 +44,8 @@ Datenmodell-Entscheidung: Die fachlichen und technischen Datenmodell-Grundsätze
 
 Repo-Entscheidung: Ultreia wird als eigenständiges Monorepo mit `backend/`, `mobile/`, `frontend/`, `shared/` und `docs/` aufgebaut. Dokumentiert in `docs/adr/ADR-0007-repo-code-scaffold.md`.
 
+Camino-Route-Entscheidung: Ultreia modelliert den Camino und alle testbaren Routen route-first mit Route, RouteGeometry/Polyline, RouteSegment, RouteKm, Corridor und optionaler Stage Metadata. Eine Development/Test Route ist Pflichtbestandteil für lokale Verifikation. Dokumentiert in `docs/adr/ADR-0010-camino-route-model.md`.
+
 Pilger-Identitätsentscheidung: Ultreia braucht ab MVP eine eigene Pilger-Identität mit Registrierung, Login und Onboarding für Mobile und Web/Frontend. PilgrimUser und ProviderUser bleiben strikt getrennt. Dokumentiert in `docs/adr/ADR-0011-pilgrim-identity-auth-onboarding.md`.
 
 Distanzstrategie-Entscheidung: Ultreia verwendet Luftlinie nicht als fachliche Distanz für Relevanz oder Push. Die fachliche Distanz basiert auf RouteKm, Segment-/Korridorlogik und Walking Directions für wenige Top-Kandidaten. Dokumentiert in `docs/adr/ADR-0013-distance-strategy-routekm-corridor-walking-directions.md`.
@@ -357,13 +359,15 @@ Stand nach ADR-0008: `shared/taxonomy/` ist als zentrale Quelle für statische P
 
 Stand nach ADR-0009: Runtime-/Hosting-/DNS-Strategie ist entschieden. Ultreia bleibt lokal entwickelbar und wird auf DigitalOcean App Platform für Backend und Web/Frontend sowie DigitalOcean Managed MongoDB für Staging ausgerichtet. Environments starten mit `local` und `staging`; Production kommt später nur mit ausdrücklicher Freigabe. DNS bleibt zunächst bei EDIS und wird erst geändert, wenn konkrete DigitalOcean-Zielrecords vorliegen. Mail-Records bei EDIS werden nicht angefasst, solange Mail dort läuft.
 
+Stand nach ADR-0010: Camino Route Model ist entschieden. Der Camino Francés ist die zentrale offizielle Produkt-Route und wird route-first gedacht. Etappen dürfen UX-/Content-Struktur sein, sind aber keine harte Matching-Basis. Matching basiert auf RouteKm, Segment und Korridor; Luftlinie ist keine fachliche Relevanzdistanz. Für Entwicklung und Verifikation ist eine eindeutig getrennte Development/Test Route Pflicht, damit lokale Test-POIs, Pushes, Admin-/Diagnostics-Ausgaben und die echte Matching-Pipeline real geprüft werden können.
+
 Stand nach ADR-0011: Pilger-Identität, Auth und Onboarding sind als MVP-Grundlage entschieden. Zweck ist nicht Social, sondern Personalisierung, Sprache, Needs, Permission-Status, Push-/Gerätebindung, Disclaimer-/Terms-Akzeptanz, Notification-Dedupe und Field-Test-/Diagnose-Zuordnung. PilgrimUser und ProviderUser bleiben strikt getrennt; Provider-Claiming kommt später.
 
 Stand nach ADR-0013: Distanzlogik ist route-first entschieden. Luftlinie ist höchstens technischer Vorfilter, nicht fachliche Relevanzdistanz. RouteKm und Korridorlogik sind Pflichtlogik; Walking Directions validieren nur wenige Top-Kandidaten pro Heartbeat/Need und müssen gecacht werden. Push-Texte bleiben vorsichtig und dürfen keine exakten Garantien zu Verfügbarkeit, Öffnungszeiten, Betten, Preisen oder medizinischer Sicherheit geben.
 
 ADR-Reihenfolge ab ADR-0010:
 
-- ADR-0010: Camino Route Model
+- ADR-0010: Camino Route Model (entschieden)
 - ADR-0011: Pilgrim Identity, Auth and Onboarding (entschieden)
 - ADR-0012: POI / Service / Provider Data Model
 - ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions (entschieden)
@@ -374,7 +378,7 @@ ADR-Reihenfolge ab ADR-0010:
 - ADR-0018: Admin and Diagnostics v1
 - ADR-0019: Provider Claiming Later
 
-Nur ADR-0011 und ADR-0013 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. Die übrigen Nummern in dieser Reihenfolge bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
+Nur ADR-0010, ADR-0011 und ADR-0013 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0012 und ADR-0014 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
