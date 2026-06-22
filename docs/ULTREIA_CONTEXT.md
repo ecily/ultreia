@@ -369,6 +369,8 @@ Stand Landingpage Content/Bilder: Landingpage wurde lokal weiter auf einfachere 
 
 Stand Landingpage Content/Bilder Live-Verifikation: Commit `51add81` ist auf `origin/main` gepusht und live über `ultreia.app` sowie `www.ultreia.app` sichtbar. Geprüft wurden neuer Hero, einfache Sprache, zwei Pilgerbeispiele, CSS-Flaggenbuttons, neue lokale Camino-Bilder, keine alten Bildreferenzen, Sprachwechsel `DE`/`EN`/`ES` und kein horizontaler Overflow in Mobile-/Desktop-Smoke-Checks. Es wurde kein manuelles Deploy, keine DNS-Änderung und keine Infrastrukturänderung durchgeführt.
 
+Stand Landingpage Camino Branding: Header-Logo und Hero-Motiv wurden auf vom Nutzer bereitgestellte Jakobsmuschel-/Camino-Bilder umgestellt. Die Landingpage-Palette ist stärker an Camino-Gelb, Camino-Blau und warmen natürlichen Hintergrundtönen ausgerichtet. Weiterhin kein Framework, kein Backend, kein Formular, kein Tracking, keine externe Bildquelle und keine API.
+
 ## Infrastructure / DigitalOcean / DNS
 
 Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.

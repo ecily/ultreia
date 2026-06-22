@@ -1,18 +1,18 @@
 :root {
   color-scheme: light;
-  --blue-950: #09243a;
-  --blue-850: #123e5d;
-  --blue-650: #2a6c8f;
-  --gold-500: #e6b63a;
-  --gold-200: #f7e0a4;
-  --stone-100: #f7f0e5;
-  --stone-200: #eadfcd;
-  --cream: #fffaf0;
+  --blue-950: #05284a;
+  --blue-850: #0b3a66;
+  --blue-650: #1f6796;
+  --gold-500: #f2c230;
+  --gold-200: #f8df87;
+  --stone-100: #f8f0df;
+  --stone-200: #e9dcc6;
+  --cream: #fff8eb;
   --white: #ffffff;
   --ink: #172331;
   --muted: #5d6b74;
-  --line: rgba(18, 62, 93, 0.15);
-  --shadow: 0 22px 70px rgba(9, 36, 58, 0.16);
+  --line: rgba(5, 40, 74, 0.15);
+  --shadow: 0 22px 70px rgba(5, 40, 74, 0.16);
   --wrap: min(1120px, calc(100% - 40px));
 }
 
@@ -79,8 +79,8 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   min-height: 64px;
   padding: 10px max(20px, calc((100vw - 1120px) / 2));
   overflow: hidden;
-  background: rgba(255, 250, 240, 0.93);
-  border-bottom: 1px solid rgba(18, 62, 93, 0.1);
+  background: rgba(255, 248, 235, 0.94);
+  border-bottom: 1px solid rgba(5, 40, 74, 0.12);
   backdrop-filter: blur(16px);
 }
 
@@ -97,27 +97,18 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
 
 .brand:focus-visible,
 .language-switcher button:focus-visible {
-  outline: 3px solid rgba(42, 108, 143, 0.34);
+  outline: 3px solid rgba(242, 194, 48, 0.62);
   outline-offset: 3px;
 }
 
-.brand-mark {
-  width: 38px;
-  height: 38px;
+.brand-logo {
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
-  padding: 7px;
-  background: var(--blue-950);
-  border: 1px solid rgba(247, 224, 164, 0.72);
-  border-radius: 50%;
-  fill: var(--gold-500);
-  stroke: var(--cream);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2.35;
-}
-
-.brand-mark path:first-child {
-  stroke: none;
+  object-fit: cover;
+  border: 1px solid rgba(242, 194, 48, 0.7);
+  border-radius: 9px;
+  box-shadow: 0 6px 16px rgba(5, 40, 74, 0.18);
 }
 
 .language-switcher {
@@ -136,7 +127,7 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   padding: 0;
   color: var(--blue-950);
   background: var(--white);
-  border: 1px solid rgba(18, 62, 93, 0.18);
+  border: 1px solid rgba(5, 40, 74, 0.18);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -145,8 +136,8 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
 .language-switcher:not(:has(button.is-active)) button[data-language-button="en"],
 .language-switcher button.is-active {
   background: var(--gold-500);
-  border-color: rgba(9, 36, 58, 0.26);
-  box-shadow: 0 8px 20px rgba(9, 36, 58, 0.12);
+  border-color: rgba(5, 40, 74, 0.28);
+  box-shadow: 0 8px 20px rgba(5, 40, 74, 0.13);
 }
 
 .flag {
@@ -156,7 +147,7 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   height: 16px;
   overflow: hidden;
   border-radius: 3px;
-  box-shadow: 0 0 0 1px rgba(9, 36, 58, 0.18);
+  box-shadow: 0 0 0 1px rgba(5, 40, 74, 0.18);
 }
 
 .flag-de {
@@ -190,10 +181,36 @@ html:not(:has([data-lang].is-active)) [data-lang="en"],
   position: absolute;
   inset: 0;
   z-index: -2;
+  margin: 0;
+  background: var(--blue-950);
+}
+
+.hero-media::before,
+.hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.hero-media::before {
+  z-index: 1;
   background:
-    linear-gradient(90deg, rgba(9, 36, 58, 0.86) 0%, rgba(9, 36, 58, 0.6) 42%, rgba(9, 36, 58, 0.08) 100%),
-    linear-gradient(0deg, rgba(9, 36, 58, 0.54) 0%, rgba(9, 36, 58, 0.03) 58%),
-    url("assets/camino/camino-walk-hero.jpg") center / cover no-repeat;
+    linear-gradient(90deg, rgba(5, 40, 74, 0.95) 0%, rgba(5, 40, 74, 0.82) 43%, rgba(5, 40, 74, 0.22) 100%),
+    linear-gradient(0deg, rgba(5, 40, 74, 0.64) 0%, rgba(5, 40, 74, 0.08) 60%);
+}
+
+.hero-media::after {
+  z-index: 2;
+  background:
+    radial-gradient(circle at 74% 38%, rgba(242, 194, 48, 0.22), transparent 26%),
+    linear-gradient(110deg, rgba(242, 194, 48, 0.08), transparent 38%);
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 72% 48%;
 }
 
 .hero::after {
@@ -254,7 +271,7 @@ h1 {
   margin-bottom: 0;
   padding: 9px 13px;
   color: var(--gold-200);
-  background: rgba(9, 36, 58, 0.55);
+  background: rgba(5, 40, 74, 0.66);
   border: 1px solid rgba(247, 224, 164, 0.3);
   border-radius: 999px;
   font-size: clamp(0.84rem, 1.25vw, 0.98rem);
@@ -279,8 +296,8 @@ h1 {
 
 .process-section {
   background: var(--stone-100);
-  border-top: 1px solid rgba(18, 62, 93, 0.08);
-  border-bottom: 1px solid rgba(18, 62, 93, 0.08);
+  border-top: 1px solid rgba(5, 40, 74, 0.08);
+  border-bottom: 1px solid rgba(5, 40, 74, 0.08);
 }
 
 .help-layout,
@@ -330,7 +347,7 @@ h2 {
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 14px 46px rgba(9, 36, 58, 0.08);
+  box-shadow: 0 14px 46px rgba(5, 40, 74, 0.08);
 }
 
 .example-card {
@@ -347,6 +364,7 @@ h2 {
   margin-bottom: 26px;
   color: var(--blue-950);
   background: var(--gold-500);
+  box-shadow: inset 0 0 0 1px rgba(5, 40, 74, 0.08);
   border-radius: 50%;
   font-size: 0.78rem;
   font-weight: 900;
@@ -417,7 +435,8 @@ h3 {
 .trust-box {
   padding: clamp(24px, 4vw, 34px);
   color: var(--blue-950);
-  background: rgba(255, 255, 255, 0.82);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 248, 235, 0.92));
+  border-left: 4px solid var(--gold-500);
 }
 
 .trust-box h3 {
@@ -458,11 +477,14 @@ h3 {
     min-height: 710px;
   }
 
-  .hero-media {
+  .hero-media::before {
     background:
-      linear-gradient(90deg, rgba(9, 36, 58, 0.88), rgba(9, 36, 58, 0.48)),
-      linear-gradient(0deg, rgba(9, 36, 58, 0.66), rgba(9, 36, 58, 0.1)),
-      url("assets/camino/camino-walk-hero.jpg") 56% center / cover no-repeat;
+      linear-gradient(90deg, rgba(5, 40, 74, 0.94), rgba(5, 40, 74, 0.62)),
+      linear-gradient(0deg, rgba(5, 40, 74, 0.7), rgba(5, 40, 74, 0.12));
+  }
+
+  .hero-media img {
+    object-position: 68% center;
   }
 
   .help-layout,
@@ -504,9 +526,10 @@ h3 {
     font-size: 1rem;
   }
 
-  .brand-mark {
+  .brand-logo {
     width: 34px;
     height: 34px;
+    border-radius: 8px;
   }
 
   .language-switcher {
@@ -604,7 +627,7 @@ h3 {
     gap: 7px;
   }
 
-  .brand-mark {
+  .brand-logo {
     width: 32px;
     height: 32px;
   }
