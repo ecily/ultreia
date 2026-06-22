@@ -54,6 +54,8 @@ Distanzstrategie-Entscheidung: Ultreia verwendet Luftlinie nicht als fachliche D
 
 Matching-v1-Entscheidung: Ultreia Matching v1 entscheidet route-first entlang des Camino oder einer Development/Test Route. Kernfrage ist nicht generische Nähe, sondern ob ein Service/POI für diesen Pilger mit aktivem Need jetzt sinnvoll am Weg voraus liegt. Dokumentiert in `docs/adr/ADR-0014-matching-v1-along-route.md`.
 
+Notification-Policy-Entscheidung: Ultreia trennt Matching und Push strikt. Ein Match ist noch keine Push Notification; ADR-0015 entscheidet, ob, wann und wie aus einem Match eine Push Notification werden darf. Cooldowns, Tageslimits, Push-Permissions, Push-Token-Status, Silence/Pause-Modus, Datenqualität und Garantieverbot sind Pflichtbestandteile. Dokumentiert in `docs/adr/ADR-0015-notification-policy-and-cooldowns.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -384,6 +386,8 @@ Stand nach ADR-0013: Distanzlogik ist route-first entschieden. Luftlinie ist hö
 
 Stand nach ADR-0014: Matching v1 entlang der Route ist entschieden. Die Pipeline startet mit Mobile GPS Heartbeat, ordnet den Standort einer offiziellen Route oder Development/Test Route zu, lädt Pilgerstatus und aktive Needs, filtert passende sichtbare Services/POIs nach Route, Korridor, RouteKm, DataScope und EnvironmentScope, scored Kandidaten, validiert nur wenige Top-Kandidaten per Walking Directions und speichert diagnosierbare MatchEvents. Matching bedeutet noch nicht Push; Notification Policy und Cooldowns folgen in ADR-0015.
 
+Stand nach ADR-0015: Notification Policy und Cooldowns sind entschieden. Push ist nur erlaubt, wenn ein aktiver Need, ausreichend starker Match, plausible RouteKm-/Korridor-/Distanzlage, ausreichende Datenqualität, aktive Push-Permission, gültiger Push-Token und keine Cooldowns/Silence-Regeln dagegen sprechen. Global-, Need- und POI-/Service-Cooldowns, Tageslimit und Silence/Pause-Modus sind Pflichtkonzepte, konkrete Minuten-/Stundenwerte bleiben konfigurierbar. DE/EN/ES sind für Push-Texte, Notification Keys, Disclaimer, Datenquellen-/Verantwortlichkeits-Labels und sichtbare Systemtexte Pflicht. Preise, Öffnungszeiten, Verfügbarkeiten, Provider-Infos und Fotos dürfen angezeigt werden, wenn sie hinterlegt sind, dürfen aber nie garantiert werden.
+
 ADR-Reihenfolge ab ADR-0010:
 
 - ADR-0010: Camino Route Model (entschieden)
@@ -391,13 +395,13 @@ ADR-Reihenfolge ab ADR-0010:
 - ADR-0012: POI / Service / Provider Data Model (entschieden)
 - ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions (entschieden)
 - ADR-0014: Matching v1 Along Route (entschieden)
-- ADR-0015: Notification Policy and Cooldowns
+- ADR-0015: Notification Policy and Cooldowns (entschieden)
 - ADR-0016: MVP Data Source Strategy
 - ADR-0017: Mobile MVP Scope
 - ADR-0018: Admin and Diagnostics v1
 - ADR-0019: Provider Claiming Later
 
-ADR-0010, ADR-0011, ADR-0012, ADR-0013 und ADR-0014 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0015 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
+ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014 und ADR-0015 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0016 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
