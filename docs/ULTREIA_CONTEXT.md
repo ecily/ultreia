@@ -62,6 +62,8 @@ Mobile-MVP-Entscheidung: Die Mobile App ist das Hauptprodukt des Ultreia MVP. De
 
 Admin-/Diagnostics-Entscheidung: Admin und Diagnostics sind ab MVP Pflicht, damit Route-first Matching, Push Policy, Datenqualität und lokaler Development/Test Mode nachvollziehbar geprüft werden können. Sichtbare Admin-/Diagnose-Texte müssen DE/EN/ES-fähig bleiben; Secrets und vollständige PushTokens dürfen nicht offengelegt werden. Dokumentiert in `docs/adr/ADR-0018-admin-and-diagnostics-v1.md`.
 
+Provider-Claiming-Entscheidung: Ultreia trennt den frühen einfachen Claim-/Korrektur-/Remove-/Opt-out-Pfad aus ADR-0016 vom späteren vollständigen Provider-Claiming- und Self-Service-System. ADR-0019 entscheidet Provider-Onboarding, Claim-Prüfung, Rollen/Rechte, Stammdatenpflege, Service-/Angebotsverwaltung, Missbrauchsschutz, Audit und vorsichtige DE/EN/ES-Kommunikation ohne Garantien auf Reichweite, Umsatz, Sichtbarkeit oder Push-Ausspielung. Dokumentiert in `docs/adr/ADR-0019-provider-claiming-later.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -400,6 +402,8 @@ Stand nach ADR-0017: Mobile MVP Scope ist entschieden. Die Mobile App ist das Ha
 
 Stand nach ADR-0018: Admin and Diagnostics v1 ist entschieden. Admin/Diagnostics ist kein Nice-to-have, sondern MVP-Voraussetzung, um Heartbeats, RouteContext, Needs, POI-/Service-Kandidaten, MatchEvents, NotificationEvents, Push-Send/Suppress-Gründe, Datenqualität und `local_test` vs `real_camino` nachvollziehbar zu prüfen. Lokaler Development/Test Mode muss diagnostizierbar sein. Sichtbare Status-, Reject-/Suppress-, Permission-, Datenqualitäts-, Provider-/Source- und Testmodus-Labels müssen DE/EN/ES-fähig sein. ADR-0018 entscheidet keine produktive Datenmutation, kein Admin-Produktdesign und keinen vollständigen Claiming-Workflow; ADR-0019 bleibt dafür offen.
 
+Stand nach ADR-0019: Provider Claiming Later / Provider Self-Service ist entschieden. Der frühe einfache Claim-/Korrektur-/Remove-/Opt-out-Pfad aus ADR-0016 bleibt MVP-nah; ADR-0019 definiert den späteren vollständigen Ausbau für verifizierte Provider mit ProviderAccount, ProviderProfile, Claim, Rollen/Rechten, Admin-Review, Audit, Self-Service für Stammdaten, Services und spätere Offers. Provider können Daten später selbst aktuell halten und Angebote im passenden Wegkontext berücksichtigen lassen, dürfen aber keine Push-Ausspielung, Reichweite, Umsatz, Sichtbarkeit, Ranking, Verfügbarkeit, Preise oder Öffnungszeiten garantiert bekommen. Provider-Onboarding, Provider-Frontend, Claim-/Remove-Formulare, Angebots-/Service-Felder, Status- und Disclaimer-Texte müssen DE/EN/ES-fähig sein.
+
 ADR-Reihenfolge ab ADR-0010:
 
 - ADR-0010: Camino Route Model (entschieden)
@@ -411,9 +415,9 @@ ADR-Reihenfolge ab ADR-0010:
 - ADR-0016: MVP Data Source Strategy (entschieden)
 - ADR-0017: Mobile MVP Scope (entschieden)
 - ADR-0018: Admin and Diagnostics v1 (entschieden)
-- ADR-0019: Provider Claiming Later
+- ADR-0019: Provider Claiming Later / Provider Self-Service (entschieden)
 
-ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0017 und ADR-0018 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0019 bleibt offen, bis eine eigene ADR erstellt und akzeptiert wird.
+ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0017, ADR-0018 und ADR-0019 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
