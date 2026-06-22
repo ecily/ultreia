@@ -363,6 +363,8 @@ Stand Landingpage App-Klarheit: Landingpage erklärt im Hero klarer die App-Mech
 
 Stand Landingpage Responsive UX: Statische Landingpage wurde optisch und strukturell überarbeitet. Hero, Abschnitte zu Produktidee, Funktionsweise, Zielgruppe, Mehrsprachigkeit, Camino-Francés-Scope und MVP-Grenzen sind klarer gegliedert. Bestehende lokale Camino-Fotos werden ruhiger eingesetzt. Responsive CSS für Mobile, Tablet und Desktop wurde neu strukturiert; Sprachumschaltung bleibt dreisprachig per bestehender Vanilla-JS-Logik. Weiterhin gibt es kein Framework, kein Backend, kein Formular, kein Tracking und keine API.
 
+Stand Landingpage Live-Verifikation: Commit `9580ce5` ist auf `origin/main` gepusht und live über `ultreia.app` sowie `www.ultreia.app` sichtbar. Geprüft wurden neuer Hero "Gehen. Nicht suchen.", Sprachwahl `DE`/`EN`/`ES`, lokale Camino-Bilder und kein horizontaler Overflow in Mobile-/Desktop-Smoke-Checks. Es wurde kein manuelles Deploy, keine DNS-Änderung und keine Infrastrukturänderung durchgeführt.
+
 ## Infrastructure / DigitalOcean / DNS
 
 Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.
