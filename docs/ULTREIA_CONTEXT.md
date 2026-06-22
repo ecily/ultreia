@@ -2,102 +2,43 @@
 
 Stand: 2026-06-22
 
-## Projekt
-
-Projektname: Ultreia.app
-Domain: `ultreia.app`
-Lokaler Pfad: `C:\coding\ultreia`
-Operative Source of Truth: `docs/ULTREIA_CONTEXT.md`
-
-## Grundsatzentscheidung
-
-Ultreia.app ist ein eigenständiges Produkt für Pilger am Camino.
-
-Ultreia.app nutzt bewährte Technik und Erkenntnisse aus StepsMatch.com, bleibt aber strikt getrennt:
-
-- eigenes Projekt
-- eigene Produktlogik
-- eigene Marke
-- eigene Sprache
-- eigene Kategorien
-- eigene Daten
-- eigene Roadmap
-- eigene Commits
-- eigene Deploys
-- eigene Risiken
-- eigene To-dos
-- eigene Kontextdatei
-
-StepsMatch.com bleibt das technische Labor. Ultreia.app wird der erste echte, belastbare Beachhead.
-
-Architekturentscheidung: Option C ist entschieden. Ultreia.app nutzt StepsMatch.com gezielt als technisches Labor, bleibt aber eigenständiges Repo und Produkt. Dokumentiert in `docs/adr/ADR-0001-technical-bootstrap-from-stepsmatch.md`.
-
-Architekturanalyse: Das StepsMatch-Modulinventar wurde als reine Analyse angelegt. Dokumentiert in `docs/adr/ADR-0002-stepsmatch-module-inventory.md`.
-
-MVP-Entscheidung: Der fachliche MVP-Scope ist entschieden. Ultreia startet geografisch mit dem gesamten Camino Francés von Saint-Jean-Pied-de-Port bis Santiago de Compostela, bleibt funktional aber ein MVP. Dokumentiert in `docs/adr/ADR-0003-ultreia-mvp-scope.md`.
-
-Taxonomie-Entscheidung: Die Need-/Kategorie-Taxonomie wurde recherchiert und fachlich priorisiert. Dokumentiert in `docs/adr/ADR-0004-need-category-research.md`.
-
-i18n-Entscheidung: Deutsch, Englisch und Spanisch sind ab Projektstart Pflicht. Das gilt für Mobile App, öffentliches Web und Anbieter-/Provider-Frontend. Dokumentiert in `docs/adr/ADR-0005-i18n-from-start.md`.
-
-Datenmodell-Entscheidung: Die fachlichen und technischen Datenmodell-Grundsätze sind entschieden, aber noch ohne Code, Mongoose-Schemas oder MongoDB-Migrationen. Dokumentiert in `docs/adr/ADR-0006-data-model-principles.md`.
-
-Repo-Entscheidung: Ultreia wird als eigenständiges Monorepo mit `backend/`, `mobile/`, `frontend/`, `shared/` und `docs/` aufgebaut. Dokumentiert in `docs/adr/ADR-0007-repo-code-scaffold.md`.
-
-Camino-Route-Entscheidung: Ultreia modelliert den Camino und alle testbaren Routen route-first mit Route, RouteGeometry/Polyline, RouteSegment, RouteKm, Corridor und optionaler Stage Metadata. Eine Development/Test Route ist Pflichtbestandteil für lokale Verifikation. Dokumentiert in `docs/adr/ADR-0010-camino-route-model.md`.
-
-Pilger-Identitätsentscheidung: Ultreia braucht ab MVP eine eigene Pilger-Identität mit Registrierung, Login und Onboarding für Mobile und Web/Frontend. PilgrimUser und ProviderUser bleiben strikt getrennt. Dokumentiert in `docs/adr/ADR-0011-pilgrim-identity-auth-onboarding.md`.
-
-POI-/Service-/Provider-Datenmodell-Entscheidung: Ultreia trennt strikt zwischen POI, Service, ProviderAccount, ProviderProfile und Claim. POI, Service und Provider sind nicht identisch; RouteContext gehört primär an den POI. Dokumentiert in `docs/adr/ADR-0012-poi-service-provider-data-model.md`.
-
-Distanzstrategie-Entscheidung: Ultreia verwendet Luftlinie nicht als fachliche Distanz für Relevanz oder Push. Die fachliche Distanz basiert auf RouteKm, Segment-/Korridorlogik und Walking Directions für wenige Top-Kandidaten. Dokumentiert in `docs/adr/ADR-0013-distance-strategy-routekm-corridor-walking-directions.md`.
-
-Matching-v1-Entscheidung: Ultreia Matching v1 entscheidet route-first entlang des Camino oder einer Development/Test Route. Kernfrage ist nicht generische Nähe, sondern ob ein Service/POI für diesen Pilger mit aktivem Need jetzt sinnvoll am Weg voraus liegt. Dokumentiert in `docs/adr/ADR-0014-matching-v1-along-route.md`.
-
-Notification-Policy-Entscheidung: Ultreia trennt Matching und Push strikt. Ein Match ist noch keine Push Notification; ADR-0015 entscheidet, ob, wann und wie aus einem Match eine Push Notification werden darf. Cooldowns, Tageslimits, Push-Permissions, Push-Token-Status, Silence/Pause-Modus, Datenqualität und Garantieverbot sind Pflichtbestandteile. Dokumentiert in `docs/adr/ADR-0015-notification-policy-and-cooldowns.md`.
-
-Datenquellenstrategie-Entscheidung: Ultreia befüllt den MVP nicht primär über Provider-Onboarding, sondern über einen kontrollierten, kuratierten Startdatenbestand entlang des Camino Francés plus strikt getrennte lokale Testdaten. Datenstrategie ist Vertrauensarchitektur: Jeder öffentliche POI/Service braucht Quelle, Vertrauensgrad, Prüfstatus und klare Verantwortlichkeitskommunikation. Für vorab eingepflegte Provider/POIs muss früh eine einfache Claim-, Korrektur- und Remove-/Opt-out-Anfrage möglich sein; der vollständige Provider-Claiming-Prozess bleibt ADR-0019 vorbehalten. Dokumentiert in `docs/adr/ADR-0016-mvp-data-source-strategy.md`.
-
-Mobile-MVP-Entscheidung: Die Mobile App ist das Hauptprodukt des Ultreia MVP. Der MVP umfasst die vollständige Kernschleife aus Registrierung/Login, Onboarding, Sprache DE/EN/ES, Standort- und Pushfreigabe, Need-Auswahl, GPS Heartbeat, Backend-Matching, Push, Hinweisdetail, Route/Directions und Diagnosemodus. Camino Mode und lokaler Development/Test Mode sind Pflicht. Dokumentiert in `docs/adr/ADR-0017-mobile-mvp-scope.md`.
-
-Admin-/Diagnostics-Entscheidung: Admin und Diagnostics sind ab MVP Pflicht, damit Route-first Matching, Push Policy, Datenqualität und lokaler Development/Test Mode nachvollziehbar geprüft werden können. Sichtbare Admin-/Diagnose-Texte müssen DE/EN/ES-fähig bleiben; Secrets und vollständige PushTokens dürfen nicht offengelegt werden. Dokumentiert in `docs/adr/ADR-0018-admin-and-diagnostics-v1.md`.
-
-Provider-Claiming-Entscheidung: Ultreia trennt den frühen einfachen Claim-/Korrektur-/Remove-/Opt-out-Pfad aus ADR-0016 vom späteren vollständigen Provider-Claiming- und Self-Service-System. ADR-0019 entscheidet Provider-Onboarding, Claim-Prüfung, Rollen/Rechte, Stammdatenpflege, Service-/Angebotsverwaltung, Missbrauchsschutz, Audit und vorsichtige DE/EN/ES-Kommunikation ohne Garantien auf Reichweite, Umsatz, Sichtbarkeit oder Push-Ausspielung. Dokumentiert in `docs/adr/ADR-0019-provider-claiming-later.md`.
-
 ## Projektgrenze
 
-Für Ultreia gilt:
+Projekt: Ultreia.app
+Lokales Repo: `C:\coding\ultreia`
+Branch: `main`
+Remote: `https://github.com/ecily/ultreia.git`
+Operative Source of Truth: `docs/ULTREIA_CONTEXT.md`
 
-- Keine Vermischung mit StepsMatch.com oder anderen Projekten.
-- Keine StepsMatch-spezifischen Demo-Daten, Graz-Testdaten oder Laborentscheidungen übernehmen.
-- StepsMatch darf als technische Referenz dienen, aber nicht als operative Source of Truth für Ultreia.
-- Operative Source of Truth ist ausschließlich `docs/ULTREIA_CONTEXT.md`.
-- Codex muss vor jeder technischen Aufgabe zuerst `docs/ULTREIA_CONTEXT.md` lesen.
-- Nach relevanten Erkenntnissen oder Änderungen muss `docs/ULTREIA_CONTEXT.md` schlank aktualisiert werden.
-- Keine Secrets, vollständigen Tokens oder vollständigen E-Mails in Docs, Logs oder Antworten.
-- Kein Push, Deploy, App-Build oder DB-Mutation ohne explizite Freigabe.
+Ultreia.app ist ein eigenständiges Produkt für Pilger am Camino Francés.
 
-## Produktthese
+Strikte Grenzen:
 
-Ultreia begleitet Pilger ruhig auf dem Camino und meldet sich nur, wenn in der Nähe etwas relevant ist, das zu ihrem aktuellen Bedürfnis und Wegkontext passt.
+- Keine Vermischung mit Kaufklug.
+- Keine Vermischung mit StepsMatch.
+- Keine fremden Daten, Commits, Deploys, Anbieterlogik, Branding-Entscheidungen oder To-dos übernehmen.
+- Keine blinde Codeübernahme aus anderen Projekten.
+- Keine Secrets, vollständigen Tokens, Passwörter oder Connection Strings in Docs, Logs oder Antworten.
+- Kein Push, Deploy, App-Build, DB-, DNS- oder Infrastrukturänderung ohne explizite Freigabe.
+- Codex muss vor technischen Aufgaben zuerst `docs/ULTREIA_CONTEXT.md` lesen.
 
-Der Pilger soll nicht suchen müssen. Er soll gehen können.
+StepsMatch bleibt nur technische Referenz / Labor. Relevant ist vor allem die dort positiv getestete Pipeline:
 
-Ultreia erkennt:
+Mobile GPS Heartbeat -> Backend-Abgleich -> Match-Erkennung -> Push-Auslösung -> Push kommt auch bei geschlossener App und ausgeschaltetem Bildschirm an -> Logging / Diagnostics zur Verifikation.
 
-- wo der Pilger ist
-- auf welcher Route/Etappe er sich befindet
-- welche Bedürfnisse er ausgewählt hat
-- welche Orte, Hinweise oder Services in der Nähe relevant sind
-- ob ein Ort direkt am Weg oder knapp abseits liegt
-- ob der Zeitpunkt sinnvoll ist
-- ob eine Benachrichtigung wirklich gerechtfertigt ist
+Ultreia übernimmt daraus nur das technische Muster, nicht Produktlogik, Daten, Anbieterlogik, Kategorien, Branding oder Radius-only-Denken.
 
-## Produktkern in einem Satz
+## Produktkern
 
-Ultreia ist ein ruhiger Camino-Begleiter, der Pilger unterwegs auf relevante Orte, Hinweise und Services aufmerksam macht, ohne sie mit unnötigen Benachrichtigungen zu stören.
+Ultreia ist eine ruhige App für Pilger am Camino Francés.
 
-## Ultreia ist ausdrücklich nicht
+Pilger wählen aktive Needs, stecken das Handy weg und gehen weiter. Ultreia meldet sich nur, wenn ein Hinweis plausibel relevant ist: im passenden Wegkontext, zur passenden Need, mit ausreichender Datenqualität und ohne Cooldown-/Policy-Konflikt.
+
+Kernsatz:
+
+Pilger wollen gehen, nicht ständig suchen.
+
+Ultreia ist ausdrücklich nicht:
 
 - kein generisches Dealportal
 - kein klassisches Branchenverzeichnis
@@ -106,387 +47,358 @@ Ultreia ist ein ruhiger Camino-Begleiter, der Pilger unterwegs auf relevante Ort
 - kein Gutscheinportal
 - kein lauter Tourismus-Guide
 - kein Anbieter-Marktplatz ohne Pilgernutzen
-- kein Produkt mit Garantien auf freie Betten, Kunden, Verkäufe oder Besuche
+- kein Produkt mit Garantien auf freie Betten, Kunden, Umsatz, Öffnungszeiten, Preise oder Verfügbarkeit
 
-## Beachhead
+## MVP-Scope
 
-Geplanter erster Beachhead: Camino Francés.
-
-Fachlich entschieden: Der MVP umfasst geografisch den gesamten Camino Francés von Saint-Jean-Pied-de-Port bis Santiago de Compostela. Er ist nicht auf 3-5 Etappen beschränkt.
-
-Begründung:
-
-- klare Route
-- hohe Pilgerfrequenz
-- wiederkehrende Bedürfnisse
-- ortsfremde Nutzer
-- Nutzer wollen gehen, nicht ständig suchen
-- kleine Abweichungen vom Weg können relevant sein
-- Anbieter knapp neben dem Camino sind oft unsichtbar
-- Zielgruppe ist über Camino-Foren, Gruppen, Blogs, Herbergen und Community-Kanäle grundsätzlich erreichbar
-
-Wichtig: Der geografische Raum ist vollständig, aber die Funktionalität und POI-Abdeckung bleiben MVP-begrenzt. Es gibt keine Garantie auf vollständige POI-Abdeckung, Anbieterabdeckung, Verfügbarkeit, freie Betten, Preise oder Öffnungszeiten.
-
-## Nutzer
-
-Primäre Nutzer:
-
-- Pilger am Camino
-- Menschen, die den Camino konkret planen
-- Erstpilger
-- Pilger, die nicht ständig auf das Handy schauen wollen
-- Pilger mit klaren Bedürfnissen unterwegs
-
-Wichtige Nutzerbedürfnisse:
-
-- Unterkunft
-- Essen
-- Wasser
-- Supermarkt
-- Apotheke
-- medizinische Hilfe
-- Geldautomat
-- Ausrüstung
-- Stempelstelle
-- Waschmöglichkeit
-- Sehenswürdigkeiten
-- ruhige Orte
-- Bus/Taxi
-- Hinweise auf wichtige Abzweigungen oder Services knapp abseits des Wegs
-
-## Anbieter / Orte
-
-Ultreia denkt nicht zuerst in Anbietern, sondern in Pilger-Needs.
-
-Mögliche spätere Anbieter oder Orte:
-
-- Herbergen
-- private Unterkünfte
-- Cafés
-- Bars
-- Restaurants
-- Supermärkte
-- Apotheken
-- Ärzte
-- Ausrüstungsshops
-- Stempelstellen
-- Tourismusbüros
-- Kirchen
-- Sehenswürdigkeiten
-- Wasserstellen
-- Transportdienste
-
-Wichtig:
-
-Ein Ort darf angezeigt werden, wenn er sauber als öffentlicher/redaktioneller Hinweis gekennzeichnet ist.
-Ein Ort darf nur als offizieller Anbieter/Partner erscheinen, wenn er selbst teilnimmt oder zugestimmt hat.
-
-## Content-Typen
-
-Ultreia sollte von Anfang an unterschiedliche Inhaltstypen sauber trennen.
-
-Stand MVP-Scope: ADR-0003 definiert erste Content-Typen als `editorial_place`, `official_participating_place` und `demo_test_place`.
-
-Stand i18n: Alle Oberflächen und Systemtexte müssen Deutsch, Englisch und Spanisch unterstützen. Spanisch ist für Anbieter entlang des Camino wahrscheinlich die erste Arbeitssprache. Push-Texte und Systemlabels müssen die bevorzugte Sprache respektieren.
-
-### 1. Pilgrim Need
-
-Das Bedürfnis des Pilgers.
-
-Beispiele:
-
-- sleep
-- eat
-- drink
-- pharmacy
-- medical help
-- grocery
-- cash
-- stamp
-- gear
-- laundry
-- sightseeing
-- quiet place
-- transport
-
-### 2. Place
-
-Ein Ort entlang oder nahe am Camino.
-
-Beispiele:
-
-- hostel
-- café
-- farmacia
-- supermarket
-- church
-- fountain
-- viewpoint
-- shop
-- doctor
-- tourism office
-
-### 3. Prompt
-
-Der konkrete Hinweis im richtigen Moment.
-
-Beispiele:
-
-- "Apotheke 120 m rechts vom Camino."
-- "Supermarkt knapp voraus, heute nur noch bis 14:00 geöffnet."
-- "Herberge leicht abseits des Wegs."
-- "Wasserstelle vor dem nächsten längeren Abschnitt."
-- "Sehenswürdigkeit direkt am Weg."
-
-## Benachrichtigungsprinzip
-
-Ultreia darf nur melden, wenn der Hinweis relevant genug ist.
-
-Grundregeln:
-
-- wenige Pushes
-- keine Spam-Wahrnehmung
-- Prioritäten nach Bedürfnis
-- Tageszeit berücksichtigen
-- Entfernung und Wegkontext berücksichtigen
-- keine Wiederholungen
-- Unterdrückung dokumentieren
-- Nutzer muss Kategorien granular steuern können
-
-Beispielhafte Logik:
-
-- Apotheke: wichtiger Push, wenn aktiv gewünscht und in sinnvoller Nähe.
-- Unterkunft: eher ab Nachmittag relevant.
-- Restaurant: eher zu Essenszeiten relevant.
-- Wasser: abhängig von Abschnitt und Distanz.
-- Sehenswürdigkeit: eher leiser Hinweis oder In-App, nicht dauernd Push.
-- Supermarkt: besonders relevant vor Ladenschluss oder vor dünner Infrastruktur.
-
-## Technischer Unterschied zu StepsMatch
-
-StepsMatch-Laborlogik:
-
-> Nutzer ist irgendwo. Inhalt ist im Radius.
-
-Ultreia-Produktlogik:
-
-> Pilger ist auf einer Route. Ein Ort ist relevant, weil er zum aktuellen Need passt, entlang des Wegs oder knapp abseits liegt und zum Zeitpunkt sinnvoll ist.
-
-Ultreia braucht daher später zusätzlich:
-
-- Camino-Route als Geometrie
-- Distanz des Nutzers zum POI
-- Distanz des POI zur Route
-- Abzweigungsdistanz vom Weg
-- Richtung / Etappenlogik
-- Tageszeitlogik
-- Offline-/Low-connectivity-Verhalten
-- Caching relevanter Inhalte
-- mehrsprachige UX
-- starke Push-Frequenzkontrolle
-
-## Technische Bausteine aus StepsMatch
-
-Option C ist die gültige Bootstrap-Strategie: keine Full-Copy-/Rebranding-Strategie, sondern bewusst geprüfte technische Übernahmen aus StepsMatch.
-
-Stand: Das StepsMatch-Modulinventar liegt als Analyse in ADR-0002 vor. Es erlaubt keine Dateiübernahme und keinen Code-Transfer.
-
-Ultreia darf technische Erkenntnisse und bewährte Bausteine aus StepsMatch übernehmen:
-
-- Background Location
-- Heartbeat
-- Geofencing/Radiuslogik
-- Push/Local Notification
-- Interest-/Need-Matching
-- Karten-/Navigationslogik
-- Provider-/Place-Erstellung als technisches Muster
-- Demo-/Content-Kennzeichnung
-- Logging- und Diagnosekonzepte
-- Match Reasons
-- Notification Throttling
-- PushToken-State-Erkenntnisse
-- Feed-Retry-Erkenntnisse
-- Field-Test-Erkenntnisse
-
-Positiv getestete StepsMatch-Referenzpipeline für Ultreia:
-
-- Mobile Background Location sendet GPS Heartbeat.
-- Backend empfängt den Standort und gleicht gegen relevante Orte/Services ab.
-- Match wird erkannt.
-- Push wird ausgelöst.
-- Push kommt auch bei geschlossener App und ausgeschaltetem Bildschirm an.
-- Logging/Diagnostics belegen den Ablauf.
-
-Diese technische Pipeline ist fundamental für Ultreia. Ultreia übernimmt daraus das technische Muster, aber nicht die StepsMatch-Produktlogik.
-
-Nicht ungeprüft übernehmen:
-
-- StepsMatch-Wording
-- StepsMatch-Kategorien
-- StepsMatch-Anbieterlogik
-- Graz-Testdaten
-- generische Offer-Sprache
-- Web-UX ohne Camino-Anpassung
-- Radius-only-Logik als finale Produktlogik
-
-## Erste harte Hypothesen
-
-Ultreia funktioniert nur, wenn folgende Annahmen stimmen:
-
-1. Pilger haben unterwegs echte orts- und zeitabhängige Bedürfnisse.
-2. Pilger wollen nicht ständig aktiv suchen.
-3. Pilger akzeptieren Standort und Push, wenn Nutzen und Vertrauen klar sind.
-4. Wenige, passende Hinweise sind wertvoller als viele Informationen.
-5. Der Camino ist strukturiert genug, um route-basiertes Matching besser zu machen als freie Stadtsuche.
-6. Orte knapp neben dem Weg haben ein echtes Sichtbarkeitsproblem.
-7. Pilger-Communities sind erreichbar genug für erste Tester.
-8. Redaktionell kuratierte Orte können den ersten Nutzen liefern, bevor Anbieter aktiv mitmachen.
-9. Anbieter werden erst interessant, wenn Pilgernutzen sichtbar ist.
-10. Akkuverbrauch, Offline-Fähigkeit und Push-Frequenz entscheiden über Vertrauen.
-
-## MVP-Richtung
-
-Der erste Ultreia-MVP soll den Beachhead Camino Francés fachlich prüfen.
-
-Entschiedener geografischer MVP-Scope:
+Geografischer MVP-Scope:
 
 - gesamter Camino Francés
-- Start: Saint-Jean-Pied-de-Port
-- Ziel: Santiago de Compostela
-- keine Beschränkung auf wenige Etappen
+- Saint-Jean-Pied-de-Port bis Santiago de Compostela
+- funktional MVP, geografisch komplett gedacht
+- keine Garantie auf vollständige POI- oder Anbieterabdeckung
 
-Funktionaler MVP-Scope:
+Funktionaler Kern:
 
-- vorläufige Need-Arbeitsliste, nicht final
-- route-basiertes Matching
-- starke Push-Regeln
-- Offline-/Cache-Konzept
-- mehrsprachige Basis-UX
-- keine Garantie auf Verfügbarkeit
-- keine falschen Partnerclaims
-- klare Unterscheidung zwischen redaktionellem Hinweis und offiziellem teilnehmenden Ort
+- Pilgrim Identity und Onboarding
+- DE / EN / ES ab Start
+- aktive Need-Auswahl
+- Route-first Matching
+- starke Notification Policy
+- Mobile GPS Heartbeat
+- Push nur bei plausibel relevanten Hinweisen
+- Detailansicht und Directions zum POI / Service
+- Development/Test Mode
+- Admin / Diagnostics v1
+- saubere Datenqualität und Trust-Kommunikation
 
-Die Need-Kategorien sind nur eine Arbeitsliste aus ADR-0003. Vor einer MongoDB-Schema-Entscheidung braucht es weitere Recherche und fachliche Prüfung, gegebenenfalls inklusive Wettbewerbs-, Forum- und Pilger-Community-Auswertung. Das Datenmodell muss flexibel genug bleiben, um Kategorien später zu ändern.
+## i18n
 
-Stand nach ADR-0004: Need-/Kategorie-Taxonomie ist fachlich priorisiert, aber noch kein MongoDB-Schema. Kategorien werden vorläufig als Zusammenspiel aus `NeedCategory`, `PlaceType`, `PushSuitability` und `DataRisk` gedacht. Die nächste Architekturentscheidung muss Datenmodell und Schema klären.
+Deutsch, Englisch und Spanisch sind ab Projektstart Pflicht.
 
-Stand nach ADR-0005: Mehrsprachigkeit ist Produktgrundlage ab Projektstart. Systemtexte und Kernlabels müssen vollständig in `de`, `en` und `es` gepflegt werden; redaktionelle und provider-generierte Inhalte müssen mehrsprachig möglich sein und klare Fallback-Regeln bekommen.
+Das gilt für:
 
-Stand nach ADR-0006: Ultreia modelliert eigene Camino-Kernobjekte statt StepsMatch-Offers nachzubauen. Das Datenmodell muss `NeedCategory`, `PlaceType`, `RouteContext`, `PromptRules`, `TrustLabels`, i18n und Logging/MatchEvents berücksichtigen. Noch gibt es kein konkretes Schema; die nächste Entscheidung kann Repo-/Code-Scaffold oder Backend/Mobile-Bootstrap-Strategie sein.
+- Mobile App
+- öffentliches Web / Frontend
+- Provider-Frontend
+- Provider-Onboarding
+- Push-Texte
+- Notification Titles / Bodies
+- Need-Labels
+- Buttons und sichtbare Systemtexte
+- Disclaimer und Permission-Erklärungen
+- Datenquellen- und Verantwortlichkeitslabels
+- sichtbare Admin-/Diagnostics-Texte
+- Claim-, Correction-, Remove-/Opt-out- und Provider-Statusmeldungen
 
-Stand nach ADR-0007: Monorepo-/Scaffold-Strategie ist entschieden. Noch ist kein Code-Scaffold angelegt; der nächste Schritt kann ein minimaler Scaffold mit `backend/`, `mobile/`, `frontend/`, `shared/` und Platzhaltern sein.
+Interne technische Codes dürfen Englisch bleiben. Sichtbare UI-Labels müssen übersetzbar sein.
 
-Stand Scaffold: Minimaler Monorepo-Scaffold mit `backend/`, `mobile/`, `frontend/` und `shared/` ist angelegt. Es wurden keine Frameworks installiert, kein produktiver Code erstellt und keine StepsMatch-Dateien kopiert.
+## Shared Taxonomy
 
-Stand Shared Taxonomy: Erste gemeinsame Taxonomy-/i18n-Konfiguration liegt in `shared/taxonomy/`. Systemlabels sind vollständig dreisprachig (`de`, `en`, `es`). Validierungsskript vorhanden: `shared/taxonomy/validate-taxonomy.mjs`. Es gibt weiterhin kein Backend-/Mobile-/Frontend-Framework, kein MongoDB-Schema und keine kopierten StepsMatch-Dateien.
+`shared/taxonomy/` ist zentrale Quelle für statische Produktkonfiguration.
 
-Stand nach ADR-0008: `shared/taxonomy/` ist als zentrale Quelle für statische Produktkonfiguration entschieden. Backend, Mobile, öffentliches Web, Provider-Frontend und spätere Admin-/Content-Tools sollen diese Keys und Labels konsumieren, statt eigene harte Listen zu pflegen. Taxonomy-Änderungen müssen mit `node shared/taxonomy/validate-taxonomy.mjs` validiert werden.
+Regeln:
 
-Stand nach ADR-0009: Runtime-/Hosting-/DNS-Strategie ist entschieden. Ultreia bleibt lokal entwickelbar und wird auf DigitalOcean App Platform für Backend und Web/Frontend sowie DigitalOcean Managed MongoDB für Staging ausgerichtet. Environments starten mit `local` und `staging`; Production kommt später nur mit ausdrücklicher Freigabe. DNS bleibt zunächst bei EDIS und wird erst geändert, wenn konkrete DigitalOcean-Zielrecords vorliegen. Mail-Records bei EDIS werden nicht angefasst, solange Mail dort läuft.
+- Keine duplizierten Kategorienlisten in Backend, Mobile, Frontend, Provider-Frontend oder Admin.
+- NeedCategories, Labels und statische Keys kommen aus `shared/taxonomy/`.
+- Taxonomy-Änderungen mit `node shared/taxonomy/validate-taxonomy.mjs` validieren.
+- Aktuelle Systemlabels sind dreisprachig (`de`, `en`, `es`).
 
-Stand nach ADR-0010: Camino Route Model ist entschieden. Der Camino Francés ist die zentrale offizielle Produkt-Route und wird route-first gedacht. Etappen dürfen UX-/Content-Struktur sein, sind aber keine harte Matching-Basis. Matching basiert auf RouteKm, Segment und Korridor; Luftlinie ist keine fachliche Relevanzdistanz. Für Entwicklung und Verifikation ist eine eindeutig getrennte Development/Test Route Pflicht, damit lokale Test-POIs, Pushes, Admin-/Diagnostics-Ausgaben und die echte Matching-Pipeline real geprüft werden können.
+Wichtige MVP-Needs:
 
-Stand nach ADR-0011: Pilger-Identität, Auth und Onboarding sind als MVP-Grundlage entschieden. Zweck ist nicht Social, sondern Personalisierung, Sprache, Needs, Permission-Status, Push-/Gerätebindung, Disclaimer-/Terms-Akzeptanz, Notification-Dedupe und Field-Test-/Diagnose-Zuordnung. PilgrimUser und ProviderUser bleiben strikt getrennt; Provider-Claiming kommt später.
+- `sleep`
+- `water`
+- `eat`
+- `grocery`
+- `pharmacy`
+- `medical`
+- `transport`
+- `laundry`
+- `gear`
+- `cash`
+- `stamp`
+- `sightseeing`
+- `quiet_place`
 
-Stand nach ADR-0012: POI / Service / Provider Data Model ist entschieden. Ein POI ist ein physischer route-relevanter Ort; ein Service beschreibt den konkreten Nutzen für einen Need; ProviderAccount ist Login/Zugriff; ProviderProfile enthält Betreiber-Stammdaten; Claim beschreibt spätere Verwaltung oder Bestätigung eines POI. POIs und Services dürfen ohne Provider existieren; Provider-Claiming blockiert den MVP nicht. Services nutzen NeedCategories aus `shared/taxonomy/`; RouteKm, Segment, Korridor, Directions und Distanzberechnung beziehen sich primär auf POI-Standorte.
+`warning` bleibt eine spätere, riskante Kategorie und ist nicht als einfacher Standard-Push zu behandeln.
 
-Stand nach ADR-0013: Distanzlogik ist route-first entschieden. Luftlinie ist höchstens technischer Vorfilter, nicht fachliche Relevanzdistanz. RouteKm und Korridorlogik sind Pflichtlogik; Walking Directions validieren nur wenige Top-Kandidaten pro Heartbeat/Need und müssen gecacht werden. Push-Texte bleiben vorsichtig und dürfen keine exakten Garantien zu Verfügbarkeit, Öffnungszeiten, Betten, Preisen oder medizinischer Sicherheit geben.
+## ADR-Architekturanker
 
-Stand nach ADR-0014: Matching v1 entlang der Route ist entschieden. Die Pipeline startet mit Mobile GPS Heartbeat, ordnet den Standort einer offiziellen Route oder Development/Test Route zu, lädt Pilgerstatus und aktive Needs, filtert passende sichtbare Services/POIs nach Route, Korridor, RouteKm, DataScope und EnvironmentScope, scored Kandidaten, validiert nur wenige Top-Kandidaten per Walking Directions und speichert diagnosierbare MatchEvents. Matching bedeutet noch nicht Push; Notification Policy und Cooldowns folgen in ADR-0015.
+ADR-0010 bis ADR-0019 sind Accepted.
 
-Stand nach ADR-0015: Notification Policy und Cooldowns sind entschieden. Push ist nur erlaubt, wenn ein aktiver Need, ausreichend starker Match, plausible RouteKm-/Korridor-/Distanzlage, ausreichende Datenqualität, aktive Push-Permission, gültiger Push-Token und keine Cooldowns/Silence-Regeln dagegen sprechen. Global-, Need- und POI-/Service-Cooldowns, Tageslimit und Silence/Pause-Modus sind Pflichtkonzepte, konkrete Minuten-/Stundenwerte bleiben konfigurierbar. DE/EN/ES sind für Push-Texte, Notification Keys, Disclaimer, Datenquellen-/Verantwortlichkeits-Labels und sichtbare Systemtexte Pflicht. Preise, Öffnungszeiten, Verfügbarkeiten, Provider-Infos und Fotos dürfen angezeigt werden, wenn sie hinterlegt sind, dürfen aber nie garantiert werden.
+- ADR-0010: Camino Route Model
+- ADR-0011: Pilgrim Identity, Auth and Onboarding
+- ADR-0012: POI / Service / Provider Data Model
+- ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions
+- ADR-0014: Matching v1 Along Route
+- ADR-0015: Notification Policy and Cooldowns
+- ADR-0016: MVP Data Source Strategy
+- ADR-0017: Mobile MVP Scope
+- ADR-0018: Admin and Diagnostics v1
+- ADR-0019: Provider Claiming Later / Provider Self-Service
 
-Stand nach ADR-0016: MVP Data Source Strategy ist entschieden. Ultreia startet mit kontrolliert kuratierten Camino-Francés-Startdaten und strikt getrennten Development-/Staging-Testdaten statt primär mit Provider-Onboarding. Datenstrategie ist Vertrauensarchitektur, nicht nur Importtechnik. Erlaubte Quellen können manuelle Ultreia-Kuration, öffentliche/offene Quellen, OSM als Ausgangspunkt, veröffentlichte Anbieter-/Ortswebseiten, später Provider-Pflege und später Pilger-Feedback sein. Jeder öffentliche Eintrag braucht sourceType, confidence, verificationStatus, dataScope, environmentScope und visibilityStatus; lokale Testdaten dürfen nie öffentlich als echte Camino-Daten erscheinen. Für vorab eingepflegte Provider/POIs ist früh ein einfacher Claim-, Korrektur- und Remove-/Opt-out-Anfrageweg vorgesehen, ohne falsches Partnerlabel und ohne Garantien zu Reichweite, Umsatz, Sichtbarkeit, Push-Ausspielung, Verfügbarkeit, Preisen oder Öffnungszeiten. ADR-0019 bleibt für vollständige Verifikation, Rollen, Rechte, Missbrauchsschutz und Provider-Frontend offen.
+Weitere feste Grundlagen:
 
-Stand nach ADR-0017: Mobile MVP Scope ist entschieden. Die Mobile App ist das Hauptprodukt des MVP und priorisiert die vollständige Kernschleife: Registrierung/Login, Onboarding, DE/EN/ES, Standort- und Pushfreigabe, Need-Auswahl aus `shared/taxonomy`, GPS Heartbeat, Backend-Matching, Push, Hinweisdetail, Route/Directions und Diagnosemodus. Die App soll ruhig bleiben: Pilger wählen Needs, stecken das Handy weg und erhalten nur plausibel relevante Hinweise. Camino Mode und lokaler Development/Test Mode sind Pflicht, damit die echte Heartbeat-/Matching-/Push-/Diagnostics-Pipeline lokal mit Testdaten verifiziert werden kann.
+- ADR-0001: StepsMatch ist technische Referenz, Ultreia bleibt eigenständig.
+- ADR-0003: MVP ist geografisch der gesamte Camino Francés.
+- ADR-0005: DE / EN / ES ab Start.
+- ADR-0007: Monorepo mit `backend/`, `mobile/`, `frontend/`, `shared/`, `docs/`.
+- ADR-0008: `shared/taxonomy/` als zentrale Quelle.
+- ADR-0009: Runtime-/Hosting-Ziel DigitalOcean App Platform plus Managed MongoDB; Production nur mit expliziter Freigabe.
 
-Stand nach ADR-0018: Admin and Diagnostics v1 ist entschieden. Admin/Diagnostics ist kein Nice-to-have, sondern MVP-Voraussetzung, um Heartbeats, RouteContext, Needs, POI-/Service-Kandidaten, MatchEvents, NotificationEvents, Push-Send/Suppress-Gründe, Datenqualität und `local_test` vs `real_camino` nachvollziehbar zu prüfen. Lokaler Development/Test Mode muss diagnostizierbar sein. Sichtbare Status-, Reject-/Suppress-, Permission-, Datenqualitäts-, Provider-/Source- und Testmodus-Labels müssen DE/EN/ES-fähig sein. ADR-0018 entscheidet keine produktive Datenmutation, kein Admin-Produktdesign und keinen vollständigen Claiming-Workflow; ADR-0019 bleibt dafür offen.
+## Route-First Architektur
 
-Stand nach ADR-0019: Provider Claiming Later / Provider Self-Service ist entschieden. Der frühe einfache Claim-/Korrektur-/Remove-/Opt-out-Pfad aus ADR-0016 bleibt MVP-nah; ADR-0019 definiert den späteren vollständigen Ausbau für verifizierte Provider mit ProviderAccount, ProviderProfile, Claim, Rollen/Rechten, Admin-Review, Audit, Self-Service für Stammdaten, Services und spätere Offers. Provider können Daten später selbst aktuell halten und Angebote im passenden Wegkontext berücksichtigen lassen, dürfen aber keine Push-Ausspielung, Reichweite, Umsatz, Sichtbarkeit, Ranking, Verfügbarkeit, Preise oder Öffnungszeiten garantiert bekommen. Provider-Onboarding, Provider-Frontend, Claim-/Remove-Formulare, Angebots-/Service-Felder, Status- und Disclaimer-Texte müssen DE/EN/ES-fähig sein.
+Ultreia ist keine normale Nearby-App. Der Camino ist ein linearer Korridor.
 
-ADR-Reihenfolge ab ADR-0010:
+Zentrale Konzepte:
 
-- ADR-0010: Camino Route Model (entschieden)
-- ADR-0011: Pilgrim Identity, Auth and Onboarding (entschieden)
-- ADR-0012: POI / Service / Provider Data Model (entschieden)
-- ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions (entschieden)
-- ADR-0014: Matching v1 Along Route (entschieden)
-- ADR-0015: Notification Policy and Cooldowns (entschieden)
-- ADR-0016: MVP Data Source Strategy (entschieden)
-- ADR-0017: Mobile MVP Scope (entschieden)
-- ADR-0018: Admin and Diagnostics v1 (entschieden)
-- ADR-0019: Provider Claiming Later / Provider Self-Service (entschieden)
+- Route
+- RouteGeometry / Polyline
+- RouteSegment
+- RouteKm als lineare Position entlang der Route
+- Corridor als Toleranzbereich links und rechts der Route
+- optionale Stage Metadata
 
-ADR-0010, ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0017, ADR-0018 und ADR-0019 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt.
+Camino Francés:
 
-Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
+- zentrale offizielle Produkt-Route
+- Etappen dürfen UX-/Content-Hilfe sein
+- Etappen sind keine harte Matching-Basis
+- Relevanz hängt davon ab, ob ein POI sinnvoll vor dem Pilger und im Wegkontext liegt
+- Luftlinie ist keine fachliche Relevanzdistanz
 
-Stand Landingpage: Erste gestaltete dreisprachige Landingpage in `frontend/` ist umgesetzt. Sticky Sprachmenü `DE`/`EN`/`ES`, kleines eigenes Jakobsmuschel-/Ultreia-Logo und eigene lokale Camino-Fotos für die Frontpage sind vorhanden. Weiterhin gibt es kein Backend, keine API, kein Tracking und kein Formular. `ultreia.app` und `www.ultreia.app` bleiben live über DigitalOcean Frontend-Staging.
+Development/Test Route:
 
-Stand Landingpage Fokus: Landingpage wurde marketing-/UX-seitig weiter fokussiert. Die dominanten Hero-Staging-Badges sind entfernt und in den Footer subtilisiert. Der USP ist stärker auf den Pilger-Need fokussiert: müde sein, nicht suchen wollen und relevante Hinweise bekommen. Camino-Blau/Gelb und warme Stein-/Sandtöne werden konsistenter verwendet. Weiterhin gibt es kein Backend, kein Formular, kein Tracking und keine API. Live-Deployment erfolgt erst nach Push zu `origin/main`.
+- Pflichtbestandteil für Entwicklung und Verifikation
+- nutzt reale GPS-Position des Testtelefons
+- erlaubt lokale Test-POIs/Test-Services
+- verwendet dieselbe Heartbeat-, Matching-, Push- und Diagnostics-Pipeline wie der echte Camino
+- `local_test` darf nie öffentlich als `real_camino` erscheinen
 
-Stand Landingpage App-Klarheit: Landingpage erklärt im Hero klarer die App-Mechanik: Bedürfnisse wählen, App in den Hintergrund schicken und nur bei relevanter Nähe informiert werden. Sprachwahl zeigt sichtbar Flagge plus Code (`DE`, `EN`, `ES`). Hero ist kompakter für Desktop und Mobile. Weiterhin gibt es kein Backend, kein Formular, kein Tracking und keine API.
+## Pilgrim Identity
 
-Stand Landingpage Responsive UX: Statische Landingpage wurde optisch und strukturell überarbeitet. Hero, Abschnitte zu Produktidee, Funktionsweise, Zielgruppe, Mehrsprachigkeit, Camino-Francés-Scope und MVP-Grenzen sind klarer gegliedert. Bestehende lokale Camino-Fotos werden ruhiger eingesetzt. Responsive CSS für Mobile, Tablet und Desktop wurde neu strukturiert; Sprachumschaltung bleibt dreisprachig per bestehender Vanilla-JS-Logik. Weiterhin gibt es kein Framework, kein Backend, kein Formular, kein Tracking und keine API.
+Ultreia braucht ab MVP eine eigene Pilger-Identität mit Registrierung, Login und Onboarding.
 
-Stand Landingpage Live-Verifikation: Commit `9580ce5` ist auf `origin/main` gepusht und live über `ultreia.app` sowie `www.ultreia.app` sichtbar. Geprüft wurden neuer Hero "Gehen. Nicht suchen.", Sprachwahl `DE`/`EN`/`ES`, lokale Camino-Bilder und kein horizontaler Overflow in Mobile-/Desktop-Smoke-Checks. Es wurde kein manuelles Deploy, keine DNS-Änderung und keine Infrastrukturänderung durchgeführt.
+PilgrimUser speichert bzw. ermöglicht:
 
-Stand Landingpage Content/Bilder: Landingpage wurde lokal weiter auf einfachere Sprache, sympathischeren Ton und konkretere Pilgerbeispiele ausgerichtet. Sprachwahl nutzt sichtbare Flaggen-Buttons mit `aria-labels`. Vier eigene lokale Camino-/Reisebilder wurden als optimierte JPEG-Kopien in `frontend/assets/camino/` übernommen; alte ungenutzte große Landingpage-Bilder wurden entfernt. Weiterhin kein Framework, kein Backend, kein Formular, kein Tracking, keine externe Bildquelle und keine API.
+- Sprache (`de`, `en`, `es`)
+- aktive Needs
+- Standort-Permission
+- Push-Permission
+- PushToken / Gerätebindung
+- Disclaimer-/Terms-Akzeptanz
+- bereits gesehene Hinweise / Dedupe
+- Field-Test- und Diagnose-Zuordnung
 
-Stand Landingpage Content/Bilder Live-Verifikation: Commit `51add81` ist auf `origin/main` gepusht und live über `ultreia.app` sowie `www.ultreia.app` sichtbar. Geprüft wurden neuer Hero, einfache Sprache, zwei Pilgerbeispiele, CSS-Flaggenbuttons, neue lokale Camino-Bilder, keine alten Bildreferenzen, Sprachwechsel `DE`/`EN`/`ES` und kein horizontaler Overflow in Mobile-/Desktop-Smoke-Checks. Es wurde kein manuelles Deploy, keine DNS-Änderung und keine Infrastrukturänderung durchgeführt.
+PilgrimUser und ProviderUser / ProviderAccount bleiben strikt getrennt.
 
-Stand Landingpage Camino Branding: Header-Logo und Hero-Motiv wurden auf vom Nutzer bereitgestellte Jakobsmuschel-/Camino-Bilder umgestellt. Die Landingpage-Palette ist stärker an Camino-Gelb, Camino-Blau und warmen natürlichen Hintergrundtönen ausgerichtet. Weiterhin kein Framework, kein Backend, kein Formular, kein Tracking, keine externe Bildquelle und keine API.
+## Datenmodell
 
-Stand Landingpage Hero-Foto: Das Hero-Motiv wurde gegen ein ruhigeres Camino-Foto aus dem Nutzerfundus getauscht. Der Header nutzt weiterhin das Jakobsmuschel-Logo; das globale Camino-Farbdesign bleibt bestehen. Weiterhin kein Framework, kein Backend, kein Formular, kein Tracking, keine externe Bildquelle und keine API.
+POI, Service, ProviderAccount, ProviderProfile und Claim sind getrennte Konzepte.
 
-## Infrastructure / DigitalOcean / DNS
+Regeln:
 
-Stand Infrastruktur: GitHub-Remote ist `https://github.com/ecily/ultreia.git`; `origin/main` zeigt auf den aktuellen Ultreia-Stand.
+- POI != Service != Provider.
+- POI ist ein konkreter route-relevanter Ort.
+- RouteContext gehört primär an den POI.
+- Service beschreibt den Need-bezogenen Nutzen an einem POI.
+- Services verwenden NeedCategories aus `shared/taxonomy/`.
+- ProviderAccount ist Login / Zugriff / Rollen.
+- ProviderProfile enthält Betreiber-Stammdaten.
+- Claim beschreibt spätere Verwaltung oder Bestätigung eines POI.
+- Ein Provider kann null, einen oder mehrere POIs claimen.
+- POIs und Services dürfen ohne Provider existieren.
+- Provider-Claiming blockiert den MVP nicht.
 
-DigitalOcean:
+Directions und Matching nutzen den konkreten POI-/Service-Standort, nicht pauschal eine ProviderProfile-Adresse.
 
-- Projekt: Ultreia
-- Projekt-ID gekürzt: `a4b57180...`
-- Region für Staging-Komponenten: `fra1`
+## Distance Strategy
 
-Managed MongoDB Staging:
+Luftlinie ist höchstens technischer Vorfilter.
 
-- Name: `ultreia-mongodb-staging`
-- DB-ID gekürzt: `5b6fc790...`
-- Engine: MongoDB 8
-- Region: `fra1`
-- Status: online
-- Size: `db-s-1vcpu-1gb`
-- Kein MongoDB-Connection-String ist im Repo oder in den Docs dokumentiert.
+Fachliche Distanz basiert auf:
 
-Frontend App Platform Staging:
+- RouteKm
+- Segment- und Korridorlogik
+- Walking Directions für wenige Top-Kandidaten
 
-- Name: `ultreia-frontend-staging`
-- App-ID gekürzt: `d6d75367...`
-- Type: Static Site
-- Component: `ultreia-frontend`
-- Source: GitHub `ecily/ultreia`
-- Branch: `main`
-- Source directory: `frontend`
-- Region: `fra1`
-- Status: healthy/live
-- Default ingress: `sea-turtle-app-kuo98.ondigitalocean.app`
+Google Walking Directions:
 
-Domains:
+- nicht primäre Matching Engine
+- nur für wenige Top-Kandidaten pro Heartbeat / Need
+- Ergebnisse müssen gecacht werden
+- Fehler oder Unsicherheit führen zu vorsichtiger Kommunikation
 
-- `https://ultreia.app` funktioniert.
-- `https://www.ultreia.app` funktioniert.
-- DNS Provider bleibt EDIS.
-- `ultreia.app` nutzt DigitalOcean App Platform A Records: `162.159.140.98`, `172.66.0.96`.
-- `www.ultreia.app` CNAME zeigt auf `sea-turtle-app-kuo98.ondigitalocean.app.`
-- Mail-Records bleiben bei EDIS unverändert.
-- Wildcard `*` A `91.227.204.35` bleibt vorerst unverändert.
+Keine Push-Texte mit garantierter exakter Verfügbarkeit, Öffnungszeit, Bettensituation, Preis oder medizinischer Sicherheit.
 
-Noch nicht vorhanden:
+## Matching v1
 
-- Keine Backend-App.
-- Keine API-Domain `api.ultreia.app`.
-- Keine dokumentierten Secrets, Tokens, Credentials oder Connection Strings.
+Matching entscheidet Relevanz, nicht Push.
+
+Pipeline:
+
+1. Mobile sendet GPS Heartbeat.
+2. Backend bestimmt RouteContext.
+3. Backend lädt PilgrimUser / UserState.
+4. Aktive Needs werden gelesen.
+5. POI-/Service-Kandidaten werden nach Route, Korridor, RouteKm, DataScope, EnvironmentScope, Sichtbarkeit und Need gefiltert.
+6. Kandidaten werden gescored.
+7. Wenige Top-Kandidaten werden per Walking Directions validiert / gecacht.
+8. Ergebnis wird als MatchEvent gespeichert.
+9. ADR-0015 entscheidet, ob daraus eine NotificationEvent / Push wird.
+
+MatchEvents müssen diagnosierbar sein, inklusive Reject Reasons wie `wrong_need`, `outside_corridor`, `behind_pilgrim`, `route_unknown`, `low_confidence`, `already_seen`, `directions_failed`, `environment_scope_mismatch`, `data_scope_mismatch`.
+
+## Notification Policy
+
+Matching != Push.
+
+Push ist nur erlaubt, wenn:
+
+- aktiver Need vorhanden ist
+- Match ausreichend stark ist
+- RouteKm / Korridor / Distanz plausibel sind
+- Datenqualität ausreichend ist
+- Push-Permission aktiv ist
+- PushToken gültig ist
+- kein Global-, Need- oder POI-/Service-Cooldown greift
+- Tageslimit nicht erreicht ist
+- Silence/Pause Mode nicht dagegen spricht
+
+Push muss unterdrückt werden bei schwachen Matches, fehlender Permission, ungültigem Token, zu niedriger Datenqualität, unklarem RouteContext, archivierten/hidden Daten, Wiederholungen oder Policy-Konflikten.
+
+NotificationEvent muss Send/Suppress, Suppress Reasons, Cooldown-State, Locale, `messageKey`, `messageParams`, Push-Provider und DeliveryStatus diagnosierbar machen.
+
+DE / EN / ES gelten für Push-Texte, Notification Keys, Disclaimer, Datenquellenlabels und sichtbare Systemtexte.
+
+Daten anzeigen: ja. Garantieren: nein.
+
+## Data Source Strategy
+
+Ultreia befüllt den MVP nicht primär über Provider-Onboarding.
+
+MVP-Datenbasis:
+
+- kontrolliert kuratierte Startdaten entlang des Camino Francés
+- OSM / öffentliche Quellen nur als Ausgangspunkt, nicht blind als Wahrheit
+- veröffentlichte Anbieter-/Ortswebseiten, soweit rechtlich und praktisch akzeptabel
+- später Provider-Pflege
+- später Pilger-Feedback als Signal, nicht direkt als Wahrheit
+- lokale Testdaten für Development/Staging
+
+Jeder öffentliche POI / Service braucht:
+
+- `sourceType`
+- `confidence`
+- `verificationStatus`
+- `dataScope`
+- `environmentScope`
+- `visibilityStatus`
+- klare Verantwortlichkeitskommunikation
+
+Trust-Regeln:
+
+- Ultreia-prefilled muss sichtbar markiert werden.
+- Public/OSM-Daten sind nicht provider-confirmed.
+- Provider-confirmed / provider-maintained ist höherwertig, aber keine Garantie.
+- `local_test` bleibt strikt von `real_camino` getrennt.
+- Früh muss ein einfacher Claim-, Correction-, Remove-/Opt-out-Pfad für vorab eingepflegte Provider/POIs möglich sein.
+
+## Mobile MVP
+
+Mobile ist das Hauptprodukt des MVP.
+
+Kernschleife:
+
+Registrierung/Login -> Onboarding -> Sprache -> Standortfreigabe -> Pushfreigabe -> Need-Auswahl -> GPS Heartbeat -> Matching -> Push -> Detail -> Directions -> Diagnosemodus.
+
+Mobile MVP muss enthalten:
+
+- Registrierung / Login
+- Onboarding mit Disclaimer und Permission-Erklärung
+- DE / EN / ES
+- Need-Auswahl aus `shared/taxonomy`
+- Home / Current Pilgrim State
+- Permission Flow für Standort, Hintergrundstandort und Push
+- Match-/Hinweisdetail
+- Route / Directions zum POI
+- Push Interaction
+- Diagnosemodus / Field-Test Mode
+- Camino Mode und Development/Test Mode
+- Umgang mit schlechter Verbindung ohne falsche Live-Aktualität
+- Settings: Sprache, Needs, Pushstatus, Standortstatus, Silence/Pause, Disclaimer/Datenschutz, Logout, Test Mode wenn berechtigt
+
+Die App soll ruhig bleiben und nicht zu einer komplexen Karten-, Such- oder Social-App werden.
+
+## Admin / Diagnostics
+
+Admin/Diagnostics ist ab MVP Pflicht.
+
+Grundsatz:
+
+Was das System entscheidet, muss nachvollziehbar sein.
+
+MVP-Diagnostics muss sichtbar machen:
+
+- letzte Heartbeats
+- PilgrimUser/TestUser und Gerät
+- GPS-Status und letzter Heartbeat-Zeitpunkt
+- RouteContext
+- Camino Mode oder Development/Test Mode
+- RouteKm, Segment, Korridorstatus
+- aktive Needs
+- Locale
+- Standort-/Push-Permissions
+- PushToken-Status, ohne unnötige vollständige Offenlegung
+- MatchEvents
+- NotificationEvents
+- Send/Suppress und Gründe
+- Datenqualität / Trust-Status
+- `local_test` vs `real_camino`
+- `production` / `staging` / `development`
+
+Keine Secrets, API Keys oder vollständigen PushTokens in Diagnoseausgaben. Personenbezogene Standortdaten nur im notwendigen Diagnoseumfang.
+
+## Provider Claiming
+
+Es gibt zwei Stufen:
+
+1. Früh: einfacher Claim-/Correction-/Remove-/Opt-out-Pfad aus ADR-0016.
+2. Später: vollständiger Provider Claiming / Self-Service aus ADR-0019.
+
+Früher Pfad:
+
+- Betreiber können Korrektur, Claim oder Entfernung/Deaktivierung vorab eingepflegter Einträge anfordern.
+- Umsetzung kann zunächst einfach sein, z. B. Formular/E-Mail/Admin-Review.
+- Kein falsches Partnerlabel vor Bestätigung.
+
+Späterer Provider Self-Service:
+
+- ProviderAccount / ProviderProfile
+- Claim-Prüfung
+- Rollen / Rechte
+- Stammdatenpflege
+- Services und Offers pflegen
+- Radius-/Route-Relevanz nur innerhalb Systemregeln
+- Admin Review
+- Audit
+- Missbrauchsschutz
+
+Provider-Nutzen darf erklärt werden:
+
+"Mit einem bestätigten Provider-Konto können Sie Ihre Informationen und Angebote selbst aktuell halten. Ultreia kann passende Pilger im richtigen Wegkontext auf relevante Angebote hinweisen und sie per Route zum Standort führen."
+
+Nicht erlaubt:
+
+- garantierte Pilgerzahl
+- garantierter Umsatz
+- garantierte Sichtbarkeit
+- garantierte Push-Ausspielung
+- garantiertes Ranking
+- garantierte freie Betten, Verfügbarkeit, Preise oder Öffnungszeiten
+- "offizieller Partner", solange nicht bestätigt
+
+Provider kann Matching oder Push nicht erzwingen. Systemregeln aus Matching, Notification Policy, Datenqualität, Cooldowns, DataScope und RouteContext bleiben maßgeblich.
 
 ## Kommunikationsregeln
 
@@ -498,6 +410,9 @@ Erlaubt:
 - "redaktionell erfasster Ort"
 - "offizieller teilnehmender Ort", nur wenn zutreffend
 - "Information bitte vor Ort prüfen"
+- "laut verfügbaren Daten"
+- "vom Anbieter gepflegt", wenn zutreffend
+- "noch nicht vom Anbieter bestätigt", wenn zutreffend
 
 Nicht erlaubt:
 
@@ -505,10 +420,172 @@ Nicht erlaubt:
 - Garantien auf freie Betten
 - Garantien auf Öffnungszeiten
 - Garantien auf Preise
-- Garantien auf Kunden/Besuche
+- Garantien auf Kunden, Besuche, Umsatz oder Reichweite
+- garantierte Push-Ausspielung
 - fremde Logos/Bilder ohne Rechte
-- übertriebene Tourismus- oder Deal-Sprache
+- übertriebene Tourismus-, Deal- oder Werbesprache
 
-## Entscheidungssatz
+## MVP-Bau-Reihenfolge
 
-Ultreia.app wird als eigenständiges Camino-Produkt entwickelt. StepsMatch.com bleibt das technische Labor. Ultreia übernimmt nur bewährte technische Bausteine und Erkenntnisse aus StepsMatch, aber keine vermischten Projektdaten, keine fremde Produktlogik und keine ungeprüften Begriffe.
+Diese Reihenfolge ist Planung, keine Implementierung.
+
+### Phase 0: Repo-/Kontext-Basis
+
+- Projektstruktur prüfen.
+- `docs/ULTREIA_CONTEXT.md` als Source of Truth nutzen.
+- `shared/taxonomy` prüfen.
+- i18n-Grundstruktur planen.
+- Keine Feature-Implementierung ohne Kontextcheck.
+
+### Phase 1: Backend-Basis
+
+- Express/API-Grundstruktur oder vorhandene Struktur prüfen.
+- Health Endpoint.
+- Env-Konzept ohne Secrets-Ausgabe.
+- MongoDB-Verbindung für Staging vorbereiten, ohne Credentials zu dokumentieren.
+- Basismodelle konzeptionell an ADRs ausrichten.
+
+### Phase 2: Shared Taxonomy + i18n
+
+- NeedCategories zentral in `shared/taxonomy`.
+- Keine duplizierten Listen.
+- DE / EN / ES Labels.
+- Message Keys für Push und Systemtexte vorbereiten.
+
+### Phase 3: Auth / Pilgrim Identity
+
+- PilgrimUser.
+- Registrierung/Login.
+- Sprache.
+- Onboarding / Disclaimer / Terms.
+- aktive Needs.
+- Push-/Standortstatus.
+- Geräte-/PushToken-Konzept.
+
+### Phase 4: Route/Test-Route
+
+- Route / Segment / RouteKm / Corridor Modell.
+- Camino-Francés-Struktur vorbereiten.
+- Development/Test Route für lokale Verifikation.
+- `local_test` und `real_camino` sauber trennen.
+
+### Phase 5: POI/Service-Datenbasis
+
+- POI / Service / ProviderAccount / ProviderProfile / Claim konzeptionell in Schema/Models überführen.
+- Lokale Test-POIs/Test-Services.
+- Kleine kuratierte Camino-Startdaten später.
+- `sourceType`, `confidence`, `verificationStatus`, `dataScope`, `environmentScope`, `visibilityStatus`.
+
+### Phase 6: Heartbeat Pipeline
+
+- Mobile GPS Heartbeat.
+- Backend empfängt Standort.
+- RouteContext-Berechnung vorbereiten.
+- HeartbeatEvents / Diagnostics speichern.
+- StepsMatch nur als technische Referenzpipeline nutzen.
+
+### Phase 7: Admin/Diagnostics v1 früh bauen
+
+- Letzter Heartbeat.
+- RouteContext.
+- aktive Needs.
+- Testmodus.
+- MatchEvents / NotificationEvents später sichtbar.
+- `local_test` vs `real_camino` Filter.
+- Keine Secrets / PushToken-Leaks.
+
+### Phase 8: Matching v1
+
+- aktive Needs + RouteContext + POI/Service-Kandidaten.
+- Scoring.
+- MatchEvents.
+- Reject Reasons.
+- Noch kein Push-Zwang.
+
+### Phase 9: Distance Enrichment
+
+- Google Walking Directions nur für Top-Kandidaten.
+- Cache.
+- DirectionsLookupEvent.
+- Fallback bei Unsicherheit.
+
+### Phase 10: Notification Policy / Push
+
+- NotificationEvent.
+- Send / Suppress.
+- Cooldowns.
+- Tageslimit.
+- Silence / Pause.
+- Push bei geschlossener App / Screen off verifizieren.
+- i18n Message Keys.
+
+### Phase 11: Mobile MVP UI
+
+- Login.
+- Onboarding.
+- Need-Auswahl.
+- Home / Status.
+- Permission Flow.
+- Hinweisdetail.
+- Directions.
+- Diagnosemodus.
+- Camino/Test Mode.
+
+### Phase 12: Provider Early Claim Path
+
+- Einfacher Claim-/Correction-/Remove-/Opt-out-Pfad.
+- Noch kein vollständiger Self-Service.
+- Klare Kommunikation: vorab eingepflegt / nicht providerbestätigt.
+
+### Phase 13: Provider Self-Service später
+
+- Vollständiges Claiming.
+- Verifizierte Provider.
+- Angebote/Services selbst pflegen.
+- Radius-/Route-Relevanz innerhalb Systemregeln.
+- Admin / Review / Audit.
+
+## Infrastrukturstand
+
+GitHub:
+
+- Remote: `https://github.com/ecily/ultreia.git`
+- Branch: `main`
+
+DigitalOcean:
+
+- Projekt: Ultreia
+- Managed MongoDB Staging existiert.
+- Frontend Static Site Staging existiert.
+- `ultreia.app` und `www.ultreia.app` funktionieren grundsätzlich.
+- Keine Backend-App.
+- Keine API-Domain `api.ultreia.app`.
+- Keine dokumentierten Secrets, Tokens, Credentials oder Connection Strings.
+
+DNS bleibt beim bestehenden Provider, bis Änderungen explizit freigegeben werden. Keine DNS-, DB-, Deploy- oder Infrastrukturänderung ohne Freigabe.
+
+## Frontend-Stand
+
+Statische Landingpage in `frontend/`.
+
+Eigenschaften:
+
+- kein Framework
+- kein Backend
+- kein Formular
+- kein Tracking
+- keine API-Anbindung
+- DE / EN / ES Sprachumschaltung
+- eigene lokale Camino-/Jakobsmuschel-Bilder
+- Camino-Farbwelt
+- aktuelles Hero-Foto aus Nutzerfundus
+
+Landingpage-Änderungen wurden in früheren Commits gepusht und live verifiziert. Neue Deploys werden nicht manuell erzwungen ohne Freigabe.
+
+## Offene Umsetzung
+
+Die Architektur ADR-0010 bis ADR-0019 ist entschieden. Die eigentliche Produktimplementierung ist noch offen.
+
+Nächster sinnvoller Schritt nach dieser Konsolidierung:
+
+Phase 0 / Phase 1 starten: Repo-/Kontext-Basis prüfen, dann Backend-Basis mit Health Endpoint und sauberem Env-Konzept vorbereiten.
