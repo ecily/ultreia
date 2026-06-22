@@ -122,6 +122,60 @@ Once provider claiming / provider maintenance exists later:
 Vom Anbieter gepflegt. Bitte Angaben vor Ort prüfen.
 ```
 
+## Early Claim / Remove Path
+
+Because Ultreia may pre-fill Providers / POIs / Services before full provider onboarding exists, the real operator must get a simple early path to:
+
+- claim the entry
+- correct master data
+- later maintain offers / Services themselves
+- request removal or deactivation when they do not want to be listed
+
+This early path is part of ADR-0016's trust-first data strategy. It is not the full provider claiming process.
+
+ADR-0019 will decide the complete process for verification, claim review, roles, rights, abuse protection, and provider frontend.
+
+Provider onboarding must explain the benefit carefully:
+
+- Providers can keep their data current.
+- Providers can maintain offers later.
+- Providers can influence route / radius relevance of offers where the system allows it.
+- Ultreia does not broadcast to all users, but can reach pilgrims with matching Need and route context.
+- Ultreia can guide pilgrims by route / directions to the concrete location.
+- This reduces waste compared with classic advertising.
+- No partner label is shown before confirmation.
+
+Allowed conceptual wording:
+
+```text
+Mit einem bestätigten Provider-Konto können Sie Ihre Informationen und Angebote selbst aktuell halten. Ultreia kann passende Pilger im richtigen Wegkontext auf relevante Angebote hinweisen und sie per Route zum Standort führen.
+```
+
+Disallowed wording:
+
+```text
+Wir bringen garantiert Pilger zu Ihrem Geschäft.
+```
+
+Ultreia must not guarantee:
+
+- number of pilgrims reached
+- revenue
+- visibility
+- push delivery
+- free beds / availability
+- prices
+- opening hours
+
+Conceptual status values for the early path:
+
+- `claim_pending`
+- `provider_confirmed`
+- `correction_requested`
+- `removal_requested`
+- `hidden_by_request`
+- `rejected_claim`
+
 ## OSM / Public Data
 
 OSM and public sources may be starting points.
@@ -295,6 +349,7 @@ Admin must later see / manage:
 - visibilityStatus
 - disputed / feedback status
 - provider-confirmed vs Ultreia-prefilled vs public data
+- claim / correction / removal request status
 - why a POI / Service is publicly visible or not
 
 ## Relationship to Other ADRs
@@ -306,6 +361,7 @@ Admin must later see / manage:
 - ADR-0014 defines Matching v1.
 - ADR-0015 defines Notification Policy, Cooldowns, data / guarantee communication, and i18n for notifications.
 - ADR-0016 defines MVP Data Source Strategy.
+- ADR-0019 remains open and will define full provider claiming, including verification, claim review, roles, rights, abuse protection, and provider frontend.
 
 ## Non-Goals
 
@@ -315,7 +371,7 @@ Admin must later see / manage:
 - No scraper
 - No full MongoDB schema implementation
 - No provider frontend
-- No claiming implementation
+- No full claiming implementation
 - No legal assessment of individual sources
 - No DNS change
 - No database mutation
@@ -336,5 +392,7 @@ Ultreia's data source strategy remains Camino-specific and trust-first.
 Future data work must treat source, confidence, verification, scope, and visibility as first-class fields.
 
 Provider onboarding can improve data later, but does not block the MVP.
+
+Pre-filled provider entries need an early claim, correction, and remove / opt-out request path without implying provider confirmation.
 
 Test data must be deliberately separated from real Camino data from the beginning.
