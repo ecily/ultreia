@@ -52,6 +52,8 @@ POI-/Service-/Provider-Datenmodell-Entscheidung: Ultreia trennt strikt zwischen 
 
 Distanzstrategie-Entscheidung: Ultreia verwendet Luftlinie nicht als fachliche Distanz für Relevanz oder Push. Die fachliche Distanz basiert auf RouteKm, Segment-/Korridorlogik und Walking Directions für wenige Top-Kandidaten. Dokumentiert in `docs/adr/ADR-0013-distance-strategy-routekm-corridor-walking-directions.md`.
 
+Matching-v1-Entscheidung: Ultreia Matching v1 entscheidet route-first entlang des Camino oder einer Development/Test Route. Kernfrage ist nicht generische Nähe, sondern ob ein Service/POI für diesen Pilger mit aktivem Need jetzt sinnvoll am Weg voraus liegt. Dokumentiert in `docs/adr/ADR-0014-matching-v1-along-route.md`.
+
 ## Projektgrenze
 
 Für Ultreia gilt:
@@ -296,6 +298,17 @@ Ultreia darf technische Erkenntnisse und bewährte Bausteine aus StepsMatch übe
 - Feed-Retry-Erkenntnisse
 - Field-Test-Erkenntnisse
 
+Positiv getestete StepsMatch-Referenzpipeline für Ultreia:
+
+- Mobile Background Location sendet GPS Heartbeat.
+- Backend empfängt den Standort und gleicht gegen relevante Orte/Services ab.
+- Match wird erkannt.
+- Push wird ausgelöst.
+- Push kommt auch bei geschlossener App und ausgeschaltetem Bildschirm an.
+- Logging/Diagnostics belegen den Ablauf.
+
+Diese technische Pipeline ist fundamental für Ultreia. Ultreia übernimmt daraus das technische Muster, aber nicht die StepsMatch-Produktlogik.
+
 Nicht ungeprüft übernehmen:
 
 - StepsMatch-Wording
@@ -369,20 +382,22 @@ Stand nach ADR-0012: POI / Service / Provider Data Model ist entschieden. Ein PO
 
 Stand nach ADR-0013: Distanzlogik ist route-first entschieden. Luftlinie ist höchstens technischer Vorfilter, nicht fachliche Relevanzdistanz. RouteKm und Korridorlogik sind Pflichtlogik; Walking Directions validieren nur wenige Top-Kandidaten pro Heartbeat/Need und müssen gecacht werden. Push-Texte bleiben vorsichtig und dürfen keine exakten Garantien zu Verfügbarkeit, Öffnungszeiten, Betten, Preisen oder medizinischer Sicherheit geben.
 
+Stand nach ADR-0014: Matching v1 entlang der Route ist entschieden. Die Pipeline startet mit Mobile GPS Heartbeat, ordnet den Standort einer offiziellen Route oder Development/Test Route zu, lädt Pilgerstatus und aktive Needs, filtert passende sichtbare Services/POIs nach Route, Korridor, RouteKm, DataScope und EnvironmentScope, scored Kandidaten, validiert nur wenige Top-Kandidaten per Walking Directions und speichert diagnosierbare MatchEvents. Matching bedeutet noch nicht Push; Notification Policy und Cooldowns folgen in ADR-0015.
+
 ADR-Reihenfolge ab ADR-0010:
 
 - ADR-0010: Camino Route Model (entschieden)
 - ADR-0011: Pilgrim Identity, Auth and Onboarding (entschieden)
 - ADR-0012: POI / Service / Provider Data Model (entschieden)
 - ADR-0013: Distance Strategy: RouteKm, Corridor and Walking Directions (entschieden)
-- ADR-0014: Matching v1 Along Route
+- ADR-0014: Matching v1 Along Route (entschieden)
 - ADR-0015: Notification Policy and Cooldowns
 - ADR-0016: MVP Data Source Strategy
 - ADR-0017: Mobile MVP Scope
 - ADR-0018: Admin and Diagnostics v1
 - ADR-0019: Provider Claiming Later
 
-ADR-0010, ADR-0011, ADR-0012 und ADR-0013 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0014 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
+ADR-0010, ADR-0011, ADR-0012, ADR-0013 und ADR-0014 sind mit Stand 2026-06-22 als eigene Accepted-ADRs ergänzt. ADR-0015 bis ADR-0019 bleiben offen, bis eigene ADRs erstellt und akzeptiert werden.
 
 Stand Frontend Placeholder: Minimaler statischer Frontend-Placeholder in `frontend/` ist angelegt. Zweck ist ein erstes Ziel für DigitalOcean App Platform Frontend und spätere Domain-Schaltung. Es gibt noch kein Framework, kein Backend, keine API und kein Tracking. DNS bei EDIS ist noch nicht geändert.
 
