@@ -1,6 +1,6 @@
 # Ultreia Context
 
-Stand: 2026-06-22
+Stand: 2026-06-23
 
 ## Projektgrenze
 
@@ -27,6 +27,8 @@ StepsMatch bleibt nur technische Referenz / Labor. Relevant ist vor allem die do
 Mobile GPS Heartbeat -> Backend-Abgleich -> Match-Erkennung -> Push-Auslösung -> Push kommt auch bei geschlossener App und ausgeschaltetem Bildschirm an -> Logging / Diagnostics zur Verifikation.
 
 Ultreia übernimmt daraus nur das technische Muster, nicht Produktlogik, Daten, Anbieterlogik, Kategorien, Branding oder Radius-only-Denken.
+
+Stand: Push-Reliability-Learning aus dem StepsMatch-Labor ist in `docs/adr/ADR-0010-push-notification-reliability.md` dokumentiert. Das ist keine Code- oder Konfigurationsübernahme; die spätere Ultreia-Implementierung muss eigenständig erfolgen.
 
 ## Produktkern
 
@@ -137,6 +139,8 @@ ADR-0010 bis ADR-0019 sind Accepted.
 - ADR-0017: Mobile MVP Scope
 - ADR-0018: Admin and Diagnostics v1
 - ADR-0019: Provider Claiming Later / Provider Self-Service
+
+Zusätzlich dokumentiert `docs/adr/ADR-0010-push-notification-reliability.md` das Push-Reliability-Learning aus dem StepsMatch-Labor als bewusste Architekturreferenz ohne Code-Übernahme.
 
 Weitere feste Grundlagen:
 
