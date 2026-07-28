@@ -13,6 +13,17 @@ Without a pilgrim identity, Ultreia cannot reliably persist selected needs, perm
 
 ## Decision
 
+An authenticated PilgrimUser is required for the MVP. The account binds
+location and push consent, active Trip, active Needs and their drag-and-drop
+priority, push token, and OfferUserStates such as saved, dismissed and
+completed. Magic Link is the preferred login path; email/password remains a
+fallback and social login is later/optional.
+
+Location and notification permissions are explained and requested shortly
+before the user consciously starts the Camino, not immediately on first app
+launch. A denied push permission does not block Trip start; it disables
+automatic pushes while manual Offer viewing remains available.
+
 Ultreia needs its own pilgrim identity from the MVP onward, with registration, login, and onboarding for mobile and web/frontend.
 
 The pilgrim account is not a social feature. It is the technical basis for:

@@ -17,6 +17,13 @@ Ultreia Matching v1 decides route-first along the Camino or a Development/Test R
 
 It does not decide by generic proximity or air distance.
 
+The Offer radius is the first technical candidate trigger in the MVP: a simple
+circle around the final confirmed provider coordinates. Radius entry alone is
+never sufficient for a final match or push. The candidate must also have an
+active Trip and active Need, match the Offer Needs, be plausibly reachable by
+walking, remain relevant in the pilgrim's direction, and not be
+`completed_for_trip` or `expired_by_distance`.
+
 Core question:
 
 Not: "What is nearby?"
@@ -25,7 +32,7 @@ But: "What is useful for this pilgrim with this active Need now on the way ahead
 
 ## Matching v1 Pipeline
 
-1. Mobile app sends GPS heartbeat to the backend.
+1. Mobile app sends GPS heartbeat to the backend or evaluates a local geofence.
 2. Backend assigns the location to a route:
    - Camino Frances
    - Development/Test Route
@@ -41,14 +48,17 @@ But: "What is useful for this pilgrim with this active Need now on the way ahead
    - push / location status
    - already seen hints
    - diagnostics / test context
-5. Backend searches matching Services / POIs:
+5. Backend searches matching Services / POIs. The Offer-radius entry is the
+   MVP prefilter, followed by:
    - NeedCategory matches
    - POI is on the same route or test route
    - POI is inside the corridor or acceptable deviation
    - POI is meaningfully ahead of the pilgrim
    - POI / Service is visible and not archived or blocked
+   - Offer is not completed for the active Trip and is not expired by distance
    - dataScope and environmentScope match
-6. Backend scores candidates.
+6. Backend scores candidates. Provider bundling and best-provider selection are
+   applied before the notification policy.
 7. Only a few top candidates are validated / cached with Google Walking Directions.
 8. Result is stored as MatchEvent.
 9. ADR-0015 decides later whether a Match becomes a push notification.
@@ -138,6 +148,8 @@ Negative factors:
 - Uncertain location or unknown route does not create a strong match.
 - Uncertain data may create a low-confidence match.
 - Push is not decided in ADR-0014.
+- The MVP trigger is entry into a valid Offer radius; ADR-0015 still decides
+  whether the resulting match may be pushed.
 - Matches must be saved in a diagnosable way.
 
 ## MatchEvent Concept

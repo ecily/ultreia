@@ -31,6 +31,11 @@ The central use case is:
 
 The pilgrim selects a Need, puts the phone away, and Ultreia only reports plausibly relevant hints.
 
+The MVP push trigger is entry into a valid Offer radius. The resulting action
+opens the current Offer-stack, not necessarily one single Offer. The stack is
+ordered by Need priority and walking reachability and must remain usable with
+clear buttons as well as gestures for tired pilgrims.
+
 ## MVP Screens / Scope
 
 ### 1. Registration / Login
@@ -152,6 +157,9 @@ When a match / push is opened, the app must show:
 
 ### 8. Route / Directions
 
+In-app Google navigation is the MVP target. External Google Maps or another
+system-native directions app remains an allowed fallback.
+
 The MVP must allow opening navigation / directions to the POI.
 
 Preferred options are Google Maps, Apple Maps, or system-native solutions.
@@ -252,6 +260,7 @@ MVP settings:
 - no admin UI inside the pilgrim app
 - no advertising
 - no generic nearby browsing as core product
+- no automatic Need deactivation after opening navigation
 
 ## StepsMatch Reference
 
@@ -277,6 +286,7 @@ Ultreia adopts the technical pattern, not the StepsMatch product logic.
 - ADR-0015 defines Notification Policy, Cooldowns, data / guarantee communication, and i18n for notifications.
 - ADR-0016 defines MVP Data Source Strategy.
 - ADR-0017 defines Mobile MVP Scope.
+- ADR-0020 defines MVP Product, Offer, Trip and Push Decisions.
 
 ## Non-Goals
 

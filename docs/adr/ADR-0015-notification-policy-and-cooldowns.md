@@ -25,6 +25,12 @@ Ultreia must not annoy pilgrims.
 
 Push is allowed only when the hint is plausibly useful now for the pilgrim's active Need.
 
+In the MVP, a valid Offer-radius entry is the immediate trigger candidate. The
+notification policy still requires active Trip, active Need, Need overlap,
+walking reachability, direction relevance, valid availability, and absence of
+`completed_for_trip` / `expired_by_distance`. The tap opens the current
+Offer-stack rather than assuming one Offer is the only relevant result.
+
 ## Push Is Not Allowed For
 
 Push must not be used for:
@@ -42,6 +48,7 @@ Push must not be used for:
 Push may be sent when:
 
 - an active Need is set
+- an active Camino Trip is running
 - a MatchEvent has high enough score
 - POI / Service is meaningfully ahead of the pilgrim
 - RouteKm / corridor are plausible
@@ -52,6 +59,12 @@ Push may be sent when:
 - push permission is active
 - push token is valid
 - user is not in silence / pause mode
+
+When multiple Offers from one Provider match, they are bundled into one push.
+When multiple Providers match, MVP selects only the best relevant Provider.
+Without Premium, ranking uses Need priority, Need overlap, walking
+reachability, direction, walking route, data trust and cooldown. Premium may
+never replace relevance.
 
 ## Push Must Be Suppressed When
 
@@ -116,6 +129,11 @@ The MVP requires multiple cooldown layers:
    - allows pilgrims to temporarily reduce or pause push notifications
 
 Concrete minute / hour values are not decided in this ADR.
+
+Offer dismissal is scoped to the concrete Offer, not the Provider or category.
+After a Need-dependent cooldown it may reappear only while walking relevance
+remains. Once walking reachability is exceeded, the Offer becomes
+`expired_by_distance`. A completed Offer is suppressed for the active Trip.
 
 Cooldowns are mandatory and should remain configurable at implementation time.
 

@@ -13,6 +13,13 @@ The MVP needs a curated, neutral data basis along the Camino Frances, while stil
 
 ## Decision
 
+For the MVP, one ProviderAccount represents one physical provider location.
+Additional physical locations require separate ProviderAccounts. A location
+may have multiple Offers, and all Offers use the same final confirmed provider
+coordinates. Provider location selection must use Google Places/Autocomplete;
+manual marker adjustment is limited to 25 m. Matching and navigation use the
+final confirmed coordinates.
+
 Ultreia strictly separates:
 
 - POI
