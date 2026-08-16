@@ -302,3 +302,36 @@ einziger technischer Android-E2E-Block gegen die eigene live Ultreia-API:
 APK installieren, Permissions erteilen, Device-/Push-Registration, lokalen
 Push, Heartbeat, Background-Heartbeat, Geofence-ENTER und kontrollierten
 Server-Push verifizieren. Danach erst Route/Trip/Need neutral modellieren.
+
+## Infrastruktur-Referenzaudit und Live-Mongo-Nachweis (2026-08-16)
+
+Zur Vorbereitung der echten Ultreia-Infrastruktur wurden ausschließlich lokale
+Projektunterlagen als technische Referenz gelesen: `ecily`, `einfachsparen`,
+`qr2buy` und `stepsmatch`. Übernommen wurden nur abstrakte Betriebsprinzipien:
+DigitalOcean App Platform mit `main`-Autodeploy, getrennte Backend-/Frontend-
+Komponenten, Runtime-Secrets außerhalb von Git, Atlas mit projektgetrennten
+Datenbanknamen, TLS, `/api/health`-Smoke, Readiness-Prüfung und explizite
+Post-Deploy-Verifikation. Keine fremden Daten, Collections, API-Namen oder
+Credentials wurden in Ultreia übernommen.
+
+Der technische Ultreia-Backend-Code wurde am 2026-08-16 gegen eine separat
+benannte Atlas-Datenbank `ultreia_production` ausgeführt. Nach erfolgreichem
+Mongo-Ping meldeten die echten Routen `/api/health` HTTP 200 mit
+`database.connected=true` und `/api/ready` HTTP 200 mit `status=ready`.
+Ein kontrollierter Diagnose-Write/Read, eine minimale `$geoNear`-Abfrage sowie
+die Live-Indizes `lastLocation_2dsphere`, `location_2dsphere` und
+`createdAt_ttl` waren erfolgreich. Die temporären Diagnose- und Gerätedaten
+wurden danach gelöscht.
+
+Das vorhandene lokale DO-Mongo-Staging-Environment zeigt aktuell auf einen
+nicht auflösbaren Staging-Endpunkt und wurde nicht als Ultreia-Livebasis
+verwendet. Die deklarative App-Spezifikation unter
+`deploy/digitalocean-app.yaml` bleibt eigenständig und secretfrei; der
+Ziel-Hostname `api.ultreia.app` folgt ADR-0009, DNS wurde nicht verändert.
+
+Die DigitalOcean-App konnte in diesem Audit noch nicht angelegt oder deployt
+werden: `doctl` ist nicht als ausführbares Tool installiert und das vorhandene
+lokale DO-Profil wird von der API mit `401 Unauthorized` abgewiesen. Das ist
+der einzige verbleibende externe Infrastruktur-Blocker. Mobile bleibt über
+`EXPO_PUBLIC_API_BASE_URL` auf die spätere eigene Live-API konfigurierbar; eine
+produktive lokale IP wurde nicht festgeschrieben.
