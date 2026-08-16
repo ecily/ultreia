@@ -335,3 +335,29 @@ lokale DO-Profil wird von der API mit `401 Unauthorized` abgewiesen. Das ist
 der einzige verbleibende externe Infrastruktur-Blocker. Mobile bleibt über
 `EXPO_PUBLIC_API_BASE_URL` auf die spätere eigene Live-API konfigurierbar; eine
 produktive lokale IP wurde nicht festgeschrieben.
+
+## Technischer MVP-Testbuild (2026-08-16)
+
+Der mobile Testbuild verwendet standardmäßig `https://api.ultreia.app/api`.
+Eine lokale Emulator-URL ist nur noch als ausdrückliche
+`EXPO_PUBLIC_API_BASE_URL`-Überschreibung für lokale Entwicklung vorgesehen.
+
+Das sichtbare Android-Testpanel zeigt jetzt API-/indirekten Mongo-Status,
+Device-ID, Location- und Background-Permissions, Push-Registrierung,
+Geofence-Registrierung, letzten Heartbeat, letzten Serverkontakt, letzten
+Geofence-Status und den letzten Fehler. Die technischen Aktionen für Device,
+Location, Heartbeat, Background Location, Push, lokale Notification und
+Geofence bleiben unverändert produktlogikfrei.
+
+Der aktuelle Android-Release-Testbuild wurde mit der öffentlichen API-Konfigu-
+ration erfolgreich gebaut:
+
+- Paket: `com.ecily.ultreia`
+- `minSdkVersion=24`, `targetSdkVersion=35`
+- APK: `mobile/android/app/build/outputs/apk/release/app-release.apk`
+- keine StepsMatch-, Firebase- oder `google-services.json`-Datei
+- lokales APK-Artefakt mit Debug-Testsignierung
+
+Nicht bewiesen sind weiterhin die öffentliche DO-API, Expo-Projekt-/Push-
+Credentials und ein physischer Smartphone-Lauf. `adb devices` hatte beim
+Build keinen angeschlossenen Gerätetestkandidaten.

@@ -34,6 +34,11 @@ export async function registerPushToken() {
   return token;
 }
 
+export async function requestServerPushTechnicalTest() {
+  const deviceId = await getDeviceId();
+  return postJson('/push/test', { deviceId, title: 'Ultreia Server-Push-Test', body: 'Technischer Server-Push-Test.' });
+}
+
 export async function showLocalTechnicalNotification() {
   await requestNotificationPermission();
   await Notifications.scheduleNotificationAsync({

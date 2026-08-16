@@ -1,4 +1,4 @@
-const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://10.0.2.2:3000/api';
+const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.ultreia.app/api';
 const projectId = process.env.EXPO_PROJECT_ID || '';
 
 module.exports = {
