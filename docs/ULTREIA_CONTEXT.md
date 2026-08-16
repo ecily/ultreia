@@ -332,9 +332,11 @@ Ziel-Hostname `api.ultreia.app` folgt ADR-0009, DNS wurde nicht verändert.
 Die DigitalOcean-App konnte in diesem Audit noch nicht angelegt oder deployt
 werden: `doctl` ist nicht als ausführbares Tool installiert und das vorhandene
 lokale DO-Profil wird von der API mit `401 Unauthorized` abgewiesen. Das ist
-der einzige verbleibende externe Infrastruktur-Blocker. Mobile bleibt über
-`EXPO_PUBLIC_API_BASE_URL` auf die spätere eigene Live-API konfigurierbar; eine
-produktive lokale IP wurde nicht festgeschrieben.
+der verbleibende externe Deployment-Blocker. Zusätzlich fehlen für die
+Sicherheitsanforderung ein dedizierter Atlas-Runtimeuser und für echten Push
+ein eigenes Expo-Projekt beziehungsweise dessen Projekt-ID. Mobile bleibt
+über `EXPO_PUBLIC_API_BASE_URL` auf die spätere eigene Live-API konfigurierbar;
+eine produktive lokale IP wurde nicht festgeschrieben.
 
 ## Technischer MVP-Testbuild (2026-08-16)
 
