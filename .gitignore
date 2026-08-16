@@ -10,3 +10,6 @@ logs/
 coverage/
 dist/
 build/
+
+mobile/.expo/
+**/debug.keystore

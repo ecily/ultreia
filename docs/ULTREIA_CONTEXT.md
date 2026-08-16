@@ -191,10 +191,16 @@ bleiben als `local_test` getrennt und dürfen nie als echte Camino-Daten
 
 ## Repository- und Infrastrukturstand
 
-Vorhanden sind statisches `frontend/`, minimales `backend/`,
-`shared/taxonomy/`, Tests und ADRs. Nicht vorhanden sind produktive Mobile-,
-Auth-, Model-, Heartbeat-, Matching-, Push-, Directions-, Provider- oder
-Admin-Implementierungen.
+Vorhanden sind statisches `frontend/`, ein eigenständiges technisches `backend`,
+Android-first `mobile/`, `shared/taxonomy/`, Tests, Deployment-Manifest und ADRs.
+Nicht vorhanden sind weiterhin Auth-, Camino-Domänen-, Matching-, Directions-,
+Provider- oder Admin-Implementierungen.
+
+Objektiv bereits implementiert sind die statische Landingpage mit DE/EN/ES-
+Sprachumschaltung, ein startbarer Express-Server, `GET /api/health`,
+`GET /api/taxonomy/needs`, lokale Env-Ladung, sichere MongoDB-Status-/Ping-
+Grundlage sowie automatisierte Backend-/Taxonomy-Tests. Diese technischen
+Grundlagen sind kein Nachweis für die Produktreife des Camino-MVP.
 
 MongoDB Phase 1b ist nicht abgeschlossen, solange der Health-Status nicht
 `database.connected=true` meldet. Bekannter Blocker ist die TLS-Prüfung
@@ -206,6 +212,22 @@ und `warning` ausschließen. Root `npm test` existiert nicht; Backend-Tests und
 Taxonomy-Validator sind separat auszuführen.
 
 ## MVP-Scope
+
+## Hero-Video-Status (2026-08-06)
+
+Die Landingpage ist für einen optionalen, nach dem Initial-Render geladenen
+Desktop-Hintergrundloop vorbereitet. Poster, HTML-Inhalt und Overlays bleiben
+der primäre Hero; Smartphone, Data Saver und `prefers-reduced-motion: reduce`
+verwenden ausschließlich das statische Bild. Bei fehlendem oder nicht
+abspielbarem Video fällt der Hero still auf das Bild zurück.
+
+Die Quelle `ULTREIA.app.mp4` wurde mit portablem FFmpeg außerhalb des
+Repositories geprüft. Der frühere Ping-Pong-Loop wurde wegen sichtbarer
+Richtungsumkehr verworfen. Ersetzt wurde er durch einen ca. 10,2-sekündigen,
+ausschließlich vorwärts laufenden H.264-Loop aus 20,5–28,5 s mit weichem
+Ende-zu-Anfang-Übergang. Mobile, Reduced Motion und Data Saver verwenden
+weiterhin ausschließlich das Poster. Details stehen in
+`docs/ULTREIA_HERO_VIDEO.md`.
 
 Zuerst zu beweisen sind Route-/Variantenmodell, aktive Needs mit Priorisierung,
 Provider-/Offer-Grundmodell, Offer-Radius, kontrollierte Seed-Daten,
@@ -220,3 +242,63 @@ echte Deploys, Secrets, StepsMatch-Kopplung und sonstige Fremdprojekt-To-dos.
 Vor technischen Aufgaben dieses Dokument lesen. Keine Features im Rahmen einer
 Dokumentations- oder Audit-Aufgabe bauen. Nach relevanten Dokuänderungen
 Git-Status und Diff prüfen. Kein Push ohne ausdrückliche Freigabe.
+
+## Fundament-Transfer-Audit (2026-08-16)
+
+Ultreia first ist ab jetzt die operative Priorität. StepsMatch wurde als
+technische Referenz geprüft, aber nicht als Produktvorlage übernommen. Es gibt
+keine gemeinsame Runtime, kein Shared Package, keine gemeinsame API und keine
+gemeinsame MongoDB.
+
+### Aktuelle Architektur
+
+- Backend: Node.js/Express 5, native MongoDB Driver, sichere Environment-Ladung,
+  strukturierte Logs, Health/Ready, technische Geräte-/Push-/Location-/Geofence-
+  Routen und eine kontrollierte Push-Testschleuse.
+- MongoDB: eigene Datenbank aus `MONGODB_DB_NAME` (Default
+  `ultreia_production`) mit `devices`, `pushRegistrations`,
+  `locationHeartbeats`, `geofenceEvents` und `diagnosticEvents`. `devices` und
+  Heartbeats verwenden eigene `2dsphere`-Indizes; Heartbeats haben TTL.
+- Mobile: Expo SDK 53, React Native 0.79.5, Android-Paket `com.ecily.ultreia`,
+  SecureStore-Device-ID, Notification-Channels, Foreground-/Background-
+  Location, Heartbeat, lokaler Push und technischer Geofence-ENTER-Handler.
+- Deployment: deklaratives DigitalOcean-App-Manifest unter
+  `deploy/digitalocean-app.yaml`; es enthält keine Secretwerte.
+
+### Übernommene technische Prinzipien
+
+Übernommen wurden ausschließlich abstrakte Muster aus dem StepsMatch-Audit:
+stabile Device-ID, Push-Token-Registrierungsgrundlage, Android-Notification-
+Channels, Background-Location mit Heartbeat, 2dsphere-Geoindex, Ready-Checks,
+TTL-Diagnostik und sichtbare Fehler-/Diagnosezustände. Nicht übernommen wurden
+Offers, Provider, Marketplace, Matchinglogik, StepsMatch-API-Namen, Daten,
+Branding, Firebase-Dateien oder Deployments.
+
+### Verifizierter Stand
+
+- Backend: 19 Tests grün, Syntaxchecks grün, lokaler Health-Smoke `200`, Ready
+  ohne Datenbank korrekt `503`.
+- Mobile: `npm install`, Expo-Konfiguration, Lint und TypeScript grün.
+- Android: Release-APK für `arm64-v8a` erfolgreich gebaut; lokales Artefakt liegt
+  unter `mobile/android/app/build/outputs/apk/release/app-release.apk`.
+- Nicht verifiziert: echter Smartphone-Install, Notification-/FCM-Token,
+  Background-Heartbeat, Geofence-ENTER und Server-Push gegen eine live
+  erreichbare Ultreia-API. Es war kein Android-Gerät verbunden.
+
+### Environment, Risiken und nächster Block
+
+Versionierbar sind nur Beispielnamen in `backend/.env.example` und
+`mobile/.env.example`. Für einen Live-Stand fehlen noch `MONGODB_URI`, eigene
+Expo/Firebase-Projektkonfiguration, DigitalOcean Runtime-Secrets und eine live
+API-Domain. Die lokale MongoDB-Prüfung ist deshalb noch nicht
+`database.connected=true`.
+
+Background Location, Geofence und Push bleiben Android-/OEM-/Batterie-
+abhängig. Der Release-Build nutzt vorerst Debug-Signing als lokale APK-Baseline;
+vor Veröffentlichung ist ein eigener Release-Keystore erforderlich.
+
+Nach Einrichtung der eigenen MongoDB-/DigitalOcean-/Expo-Credentials folgt ein
+einziger technischer Android-E2E-Block gegen die eigene live Ultreia-API:
+APK installieren, Permissions erteilen, Device-/Push-Registration, lokalen
+Push, Heartbeat, Background-Heartbeat, Geofence-ENTER und kontrollierten
+Server-Push verifizieren. Danach erst Route/Trip/Need neutral modellieren.

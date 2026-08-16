@@ -105,7 +105,7 @@ function safeError(error) {
 
 export function createMongoService(config) {
   const mongodbUri = config.mongodbUri || '';
-  const mongodbDbName = config.mongodbDbName || 'ultreia_staging';
+  const mongodbDbName = config.mongodbDbName || 'ultreia_production';
 
   let client = null;
   let db = null;
@@ -156,6 +156,7 @@ export function createMongoService(config) {
       await client.connect();
       db = client.db(mongodbDbName);
       await db.command({ ping: 1 });
+      await ensureIndexes(db, config.heartbeatTtlSeconds);
       connected = true;
       lastError = null;
     } catch (error) {
@@ -192,4 +193,16 @@ export function createMongoService(config) {
     getDb,
     getStatus,
   };
+}
+
+async function ensureIndexes(database, heartbeatTtlSeconds = 604800) {
+  await Promise.all([
+    database.collection('devices').createIndex({ deviceId: 1 }, { unique: true, name: 'deviceId_unique' }),
+    database.collection('pushRegistrations').createIndex({ token: 1 }, { unique: true, name: 'token_unique' }),
+    database.collection('pushRegistrations').createIndex({ deviceId: 1, enabled: 1 }, { name: 'device_enabled' }),
+    database.collection('devices').createIndex({ lastLocation: '2dsphere' }, { name: 'lastLocation_2dsphere' }),
+    database.collection('locationHeartbeats').createIndex({ location: '2dsphere' }, { name: 'location_2dsphere' }),
+    database.collection('locationHeartbeats').createIndex({ createdAt: 1 }, { expireAfterSeconds: heartbeatTtlSeconds, name: 'createdAt_ttl' }),
+    database.collection('geofenceEvents').createIndex({ deviceId: 1, receivedAt: -1 }, { name: 'device_receivedAt' }),
+  ]);
 }

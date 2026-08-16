@@ -2,6 +2,11 @@ const DEFAULT_PORT = 3000;
 const DEFAULT_LOG_LEVEL = 'info';
 const SERVICE_NAME = 'ultreia-backend';
 
+function parseBoolean(value, fallback = false) {
+  if (value === undefined || value === null || value === '') return fallback;
+  return ['1', 'true', 'yes', 'on'].includes(String(value).trim().toLowerCase());
+}
+
 function parsePort(value) {
   if (!value) return DEFAULT_PORT;
 
@@ -35,8 +40,13 @@ export function loadConfig(env = process.env) {
     port: parsePort(env.PORT),
     corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
     mongodbUri: env.MONGODB_URI || '',
-    mongodbDbName: env.MONGODB_DB_NAME || 'ultreia_staging',
+    mongodbDbName: env.MONGODB_DB_NAME || 'ultreia_production',
     logLevel: env.LOG_LEVEL || DEFAULT_LOG_LEVEL,
+    expoProjectId: env.EXPO_PROJECT_ID || '',
+    expoAccessToken: env.EXPO_ACCESS_TOKEN || '',
+    pushTestEnabled: parseBoolean(env.PUSH_TEST_ENABLED, false),
+    pushTestKey: env.PUSH_TEST_KEY || '',
+    heartbeatTtlSeconds: Number(env.HEARTBEAT_TTL_SECONDS || 604800),
     serviceName: SERVICE_NAME,
     version: env.npm_package_version || env.APP_VERSION || '0.1.0',
     commitShort: shortCommit(commitSha),

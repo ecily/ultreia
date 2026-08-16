@@ -3,6 +3,10 @@ import { loadConfig } from './config/env.js';
 import { createMongoService } from './db/mongoClient.js';
 import { createHealthRouter } from './routes/health.js';
 import { createTaxonomyRouter } from './routes/taxonomy.js';
+import { createDeviceRouter } from './routes/devices.js';
+import { createLocationRouter } from './routes/location.js';
+import { createPushRouter } from './routes/push.js';
+import { createDiagnosticsRouter } from './routes/diagnostics.js';
 
 function createCorsMiddleware(corsOrigins) {
   return function corsMiddleware(req, res, next) {
@@ -11,7 +15,7 @@ function createCorsMiddleware(corsOrigins) {
     if (requestOrigin && corsOrigins.includes(requestOrigin)) {
       res.setHeader('Access-Control-Allow-Origin', requestOrigin);
       res.setHeader('Vary', 'Origin');
-      res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     }
 
@@ -33,6 +37,10 @@ export function createApp(config = loadConfig(), services = {}) {
 
   app.use('/api', createHealthRouter(config, databaseService));
   app.use('/api/taxonomy', createTaxonomyRouter());
+  app.use('/api/devices', createDeviceRouter(config, databaseService));
+  app.use('/api/location', createLocationRouter(config, databaseService));
+  app.use('/api/push', createPushRouter(config, databaseService));
+  app.use('/api/diagnostics', createDiagnosticsRouter(config, databaseService));
 
   app.use((req, res) => {
     res.status(404).json({

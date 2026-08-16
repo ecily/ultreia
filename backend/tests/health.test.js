@@ -69,4 +69,14 @@ describe('GET /api/health', () => {
     assert.equal(allowed.headers.get('access-control-allow-origin'), 'http://localhost:5173');
     assert.equal(denied.headers.get('access-control-allow-origin'), null);
   });
+
+  it('keeps readiness red when the database is not connected', async () => {
+    const response = await fetch(`${baseUrl}/api/ready`);
+    const body = await response.json();
+
+    assert.equal(response.status, 503);
+    assert.equal(body.ok, false);
+    assert.equal(body.status, 'not_ready');
+    assert.equal(body.checks.database.status, 'not_configured');
+  });
 });
