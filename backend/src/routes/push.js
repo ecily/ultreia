@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { badRequest, databaseRequired, readDeviceId, readPushToken, readString } from '../lib/validation.js';
 import { logEvent } from '../lib/logger.js';
+import { createRateLimiter } from '../lib/rateLimit.js';
 
 function authorizedTestRequest(req, config) {
   if (!config.pushTestEnabled || !config.pushTestKey) return false;
@@ -30,6 +31,7 @@ export function createPushRouter(config, databaseService) {
       const token = readPushToken(req.body?.token);
       const platform = readString(req.body?.platform, { name: 'platform', max: 32 }) || 'android';
       const projectId = readString(req.body?.projectId, { name: 'projectId', max: 128 });
+      if (config.expoProjectId && projectId !== config.expoProjectId) throw new Error('projectId does not match the configured Expo project');
       const db = databaseRequired(res, databaseService);
       if (!db) return;
 
@@ -38,6 +40,10 @@ export function createPushRouter(config, databaseService) {
         { deviceId },
         { $set: { platform, lastSeenAt: now }, $setOnInsert: { deviceId, createdAt: now } },
         { upsert: true },
+      );
+      await db.collection('pushRegistrations').updateMany(
+        { deviceId, token: { $ne: token }, enabled: true },
+        { $set: { enabled: false, lastError: 'replaced' } },
       );
       await db.collection('pushRegistrations').updateOne(
         { token },
@@ -59,7 +65,7 @@ export function createPushRouter(config, databaseService) {
     testPushEnabled: config.pushTestEnabled,
   }));
 
-  router.post('/test', async (req, res) => {
+  router.post('/test', createRateLimiter({ max: 10 }), async (req, res) => {
     if (!authorizedTestRequest(req, config)) {
       return res.status(404).json({ ok: false, status: 'not_found' });
     }

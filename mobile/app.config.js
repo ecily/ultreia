@@ -1,5 +1,7 @@
 const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.ultreia.app/api';
 const projectId = process.env.EXPO_PROJECT_ID || '';
+const mode = process.env.ULTREIA_MODE || (apiBase.startsWith('https://') ? 'production' : 'local');
+if (mode === 'production' && !apiBase.startsWith('https://')) throw new Error('Production mobile builds require an HTTPS API URL');
 
 module.exports = {
   expo: {
@@ -11,6 +13,7 @@ module.exports = {
     userInterfaceStyle: 'automatic',
     android: {
       package: 'com.ecily.ultreia',
+      usesCleartextTraffic: mode !== 'production',
       permissions: [
         'ACCESS_COARSE_LOCATION',
         'ACCESS_FINE_LOCATION',
@@ -30,11 +33,12 @@ module.exports = {
       blockedPermissions: ['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE', 'SYSTEM_ALERT_WINDOW'],
     },
     plugins: [
+      './plugins/withCleartextTraffic',
       ['expo-notifications', { sounds: [] }],
       ['expo-location', { isAndroidBackgroundLocationEnabled: true, isAndroidForegroundServiceEnabled: true }],
       'expo-secure-store',
     ],
-    extra: { apiBase, eas: { projectId } },
+    extra: { apiBase, mode, eas: { projectId } },
     updates: { enabled: false },
   },
 };

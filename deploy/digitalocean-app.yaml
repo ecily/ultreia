@@ -1,5 +1,8 @@
 name: ultreia-backend
 region: fra
+domains:
+  - domain: api.ultreia.app
+    type: PRIMARY
 services:
   - name: api
     source_dir: backend
@@ -13,7 +16,7 @@ services:
     instance_count: 1
     instance_size_slug: basic-xxs
     health_check:
-      http_path: /api/health
+      http_path: /api/ready
       initial_delay_seconds: 20
       period_seconds: 30
       timeout_seconds: 10
@@ -21,6 +24,8 @@ services:
       failure_threshold: 3
     envs:
       - key: NODE_ENV
+        value: production
+      - key: ULTREIA_MODE
         value: production
       - key: PORT
         value: "3000"
@@ -30,6 +35,10 @@ services:
         value: https://www.ultreia.app,https://ultreia.app
       - key: PUSH_TEST_ENABLED
         value: "false"
+      - key: HEARTBEAT_TTL_SECONDS
+        value: "604800"
+      - key: DIAGNOSTIC_TTL_SECONDS
+        value: "2592000"
       - key: MONGODB_URI
         scope: RUN_TIME
         type: SECRET

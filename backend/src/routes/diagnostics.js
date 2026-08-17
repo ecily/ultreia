@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { badRequest, databaseRequired, readDeviceId, readString } from '../lib/validation.js';
 import { logEvent } from '../lib/logger.js';
+import { createRateLimiter } from '../lib/rateLimit.js';
 
 export function createDiagnosticsRouter(config, databaseService) {
   const router = Router();
 
-  router.post('/log', async (req, res) => {
+  router.post('/log', createRateLimiter({ max: 60 }), async (req, res) => {
     try {
       const deviceId = readDeviceId(req.body?.deviceId);
       const event = readString(req.body?.event, { name: 'event', max: 80, required: true });

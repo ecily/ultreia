@@ -36,7 +36,7 @@ export async function registerPushToken() {
 
 export async function requestServerPushTechnicalTest() {
   const deviceId = await getDeviceId();
-  return postJson('/push/test', { deviceId, title: 'Ultreia Server-Push-Test', body: 'Technischer Server-Push-Test.' });
+  return postJson('/push/test', { deviceId, title: 'Ultreia Server-Push-Test', message: 'Technischer Server-Push-Test.' });
 }
 
 export async function showLocalTechnicalNotification() {

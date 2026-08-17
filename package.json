@@ -1,0 +1,12 @@
+{
+  "name": "ultreia-technical-workspace",
+  "private": true,
+  "scripts": {
+    "verify:backend": "npm --prefix backend run verify",
+    "verify:db": "npm --prefix backend run verify:db",
+    "verify:mobile": "npm --prefix mobile run verify",
+    "verify:live": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-live.ps1",
+    "lan:backend": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-backend-lan.ps1",
+    "lan:mobile": "powershell -NoProfile -ExecutionPolicy Bypass -File mobile/scripts/start-lan.ps1"
+  }
+}

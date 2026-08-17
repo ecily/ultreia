@@ -8,6 +8,9 @@
     "android": "expo run:android",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
+    "verify": "npm ci --ignore-scripts --no-audit --no-fund && npm run lint && npm run typecheck && expo config --json",
+    "start:lan": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-lan.ps1",
+    "build:production": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-production.ps1",
     "ios": "expo run:ios"
   },
   "dependencies": {

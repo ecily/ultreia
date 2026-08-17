@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
-import { API_BASE } from '../lib/config';
+import { API_BASE, APP_VERSION, EXPO_PROJECT_ID, ULTREIA_MODE } from '../lib/config';
 import { getDeviceId, registerDevice } from '../lib/device';
 import { configureNotificationChannels, registerPushToken, requestNotificationPermission, requestServerPushTechnicalTest, showLocalTechnicalNotification } from '../lib/notifications';
 import { getCurrentLocation, registerTechnicalGeofence, sendHeartbeat, startBackgroundLocation } from '../lib/location';
@@ -12,7 +12,7 @@ export default function HomeScreen() {
   const [deviceId, setDeviceId] = useState('wird geladen …');
   const [location, setLocation] = useState(null);
   const [logs, setLogs] = useState([]);
-  const [status, setStatus] = useState({ api: 'unbekannt', database: 'unbekannt', location: 'unbekannt', background: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: '–', geofence: 'unbekannt', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
+  const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: '–', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
 
   const log = (message) => setLogs((current) => [`${new Date().toLocaleTimeString()}  ${message}`, ...current].slice(0, 30));
   const markServerContact = () => setStatus((current) => ({ ...current, lastServerContact: new Date().toLocaleTimeString(), error: '–' }));
@@ -23,8 +23,8 @@ export default function HomeScreen() {
       log(`${label}: OK`);
       return result;
     } catch (error) {
-      setStatus((current) => ({ ...current, error: `${label}: ${error.message}` }));
-      log(`${label}: FEHLER – ${error.message}`);
+      setStatus((current) => ({ ...current, error: `${label}: ${error.code || 'client_error'} / ${error.message}` }));
+      log(`${label}: FEHLER – ${error.code || 'client_error'} / ${error.message}`);
       return null;
     }
   };
@@ -40,6 +40,11 @@ export default function HomeScreen() {
     }).catch((error) => {
       setStatus((current) => ({ ...current, api: 'nicht erreichbar', error: `Backend-Health: ${error.message}` }));
       setLogs((current) => [`${new Date().toLocaleTimeString()}  Backend-Health: FEHLER – ${error.message}`, ...current].slice(0, 30));
+    });
+    getJson('/ready').then(() => {
+      setStatus((current) => ({ ...current, ready: 'bereit' }));
+    }).catch((error) => {
+      setStatus((current) => ({ ...current, ready: error.code === 'backend_not_ready' ? 'nicht bereit' : 'nicht erreichbar' }));
     });
   }, []);
 
@@ -69,6 +74,12 @@ export default function HomeScreen() {
     return result;
   };
 
+  const startBackground = async () => {
+    const result = await startBackgroundLocation();
+    setStatus((current) => ({ ...current, backgroundTask: result.started ? 'aktiv' : 'inaktiv' }));
+    return result;
+  };
+
   const pushToken = async () => {
     const token = await registerPushToken();
     setStatus((current) => ({ ...current, notification: 'erlaubt', push: 'registriert' }));
@@ -94,7 +105,7 @@ export default function HomeScreen() {
 
   const geofence = async () => {
     const result = await registerTechnicalGeofence();
-    setStatus((current) => ({ ...current, geofence: result.registered ? 'registriert' : 'nicht registriert' }));
+    setStatus((current) => ({ ...current, geofence: result.registered ? 'registriert' : 'nicht registriert', geofenceData: `${result.radiusMeters} m um aktuellen Standort` }));
     return result;
   };
 
@@ -105,16 +116,17 @@ export default function HomeScreen() {
         <Text style={styles.eyebrow}>ULTREIA · TECHNICAL FOUNDATION</Text>
         <Text style={styles.title}>Android proof screen</Text>
         <Text style={styles.copy}>Diese bewusst neutrale Oberfläche verifiziert Device-ID, Permissions, Location, Heartbeat, Push, lokale Notifications und Geofence.</Text>
+        <Text style={styles.label}>Environment / Version</Text><Text style={styles.value}>{ULTREIA_MODE} · {APP_VERSION} · Expo: {EXPO_PROJECT_ID ? 'konfiguriert' : 'fehlt'}</Text>
         <Text style={styles.label}>API</Text><Text style={styles.value}>{API_BASE}</Text>
         <Text style={styles.label}>Device-ID</Text><Text style={styles.value}>{deviceId}</Text>
         {location && <Text style={styles.value}>Standort: {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)} · ±{Math.round(location.accuracy || 0)} m</Text>}
         <Text style={styles.label}>Technischer Status</Text>
         <View style={styles.statusBox}>
-          <Text style={styles.status}>API: {status.api} · Mongo indirekt: {status.database}</Text>
-          <Text style={styles.status}>Location: {status.location} · Background: {status.background}</Text>
+          <Text style={styles.status}>API/Health: {status.api} · Ready: {status.ready} · Mongo: {status.database}</Text>
+          <Text style={styles.status}>Location: {status.location} · Background: {status.background} · Task: {status.backgroundTask}</Text>
           <Text style={styles.status}>Notification: {status.notification} · Push-Token: {status.push}</Text>
           <Text style={styles.status}>Local Push: {status.localPush} · Server Push: {status.serverPush}</Text>
-          <Text style={styles.status}>Geofence: {status.geofence}</Text>
+          <Text style={styles.status}>Geofence: {status.geofence} · Daten: {status.geofenceData}</Text>
           <Text style={styles.status}>Heartbeat: {status.lastHeartbeat}</Text>
           <Text style={styles.status}>Serverkontakt: {status.lastServerContact}</Text>
           <Text style={styles.status}>Geofence-Event: {status.lastGeofence}</Text>
@@ -126,7 +138,7 @@ export default function HomeScreen() {
           <Action label="Notification-Permission" onPress={() => run('Notification-Permission', requestNotifications)} />
           <Action label="Standort erfassen" onPress={() => run('Standort', locate)} />
           <Action label="Heartbeat senden" onPress={() => run('Heartbeat', heartbeat)} />
-          <Action label="Background Location starten" onPress={() => run('Background Location', startBackgroundLocation)} />
+          <Action label="Background Location starten" onPress={() => run('Background Location', startBackground)} />
           <Action label="Push-Token registrieren" onPress={() => run('Push-Token', pushToken)} />
           <Action label="Lokale Notification" onPress={() => run('Lokale Notification', localPush)} />
           <Action label="Server-Push-Test" onPress={() => run('Server-Push-Test', serverPush)} />

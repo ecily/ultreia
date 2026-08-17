@@ -1,6 +1,8 @@
 const DEFAULT_PORT = 3000;
 const DEFAULT_LOG_LEVEL = 'info';
 const SERVICE_NAME = 'ultreia-backend';
+const DEFAULT_MODE = 'local';
+const VALID_MODES = new Set(['local', 'lan', 'production']);
 
 function parseBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
@@ -16,6 +18,13 @@ function parsePort(value) {
   }
 
   return port;
+}
+
+function parsePositiveInteger(value, fallback, name) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const number = Number(value);
+  if (!Number.isInteger(number) || number <= 0) throw new Error(`${name} must be a positive integer`);
+  return number;
 }
 
 function parseCorsOrigins(value) {
@@ -34,8 +43,11 @@ function shortCommit(value) {
 
 export function loadConfig(env = process.env) {
   const commitSha = env.COMMIT_SHA || env.SOURCE_VERSION || env.GIT_COMMIT || 'unknown';
+  const runtimeMode = env.ULTREIA_MODE || (env.NODE_ENV === 'production' ? 'production' : DEFAULT_MODE);
+  if (!VALID_MODES.has(runtimeMode)) throw new Error('ULTREIA_MODE must be local, lan, or production');
 
   return {
+    runtimeMode,
     nodeEnv: env.NODE_ENV || 'development',
     port: parsePort(env.PORT),
     corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
@@ -46,9 +58,25 @@ export function loadConfig(env = process.env) {
     expoAccessToken: env.EXPO_ACCESS_TOKEN || '',
     pushTestEnabled: parseBoolean(env.PUSH_TEST_ENABLED, false),
     pushTestKey: env.PUSH_TEST_KEY || '',
-    heartbeatTtlSeconds: Number(env.HEARTBEAT_TTL_SECONDS || 604800),
+    heartbeatTtlSeconds: parsePositiveInteger(env.HEARTBEAT_TTL_SECONDS, 604800, 'HEARTBEAT_TTL_SECONDS'),
+    diagnosticTtlSeconds: parsePositiveInteger(env.DIAGNOSTIC_TTL_SECONDS, 2592000, 'DIAGNOSTIC_TTL_SECONDS'),
     serviceName: SERVICE_NAME,
     version: env.npm_package_version || env.APP_VERSION || '0.1.0',
     commitShort: shortCommit(commitSha),
   };
+}
+
+export function validateRuntimeConfig(config) {
+  const errors = [];
+  const production = config.runtimeMode === 'production' || config.nodeEnv === 'production';
+
+  if (production) {
+    if (!config.mongodbUri) errors.push('MONGODB_URI');
+    if (config.mongodbDbName !== 'ultreia_production') errors.push('MONGODB_DB_NAME=ultreia_production');
+    if (!config.corsOrigins.length) errors.push('CORS_ORIGINS');
+    if (config.pushTestEnabled && !config.pushTestKey) errors.push('PUSH_TEST_KEY when PUSH_TEST_ENABLED=true');
+    if (config.pushTestEnabled && !config.expoProjectId) errors.push('EXPO_PROJECT_ID when PUSH_TEST_ENABLED=true');
+  }
+
+  return { ok: errors.length === 0, errors };
 }

@@ -1,7 +1,8 @@
 {
   "cli": { "version": ">= 10.0.0" },
   "build": {
-    "preview": { "distribution": "internal", "android": { "buildType": "apk" } },
-    "production": { "android": { "buildType": "apk" } }
+    "preview": { "distribution": "internal", "android": { "buildType": "apk" }, "env": { "ULTREIA_MODE": "production", "EXPO_PUBLIC_API_BASE_URL": "https://api.ultreia.app/api" } },
+    "production": { "android": { "buildType": "apk" }, "env": { "ULTREIA_MODE": "production", "EXPO_PUBLIC_API_BASE_URL": "https://api.ultreia.app/api" } },
+    "lan": { "distribution": "internal", "android": { "buildType": "apk" }, "env": { "ULTREIA_MODE": "lan" } }
   }
 }

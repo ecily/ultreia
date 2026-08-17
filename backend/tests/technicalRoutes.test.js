@@ -35,4 +35,11 @@ describe('technical routes', () => {
     });
     assert.equal(response.status, 404);
   });
+
+  it('rate-limits the diagnostic push surface before it can become noisy', async () => {
+    const responses = await Promise.all(Array.from({ length: 12 }, () => fetch(`${baseUrl}/api/push/test`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ deviceId: 'not-used' }),
+    })));
+    assert.equal(responses.some((response) => response.status === 429), true);
+  });
 });

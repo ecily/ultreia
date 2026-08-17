@@ -14,8 +14,9 @@ npm run android
 
 Set `EXPO_PUBLIC_API_BASE_URL` to the reachable Ultreia API. The test-build
 default is `https://api.ultreia.app/api`. For local emulator work, explicitly
-override it with `http://10.0.2.2:3000/api`; for a physical phone use the
-deployed Ultreia API URL.
+set `ULTREIA_MODE=local` and override it with `http://10.0.2.2:3000/api`; for
+a physical phone use the deployed Ultreia API URL. The production EAS profile
+sets `ULTREIA_MODE=production` and requires HTTPS.
 
 The Android package is `com.ecily.ultreia`. No StepsMatch Firebase or Google
 configuration is used. Expo/Firebase credentials are required separately before

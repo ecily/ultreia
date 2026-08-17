@@ -156,7 +156,7 @@ export function createMongoService(config) {
       await client.connect();
       db = client.db(mongodbDbName);
       await db.command({ ping: 1 });
-      await ensureIndexes(db, config.heartbeatTtlSeconds);
+      await ensureIndexes(db, config.heartbeatTtlSeconds, config.diagnosticTtlSeconds);
       connected = true;
       lastError = null;
     } catch (error) {
@@ -195,7 +195,7 @@ export function createMongoService(config) {
   };
 }
 
-async function ensureIndexes(database, heartbeatTtlSeconds = 604800) {
+async function ensureIndexes(database, heartbeatTtlSeconds = 604800, diagnosticTtlSeconds = 2592000) {
   await Promise.all([
     database.collection('devices').createIndex({ deviceId: 1 }, { unique: true, name: 'deviceId_unique' }),
     database.collection('pushRegistrations').createIndex({ token: 1 }, { unique: true, name: 'token_unique' }),
@@ -204,5 +204,7 @@ async function ensureIndexes(database, heartbeatTtlSeconds = 604800) {
     database.collection('locationHeartbeats').createIndex({ location: '2dsphere' }, { name: 'location_2dsphere' }),
     database.collection('locationHeartbeats').createIndex({ createdAt: 1 }, { expireAfterSeconds: heartbeatTtlSeconds, name: 'createdAt_ttl' }),
     database.collection('geofenceEvents').createIndex({ deviceId: 1, receivedAt: -1 }, { name: 'device_receivedAt' }),
+    database.collection('diagnosticEvents').createIndex({ deviceId: 1, createdAt: -1 }, { name: 'device_createdAt' }),
+    database.collection('diagnosticEvents').createIndex({ createdAt: 1 }, { expireAfterSeconds: diagnosticTtlSeconds, name: 'createdAt_ttl' }),
   ]);
 }

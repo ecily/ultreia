@@ -360,6 +360,49 @@ ration erfolgreich gebaut:
 - keine StepsMatch-, Firebase- oder `google-services.json`-Datei
 - lokales APK-Artefakt mit Debug-Testsignierung
 
+## Konsolidierter technischer Betriebsstand (2026-08-17)
+
+Die Runtime-Konfiguration ist jetzt explizit in `local`, `lan` und
+`production` getrennt. Production-Mobile-Builds verwenden ausschließlich
+`https://api.ultreia.app/api`; lokale Emulator- und LAN-URLs werden nur über
+explizite Environment-Profile gesetzt. Das LAN-Profil ermittelt die private
+IPv4-Adresse automatisch und aktiviert Android-Cleartext nur app-lokal für
+`lan`, nie für Production.
+
+Der Backend-Production-Start validiert `MONGODB_URI`,
+`MONGODB_DB_NAME=ultreia_production`, CORS und aktivierte Push-Testvariablen
+vor dem Listen. Der DO-Healthcheck zeigt auf `/api/ready`. Mongo-Startup
+initialisiert idempotent Device-, Push-, Geo-, Heartbeat-, Geofence- und
+Diagnose-Indizes; Heartbeats und Diagnoseevents haben TTL. Diagnose-/Push-
+Testflächen sind rate-limitiert, und Logger redigieren Tokens, URIs und
+Schlüsselwerte.
+
+Automatisierbare Pfade:
+
+- `npm run verify:backend`
+- `npm run verify:mobile`
+- `npm run verify:db`
+- `npm run verify:live`
+- `npm run lan:backend` plus `npm run lan:mobile`
+- `npm --prefix mobile run build:production`
+
+Der Mobile-Statusbereich zeigt jetzt Modus, Version, Expo-Konfiguration,
+Health/Ready/Mongo-Indikator, API-/Serverkontakt, Permissions, Background-
+Task, Push-/Local-/Server-Push-Status, Heartbeat, Geofence-Daten, letzten
+Geofence-Event und Fehlerklasse. Diese Anzeige ist technische Diagnostik und
+keine Pilger-UX.
+
+## Next operator action
+
+1. Gültigen DigitalOcean-App-Platform-Zugriff sowie Atlas-Berechtigung für
+   einen dedizierten Ultreia-Runtimeuser bereitstellen.
+2. Expo-Projektzugang/Project-ID bereitstellen, falls echter Push-Test im
+   selben Block gewünscht ist.
+3. Codex mit `Provision Ultreia now` fortsetzen; App, Runtime-Secrets,
+   Deployment, öffentliche Smokes und den finalen Production-APK werden dann
+   automatisch abgearbeitet. Der physische Android-Test bleibt danach der
+   einzige manuelle Gerätetest.
+
 Nicht bewiesen sind weiterhin die öffentliche DO-API, Expo-Projekt-/Push-
 Credentials und ein physischer Smartphone-Lauf. `adb devices` hatte beim
 Build keinen angeschlossenen Gerätetestkandidaten.
