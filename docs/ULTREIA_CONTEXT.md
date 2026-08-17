@@ -414,6 +414,25 @@ führt aber weiterhin ausschließlich `backend` mit `npm --prefix backend` aus.
 Der nächste Deploy benötigt danach weiterhin den dedizierten
 `MONGODB_URI`-Runtime-Secret.
 
+## Reale DO-Provisionierung (2026-08-17)
+
+Die DO-App `ultreia-backend` wurde nach einer erfolgreichen Kosten-Proposition
+mit genau einer `apps-s-1vcpu-0.5gb`-Instance und der Domain
+`api.ultreia.app` angelegt. Die Kosten-Proposition meldete 5 USD/Monat.
+
+Der erste Build war erfolgreich, scheiterte aber beim Start an der isolierten
+`source_dir: backend`-Struktur und dem fehlenden Zugriff auf
+`shared/taxonomy`. Nach Umstellung auf den Repo-Root mit
+`npm --prefix backend ci` und `npm --prefix backend start` war Build und
+Containerstart erfolgreich. Der zweite Deploy erreichte die eigene
+Production-Validierung und stoppte ausschließlich mit
+`invalid_runtime_config`, fehlend ist `MONGODB_URI`.
+
+Die App ist deshalb angelegt, aber noch nicht ready/live. Es wurde kein
+fremder Atlas-Zugang verwendet. Nach dem Setzen des dedizierten
+`MONGODB_URI`-Runtime-Secrets folgt Redeploy, DNS-/TLS-Prüfung und der
+kontrollierte Live-Smoke.
+
 ## Next operator action
 
 1. Gültigen DigitalOcean-App-Platform-Zugriff sowie Atlas-Berechtigung für
