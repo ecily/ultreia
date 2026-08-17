@@ -592,3 +592,38 @@ Health/Ready, APK-Analyse und Security-Scan sind grün. `adb devices` zeigt
 weiterhin kein Gerät; Installation, Permission-Lauf, Token, Background-
 Heartbeat, Geofence-ENTER und tatsächliche Server-Push-Zustellung bleiben daher
 Hardwarebeweise.
+
+## Expo-Asset-Standalone-Fix und Realgerät (2026-08-17)
+
+Der erste Production-APK-Lauf auf echter Hardware startete nicht. Der
+Logcat-Befund war eindeutig:
+
+`[runtime not ready]: Error: Cannot find native module 'ExpoAsset'`
+
+Ursache war keine Firebase-, FCM- oder Backend-Konfiguration. `expo-asset`
+war nur als transitive, verschachtelte Expo-Abhängigkeit vorhanden und nicht
+als direkte App-Abhängigkeit registriert. Dadurch fehlte das Modul in der
+Expo-SDK-53-Autolinking-Auflösung für den Standalone-Release-Lauf.
+
+Die Korrektur ist reproduzierbar umgesetzt:
+
+- `mobile/package.json` enthält direkt `expo-asset: ~11.1.7`, passend zu
+  Expo 53.
+- `mobile/package-lock.json` wurde aktualisiert; ein frisches
+  `npm ci --ignore-scripts --no-audit --no-fund` installiert `expo-asset`
+  auf Root-Ebene.
+- `npx expo-modules-autolinking resolve --platform android --json` enthält
+  danach `expo-asset` und `expo.modules.asset.AssetModule`.
+- `npm --prefix mobile run build:production` baut die Release-APK mit
+  `expo-asset (11.1.7)` erfolgreich.
+
+Der korrigierte APK wurde am angeschlossenen Gerät installiert und per
+`adb shell monkey -p com.ecily.ultreia -c android.intent.category.LAUNCHER 1`
+gestartet. Nach mindestens 15 Sekunden lief der Prozess weiter, die
+`MainActivity` war resumed/visible, und Logcat zeigte `Running "main"` sowie
+erfolgreiche Firebase-/ExpoModulesCore-Initialisierung. Es gab keinen
+`FATAL EXCEPTION`-Eintrag und keinen `ExpoAsset`-Fehler.
+
+Damit ist der ursprüngliche Start-Crash auf diesem Realgerät behoben. Nicht
+behauptet werden dadurch Token-Zustellung, Background-Location oder
+Geofence-ENTER; diese bleiben separate manuelle Funktionsnachweise.

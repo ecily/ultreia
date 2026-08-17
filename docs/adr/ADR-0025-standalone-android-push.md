@@ -25,6 +25,11 @@ kein fremdes `google-services.json` und kein fremdes FCM-Secret werden
   benötigt zusätzlich geschützte Runtime-Konfiguration.
 - Lokale Notifications, Background Location und Geofencing funktionieren
   nativ innerhalb der Standalone-App.
+- Für Expo SDK 53 muss `expo-asset` als direkte App-Abhängigkeit mit der
+  SDK-kompatiblen Version `~11.1.7` geführt werden. Eine nur transitive
+  Expo-Abhängigkeit reicht für die Standalone-Autolinking-Auflösung nicht;
+  andernfalls kann der Release-Lauf mit `Cannot find native module
+  'ExpoAsset'` abbrechen.
 
 ## Externe Grenze
 
