@@ -433,6 +433,55 @@ fremder Atlas-Zugang verwendet. Nach dem Setzen des dedizierten
 `MONGODB_URI`-Runtime-Secrets folgt Redeploy, DNS-/TLS-Prüfung und der
 kontrollierte Live-Smoke.
 
+## Tatsächlich verifizierter Live- und Android-Stand (2026-08-17)
+
+Die öffentliche API ist live unter `https://api.ultreia.app/api`. Der
+vorhandene Befehl `npm run verify:live` war erfolgreich:
+
+- DNS und HTTPS erfolgreich
+- `/api/health`: HTTP 200, `database.connected=true`
+- `/api/ready`: HTTP 200, `status=ready`
+
+Der produktive technische API-Smoke war ebenfalls erfolgreich und verwendete
+ausschließlich markierte Diagnose-Testdaten mit der Device-ID
+`diagnostic-live-smoke-20260817`:
+
+- Device Registration: HTTP 200
+- Heartbeat-Write: HTTP 200
+- GeoNear-Read über `/api/location/nearby`: HTTP 200, Testgerät gefunden
+- Geofence-ENTER-Write: HTTP 200
+- Diagnostic-Write: HTTP 202
+
+Die Daten sind keine Pilgerdaten. Der DO-Exec-Kanal ist für den aktuellen
+Operator-Token mit HTTP 403 nicht freigeschaltet; deshalb wurden keine
+direkten Mongo-Indexlisten aus dem Container behauptet. Der erfolgreiche
+GeoNear-Read beweist den produktiven Geo-Pfad; TTL-/Indexdefinitionen bleiben
+im Backend-Startup idempotent versioniert.
+
+Die aktive DO-App entspricht der Spezifikation: `ultreia-backend`, eine
+`apps-s-1vcpu-0.5gb`-Instance, Port 3000, `/api/ready`,
+`MONGODB_DB_NAME=ultreia_production`, `MONGODB_URI` als Runtime-Secret-Key,
+keine DO-Datenbank und Domain `api.ultreia.app`.
+
+Der aktuelle Production-Testbuild wurde erfolgreich gebaut:
+
+- Paket: `com.ecily.ultreia`
+- APK: `mobile/android/app/build/outputs/apk/release/app-release.apk`
+- Größe: ca. 22,2 MB
+- API: `https://api.ultreia.app/api`
+- Expo SDK 53, Android Cleartext in Production deaktiviert
+- keine StepsMatch-, Firebase- oder `google-services.json`-Artefakte
+
+`adb devices` enthält weiterhin kein angeschlossenes Gerät. Expo/EAS konnte
+in dieser Shell nicht authentifiziert werden (`expo whoami`: Network fetch
+failed; EAS-Aufruf: Timeout), und `EXPO_PROJECT_ID` bleibt leer. Push,
+Background Location und Geofence sind daher implementiert und im Panel
+vorbereitet, aber nicht als Hardwarelauf bewiesen.
+
+Der temporäre DO-Operator-Token ist nicht versioniert, nicht dokumentiert und
+nicht in Logs übernommen. Nach Abschluss der Infrastrukturarbeiten soll er
+außerhalb dieses Repo-Scope gelöscht oder rotiert werden.
+
 ## Next operator action
 
 1. Gültigen DigitalOcean-App-Platform-Zugriff sowie Atlas-Berechtigung für
