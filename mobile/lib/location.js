@@ -60,15 +60,18 @@ export async function registerTechnicalGeofence(position = null) {
   const permissions = await requestLocationPermissions();
   if (permissions.background.status !== 'granted') throw new Error('Background-Location-Permission fehlt.');
   const current = position || await getCurrentLocation();
+  const latitude = current.coords.latitude + 0.00036;
+  const longitude = current.coords.longitude;
+  const radiusMeters = 25;
   const started = await Location.hasStartedGeofencingAsync(GEOFENCE_TASK);
   if (started) await Location.stopGeofencingAsync(GEOFENCE_TASK);
   await Location.startGeofencingAsync(GEOFENCE_TASK, [{
     identifier: 'ultreia-technical-test',
-    latitude: current.coords.latitude,
-    longitude: current.coords.longitude,
-    radius: 100,
+    latitude,
+    longitude,
+    radius: radiusMeters,
     notifyOnEnter: true,
     notifyOnExit: false,
   }]);
-  return { registered: true, radiusMeters: 100 };
+  return { registered: true, geofenceId: 'ultreia-technical-test', latitude, longitude, radiusMeters };
 }

@@ -19,8 +19,17 @@ a physical phone use the deployed Ultreia API URL. The production EAS profile
 sets `ULTREIA_MODE=production` and requires HTTPS.
 
 The Android package is `com.ecily.ultreia`. No StepsMatch Firebase or Google
-configuration is used. Expo/Firebase credentials are required separately before
-push-token retrieval can work in a release build.
+configuration is used. The native release APK contains the production JS
+bundle and does not require Expo Go, Metro or a browser. Expo/Firebase
+credentials are required separately before push-token retrieval can work in a
+release build. For a local standalone Android build, place the own
+`google-services.json` in this directory; it is git-ignored and must never be
+copied from StepsMatch. EAS can provide the corresponding own Firebase
+credentials through its protected project configuration.
+
+The technical geofence is deliberately offset about 40 m from the current
+position with a 25 m radius. This gives the hardware test a reproducible
+`technical_test` ENTER after a short walk toward the displayed center.
 
 ## Technical proof controls
 

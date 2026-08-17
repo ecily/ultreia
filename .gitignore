@@ -13,3 +13,6 @@ build/
 
 mobile/.expo/
 **/debug.keystore
+mobile/google-services.json
+mobile/*.keystore
+mobile/*.jks

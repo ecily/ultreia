@@ -105,7 +105,11 @@ export default function HomeScreen() {
 
   const geofence = async () => {
     const result = await registerTechnicalGeofence();
-    setStatus((current) => ({ ...current, geofence: result.registered ? 'registriert' : 'nicht registriert', geofenceData: `${result.radiusMeters} m um aktuellen Standort` }));
+    setStatus((current) => ({
+      ...current,
+      geofence: result.registered ? 'registriert' : 'nicht registriert',
+      geofenceData: `${result.geofenceId} · ${result.radiusMeters} m · ${result.latitude.toFixed(5)}, ${result.longitude.toFixed(5)}`,
+    }));
     return result;
   };
 

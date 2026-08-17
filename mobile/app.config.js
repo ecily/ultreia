@@ -1,6 +1,11 @@
+const fs = require('node:fs');
+const path = require('node:path');
+
 const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.ultreia.app/api';
 const projectId = process.env.EXPO_PROJECT_ID || '';
 const mode = process.env.ULTREIA_MODE || (apiBase.startsWith('https://') ? 'production' : 'local');
+const localGoogleServicesFile = path.join(__dirname, 'google-services.json');
+const googleServicesFile = process.env.GOOGLE_SERVICES_FILE || (fs.existsSync(localGoogleServicesFile) ? './google-services.json' : undefined);
 if (mode === 'production' && !apiBase.startsWith('https://')) throw new Error('Production mobile builds require an HTTPS API URL');
 
 module.exports = {
@@ -13,6 +18,7 @@ module.exports = {
     userInterfaceStyle: 'automatic',
     android: {
       package: 'com.ecily.ultreia',
+      ...(googleServicesFile ? { googleServicesFile } : {}),
       usesCleartextTraffic: mode !== 'production',
       permissions: [
         'ACCESS_COARSE_LOCATION',

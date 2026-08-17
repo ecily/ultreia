@@ -482,6 +482,35 @@ Der temporäre DO-Operator-Token ist nicht versioniert, nicht dokumentiert und
 nicht in Logs übernommen. Nach Abschluss der Infrastrukturarbeiten soll er
 außerhalb dieses Repo-Scope gelöscht oder rotiert werden.
 
+## Standalone-APK- und Push-Integrationsstand (2026-08-17)
+
+Die aktuelle Release-APK ist eigenständig installierbar. Der ZIP-Inhalt
+enthält `assets/index.android.bundle`, ein natives Android-Manifest und DEX-
+Dateien; es gibt keine Expo-Go-/Metro-Artefakte. `expo-updates` ist deaktiviert,
+die Production-API ist fest auf `https://api.ultreia.app/api` konfiguriert und
+das Paket ist `com.ecily.ultreia`.
+
+Das Technikpanel zeigt Environment, API URL, App-Version, Device-ID,
+Health/Ready/Mongo, Permissions, aktuelle Position, Heartbeat,
+Background-Task, Push-/Local-/Server-Push-Status, Geofence-Daten und Fehler.
+Der technische Test-Geofence liegt etwa 40 m nördlich der aktuellen Position
+und hat 25 m Radius; sein Identifier ist `ultreia-technical-test`. Damit ist
+ein kurzer, reproduzierbarer ENTER-Test möglich, ohne Camino- oder
+Providerdaten zu verwenden.
+
+Der Push-Lifecycle ist vorbereitet: stabile Device-ID, eigene Expo Project ID
+als Konfigurationswert, Token-Registrierung, Token-Replacement,
+`DeviceNotRegistered`-Deaktivierung und geschützte Server-Push-Schleuse.
+Production bleibt solange `PUSH_TEST_ENABLED=false`, bis ein eigenes Expo-
+Projekt und ein eigener Firebase/FCM-Kontext vorhanden sind.
+
+Für lokale Standalone-Push-Builds wird eine eigene `mobile/google-services.json`
+benötigt; diese Datei ist git-ignoriert. Alternativ kann EAS den eigenen
+Firebase-Kontext geschützt bereitstellen. StepsMatch-IDs, FCM-Dateien und
+Credentials werden nicht übernommen. `npx expo whoami` schlug mit Network
+Fetch fehl, `npx eas whoami` lief in einen Timeout; die eigene Project ID ist
+noch nicht vorhanden.
+
 ## Next operator action
 
 1. Gültigen DigitalOcean-App-Platform-Zugriff sowie Atlas-Berechtigung für
