@@ -405,6 +405,15 @@ keine kostenpflichtige Ressource angelegt und kein Ersatz- oder Fremdtoken
 verwendet. Vor dem Deploy müssen Größe/Verfügbarkeit per DO-API bestätigt,
 danach App, Runtime-Secrets und `api.ultreia.app` eingerichtet werden.
 
+Die App `ultreia-backend` wurde nach erfolgreicher Kosten-Proposition mit
+HTTP 201 in DigitalOcean angelegt. Der erste Build war erfolgreich, der
+Start scheiterte an der bisherigen `source_dir: backend`-Isolation, weil der
+Backend-Code die versionierte gemeinsame Taxonomie unter `shared/taxonomy`
+liest. Die Spezifikation verwendet deshalb den Repository-Root als Source,
+führt aber weiterhin ausschließlich `backend` mit `npm --prefix backend` aus.
+Der nächste Deploy benötigt danach weiterhin den dedizierten
+`MONGODB_URI`-Runtime-Secret.
+
 ## Next operator action
 
 1. Gültigen DigitalOcean-App-Platform-Zugriff sowie Atlas-Berechtigung für

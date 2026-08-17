@@ -5,13 +5,13 @@ domains:
     type: PRIMARY
 services:
   - name: api
-    source_dir: backend
+    source_dir: /
     github:
       repo: ecily/ultreia
       branch: main
       deploy_on_push: true
-    build_command: npm ci
-    run_command: npm start
+    build_command: npm --prefix backend ci
+    run_command: npm --prefix backend start
     http_port: 3000
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-0.5gb
