@@ -83,7 +83,7 @@ export default function HomeScreen() {
   const pushToken = async () => {
     const token = await registerPushToken();
     setStatus((current) => ({ ...current, notification: 'erlaubt', push: 'registriert' }));
-    log(`Push-Token: ${token.slice(0, 12)}…`);
+    log('Expo Push Token: vorhanden; Backend-Registrierung: OK');
     return token;
   };
 
@@ -128,7 +128,7 @@ export default function HomeScreen() {
         <View style={styles.statusBox}>
           <Text style={styles.status}>API/Health: {status.api} · Ready: {status.ready} · Mongo: {status.database}</Text>
           <Text style={styles.status}>Location: {status.location} · Background: {status.background} · Task: {status.backgroundTask}</Text>
-          <Text style={styles.status}>Notification: {status.notification} · Push-Token: {status.push}</Text>
+          <Text style={styles.status}>Notification: {status.notification} · Expo Push Token / Backend: {status.push}</Text>
           <Text style={styles.status}>Local Push: {status.localPush} · Server Push: {status.serverPush}</Text>
           <Text style={styles.status}>Geofence: {status.geofence} · Daten: {status.geofenceData}</Text>
           <Text style={styles.status}>Heartbeat: {status.lastHeartbeat}</Text>

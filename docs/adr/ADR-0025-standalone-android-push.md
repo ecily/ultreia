@@ -28,9 +28,11 @@ kein fremdes `google-services.json` und kein fremdes FCM-Secret werden
 
 ## Externe Grenze
 
-Die Expo/EAS-Anmeldung und die eigene Project-ID sind erledigt: Ultreia nutzt
-den eigenen Account `ecily` und das eigene Projekt `@ecily/ultreia` mit der in
-`mobile/app.config.js` hinterlegten Project ID. Offen bleibt ausschließlich
-der eigene Firebase/FCM-Kontext. Erst danach kann der Production-Build mit
-geschützten eigenen Credentials neu gebaut und der echte Server-Push getestet
-werden. Ein physischer Android-Lauf bleibt ein separater Hardwarebeweis.
+Die Expo/EAS-Anmeldung, die eigene Project ID und der eigene Firebase/FCM-
+Kontext sind erledigt: Ultreia nutzt den eigenen Account `ecily`, das eigene
+Projekt `@ecily/ultreia`, Firebase `ultreia-37602` und FCM v1 für
+`com.ecily.ultreia`. Die lokale/native Google-Services-Datei bleibt ignoriert;
+EAS/DO-Credentials bleiben außerhalb des Repositories. Der Production-Build
+ist mit FCM erfolgreich gebaut, der Server-Push-Test ist live aktiviert und
+geschützt. Offen bleibt ausschließlich der physische Android-Hardwarebeweis
+für Token, tatsächliche Zustellung, Background Location und Geofence-ENTER.

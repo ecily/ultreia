@@ -14,5 +14,6 @@ build/
 mobile/.expo/
 **/debug.keystore
 mobile/google-services.json
+mobile/android/app/google-services.json
 mobile/*.keystore
 mobile/*.jks

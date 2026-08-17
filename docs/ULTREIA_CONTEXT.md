@@ -550,3 +550,45 @@ verwendet.
 Permission-Lauf, Token-Erzeugung, Background-Heartbeat, Geofence-ENTER und
 Server-Push können daher erst nach Firebase-Einrichtung und Anschluss eines
 Testgeräts als Hardwarebeweis gelten.
+
+## Eigener Firebase/FCM- und Live-Push-Stand (2026-08-17)
+
+Die eigene Datei `mobile/google-services.json` ist vorhanden, bleibt über
+`.gitignore` außerhalb des Repositories und wurde validiert:
+
+- Firebase Project ID: `ultreia-37602`
+- Android-Paket: `com.ecily.ultreia`
+- genau ein Android-Client, keine StepsMatch-Konfiguration
+
+Expo Prebuild kopiert diese Datei kontrolliert nach
+`mobile/android/app/google-services.json` (ebenfalls ignoriert), ergänzt das
+Google-Services-Gradle-Plugin und bindet die Google-Play-Services-Abhängigkeiten
+in die native Release-APK ein. Das aktuelle EAS-Credential für genau
+`@ecily/ultreia` und `com.ecily.ultreia` ist FCM v1 mit Firebase-Projekt
+`ultreia-37602`; ein Legacy-FCM-Credential ist für diese App nicht gesetzt.
+
+Der technische Server-Push-Test ist in DigitalOcean aktiviert und geschützt.
+Nur die eigene Expo Project ID, `PUSH_TEST_ENABLED=true` und ein außerhalb des
+Repos gespeicherter `PUSH_TEST_KEY` sind gesetzt; ein optionaler Expo-Access-
+Token wird vom aktuellen Backend nicht benötigt. Der aktive DO-Deploy ist
+`0baf20ee-7c43-49e2-a42e-293fada1ceea`. Live sind `/api/health` und `/api/ready`
+grün, `/api/push/status` meldet `projectConfigured=true` und
+`testPushEnabled=true`, ein Push-Test ohne Schlüssel bleibt `404 not_found`.
+Eine echte Zustellung ist ohne registriertes Gerät noch nicht bewiesen.
+
+Die aktuelle APK wurde mit der eigenen FCM-Konfiguration gebaut:
+
+- Datei: `mobile/android/app/build/outputs/apk/release/app-release.apk`
+- Paket: `com.ecily.ultreia`
+- Target SDK: 35, `debuggable=false`
+- Production-API: `https://api.ultreia.app/api`
+- Production-Bundle und natives Manifest vorhanden
+- Google Play Services/FCM im APK vorhanden
+- keine Expo-Go-, Metro- oder Dev-Client-Artefakte
+
+Das Technikpanel zeigt Push-Registrierung und Backend-Registrierung ohne
+Tokenwerte oder Tokenpräfixe an. Backend-Tests (23/23), Mobile-Verify, Live-
+Health/Ready, APK-Analyse und Security-Scan sind grün. `adb devices` zeigt
+weiterhin kein Gerät; Installation, Permission-Lauf, Token, Background-
+Heartbeat, Geofence-ENTER und tatsächliche Server-Push-Zustellung bleiben daher
+Hardwarebeweise.
