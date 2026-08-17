@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE, APP_VERSION, EXPO_PROJECT_ID, ULTREIA_MODE } from '../lib/config';
 import { getDeviceId, registerDevice } from '../lib/device';
 import { configureNotificationChannels, registerPushToken, requestNotificationPermission, requestServerPushTechnicalTest, showLocalTechnicalNotification } from '../lib/notifications';
-import { getCurrentLocation, registerTechnicalGeofence, sendHeartbeat, startBackgroundLocation } from '../lib/location';
+import { getBackgroundLocationTaskStatus, getCurrentLocation, getGeofenceStatus, getLocationPermissions, registerTechnicalGeofence, sendHeartbeat, startBackgroundLocation } from '../lib/location';
 import { getJson } from '../lib/api';
 
 export default function HomeScreen() {
   const [deviceId, setDeviceId] = useState('wird geladen …');
   const [location, setLocation] = useState(null);
   const [logs, setLogs] = useState([]);
-  const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: '–', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
+  const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', registration: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', backgroundService: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: '–', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
 
   const log = (message) => setLogs((current) => [`${new Date().toLocaleTimeString()}  ${message}`, ...current].slice(0, 30));
   const markServerContact = () => setStatus((current) => ({ ...current, lastServerContact: new Date().toLocaleTimeString(), error: '–' }));
@@ -30,6 +30,29 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
+    let mounted = true;
+    const refreshLocationPermissions = async () => {
+      const [result, taskStarted, geofenceStarted] = await Promise.all([
+        getLocationPermissions(),
+        getBackgroundLocationTaskStatus(),
+        getGeofenceStatus(),
+      ]);
+      if (!mounted) return;
+      setStatus((current) => ({
+        ...current,
+        location: result.foreground.granted ? 'erlaubt' : result.foreground.status,
+        background: result.background.granted ? 'erlaubt' : result.background.status,
+        backgroundTask: taskStarted ? 'aktiv' : 'inaktiv',
+        backgroundService: taskStarted ? 'aktiv' : 'inaktiv',
+        geofence: geofenceStarted ? 'registriert' : 'nicht registriert',
+      }));
+    };
+
+    refreshLocationPermissions().catch((error) => log(`Location-Status: ${error.message}`));
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') refreshLocationPermissions().catch((error) => log(`Location-Status: ${error.message}`));
+    });
+
     configureNotificationChannels().catch((error) => log(`Channels: ${error.message}`));
     getDeviceId().then(setDeviceId).catch((error) => log(`Device-ID: ${error.message}`));
     SecureStore.getItemAsync('ultreia.lastHeartbeat').then((value) => { if (value) setStatus((current) => ({ ...current, lastHeartbeat: JSON.parse(value).at })); }).catch(() => {});
@@ -46,6 +69,11 @@ export default function HomeScreen() {
     }).catch((error) => {
       setStatus((current) => ({ ...current, ready: error.code === 'backend_not_ready' ? 'nicht bereit' : 'nicht erreichbar' }));
     });
+
+    return () => {
+      mounted = false;
+      appStateSubscription.remove();
+    };
   }, []);
 
   const locate = async () => {
@@ -57,7 +85,11 @@ export default function HomeScreen() {
 
   const requestPermissions = async () => {
     const result = await (await import('../lib/location')).requestLocationPermissions();
-    setStatus((current) => ({ ...current, location: result.foreground.status, background: result.background.status }));
+    setStatus((current) => ({
+      ...current,
+      location: result.foreground.granted ? 'erlaubt' : result.foreground.status,
+      background: result.background.granted ? 'erlaubt' : result.background.status,
+    }));
     log(`Location: ${result.foreground.status}/${result.background.status}`);
     return result;
   };
@@ -74,9 +106,15 @@ export default function HomeScreen() {
     return result;
   };
 
+  const register = async () => {
+    const result = await registerDevice();
+    setStatus((current) => ({ ...current, registration: 'registriert' }));
+    return result;
+  };
+
   const startBackground = async () => {
     const result = await startBackgroundLocation();
-    setStatus((current) => ({ ...current, backgroundTask: result.started ? 'aktiv' : 'inaktiv' }));
+    setStatus((current) => ({ ...current, backgroundTask: result.started ? 'aktiv' : 'inaktiv', backgroundService: result.started ? 'aktiv' : 'inaktiv' }));
     return result;
   };
 
@@ -127,7 +165,9 @@ export default function HomeScreen() {
         <Text style={styles.label}>Technischer Status</Text>
         <View style={styles.statusBox}>
           <Text style={styles.status}>API/Health: {status.api} · Ready: {status.ready} · Mongo: {status.database}</Text>
+          <Text style={styles.status}>Device-Registration: {status.registration}</Text>
           <Text style={styles.status}>Location: {status.location} · Background: {status.background} · Task: {status.backgroundTask}</Text>
+          <Text style={styles.status}>Foreground-Service: {status.backgroundService}</Text>
           <Text style={styles.status}>Notification: {status.notification} · Expo Push Token / Backend: {status.push}</Text>
           <Text style={styles.status}>Local Push: {status.localPush} · Server Push: {status.serverPush}</Text>
           <Text style={styles.status}>Geofence: {status.geofence} · Daten: {status.geofenceData}</Text>
@@ -137,7 +177,7 @@ export default function HomeScreen() {
           <Text style={styles.status}>Fehler: {status.error}</Text>
         </View>
         <View style={styles.grid}>
-          <Action label="Backend-Gerät registrieren" onPress={() => run('Gerät registrieren', registerDevice)} />
+          <Action label="Backend-Gerät registrieren" onPress={() => run('Gerät registrieren', register)} />
           <Action label="Location-Permissions" onPress={() => run('Location-Permissions', requestPermissions)} />
           <Action label="Notification-Permission" onPress={() => run('Notification-Permission', requestNotifications)} />
           <Action label="Standort erfassen" onPress={() => run('Standort', locate)} />

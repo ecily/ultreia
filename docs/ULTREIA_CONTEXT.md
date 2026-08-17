@@ -627,3 +627,72 @@ erfolgreiche Firebase-/ExpoModulesCore-Initialisierung. Es gab keinen
 Damit ist der ursprüngliche Start-Crash auf diesem Realgerät behoben. Nicht
 behauptet werden dadurch Token-Zustellung, Background-Location oder
 Geofence-ENTER; diese bleiben separate manuelle Funktionsnachweise.
+
+## Realer Android-Hardwaretest und Permission-Refresh (2026-08-17)
+
+Der angeschlossene Hardwaretest lief auf Xiaomi `23090RA98G`, Android 16,
+HyperOS/V816, mit ADB-Serial `V4RKTOIF6TBAIR5L`. Die APK bleibt ein
+Production-Standalone-Build mit Target SDK 35.
+
+### Permission-Befund
+
+Der Android-Systemzustand wurde direkt und nicht aus dem Technikpanel gelesen:
+
+- `ACCESS_FINE_LOCATION`: `granted=true`, AppOp `allow`
+- `ACCESS_COARSE_LOCATION`: `granted=true`, AppOp `allow`
+- `ACCESS_BACKGROUND_LOCATION`: `granted=true`
+- `POST_NOTIFICATIONS`: `granted=true`
+- `FOREGROUND_SERVICE`: `granted=true`
+- `FOREGROUND_SERVICE_LOCATION`: `granted=true`
+- Standortüberwachung/Foreground-Start: AppOps aktiv; Android hielt die
+  Location-Bindung der Ultreia-App an den Google Location Manager.
+
+### Root Cause und Fix für `Background: denied`
+
+Der Widerspruch war ein veralteter React-State, keine verweigerte Android-
+Permission. Die App las den Permission-Status bisher nur beim expliziten
+Permission-Button und aktualisierte ihn nicht zuverlässig nach Rückkehr aus
+den Systemeinstellungen. Android konnte deshalb bereits `Always allow` haben,
+während das Panel noch `denied` anzeigte. Der erneute echte Permission-Flow
+lieferte auf demselben Gerät `granted/granted`.
+
+Die mobile Diagnostik verwendet jetzt `getForegroundPermissionsAsync()` und
+`getBackgroundPermissionsAsync()` für den initialen Status sowie für jeden
+`AppState=active`-Resume. Zusätzlich werden der Background-Location-Task und
+der Geofence-Task über die nativen Expo-Task-APIs aktualisiert. Die neue APK
+wurde installiert; direkt nach dem Start zeigte das Panel `Background:
+erlaubt`, `Task: aktiv` und `Foreground-Service: aktiv`.
+
+### Hardware-real bewiesen
+
+- Standalone-APK installiert und stabil gestartet; kein `FATAL EXCEPTION` und
+  kein `ExpoAsset`-Fehler.
+- Device-ID `ultreia-msxhx1mg-hmc3d7sx3v` über den Production-Endpoint
+  registriert; das Panel meldete `Gerät registrieren: OK`.
+- Foreground-Location gelesen; die Genauigkeit wurde technisch verarbeitet,
+  konkrete Koordinaten werden hier nicht dokumentiert.
+- Heartbeat erfolgreich an die Production-API gesendet; der Serverkontakt und
+  der Heartbeat-Zeitpunkt erschienen im Panel.
+- Notification-Permission, Expo-Project-ID, Expo-Push-Token-Erzeugung und
+  Backend-Registrierung erfolgreich; Tokenwerte erscheinen weder im Panel
+  noch im Testlog.
+- Lokale Notification ausgelöst; Android zeigte den Eintrag `Ultreia lokaler
+  Test` auf dem Channel `ultreia-attention-v1`.
+- Technischer Geofence `ultreia-technical-test` registriert; Expo
+  `TaskService` und Google Location Manager bestätigten die Registrierung.
+- App-Prozess und Location-Task blieben beim Ausschalten des Bildschirms
+  erhalten; nach dem konfigurierten 120-Sekunden-Fenster kam ohne physische
+  Bewegung kein neuer Heartbeat. Das ist wegen `distanceInterval: 50` kein
+  Beweis für einen blockierten Task.
+
+### Serverseitig bzw. noch offen
+
+- Live `/api/health` und `/api/ready` bleiben grün; `/api/push/status` meldet
+  eigene Project-ID-Konfiguration und aktivierten geschützten Push-Test.
+- Der App-interne Server-Push-Aufruf ohne Runtime-Testschlüssel wurde korrekt
+  mit `404 not_found` abgewiesen. Es wurde kein Schutz umgangen und keine
+  Push-Zustellung behauptet.
+- Ein Geofence-ENTER und ein neuer Background-Heartbeat nach echter Bewegung
+  sind nicht simuliert und bleiben physische Hardwarebeweise.
+- Die sichtbare Zustellung eines Server-Pushes bleibt bis zu einem
+  geschützten externen Testaufruf und der Gerätebestätigung offen.

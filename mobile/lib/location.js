@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { GEOFENCE_TASK, LOCATION_CHANNEL } from './config';
+import { GEOFENCE_TASK, LOCATION_TASK } from './config';
 import { getDeviceId } from './device';
 import { postJson } from './api';
 
@@ -15,9 +15,26 @@ function locationPayload(position) {
 
 export async function requestLocationPermissions() {
   const foreground = await Location.requestForegroundPermissionsAsync();
-  if (foreground.status !== 'granted') return { foreground, background: { status: 'denied' } };
-  const background = await Location.requestBackgroundPermissionsAsync();
+  const background = foreground.status === 'granted'
+    ? await Location.requestBackgroundPermissionsAsync()
+    : await Location.getBackgroundPermissionsAsync();
   return { foreground, background };
+}
+
+export async function getLocationPermissions() {
+  const [foreground, background] = await Promise.all([
+    Location.getForegroundPermissionsAsync(),
+    Location.getBackgroundPermissionsAsync(),
+  ]);
+  return { foreground, background };
+}
+
+export function getBackgroundLocationTaskStatus() {
+  return Location.hasStartedLocationUpdatesAsync(LOCATION_TASK);
+}
+
+export function getGeofenceStatus() {
+  return Location.hasStartedGeofencingAsync(GEOFENCE_TASK);
 }
 
 export async function getCurrentLocation() {
@@ -37,9 +54,9 @@ export async function startBackgroundLocation() {
   if (permissions.foreground.status !== 'granted' || permissions.background.status !== 'granted') {
     throw new Error('Foreground- und Background-Location-Permission werden benötigt.');
   }
-  const started = await Location.hasStartedLocationUpdatesAsync('ultreia-background-location-v1');
+  const started = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK);
   if (!started) {
-    await Location.startLocationUpdatesAsync('ultreia-background-location-v1', {
+    await Location.startLocationUpdatesAsync(LOCATION_TASK, {
       accuracy: Location.Accuracy.Balanced,
       timeInterval: 120000,
       distanceInterval: 50,
