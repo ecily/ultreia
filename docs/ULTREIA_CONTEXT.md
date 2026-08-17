@@ -525,3 +525,28 @@ noch nicht vorhanden.
 Nicht bewiesen sind weiterhin die öffentliche DO-API, Expo-Projekt-/Push-
 Credentials und ein physischer Smartphone-Lauf. `adb devices` hatte beim
 Build keinen angeschlossenen Gerätetestkandidaten.
+
+## EAS-Verknüpfung und Firebase-Grenze (2026-08-17)
+
+Die globale EAS-CLI ist jetzt mit dem eigenen Account `ecily` angemeldet;
+`eas whoami` bestätigt `andreas.franz@ecily.com`. Ultreia ist mit dem eigenen
+Expo-Projekt `@ecily/ultreia` verknüpft:
+
+- Project ID: `a6310341-1133-4528-91fd-4dd33c27dab6`
+- Slug: `ultreia`
+- Android-Paket: `com.ecily.ultreia`
+- EAS-Projektprüfung: `eas project:info` erfolgreich
+
+Die Project ID steht in `mobile/app.config.js`; die dynamische Konfiguration
+setzt sie für lokale und EAS-Builds. Ein eigenes Firebase/GCM-Projekt sowie
+ein eigener Android-Firebase-App-Eintrag sind auf diesem Rechner noch nicht
+vorhanden. Firebase CLI, Google Cloud CLI und lokale Firebase-Credentials sind
+nicht eingerichtet. Deshalb bleiben `google-services.json`, FCM-Credentials,
+Production-Server-Push und der echte Push-Token bis zur manuellen Einrichtung
+des eigenen Firebase-Projekts offen. Es wurden keine StepsMatch-Artefakte
+verwendet.
+
+`adb devices` enthält weiterhin kein physisches Android-Gerät. APK-Installation,
+Permission-Lauf, Token-Erzeugung, Background-Heartbeat, Geofence-ENTER und
+Server-Push können daher erst nach Firebase-Einrichtung und Anschluss eines
+Testgeräts als Hardwarebeweis gelten.

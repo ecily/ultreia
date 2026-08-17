@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.ultreia.app/api';
-const projectId = process.env.EXPO_PROJECT_ID || '';
+const projectId = process.env.EXPO_PROJECT_ID || 'a6310341-1133-4528-91fd-4dd33c27dab6';
 const mode = process.env.ULTREIA_MODE || (apiBase.startsWith('https://') ? 'production' : 'local');
 const localGoogleServicesFile = path.join(__dirname, 'google-services.json');
 const googleServicesFile = process.env.GOOGLE_SERVICES_FILE || (fs.existsSync(localGoogleServicesFile) ? './google-services.json' : undefined);
@@ -11,7 +11,7 @@ if (mode === 'production' && !apiBase.startsWith('https://')) throw new Error('P
 module.exports = {
   expo: {
     name: 'Ultreia',
-    slug: 'ultreia-mobile',
+    slug: 'ultreia',
     version: '0.1.0',
     orientation: 'portrait',
     scheme: 'ultreia',

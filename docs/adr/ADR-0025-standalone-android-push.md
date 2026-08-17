@@ -28,6 +28,9 @@ kein fremdes `google-services.json` und kein fremdes FCM-Secret werden
 
 ## Externe Grenze
 
-Die Expo/EAS-Anmeldung und die eigene Project-ID/FCM-Konfiguration sind noch
-offen. Danach kann der Production-Build mit geschützten eigenen Credentials
-neu gebaut und der echte Server-Push getestet werden.
+Die Expo/EAS-Anmeldung und die eigene Project-ID sind erledigt: Ultreia nutzt
+den eigenen Account `ecily` und das eigene Projekt `@ecily/ultreia` mit der in
+`mobile/app.config.js` hinterlegten Project ID. Offen bleibt ausschließlich
+der eigene Firebase/FCM-Kontext. Erst danach kann der Production-Build mit
+geschützten eigenen Credentials neu gebaut und der echte Server-Push getestet
+werden. Ein physischer Android-Lauf bleibt ein separater Hardwarebeweis.
