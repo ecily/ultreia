@@ -392,6 +392,19 @@ Task, Push-/Local-/Server-Push-Status, Heartbeat, Geofence-Daten, letzten
 Geofence-Event und Fehlerklasse. Diese Anzeige ist technische Diagnostik und
 keine Pilger-UX.
 
+## Kostenlimit und Provisionierungsgrenze (2026-08-17)
+
+Die DO-Spezifikation verwendet jetzt die aktuelle App-Platform-Größe
+`apps-s-1vcpu-0.5gb`, exakt eine Instance und kein Autoscaling. Die aktuelle
+DO-Preisdokumentation weist dafür 5 USD/Monat aus; Managed Database,
+zusätzliche DO-Komponenten und Autoscaling sind nicht vorgesehen.
+
+Die externe Provisionierung wurde in diesem Lauf nicht gestartet, weil
+`DIGITALOCEAN_ACCESS_TOKEN` in der Codex-Shell nicht vorhanden war. Es wurde
+keine kostenpflichtige Ressource angelegt und kein Ersatz- oder Fremdtoken
+verwendet. Vor dem Deploy müssen Größe/Verfügbarkeit per DO-API bestätigt,
+danach App, Runtime-Secrets und `api.ultreia.app` eingerichtet werden.
+
 ## Next operator action
 
 1. Gültigen DigitalOcean-App-Platform-Zugriff sowie Atlas-Berechtigung für

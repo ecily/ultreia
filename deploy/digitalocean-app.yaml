@@ -14,7 +14,7 @@ services:
     run_command: npm start
     http_port: 3000
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-s-1vcpu-0.5gb
     health_check:
       http_path: /api/ready
       initial_delay_seconds: 20
