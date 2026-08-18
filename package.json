@@ -6,6 +6,7 @@
     "verify:db": "npm --prefix backend run verify:db",
     "verify:mobile": "npm --prefix mobile run verify",
     "verify:live": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-live.ps1",
+    "push:test": "node scripts/push-test.mjs",
     "lan:backend": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-backend-lan.ps1",
     "lan:mobile": "powershell -NoProfile -ExecutionPolicy Bypass -File mobile/scripts/start-lan.ps1"
   }

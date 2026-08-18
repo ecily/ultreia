@@ -696,3 +696,37 @@ erlaubt`, `Task: aktiv` und `Foreground-Service: aktiv`.
   sind nicht simuliert und bleiben physische Hardwarebeweise.
 - Die sichtbare Zustellung eines Server-Pushes bleibt bis zu einem
   geschützten externen Testaufruf und der Gerätebestätigung offen.
+
+## Sicherer operatorseitiger Server-Push-Test (2026-08-18)
+
+Der geschützte Production-Test ist ausschließlich `POST
+/api/push/test`. Er erwartet den Header `x-ultreia-test-key` und einen JSON-
+Body mit `deviceId` sowie optional `title` und `message`. Die APK sendet
+keinen Testschlüssel und enthält keinen solchen Schlüssel.
+
+Der versionierte Operator-Testweg ist auf genau das registrierte technische
+Gerät begrenzt:
+
+```powershell
+npm run push:test -- --device ultreia-msxhx1mg-hmc3d7sx3v
+```
+
+Das Script verwendet ausschließlich `https://api.ultreia.app/api`, liest
+`PUSH_TEST_KEY` nur aus der aktuellen lokalen Prozessumgebung und gibt weder
+Schlüssel noch Expo-Push-Token aus. Die Backend-Testantwort enthält nur
+Ticket-/Receipt-Statusklassen, niemals Ticket-IDs oder Payloads.
+
+Wenn der Schlüssel lokal nicht gesetzt ist, kann er für genau einen
+PowerShell-Aufruf verdeckt eingegeben und danach automatisch aus der Umgebung
+entfernt werden:
+
+```powershell
+$ultreiaSecret = Read-Host 'PUSH_TEST_KEY (verdeckt)' -AsSecureString
+$ultreiaSecretPtr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($ultreiaSecret)
+try { $env:PUSH_TEST_KEY = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ultreiaSecretPtr); npm run push:test -- --device ultreia-msxhx1mg-hmc3d7sx3v }
+finally { Remove-Item Env:PUSH_TEST_KEY -ErrorAction SilentlyContinue; [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ultreiaSecretPtr) }
+```
+
+Das Technikpanel bietet keinen lokalen Server-Push-Button mehr. Es weist
+stattdessen auf den externen Operator-Testweg hin. Dadurch kann die
+Production-APK niemals den geheim authentifizierten Test selbst auslösen.

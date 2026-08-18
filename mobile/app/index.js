@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE, APP_VERSION, EXPO_PROJECT_ID, ULTREIA_MODE } from '../lib/config';
 import { getDeviceId, registerDevice } from '../lib/device';
-import { configureNotificationChannels, registerPushToken, requestNotificationPermission, requestServerPushTechnicalTest, showLocalTechnicalNotification } from '../lib/notifications';
+import { configureNotificationChannels, registerPushToken, requestNotificationPermission, showLocalTechnicalNotification } from '../lib/notifications';
 import { getBackgroundLocationTaskStatus, getCurrentLocation, getGeofenceStatus, getLocationPermissions, registerTechnicalGeofence, sendHeartbeat, startBackgroundLocation } from '../lib/location';
 import { getJson } from '../lib/api';
 
@@ -12,7 +12,7 @@ export default function HomeScreen() {
   const [deviceId, setDeviceId] = useState('wird geladen …');
   const [location, setLocation] = useState(null);
   const [logs, setLogs] = useState([]);
-  const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', registration: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', backgroundService: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: '–', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
+  const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', registration: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', backgroundService: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: 'wartet auf externen Test', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
 
   const log = (message) => setLogs((current) => [`${new Date().toLocaleTimeString()}  ${message}`, ...current].slice(0, 30));
   const markServerContact = () => setStatus((current) => ({ ...current, lastServerContact: new Date().toLocaleTimeString(), error: '–' }));
@@ -130,17 +130,6 @@ export default function HomeScreen() {
     setStatus((current) => ({ ...current, localPush: 'ausgelöst' }));
   };
 
-  const serverPush = async () => {
-    try {
-      const result = await requestServerPushTechnicalTest();
-      setStatus((current) => ({ ...current, serverPush: result.ok ? 'ausgelöst' : 'abgelehnt' }));
-      return result;
-    } catch (error) {
-      setStatus((current) => ({ ...current, serverPush: error.message === 'not_found' ? 'deaktiviert' : 'fehlgeschlagen' }));
-      throw error;
-    }
-  };
-
   const geofence = async () => {
     const result = await registerTechnicalGeofence();
     setStatus((current) => ({
@@ -170,6 +159,7 @@ export default function HomeScreen() {
           <Text style={styles.status}>Foreground-Service: {status.backgroundService}</Text>
           <Text style={styles.status}>Notification: {status.notification} · Expo Push Token / Backend: {status.push}</Text>
           <Text style={styles.status}>Local Push: {status.localPush} · Server Push: {status.serverPush}</Text>
+          <Text style={styles.status}>Server-Push-Test: extern über Operator-Shell auslösen</Text>
           <Text style={styles.status}>Geofence: {status.geofence} · Daten: {status.geofenceData}</Text>
           <Text style={styles.status}>Heartbeat: {status.lastHeartbeat}</Text>
           <Text style={styles.status}>Serverkontakt: {status.lastServerContact}</Text>
@@ -185,7 +175,6 @@ export default function HomeScreen() {
           <Action label="Background Location starten" onPress={() => run('Background Location', startBackground)} />
           <Action label="Push-Token registrieren" onPress={() => run('Push-Token', pushToken)} />
           <Action label="Lokale Notification" onPress={() => run('Lokale Notification', localPush)} />
-          <Action label="Server-Push-Test" onPress={() => run('Server-Push-Test', serverPush)} />
           <Action label="Geofence registrieren" onPress={() => run('Geofence', geofence)} />
         </View>
         <Text style={styles.label}>Diagnose-Log</Text>

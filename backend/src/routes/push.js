@@ -19,7 +19,33 @@ async function sendExpoPush(config, token, body) {
     signal: AbortSignal.timeout(10000),
   });
   const payload = await response.json().catch(() => null);
-  return { ok: response.ok && payload?.data?.status !== 'error', status: response.status, payload };
+  const ticket = payload?.data;
+  return {
+    ok: response.ok && ticket?.status === 'ok',
+    status: response.status,
+    payload,
+    ticketStatus: ticket?.status === 'ok' ? 'erfolgreich' : ticket?.status === 'error' ? 'upstream_error' : 'unbekannt',
+    ticketId: ticket?.id || null,
+  };
+}
+
+async function getExpoReceipt(ticketId) {
+  if (!ticketId) return 'offen';
+  try {
+    const response = await fetch('https://exp.host/--/api/v2/push/getReceipts', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ids: [ticketId] }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const payload = await response.json().catch(() => null);
+    const receipt = payload?.data?.[ticketId];
+    if (receipt?.status === 'ok') return 'erfolgreich';
+    if (receipt?.status === 'error') return 'upstream_error';
+    return response.ok ? 'offen' : 'Fehlerklasse';
+  } catch {
+    return 'Fehlerklasse';
+  }
 }
 
 export function createPushRouter(config, databaseService) {
@@ -83,8 +109,9 @@ export function createPushRouter(config, databaseService) {
       if (result.payload?.data?.details?.error === 'DeviceNotRegistered') {
         await db.collection('pushRegistrations').updateOne({ token: registration.token }, { $set: { enabled: false, lastError: 'DeviceNotRegistered' } });
       }
-      logEvent(result.ok ? 'info' : 'warn', 'push_test_sent', { deviceId, upstreamStatus: result.status, delivered: result.ok });
-      return res.status(result.ok ? 200 : 502).json({ ok: result.ok, status: result.ok ? 'sent' : 'upstream_error' });
+      const receiptStatus = result.ok ? await getExpoReceipt(result.ticketId) : 'offen';
+      logEvent(result.ok ? 'info' : 'warn', 'push_test_sent', { deviceId, upstreamStatus: result.status, ticketStatus: result.ticketStatus, receiptStatus, accepted: result.ok });
+      return res.status(result.ok ? 200 : 502).json({ ok: result.ok, status: result.ok ? 'sent' : 'upstream_error', ticket: result.ticketStatus, receipt: receiptStatus });
     } catch (error) {
       if (error.message.includes('required') || error.message.includes('invalid') || error.message.includes('too long')) return badRequest(res, error);
       logEvent('error', 'push_test_failed', { error });
