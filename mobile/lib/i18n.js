@@ -1,0 +1,8 @@
+const language = String(globalThis.Intl?.DateTimeFormat?.().resolvedOptions?.().locale || 'de').slice(0, 2);
+export const UI_LANGUAGE = ['de', 'en', 'es'].includes(language) ? language : 'de';
+
+export const AUTH_TEXT = {
+  de: { signedOut: 'nicht angemeldet', localLinkReady: 'Magic-Link bereit (lokale Diagnose)', requested: 'Magic-Link angefordert', noDevLink: 'Kein lokaler Diagnose-Link vorhanden', authDevice: 'Auth / Device-Bindung aktualisieren', magicRequest: 'Magic-Link anfordern', devVerify: 'Lokalen Diagnose-Link verarbeiten', logout: 'Abmelden', emailPlaceholder: 'E-Mail für Magic-Link', displayNamePlaceholder: 'Anzeigename (bei neuem Konto)', scope: 'Request-Scope' },
+  en: { signedOut: 'not signed in', localLinkReady: 'Magic link ready (local diagnostics)', requested: 'Magic link requested', noDevLink: 'No local diagnostic link available', authDevice: 'Refresh auth / device binding', magicRequest: 'Request magic link', devVerify: 'Process local diagnostic link', logout: 'Sign out', emailPlaceholder: 'Email for magic link', displayNamePlaceholder: 'Display name (for a new account)', scope: 'Request scope' },
+  es: { signedOut: 'no autenticado', localLinkReady: 'Enlace mágico listo (diagnóstico local)', requested: 'Enlace mágico solicitado', noDevLink: 'No hay enlace de diagnóstico local', authDevice: 'Actualizar autenticación / dispositivo', magicRequest: 'Solicitar enlace mágico', devVerify: 'Procesar enlace de diagnóstico local', logout: 'Cerrar sesión', emailPlaceholder: 'Correo para el enlace mágico', displayNamePlaceholder: 'Nombre visible (para una cuenta nueva)', scope: 'Ámbito solicitado' },
+}[UI_LANGUAGE];

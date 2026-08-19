@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { badRequest, databaseRequired, readDeviceId, readPushToken, readString } from '../lib/validation.js';
 import { logEvent } from '../lib/logger.js';
 import { createRateLimiter } from '../lib/rateLimit.js';
+import { scopeFromRequest } from '../lib/scope.js';
 
 function authorizedTestRequest(req, config) {
   if (!config.pushTestEnabled || !config.pushTestKey) return false;
@@ -57,6 +58,8 @@ export function createPushRouter(config, databaseService) {
       const token = readPushToken(req.body?.token);
       const platform = readString(req.body?.platform, { name: 'platform', max: 32 }) || 'android';
       const projectId = readString(req.body?.projectId, { name: 'projectId', max: 128 });
+      const scopeResult = scopeFromRequest(req, config);
+      if (!scopeResult.ok) return res.status(403).json({ ok: false, status: scopeResult.status });
       if (config.expoProjectId && projectId !== config.expoProjectId) throw new Error('projectId does not match the configured Expo project');
       const db = databaseRequired(res, databaseService);
       if (!db) return;
@@ -64,7 +67,7 @@ export function createPushRouter(config, databaseService) {
       const now = new Date();
       await db.collection('devices').updateOne(
         { deviceId },
-        { $set: { platform, lastSeenAt: now }, $setOnInsert: { deviceId, createdAt: now } },
+        { $set: { platform, lastSeenAt: now }, $setOnInsert: { deviceId, createdAt: now, scope: 'production' } },
         { upsert: true },
       );
       await db.collection('pushRegistrations').updateMany(
@@ -73,7 +76,7 @@ export function createPushRouter(config, databaseService) {
       );
       await db.collection('pushRegistrations').updateOne(
         { token },
-        { $set: { deviceId, platform, projectId, enabled: true, lastSeenAt: now, lastError: null }, $setOnInsert: { createdAt: now } },
+        { $set: { deviceId, platform, projectId, scope: scopeResult.scope, enabled: true, lastSeenAt: now, lastError: null }, $setOnInsert: { createdAt: now } },
         { upsert: true },
       );
       logEvent('info', 'push_registered', { deviceId, platform, projectId: projectId || 'unset' });
@@ -100,9 +103,11 @@ export function createPushRouter(config, databaseService) {
       const deviceId = readDeviceId(req.body?.deviceId);
       const title = readString(req.body?.title, { name: 'title', max: 80 }) || 'Ultreia technical test';
       const message = readString(req.body?.message, { name: 'message', max: 240 }) || 'Server push is configured.';
+      const scopeResult = scopeFromRequest(req, config);
+      if (!scopeResult.ok) return res.status(403).json({ ok: false, status: scopeResult.status });
       const db = databaseRequired(res, databaseService);
       if (!db) return;
-      const registration = await db.collection('pushRegistrations').findOne({ deviceId, enabled: true }, { projection: { token: 1 } });
+      const registration = await db.collection('pushRegistrations').findOne({ deviceId, enabled: true, ...(scopeResult.scope === 'production' ? { $or: [{ scope: 'production' }, { scope: { $exists: false } }] } : { scope: scopeResult.scope }) }, { projection: { token: 1 } });
       if (!registration) return res.status(404).json({ ok: false, status: 'push_registration_not_found' });
 
       const result = await sendExpoPush(config, registration.token, { title, message });

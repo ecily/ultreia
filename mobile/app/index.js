@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react';
-import { AppState, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE, APP_VERSION, EXPO_PROJECT_ID, ULTREIA_MODE } from '../lib/config';
-import { getDeviceId, registerDevice } from '../lib/device';
+import { bindDeviceToUser, getDeviceId, registerDevice } from '../lib/device';
 import { configureNotificationChannels, registerPushToken, requestNotificationPermission, showLocalTechnicalNotification } from '../lib/notifications';
 import { getBackgroundLocationTaskStatus, getCurrentLocation, getGeofenceStatus, getLocationPermissions, registerTechnicalGeofence, sendHeartbeat, startBackgroundLocation } from '../lib/location';
 import { getJson } from '../lib/api';
+import { listenForMagicLinks, loadCurrentUser, logout, openVerificationUrl, readDevVerificationUrl, requestMagicLink } from '../lib/auth';
+import { getSession } from '../lib/session';
+import { AUTH_TEXT } from '../lib/i18n';
 
 export default function HomeScreen() {
   const [deviceId, setDeviceId] = useState('wird geladen …');
   const [location, setLocation] = useState(null);
   const [logs, setLogs] = useState([]);
+  const [authStatus, setAuthStatus] = useState(AUTH_TEXT.signedOut);
+  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [devUrl, setDevUrl] = useState(null);
   const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', registration: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', backgroundService: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: 'wartet auf externen Test', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
 
   const log = (message) => setLogs((current) => [`${new Date().toLocaleTimeString()}  ${message}`, ...current].slice(0, 30));
@@ -55,6 +62,8 @@ export default function HomeScreen() {
 
     configureNotificationChannels().catch((error) => log(`Channels: ${error.message}`));
     getDeviceId().then(setDeviceId).catch((error) => log(`Device-ID: ${error.message}`));
+    getSession().then((session) => { if (session) setAuthStatus(`${session.user?.displayName || 'angemeldet'} · ${session.scope || 'production'}`); }).catch(() => {});
+    const removeMagicLinkListener = listenForMagicLinks(async (url) => { try { const result = await openVerificationUrl(url); await bindDeviceToUser(); setAuthStatus(`${result.user.displayName} · ${result.session.scope}`); log('Magic-Link verarbeitet: OK'); } catch (error) { log(`Magic-Link: FEHLER · ${error.code || 'client_error'}`); } });
     SecureStore.getItemAsync('ultreia.lastHeartbeat').then((value) => { if (value) setStatus((current) => ({ ...current, lastHeartbeat: JSON.parse(value).at })); }).catch(() => {});
     SecureStore.getItemAsync('ultreia.lastGeofenceEvent').then((value) => { if (value) setStatus((current) => ({ ...current, lastGeofence: JSON.parse(value).at })); }).catch(() => {});
     getJson('/health').then((health) => {
@@ -73,6 +82,7 @@ export default function HomeScreen() {
     return () => {
       mounted = false;
       appStateSubscription.remove();
+      removeMagicLinkListener();
     };
   }, []);
 
@@ -112,6 +122,27 @@ export default function HomeScreen() {
     return result;
   };
 
+  const requestMagic = async () => {
+    const result = await requestMagicLink(email, displayName);
+    if (result.diagnosticId) {
+      const devResult = await readDevVerificationUrl(result.diagnosticId);
+      setDevUrl(devResult.verificationUrl);
+      setAuthStatus(AUTH_TEXT.localLinkReady);
+    } else setAuthStatus(AUTH_TEXT.requested);
+    return result;
+  };
+
+  const verifyDevMagic = async () => {
+    if (!devUrl) throw new Error(AUTH_TEXT.noDevLink);
+    const result = await openVerificationUrl(devUrl);
+    await bindDeviceToUser();
+    setAuthStatus(`${result.user.displayName} · ${result.session.scope}`);
+    setDevUrl(null);
+    return result;
+  };
+
+  const signOut = async () => { await logout(); setAuthStatus(AUTH_TEXT.signedOut); };
+
   const startBackground = async () => {
     const result = await startBackgroundLocation();
     setStatus((current) => ({ ...current, backgroundTask: result.started ? 'aktiv' : 'inaktiv', backgroundService: result.started ? 'aktiv' : 'inaktiv' }));
@@ -150,6 +181,9 @@ export default function HomeScreen() {
         <Text style={styles.label}>Environment / Version</Text><Text style={styles.value}>{ULTREIA_MODE} · {APP_VERSION} · Expo: {EXPO_PROJECT_ID ? 'konfiguriert' : 'fehlt'}</Text>
         <Text style={styles.label}>API</Text><Text style={styles.value}>{API_BASE}</Text>
         <Text style={styles.label}>Device-ID</Text><Text style={styles.value}>{deviceId}</Text>
+        <Text style={styles.label}>Auth / Scope</Text><Text style={styles.value}>{authStatus} · {AUTH_TEXT.scope}: {ULTREIA_MODE === 'production' ? 'production' : 'local_test'}</Text>
+        <TextInput style={styles.input} autoCapitalize="none" keyboardType="email-address" placeholder={AUTH_TEXT.emailPlaceholder} value={email} onChangeText={setEmail} />
+        <TextInput style={styles.input} placeholder={AUTH_TEXT.displayNamePlaceholder} value={displayName} onChangeText={setDisplayName} />
         {location && <Text style={styles.value}>Standort: {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)} · ±{Math.round(location.accuracy || 0)} m</Text>}
         <Text style={styles.label}>Technischer Status</Text>
         <View style={styles.statusBox}>
@@ -167,6 +201,10 @@ export default function HomeScreen() {
           <Text style={styles.status}>Fehler: {status.error}</Text>
         </View>
         <View style={styles.grid}>
+          <Action label={AUTH_TEXT.magicRequest} onPress={() => run('Magic-Link', requestMagic)} />
+          {devUrl && <Action label={AUTH_TEXT.devVerify} onPress={() => run('Magic-Link Diagnose', verifyDevMagic)} />}
+          <Action label={AUTH_TEXT.authDevice} onPress={() => run('Auth / Device-Bindung', async () => { const result = await loadCurrentUser(); await bindDeviceToUser(); setAuthStatus(`${result.user.displayName} · ${result.scope}`); return result; })} />
+          <Action label={AUTH_TEXT.logout} onPress={() => run('Abmelden', signOut)} />
           <Action label="Backend-Gerät registrieren" onPress={() => run('Gerät registrieren', register)} />
           <Action label="Location-Permissions" onPress={() => run('Location-Permissions', requestPermissions)} />
           <Action label="Notification-Permission" onPress={() => run('Notification-Permission', requestNotifications)} />
@@ -190,6 +228,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#f5f1e8' }, content: { padding: 24, paddingTop: 64, gap: 10 },
   eyebrow: { color: '#275d4a', fontWeight: '700', letterSpacing: 1.2 }, title: { color: '#18251f', fontSize: 32, fontWeight: '800' },
   copy: { color: '#4e5d55', fontSize: 16, lineHeight: 23, marginBottom: 10 }, label: { color: '#275d4a', fontWeight: '700', marginTop: 12 }, value: { color: '#18251f', fontFamily: 'monospace', fontSize: 12 },
+  input: { backgroundColor: '#fff', borderRadius: 10, padding: 13, color: '#18251f', borderWidth: 1, borderColor: '#cddbd1' },
   grid: { gap: 10, marginTop: 6 }, button: { backgroundColor: '#275d4a', borderRadius: 12, padding: 15 }, buttonText: { color: '#fff', fontWeight: '700', textAlign: 'center' },
   statusBox: { backgroundColor: '#e4eee7', borderRadius: 12, padding: 14, gap: 4 }, status: { color: '#18251f', fontFamily: 'monospace', fontSize: 11 },
   logBox: { backgroundColor: '#18251f', borderRadius: 12, padding: 14, minHeight: 100 }, log: { color: '#d8eadf', fontFamily: 'monospace', fontSize: 11, marginBottom: 4 },

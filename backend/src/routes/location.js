@@ -9,6 +9,7 @@ import {
   readOptionalNumber,
 } from '../lib/validation.js';
 import { logEvent } from '../lib/logger.js';
+import { scopeFromRequest } from '../lib/scope.js';
 
 function readLocation(body) {
   return {
@@ -19,13 +20,15 @@ function readLocation(body) {
   };
 }
 
-export function createLocationRouter(config, databaseService) {
+export function createLocationRouter(config, databaseService, authMiddleware) {
   const router = Router();
 
   router.post('/heartbeat', async (req, res) => {
     try {
       const deviceId = readDeviceId(req.body?.deviceId);
       const location = readLocation(req.body || {});
+      const scopeResult = scopeFromRequest(req, config);
+      if (!scopeResult.ok) return res.status(403).json({ ok: false, status: scopeResult.status });
       const db = databaseRequired(res, databaseService);
       if (!db) return;
 
@@ -48,6 +51,7 @@ export function createLocationRouter(config, databaseService) {
         ),
         db.collection('locationHeartbeats').insertOne({
           deviceId,
+          scope: scopeResult.scope,
           location: point,
           accuracy: location.accuracy,
           speed: location.speed,
@@ -70,6 +74,8 @@ export function createLocationRouter(config, databaseService) {
     try {
       const deviceId = readDeviceId(req.body?.deviceId);
       const location = readLocation(req.body || {});
+      const scopeResult = scopeFromRequest(req, config);
+      if (!scopeResult.ok) return res.status(403).json({ ok: false, status: scopeResult.status });
       const geofenceId = typeof req.body?.geofenceId === 'string' ? req.body.geofenceId.trim().slice(0, 128) : null;
       if (!geofenceId) throw new Error('geofenceId is required');
       const db = databaseRequired(res, databaseService);
@@ -78,6 +84,7 @@ export function createLocationRouter(config, databaseService) {
       const now = new Date();
       await db.collection('geofenceEvents').insertOne({
         deviceId,
+        scope: scopeResult.scope,
         geofenceId,
         transition: 'enter',
         location: asPoint(location.lat, location.lng),
@@ -95,12 +102,15 @@ export function createLocationRouter(config, databaseService) {
     }
   });
 
-  router.get('/nearby', async (req, res) => {
+  router.get('/nearby', authMiddleware?.requireAuth || ((_req, _res, next) => next()), async (req, res, next) => {
     try {
+      if (authMiddleware && !req.user?.roles?.includes('admin')) return res.status(403).json({ ok: false, status: 'forbidden' });
       const lat = readCoordinate(req.query.lat, 'lat');
       const lng = readCoordinate(req.query.lng, 'lng');
       const radiusMeters = readOptionalNumber(req.query.radiusMeters, 'radiusMeters', { min: 1, max: 50000 }) || 1000;
       const limit = readLimit(req.query.limit, 20, 100);
+      const scopeResult = scopeFromRequest(req, config);
+      if (!scopeResult.ok) return res.status(403).json({ ok: false, status: scopeResult.status });
       const db = databaseRequired(res, databaseService);
       if (!db) return;
 
@@ -112,7 +122,7 @@ export function createLocationRouter(config, databaseService) {
             distanceField: 'distanceMeters',
             maxDistance: radiusMeters,
             spherical: true,
-            query: { lastLocation: { $exists: true } },
+            query: { lastLocation: { $exists: true }, scope: scopeResult.scope },
           },
         },
         { $limit: limit },

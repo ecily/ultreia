@@ -746,5 +746,21 @@ V1-Definition-of-Done.
 Infrastruktur, Nachweisen, Risiken und offenen technischen Arbeitsblöcken.
 Ältere ADRs mit früheren Produktannahmen sind in der Spezifikation bzw. direkt
 an den betroffenen ADRs als übersteuert markiert. In diesem Dokumentationsblock
-wurde keine fachliche Funktion implementiert; der nächste Modus ist die
-schrittweise Planung der V1-Implementierung gegen diese Spezifikation.
+wurde die gemeinsame V1-Basis inzwischen implementiert: Magic-Link-Auth mit
+gehashten One-Time-Tokens, User/Rollen (`pilgrim`, `provider`, `admin`),
+Pilgrim-/Provider-Profile, opaque Access-/Refresh-Sessions, Gerätebindung,
+Account-Soft-Delete, Scope-Sessionbindung (`production`/`local_test`) sowie
+ein race-sicherer Trip-Lifecycle mit genau einem nicht abgeschlossenen Trip je
+Pilger und Scope. Die Mobile-Technikoberfläche enthält nur den technischen
+Auth-/Deep-Link-/Session-/Logout-Fluss; kein Secret liegt in der APK.
+Die dauerhaften Entscheidungen stehen in
+[`docs/adr/ADR-0026-v1-auth-sessions-and-scope.md`](adr/ADR-0026-v1-auth-sessions-and-scope.md).
+
+Der lokale Testmodus ist ausschließlich bei einem Nicht-Production-Backend
+verfügbar und wird beim Magic-Link-Flow ausdrücklich über `X-Ultreia-Scope:
+local_test` angefordert. Production-Sessions bleiben auf `production`; ein
+Scope-Wechsel innerhalb einer Session wird abgewiesen. Magic-Link-URLs werden
+nur im lokalen technischen Diagnose-Outbox-Fluss verfügbar gemacht; in
+Production ist ein Mail-Provider erforderlich. Provider-Dashboard, Needs,
+Offers, Matching, Route, Navigation, Offline-Cache und Hero-/Frontend-Arbeit
+gehören ausdrücklich nicht zu diesem Foundation-Block.

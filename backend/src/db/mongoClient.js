@@ -206,5 +206,19 @@ async function ensureIndexes(database, heartbeatTtlSeconds = 604800, diagnosticT
     database.collection('geofenceEvents').createIndex({ deviceId: 1, receivedAt: -1 }, { name: 'device_receivedAt' }),
     database.collection('diagnosticEvents').createIndex({ deviceId: 1, createdAt: -1 }, { name: 'device_createdAt' }),
     database.collection('diagnosticEvents').createIndex({ createdAt: 1 }, { expireAfterSeconds: diagnosticTtlSeconds, name: 'createdAt_ttl' }),
+    database.collection('users').createIndex({ emailNormalized: 1 }, { unique: true, name: 'emailNormalized_unique' }),
+    database.collection('pilgrimProfiles').createIndex({ userId: 1 }, { unique: true, name: 'userId_unique' }),
+    database.collection('providerProfiles').createIndex({ userId: 1 }, { unique: true, name: 'userId_unique' }),
+    database.collection('devices').createIndex({ userId: 1, status: 1 }, { name: 'user_status' }),
+    database.collection('magicLinks').createIndex({ tokenHash: 1 }, { unique: true, name: 'tokenHash_unique' }),
+    database.collection('magicLinks').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0, name: 'expiresAt_ttl' }),
+    database.collection('sessions').createIndex({ accessTokenHash: 1 }, { unique: true, name: 'accessTokenHash_unique' }),
+    database.collection('sessions').createIndex({ refreshTokenHash: 1 }, { unique: true, name: 'refreshTokenHash_unique' }),
+    database.collection('sessions').createIndex({ refreshExpiresAt: 1 }, { expireAfterSeconds: 0, name: 'refreshExpiresAt_ttl' }),
+    database.collection('trips').createIndex(
+      { pilgrimUserId: 1, scope: 1 },
+      { unique: true, name: 'one_noncompleted_trip_per_scope', partialFilterExpression: { status: { $in: ['active', 'paused'] } } },
+    ),
+    database.collection('trips').createIndex({ pilgrimUserId: 1, scope: 1, status: 1, updatedAt: -1 }, { name: 'trip_user_scope_status' }),
   ]);
 }

@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { badRequest, databaseRequired, readString } from '../lib/validation.js';
+
+export function createProfileRouter(databaseService, authService, authMiddleware) {
+  const router = Router();
+  router.use(authMiddleware.requireAuth);
+  router.get('/me', async (req, res) => res.json({ ok: true, user: authService.publicUser(req.user), ...(await authService.profilesFor(req.user._id)) }));
+  router.patch('/pilgrim', async (req, res) => { try { const displayName = req.body?.displayName ? readString(req.body.displayName, { name: 'displayName', max: 80, required: true }) : undefined; const preferredLocale = req.body?.preferredLocale ? readString(req.body.preferredLocale, { name: 'preferredLocale', max: 2, required: true }) : undefined; if (preferredLocale && !['de', 'en', 'es'].includes(preferredLocale)) throw new Error('preferredLocale is invalid'); const set = { updatedAt: new Date() }; if (displayName) set.displayName = displayName; if (preferredLocale) set.preferredLocale = preferredLocale; const db = databaseRequired(res, databaseService); if (!db) return; await Promise.all([db.collection('users').updateOne({ _id: req.user._id }, { $set: { ...set, ...(displayName ? { displayName } : {}), ...(preferredLocale ? { preferredLocale } : {}) } }), db.collection('pilgrimProfiles').updateOne({ userId: req.user._id }, { $set: set, ...(displayName ? { $set: { ...set, displayName } } : {}), ...(preferredLocale ? { $set: { ...set, preferredLocale } } : {}) })]); return res.json({ ok: true, ...(await authService.profilesFor(req.user._id)) }); } catch (error) { return badRequest(res, error); } });
+  router.post('/provider', authMiddleware.requireRole('provider', 'admin'), async (req, res) => { const db = databaseRequired(res, databaseService); if (!db) return; const timestamp = new Date(); await db.collection('providerProfiles').updateOne({ userId: req.user._id }, { $set: { userId: req.user._id, status: 'pending', updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp } }, { upsert: true }); return res.status(201).json({ ok: true, status: 'provider_profile_ready' }); });
+  return router;
+}

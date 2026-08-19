@@ -10,7 +10,7 @@ function deviceFields(body) {
   };
 }
 
-export function createDeviceRouter(config, databaseService) {
+export function createDeviceRouter(config, databaseService, authMiddleware) {
   const router = Router();
 
   router.post('/register', async (req, res) => {
@@ -21,9 +21,12 @@ export function createDeviceRouter(config, databaseService) {
 
       const now = new Date();
       const fields = deviceFields(req.body || {});
+      const binding = req.user ? { userId: req.user._id, bindingStatus: 'active' } : {};
+      const existing = req.user ? await db.collection('devices').findOne({ deviceId }, { projection: { userId: 1 } }) : null;
+      if (existing?.userId && String(existing.userId) !== String(req.user._id)) return res.status(409).json({ ok: false, status: 'device_bound_to_other_user' });
       await db.collection('devices').updateOne(
         { deviceId },
-        { $set: { ...fields, lastSeenAt: now }, $setOnInsert: { createdAt: now } },
+        { $set: { ...fields, ...binding, lastSeenAt: now }, $setOnInsert: { createdAt: now, scope: 'production' } },
         { upsert: true },
       );
 

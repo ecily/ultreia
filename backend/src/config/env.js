@@ -3,6 +3,9 @@ const DEFAULT_LOG_LEVEL = 'info';
 const SERVICE_NAME = 'ultreia-backend';
 const DEFAULT_MODE = 'local';
 const VALID_MODES = new Set(['local', 'lan', 'production']);
+const DEFAULT_ACCESS_TTL_SECONDS = 900;
+const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
+const DEFAULT_MAGIC_LINK_TTL_SECONDS = 900;
 
 function parseBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
@@ -60,6 +63,14 @@ export function loadConfig(env = process.env) {
     pushTestKey: env.PUSH_TEST_KEY || '',
     heartbeatTtlSeconds: parsePositiveInteger(env.HEARTBEAT_TTL_SECONDS, 604800, 'HEARTBEAT_TTL_SECONDS'),
     diagnosticTtlSeconds: parsePositiveInteger(env.DIAGNOSTIC_TTL_SECONDS, 2592000, 'DIAGNOSTIC_TTL_SECONDS'),
+    accessTokenTtlSeconds: parsePositiveInteger(env.AUTH_ACCESS_TTL_SECONDS, DEFAULT_ACCESS_TTL_SECONDS, 'AUTH_ACCESS_TTL_SECONDS'),
+    refreshTokenTtlSeconds: parsePositiveInteger(env.AUTH_REFRESH_TTL_SECONDS, DEFAULT_REFRESH_TTL_SECONDS, 'AUTH_REFRESH_TTL_SECONDS'),
+    magicLinkTtlSeconds: parsePositiveInteger(env.AUTH_MAGIC_LINK_TTL_SECONDS, DEFAULT_MAGIC_LINK_TTL_SECONDS, 'AUTH_MAGIC_LINK_TTL_SECONDS'),
+    mailProvider: env.MAIL_PROVIDER || 'none',
+    mailFrom: env.MAIL_FROM || '',
+    authPublicBaseUrl: env.AUTH_PUBLIC_BASE_URL || 'ultreia://auth/verify',
+    mailApiKey: env.MAIL_API_KEY || '',
+    allowLocalTestScope: parseBoolean(env.ALLOW_LOCAL_TEST_SCOPE, runtimeMode !== 'production'),
     serviceName: SERVICE_NAME,
     version: env.npm_package_version || env.APP_VERSION || '0.1.0',
     commitShort: shortCommit(commitSha),

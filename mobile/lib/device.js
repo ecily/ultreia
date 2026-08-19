@@ -23,3 +23,9 @@ export async function registerDevice() {
   await postJson('/devices/register', { deviceId, platform: Platform.OS, appVersion: '0.1.0' });
   return deviceId;
 }
+
+export async function bindDeviceToUser() {
+  const deviceId = await getDeviceId();
+  await postJson('/devices/register', { deviceId, platform: Platform.OS, appVersion: '0.1.0' });
+  return deviceId;
+}

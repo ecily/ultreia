@@ -6,7 +6,7 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "lint": "expo lint",
+    "lint": "expo lint --no-cache",
     "typecheck": "tsc --noEmit",
     "verify": "npm ci --ignore-scripts --no-audit --no-fund && npm run lint && npm run typecheck && expo config --json",
     "start:lan": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-lan.ps1",
