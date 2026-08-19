@@ -53,7 +53,8 @@ const config = {
 describe('V1 auth, device binding, scope and trips', () => {
   let server;
   let baseUrl;
-  before(async () => { const database = createFakeDatabase(); server = createApp(config, { databaseService: database.service }).listen(0, '127.0.0.1'); await new Promise((resolve) => server.once('listening', resolve)); baseUrl = `http://127.0.0.1:${server.address().port}`; });
+  let database;
+  before(async () => { database = createFakeDatabase(); server = createApp(config, { databaseService: database.service }).listen(0, '127.0.0.1'); await new Promise((resolve) => server.once('listening', resolve)); baseUrl = `http://127.0.0.1:${server.address().port}`; });
   after(async () => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));
 
   async function request(path, options = {}) { const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { 'content-type': 'application/json', ...(options.headers || {}) } }); const body = await response.json().catch(() => ({})); return { response, body }; }
@@ -123,5 +124,19 @@ describe('V1 auth, device binding, scope and trips', () => {
     const requestForScope = { get: () => 'local_test', session: null };
     assert.equal(scopeFromRequest(requestForScope, productionConfig, { roles: ['pilgrim'], emailNormalized: 'normal@example.test' }).ok, false);
     assert.equal(scopeFromRequest(requestForScope, productionConfig, { roles: ['admin'], emailNormalized: 'admin@example.test' }).ok, true);
+  });
+
+  it('creates a pending provider account from the provider web intent without requiring a display name', async () => {
+    const result = await request('/api/auth/magic-link/request', {
+      method: 'POST',
+      body: JSON.stringify({ email: 'provider@example.test', role: 'provider', preferredLocale: 'en' }),
+    });
+    assert.equal(result.response.status, 200);
+    const user = await database.db.collection('users').findOne({ emailNormalized: 'provider@example.test' });
+    assert.deepEqual(user.roles, ['provider']);
+    assert.equal(user.displayName, 'provider');
+    const profile = await database.db.collection('providerProfiles').findOne({ userId: user._id });
+    assert.equal(profile.status, 'pending');
+    assert.equal(profile.preferredLocale, 'en');
   });
 });

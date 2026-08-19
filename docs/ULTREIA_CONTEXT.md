@@ -804,3 +804,22 @@ Production fällt ohne vollständige Microsoft-Konfiguration mit
 `mail_provider_not_configured` aus. Tokenabruf und Mailversand loggen keine
 Secrets oder Access-Tokens; der Graph-Versand wird nach einem Timeout nicht
 blind wiederholt.
+
+## Production-Magic-Link-400 (2026-08-19)
+
+Der Live-Request von `/provider/login` wurde mit exakt dem Web-Payload
+`{"email":"<redacted>"}` reproduziert. Die API antwortete mit HTTP 400 und
+`invalid_request: displayName is invalid`. Der Fehler entstand in der
+Backend-Validierung beim Anlegen eines bisher unbekannten Users; Tokenabruf,
+Microsoft Graph `sendMail` und Exchange-Mailbox wurden noch nicht erreicht.
+
+Ursache war zweifach: Das Webfrontend sendete weder `role` noch
+`preferredLocale`, und der Backend-Auth-Service behandelte neue Web-Provider
+als Pilger und verlangte einen nicht vorhandenen Anzeigenamen. Der Provider-
+Webintent sendet jetzt `role=provider` und Locale. Neue Provider erhalten
+serverseitig eine pending `providerProfile`-Grundlage und einen sicheren
+technischen Anzeigenamen aus der E-Mail-Adresse; neue Admin-Accounts werden
+nicht automatisch erzeugt. Bestehende Accounts werden serverseitig anhand der
+angeforderten Rolle geprüft. Der korrigierte Pfad ist durch die Auth-Suite
+abgedeckt; Microsoft-/Graph-Zustellung wird nach dem Deploy separat live
+verifiziert.

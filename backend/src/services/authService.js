@@ -31,6 +31,18 @@ function readLocale(value) {
   return ['de', 'en', 'es'].includes(value) ? value : 'de';
 }
 
+function readRole(value) {
+  if (value === undefined || value === null || value === '') return 'pilgrim';
+  if (!['pilgrim', 'provider', 'admin'].includes(value)) throw new Error('role is invalid');
+  return value;
+}
+
+function providerDisplayName(emailNormalized, displayName) {
+  if (displayName) return readDisplayName(displayName);
+  const fallback = emailNormalized.split('@')[0].replace(/[._-]+/g, ' ').trim();
+  return readDisplayName(fallback.length >= 2 ? fallback.slice(0, 80) : 'Ultreia Provider');
+}
+
 export function createAuthService(config, databaseService, mailService) {
   async function issueSession(userId, deviceId, scope = 'production') {
     const accessToken = randomBytes(32).toString('base64url');
@@ -41,17 +53,31 @@ export function createAuthService(config, databaseService, mailService) {
     return { accessToken, refreshToken, scope, accessExpiresAt: session.accessExpiresAt, refreshExpiresAt: session.refreshExpiresAt };
   }
 
-  async function requestMagicLink({ email, displayName, preferredLocale, scope = 'production' }) {
+  async function requestMagicLink({ email, displayName, preferredLocale, role, scope = 'production' }) {
     const emailNormalized = normalizeEmail(email);
+    const requestedRole = readRole(role);
     const collection = databaseService.getDb().collection('users');
     const existing = await collection.findOne({ emailNormalized });
     let user = existing;
     const timestamp = now();
     if (!user) {
-      user = { emailNormalized, displayName: readDisplayName(displayName), roles: ['pilgrim'], preferredLocale: readLocale(preferredLocale), status: 'active', testAccess: config.localTestEmails?.includes(emailNormalized) === true, authMethods: ['magic_link'], createdAt: timestamp, updatedAt: timestamp, lastLoginAt: null };
+      if (requestedRole === 'admin') throw new Error('admin_access_not_granted');
+      const accountDisplayName = requestedRole === 'provider' ? providerDisplayName(emailNormalized, displayName) : readDisplayName(displayName);
+      user = { emailNormalized, displayName: accountDisplayName, roles: [requestedRole], preferredLocale: readLocale(preferredLocale), status: 'active', testAccess: config.localTestEmails?.includes(emailNormalized) === true, authMethods: ['magic_link'], createdAt: timestamp, updatedAt: timestamp, lastLoginAt: null };
       const inserted = await collection.insertOne(user);
       user._id = inserted.insertedId;
-      await databaseService.getDb().collection('pilgrimProfiles').insertOne({ userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, consent: { privacyAcceptedAt: null }, status: 'active', createdAt: timestamp, updatedAt: timestamp });
+      const profileCollection = requestedRole === 'provider' ? 'providerProfiles' : 'pilgrimProfiles';
+      await databaseService.getDb().collection(profileCollection).insertOne(requestedRole === 'provider'
+        ? { userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, status: 'pending', createdAt: timestamp, updatedAt: timestamp }
+        : { userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, consent: { privacyAcceptedAt: null }, status: 'active', createdAt: timestamp, updatedAt: timestamp });
+    } else if (requestedRole === 'admin' && !user.roles?.includes('admin')) {
+      throw new Error('admin_access_not_granted');
+    } else if (requestedRole === 'provider' && !user.roles?.includes('provider')) {
+      const roles = [...new Set([...(user.roles || []), 'provider'])];
+      const accountDisplayName = providerDisplayName(emailNormalized, displayName || user.displayName);
+      await collection.updateOne({ _id: user._id }, { $set: { roles, displayName: accountDisplayName, updatedAt: timestamp } });
+      user = { ...user, roles, displayName: accountDisplayName, updatedAt: timestamp };
+      await databaseService.getDb().collection('providerProfiles').updateOne({ userId: user._id }, { $set: { userId: user._id, displayName: accountDisplayName, preferredLocale: readLocale(preferredLocale || user.preferredLocale), status: 'pending', updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp } }, { upsert: true });
     }
     const rawToken = randomBytes(32).toString('base64url');
     const requestId = randomBytes(12).toString('hex');

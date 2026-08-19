@@ -24,6 +24,7 @@ function readCookie(req, name) {
 
 function authError(res, error) {
   if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token', 'local_test_not_authorized', 'scope_mismatch'].includes(error.message)) return res.status(['scope_mismatch', 'local_test_not_authorized'].includes(error.message) ? 403 : 401).json({ ok: false, status: error.message });
+  if (['admin_access_not_granted', 'provider_access_not_granted'].includes(error.message)) return res.status(403).json({ ok: false, status: 'access_not_available' });
   if (error.message.includes('required') || error.message.includes('invalid')) return badRequest(res, error);
   return res.status(500).json({ ok: false, status: 'server_error' });
 }
@@ -41,7 +42,7 @@ export function createAuthRouter(config, databaseService, authService, mailServi
       const existingUser = await db.collection('users').findOne({ emailNormalized: email });
       const requestedScope = scopeFromRequest(req, config, existingUser || (config.localTestEmails?.includes(email) ? { emailNormalized: email } : null));
       if (!requestedScope.ok) return res.status(403).json({ ok: false, status: requestedScope.status });
-      const result = await authService.requestMagicLink({ email, displayName: req.body?.displayName, preferredLocale: req.body?.preferredLocale, deviceId: req.body?.deviceId ? readDeviceId(req.body.deviceId) : null, scope: requestedScope.scope });
+      const result = await authService.requestMagicLink({ email, displayName: req.body?.displayName, preferredLocale: req.body?.preferredLocale, role: req.body?.role, deviceId: req.body?.deviceId ? readDeviceId(req.body.deviceId) : null, scope: requestedScope.scope });
       if (config.runtimeMode === 'production' && !result.delivered) {
         logEvent('warn', 'magic_link_delivery_failed', { channel: result.channel, errorClass: result.errorClass || 'mail_provider_failed', upstreamStatus: result.upstreamStatus || null });
         return res.status(result.errorClass === 'mail_provider_not_configured' ? 503 : 502).json({ ok: false, status: result.errorClass === 'mail_provider_not_configured' ? 'mail_provider_not_configured' : 'mail_provider_failed' });
