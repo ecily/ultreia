@@ -24,7 +24,8 @@ function createCorsMiddleware(corsOrigins) {
       res.setHeader('Access-Control-Allow-Origin', requestOrigin);
       res.setHeader('Vary', 'Origin');
       res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Ultreia-Scope');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Ultreia-Scope,X-Ultreia-Web');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
 
     if (req.method === 'OPTIONS') {
@@ -44,6 +45,7 @@ export function createApp(config = loadConfig(), services = {}) {
   const tripService = services.tripService || createTripService(databaseService);
 
   app.disable('x-powered-by');
+  app.locals.corsOrigins = config.corsOrigins;
   app.use(createCorsMiddleware(config.corsOrigins));
   app.use(express.json({ limit: '100kb' }));
   app.use(authMiddleware.optionalAuth);

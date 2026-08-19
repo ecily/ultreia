@@ -39,6 +39,10 @@ function parseCorsOrigins(value) {
     .filter(Boolean);
 }
 
+function parseCsv(value) {
+  return String(value || '').split(',').map((item) => item.trim().toLowerCase()).filter(Boolean);
+}
+
 function shortCommit(value) {
   if (!value || value === 'unknown') return 'unknown';
   return value.slice(0, 7);
@@ -70,7 +74,8 @@ export function loadConfig(env = process.env) {
     mailFrom: env.MAIL_FROM || '',
     authPublicBaseUrl: env.AUTH_PUBLIC_BASE_URL || 'ultreia://auth/verify',
     mailApiKey: env.MAIL_API_KEY || '',
-    allowLocalTestScope: parseBoolean(env.ALLOW_LOCAL_TEST_SCOPE, runtimeMode !== 'production'),
+    allowLocalTestScope: parseBoolean(env.ALLOW_LOCAL_TEST_SCOPE, true),
+    localTestEmails: parseCsv(env.LOCAL_TEST_EMAILS),
     serviceName: SERVICE_NAME,
     version: env.npm_package_version || env.APP_VERSION || '0.1.0',
     commitShort: shortCommit(commitSha),

@@ -33,5 +33,9 @@ export function createMailService(config) {
     return item.verificationUrl;
   }
 
-  return { sendMagicLink, readDevLink };
+  function isConfigured() {
+    return config.mailProvider === 'resend' && Boolean(config.mailApiKey && config.mailFrom);
+  }
+
+  return { sendMagicLink, readDevLink, isConfigured };
 }

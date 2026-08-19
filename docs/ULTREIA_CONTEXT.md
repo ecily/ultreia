@@ -753,6 +753,27 @@ Account-Soft-Delete, Scope-Sessionbindung (`production`/`local_test`) sowie
 ein race-sicherer Trip-Lifecycle mit genau einem nicht abgeschlossenen Trip je
 Pilger und Scope. Die Mobile-Technikoberfläche enthält nur den technischen
 Auth-/Deep-Link-/Session-/Logout-Fluss; kein Secret liegt in der APK.
+## Web-Auth-Einstieg und Production-Scope (2026-08-19)
+
+Das statische Webfrontend besitzt jetzt einen sichtbaren Provider-/Admin-
+Einstieg auf `/provider/login` und `/admin/login`, die Verify-Route
+`/auth/verify` sowie reduzierte, echte Startseiten unter `/provider/` und
+`/admin/`. Websessions verwenden HttpOnly-Cookies mit `SameSite=Lax`,
+Origin-Prüfung für schreibende Cookie-Anfragen und serverseitige
+`/auth/me`-/Rollenprüfung. Die drei Sprachen verwenden dieselbe
+Landingpage-Sprachwahl.
+
+`local_test` ist im produktiven Backend grundsätzlich technisch verfügbar,
+aber nur für serverseitig autorisierte Admin-/Test-Accounts (`admin`,
+`testAccess` oder explizite `LOCAL_TEST_EMAILS`-Runtimekonfiguration). Normale
+Accounts erhalten `scope_not_available`; ein Scope-Wechsel innerhalb einer
+Session bleibt verboten. Die Production-App verwendet
+`https://ultreia.app/auth/verify` als Magic-Link-Ziel.
+
+Der Production-Mailprovider ist weiterhin ein externer Restpunkt. Ohne
+konfigurierte Provider-Runtime meldet der Auth-Request explizit
+`mail_provider_not_configured` und behauptet keinen Versand.
+
 Die dauerhaften Entscheidungen stehen in
 [`docs/adr/ADR-0026-v1-auth-sessions-and-scope.md`](adr/ADR-0026-v1-auth-sessions-and-scope.md).
 

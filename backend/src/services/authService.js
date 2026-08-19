@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { ObjectId } from 'mongodb';
+import { isLocalTestAuthorized } from '../lib/scope.js';
 
 const hashToken = (token) => createHash('sha256').update(token).digest('hex');
 const now = () => new Date();
@@ -37,7 +38,7 @@ export function createAuthService(config, databaseService, mailService) {
     const createdAt = now();
     const session = { userId, deviceId: deviceId || null, scope, accessTokenHash: hashToken(accessToken), refreshTokenHash: hashToken(refreshToken), accessExpiresAt: new Date(createdAt.getTime() + config.accessTokenTtlSeconds * 1000), refreshExpiresAt: new Date(createdAt.getTime() + config.refreshTokenTtlSeconds * 1000), createdAt, lastUsedAt: createdAt, revokedAt: null };
     await databaseService.getDb().collection('sessions').insertOne(session);
-    return { accessToken, refreshToken, accessExpiresAt: session.accessExpiresAt, refreshExpiresAt: session.refreshExpiresAt };
+    return { accessToken, refreshToken, scope, accessExpiresAt: session.accessExpiresAt, refreshExpiresAt: session.refreshExpiresAt };
   }
 
   async function requestMagicLink({ email, displayName, preferredLocale, scope = 'production' }) {
@@ -47,7 +48,7 @@ export function createAuthService(config, databaseService, mailService) {
     let user = existing;
     const timestamp = now();
     if (!user) {
-      user = { emailNormalized, displayName: readDisplayName(displayName), roles: ['pilgrim'], preferredLocale: readLocale(preferredLocale), status: 'active', authMethods: ['magic_link'], createdAt: timestamp, updatedAt: timestamp, lastLoginAt: null };
+      user = { emailNormalized, displayName: readDisplayName(displayName), roles: ['pilgrim'], preferredLocale: readLocale(preferredLocale), status: 'active', testAccess: config.localTestEmails?.includes(emailNormalized) === true, authMethods: ['magic_link'], createdAt: timestamp, updatedAt: timestamp, lastLoginAt: null };
       const inserted = await collection.insertOne(user);
       user._id = inserted.insertedId;
       await databaseService.getDb().collection('pilgrimProfiles').insertOne({ userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, consent: { privacyAcceptedAt: null }, status: 'active', createdAt: timestamp, updatedAt: timestamp });
@@ -58,7 +59,7 @@ export function createAuthService(config, databaseService, mailService) {
     await databaseService.getDb().collection('magicLinks').insertOne({ requestId, tokenHash: hashToken(rawToken), userId: user._id, emailNormalized, scope, expiresAt, usedAt: null, createdAt: timestamp });
     const verificationUrl = `${config.authPublicBaseUrl}${config.authPublicBaseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(rawToken)}`;
     const delivery = await mailService.sendMagicLink({ emailNormalized, verificationUrl });
-    return { accepted: true, diagnosticId: delivery.diagnosticId || null };
+    return { accepted: true, diagnosticId: delivery.diagnosticId || null, delivered: delivery.delivered, channel: delivery.channel };
   }
 
   async function verifyMagicLink(rawToken, deviceId, requestedScope = 'production') {
@@ -70,6 +71,8 @@ export function createAuthService(config, databaseService, mailService) {
     if (!user) throw new Error('account_unavailable');
     const timestamp = now();
     await databaseService.getDb().collection('users').updateOne({ _id: user._id }, { $set: { lastLoginAt: timestamp, updatedAt: timestamp } });
+    if (link.scope === 'local_test' && config.runtimeMode === 'production' && !isLocalTestAuthorized(user, config)) throw new Error('local_test_not_authorized');
+    if (link.scope !== requestedScope) throw new Error('scope_mismatch');
     const session = await issueSession(user._id, deviceId, link.scope === requestedScope ? link.scope : 'production');
     return { user: publicUser({ ...user, lastLoginAt: timestamp, updatedAt: timestamp }), userId: user._id, session };
   }
@@ -117,7 +120,7 @@ export function createAuthService(config, databaseService, mailService) {
     ]);
   }
 
-  return { issueSession, requestMagicLink, verifyMagicLink, authenticateAccessToken, refresh, logout, profilesFor, accountDelete, publicUser };
+  return { issueSession, requestMagicLink, verifyMagicLink, authenticateAccessToken, refresh, logout, profilesFor, accountDelete, publicUser, normalizeEmail, isLocalTestAuthorized: (user) => isLocalTestAuthorized(user, config) };
 }
 
 export { publicUser };

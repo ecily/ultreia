@@ -32,3 +32,9 @@ document.querySelectorAll('[data-language-button]').forEach((button) => {
 });
 
 setLanguage(getInitialLanguage());
+
+if (document.querySelector('[data-web-app]')) {
+  const authScript = document.createElement('script');
+  authScript.src = '/web-auth.js';
+  document.body.appendChild(authScript);
+}

@@ -34,6 +34,18 @@ sein und Production-Daten strikt von lokal autorisierten Testdaten trennen.
   benötigt einen konfigurierten Transactional-Mail-Provider; Secrets werden
   ausschließlich aus der Runtime gelesen.
 
+## Production-Web-Auth-Ergänzung
+
+`local_test` ist auch im Production-Backend technisch verfügbar, aber nur für
+serverseitig autorisierte Admin-/Test-Accounts (`admin`, `testAccess` oder
+explizite `LOCAL_TEST_EMAILS`-Runtimekonfiguration). Der Auth-Flow muss den
+Scope ausdrücklich anfordern; normale Accounts erhalten keinen Zugriff.
+
+Websessions verwenden HttpOnly-Cookies mit `SameSite=Lax` und Origin-Prüfung
+für schreibende Cookie-Anfragen. Das statische Webfrontend stellt Provider-
+und Admin-Login, Verify, Rollen-Guards und Logout bereit. Der eigentliche
+Production-Mailversand bleibt ein konfigurationsabhängiger externer Dienst.
+
 ## Konsequenzen
 
 Trips, technische Diagnose-/Location-/Push-Registrierungsdaten und spätere

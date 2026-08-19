@@ -1,10 +1,28 @@
 import { Router } from 'express';
 import { createRateLimiter } from '../lib/rateLimit.js';
 import { badRequest, databaseRequired, readDeviceId, readString } from '../lib/validation.js';
-import { scopeFromRequest, scopeForMagicLink } from '../lib/scope.js';
+import { scopeFromRequest } from '../lib/scope.js';
+
+function cookieOptions(maxAge, config) {
+  return `Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${config.runtimeMode === 'production' ? '; Secure' : ''}`;
+}
+
+function setSessionCookies(res, session, config) {
+  res.setHeader('Set-Cookie', [`ultreia_access=${encodeURIComponent(session.accessToken)}; ${cookieOptions(config.accessTokenTtlSeconds, config)}`, `ultreia_refresh=${encodeURIComponent(session.refreshToken)}; ${cookieOptions(config.refreshTokenTtlSeconds, config)}`]);
+}
+
+function clearSessionCookies(res, config) {
+  res.setHeader('Set-Cookie', [`ultreia_access=; ${cookieOptions(0, config)}`, `ultreia_refresh=; ${cookieOptions(0, config)}`]);
+}
+
+function readCookie(req, name) {
+  const header = req.get('cookie') || '';
+  const item = header.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${name}=`));
+  return item ? decodeURIComponent(item.slice(name.length + 1)) : null;
+}
 
 function authError(res, error) {
-  if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token'].includes(error.message)) return res.status(401).json({ ok: false, status: error.message });
+  if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token', 'local_test_not_authorized', 'scope_mismatch'].includes(error.message)) return res.status(['scope_mismatch', 'local_test_not_authorized'].includes(error.message) ? 403 : 401).json({ ok: false, status: error.message });
   if (error.message.includes('required') || error.message.includes('invalid')) return badRequest(res, error);
   return res.status(500).json({ ok: false, status: 'server_error' });
 }
@@ -17,9 +35,13 @@ export function createAuthRouter(config, databaseService, authService, mailServi
     try {
       const db = databaseRequired(res, databaseService);
       if (!db) return;
-      const requestedScope = scopeFromRequest(req, config);
+      if (config.runtimeMode === 'production' && !mailService.isConfigured()) return res.status(503).json({ ok: false, status: 'mail_provider_not_configured' });
+      const email = authService.normalizeEmail ? authService.normalizeEmail(req.body?.email) : String(req.body?.email || '').trim().toLowerCase();
+      const existingUser = await db.collection('users').findOne({ emailNormalized: email });
+      const requestedScope = scopeFromRequest(req, config, existingUser || (config.localTestEmails?.includes(email) ? { emailNormalized: email } : null));
       if (!requestedScope.ok) return res.status(403).json({ ok: false, status: requestedScope.status });
-      const result = await authService.requestMagicLink({ email: req.body?.email, displayName: req.body?.displayName, preferredLocale: req.body?.preferredLocale, deviceId: req.body?.deviceId ? readDeviceId(req.body.deviceId) : null, scope: scopeForMagicLink(req, config) });
+      const result = await authService.requestMagicLink({ email, displayName: req.body?.displayName, preferredLocale: req.body?.preferredLocale, deviceId: req.body?.deviceId ? readDeviceId(req.body.deviceId) : null, scope: requestedScope.scope });
+      if (result.channel === 'resend' && !result.delivered) return res.status(502).json({ ok: false, status: 'mail_provider_failed' });
       return res.json({ ok: true, status: 'accepted', diagnosticId: result.diagnosticId || undefined });
     } catch (error) { return authError(res, error); }
   });
@@ -35,30 +57,34 @@ export function createAuthRouter(config, databaseService, authService, mailServi
     try {
       const db = databaseRequired(res, databaseService);
       if (!db) return;
-      const requestedScope = scopeFromRequest(req, config);
-      if (!requestedScope.ok) return res.status(403).json({ ok: false, status: requestedScope.status });
+      const requestedScope = req.get('x-ultreia-scope') || 'production';
+      if (!['production', 'local_test'].includes(requestedScope)) return res.status(403).json({ ok: false, status: 'invalid_scope' });
       const deviceId = req.body?.deviceId ? readDeviceId(req.body.deviceId) : null;
-      const result = await authService.verifyMagicLink(req.body?.token, deviceId, requestedScope.scope);
+      const result = await authService.verifyMagicLink(req.body?.token, deviceId, requestedScope);
+      if (requestedScope === 'local_test' && result.session.scope !== 'local_test') return res.status(403).json({ ok: false, status: 'scope_not_available' });
       const profiles = await authService.profilesFor(result.userId);
-      return res.json({ ok: true, user: result.user, ...profiles, session: result.session });
+      if (req.get('x-ultreia-web') === '1') setSessionCookies(res, result.session, config);
+      return res.json({ ok: true, user: result.user, ...profiles, session: req.get('x-ultreia-web') === '1' ? { scope: result.session.scope, accessExpiresAt: result.session.accessExpiresAt, refreshExpiresAt: result.session.refreshExpiresAt } : result.session });
     } catch (error) { return authError(res, error); }
   });
 
   router.post('/session/refresh', async (req, res) => {
     try {
-      const result = await authService.refresh(req.body?.refreshToken, req.body?.deviceId ? readDeviceId(req.body.deviceId) : null);
-      return res.json({ ok: true, user: result.user, session: result.session });
+      const result = await authService.refresh(req.body?.refreshToken || readCookie(req, 'ultreia_refresh'), req.body?.deviceId ? readDeviceId(req.body.deviceId) : null);
+      if (req.get('x-ultreia-web') === '1') setSessionCookies(res, result.session, config);
+      return res.json({ ok: true, user: result.user, session: req.get('x-ultreia-web') === '1' ? { scope: result.session.scope, accessExpiresAt: result.session.accessExpiresAt, refreshExpiresAt: result.session.refreshExpiresAt } : result.session });
     } catch (error) { return authError(res, error); }
   });
 
   router.get('/me', authMiddleware.requireAuth, async (req, res) => {
     const profiles = await authService.profilesFor(req.user._id);
-    return res.json({ ok: true, user: authService.publicUser(req.user), scope: req.session.scope, ...profiles });
+    return res.json({ ok: true, user: authService.publicUser(req.user), scope: req.session.scope, localTestAuthorized: authService.isLocalTestAuthorized(req.user), ...profiles });
   });
 
   router.post('/logout', authMiddleware.requireAuth, async (req, res) => {
     await authService.logout(req.session._id);
     if (req.session.deviceId) await databaseService.getDb().collection('devices').updateOne({ deviceId: req.session.deviceId, userId: req.user._id }, { $set: { userId: null, bindingStatus: 'logged_out', updatedAt: new Date() } });
+    clearSessionCookies(res, config);
     return res.json({ ok: true, status: 'logged_out' });
   });
 

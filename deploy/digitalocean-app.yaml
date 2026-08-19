@@ -35,6 +35,10 @@ services:
         value: https://www.ultreia.app,https://ultreia.app
       - key: PUSH_TEST_ENABLED
         value: "false"
+      - key: ALLOW_LOCAL_TEST_SCOPE
+        value: "true"
+      - key: AUTH_PUBLIC_BASE_URL
+        value: https://ultreia.app/auth/verify
       - key: HEARTBEAT_TTL_SECONDS
         value: "604800"
       - key: DIAGNOSTIC_TTL_SECONDS
