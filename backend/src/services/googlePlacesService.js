@@ -28,11 +28,41 @@ function googleError(status) {
   return 'google_places_request_error';
 }
 
+function validLocation(location) {
+  const candidate = location?.finalLocation || location;
+  const latitude = Number(candidate?.latitude);
+  const longitude = Number(candidate?.longitude);
+  return Number.isFinite(latitude) && Number.isFinite(longitude) && Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180
+    ? { latitude, longitude }
+    : null;
+}
+
+function autocompleteBody({ input, scope = 'production', sessionToken, locale = 'de', location }) {
+  const localTest = scope === 'local_test';
+  const body = {
+    input,
+    includedRegionCodes: localTest ? ['at'] : ['es', 'fr'],
+    includePureServiceAreaBusinesses: false,
+    languageCode: locale,
+  };
+  if (localTest) body.regionCode = 'at';
+  if (sessionToken) body.sessionToken = sessionToken;
+  const point = validLocation(location);
+  if (point) {
+    body.locationBias = {
+      circle: {
+        center: point,
+        radius: localTest ? 50000 : 100000,
+      },
+    };
+  }
+  return body;
+}
+
 export function createGooglePlacesService(config, { fetchImpl = globalThis.fetch } = {}) {
-  async function autocomplete({ input, sessionToken, locale = 'de' }) {
+  async function autocomplete({ input, scope = 'production', sessionToken, locale = 'de', location }) {
     if (!configured(config)) return { ok: false, errorClass: 'google_places_not_configured' };
-    const body = { input, includedRegionCodes: ['fr', 'es'], languageCode: locale };
-    if (sessionToken) body.sessionToken = sessionToken;
+    const body = autocompleteBody({ input, scope, sessionToken, locale, location });
     try {
       const { response, body: responseBody } = await fetchJson(fetchImpl, AUTOCOMPLETE_URL, {
         method: 'POST',
@@ -55,10 +85,12 @@ export function createGooglePlacesService(config, { fetchImpl = globalThis.fetch
     }
   }
 
-  async function details({ placeId, locale = 'de' }) {
+  async function details({ placeId, sessionToken, locale = 'de' }) {
     if (!configured(config)) return { ok: false, errorClass: 'google_places_not_configured' };
     try {
-      const { response, body } = await fetchJson(fetchImpl, `${detailsUrl(placeId)}?languageCode=${encodeURIComponent(locale)}`, {
+      const params = new URLSearchParams({ languageCode: locale });
+      if (sessionToken) params.set('sessionToken', sessionToken);
+      const { response, body } = await fetchJson(fetchImpl, `${detailsUrl(placeId)}?${params.toString()}`, {
         method: 'GET',
         headers: {
           'x-goog-api-key': apiKey(config),

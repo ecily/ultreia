@@ -44,6 +44,14 @@ GOOGLE_PLACES_API_KEY=<server-side restricted key>
 
 The non-secret timeout is prepared as `GOOGLE_PLACES_TIMEOUT_MS=8000`.
 
+Provider geography policy:
+
+- `local_test`: `includedRegionCodes: ["at"]`, `regionCode: "at"`
+- `production`: `includedRegionCodes: ["es", "fr"]`
+- a known confirmed provider location may add a server-side `locationBias`
+- `includePureServiceAreaBusinesses: false` is sent so suggestions prefer physical locations
+- client-supplied country filters are ignored; the authenticated session scope is authoritative
+
 After saving the secret, deploy and verify `POST /api/provider/location/autocomplete`
 with an authenticated provider session. If the key is absent, the API returns
 `google_places_not_configured` and provider onboarding remains safely pending.

@@ -876,3 +876,35 @@ ohne Empfänger-, Token- oder Secret-Daten `magic_link_delivered`,
 `channel=microsoft`, `upstreamStatus=202`. Damit ist der zweite Graph-
 `sendMail`-Aufruf technisch nachgewiesen. Die Zustellung in das Postfach selbst
 ist durch den Backend-Nachweis nicht weiter verifizierbar.
+
+## Provider-Places-Geografie und Autocomplete (2026-08-19)
+
+Die erste Places-Implementierung verwendete fuer alle Provider-Sessions
+hartkodiert `includedRegionCodes: ["fr", "es"]`. Dadurch konnten lokale
+`local_test`-Eingaben wie `8111 Gratwein-Strassengel` unpassende franzoesische
+Treffer erhalten. Der Request sendete zwar den vollstaendigen Eingabestring,
+aber ohne `regionCode`, serverseitigen Scope-Bias oder Abbruch veralteter
+Browser-Requests.
+
+Autocomplete leitet die Geografie jetzt ausschliesslich aus der autorisierten
+Session ab. `local_test` verwendet `includedRegionCodes: ["at"]` und
+`regionCode: "at"`; `production` verwendet ausschliesslich
+`includedRegionCodes: ["es", "fr"]`. Eine vorhandene, bestaetigte
+Provider-Position wird serverseitig als begrenzter `locationBias` verwendet,
+ohne Browser-Geolocation zur Voraussetzung zu machen. Der Client kann keine
+Laenderfilter setzen. `includePureServiceAreaBusinesses: false` bevorzugt
+physische Standorte; Place Details und Koordinaten bleiben beim Speichern
+serverseitig zwingend.
+
+Der Provider-Client behaelt den vollstaendigen aktuellen String, debounced mit
+250 ms, bricht laufende aeltere Requests per `AbortController` ab und verwirft
+zusaetzlich Antworten mit veralteter Sequenznummer. Sprache wird unabhaengig
+von Region als `de`, `en` oder `es` an Places uebergeben. Der gemeinsame
+Session-Token wird fuer Autocomplete und die nachfolgende Place-Details-
+Auswahl weitergereicht.
+
+Nachweis: Backend 42/42 Tests, Frontend-Autocomplete 2/2 Tests, inklusive
+vollstaendiger Adresse, lokaler/produktiver Scope-Policy und out-of-order-
+Response. Der reale Production-Smoke muss nach dem Deploy mit einer
+autorisierten `local_test`-Session gegen `8111 Gratwein` und eine vollstaendige
+Adresse wiederholt werden.

@@ -53,7 +53,8 @@ const config = {
 
 const providerGoogle = {
   configured: () => true,
-  autocomplete: async () => ({ ok: true, suggestions: [] }),
+  autocompleteCalls: [],
+  autocomplete: async (input) => { providerGoogle.autocompleteCalls.push(input); return { ok: true, suggestions: [] }; },
   details: async () => ({ ok: true, place: { id: 'places/provider-test', formattedAddress: 'Test Street 1, Camino', location: { latitude: 42.1, longitude: -4.5 }, addressComponents: [{ types: ['country'], shortText: 'ES', longText: 'Spain' }, { types: ['locality'], longText: 'Camino Town' }, { types: ['postal_code'], longText: '1000' }, { types: ['route'], longText: 'Test Street' }, { types: ['street_number'], longText: '1' }] } }),
 };
 
@@ -65,7 +66,7 @@ describe('V1 auth, device binding, scope and trips', () => {
   after(async () => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));
 
   async function request(path, options = {}) { const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { 'content-type': 'application/json', ...(options.headers || {}) } }); const body = await response.json().catch(() => ({})); return { response, body }; }
-  async function login(email, deviceId, scope = 'local_test') { const first = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': scope }, body: JSON.stringify({ email, displayName: 'Test Pilgrim', deviceId }) }); assert.equal(first.response.status, 200, `request:${JSON.stringify(first.body)}`); const linkResponse = await request(`/api/auth/dev/magic-link/${first.body.diagnosticId}`); const token = new URL(linkResponse.body.verificationUrl).searchParams.get('token'); const verified = await request('/api/auth/magic-link/verify', { method: 'POST', headers: { 'x-ultreia-scope': scope }, body: JSON.stringify({ token, deviceId }) }); assert.equal(verified.response.status, 200, `verify:${JSON.stringify(verified.body)}`); return verified.body; }
+  async function login(email, deviceId, scope = 'local_test', role) { const first = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': scope }, body: JSON.stringify({ email, displayName: 'Test Pilgrim', deviceId, role }) }); assert.equal(first.response.status, 200, `request:${JSON.stringify(first.body)}`); const linkResponse = await request(`/api/auth/dev/magic-link/${first.body.diagnosticId}`); const token = new URL(linkResponse.body.verificationUrl).searchParams.get('token'); const verified = await request('/api/auth/magic-link/verify', { method: 'POST', headers: { 'x-ultreia-scope': scope }, body: JSON.stringify({ token, deviceId }) }); assert.equal(verified.response.status, 200, `verify:${JSON.stringify(verified.body)}`); return verified.body; }
 
   it('creates a pilgrim, verifies one-time magic links and binds the device', async () => {
     const session = await login('pilgrim@example.test', 'ultreia-test-device-1');
@@ -186,6 +187,19 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.equal((await request('/api/provider/profile', { method: 'PUT', headers: auth, body: JSON.stringify({ businessName: 'API Camino Cafe', sourceLocale: 'en' }) })).body.profile.status, 'pending');
     const location = await request('/api/provider/location', { method: 'PUT', headers: auth, body: JSON.stringify({ googlePlaceId: 'places/provider-test', sourceLocale: 'en' }) });
     assert.equal(location.body.profile.status, 'active');
+    const localAutocomplete = await request('/api/provider/location/autocomplete', { method: 'POST', headers: { ...auth, 'x-ultreia-scope': 'production' }, body: JSON.stringify({ input: '8111 Gratwein-Straßengel', locale: 'de', sessionToken: 'local-session', includedRegionCodes: ['fr'] }) });
+    assert.equal(localAutocomplete.response.status, 200);
+    const localCall = providerGoogle.autocompleteCalls.at(-1);
+    assert.equal(localCall.scope, 'local_test');
+    assert.equal(localCall.input, '8111 Gratwein-Straßengel');
+    assert.equal(localCall.locale, 'de');
+    assert.equal(localCall.sessionToken, 'local-session');
+    const shortAutocomplete = await request('/api/provider/location/autocomplete', { method: 'POST', headers: auth, body: JSON.stringify({ input: '81', locale: 'de' }) });
+    assert.equal(shortAutocomplete.response.status, 400);
+    const productionSession = await login('production-provider@example.test', 'ultreia-test-device-production', 'production', 'provider');
+    const productionAutocomplete = await request('/api/provider/location/autocomplete', { method: 'POST', headers: { authorization: `Bearer ${productionSession.session.accessToken}`, 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ input: 'Saint-Jean-Pied-de-Port', locale: 'es', includedRegionCodes: ['at'] }) });
+    assert.equal(productionAutocomplete.response.status, 200);
+    assert.equal(providerGoogle.autocompleteCalls.at(-1).scope, 'production');
     const needs = await request('/api/needs?locale=en', { headers: auth });
     assert.equal(needs.response.status, 200, JSON.stringify(needs.body));
     assert.equal(needs.body.items.length, 40);

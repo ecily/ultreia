@@ -1,7 +1,7 @@
 const DEVICE_ID_PATTERN = /^[A-Za-z0-9._:-]{8,128}$/;
 const PUSH_TOKEN_PATTERN = /^(Exponent|Expo)PushToken\[[^\]]{8,256}\]$/;
 
-export function readString(value, { name, max = 256, required = false } = {}) {
+export function readString(value, { name, min = 0, max = 256, required = false } = {}) {
   if (typeof value !== 'string') {
     if (required) throw new Error(`${name} is required`);
     return null;
@@ -9,6 +9,7 @@ export function readString(value, { name, max = 256, required = false } = {}) {
 
   const result = value.trim();
   if (!result && required) throw new Error(`${name} is required`);
+  if (result.length < min) throw new Error(`${name} is too short`);
   if (result.length > max) throw new Error(`${name} is too long`);
   return result || null;
 }

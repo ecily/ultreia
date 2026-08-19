@@ -68,9 +68,25 @@ describe('provider V1 service', () => {
   it('uses Places API (New) field masks and degrades safely without a key', async () => {
     const calls = [];
     const google = createGooglePlacesService({ googlePlacesApiKey: 'test-key', googlePlacesTimeoutMs: 1000 }, { fetchImpl: async (url, options) => { calls.push({ url, options }); return new Response(JSON.stringify({ suggestions: [{ placePrediction: { placeId: 'places/x', text: { text: 'X' } } }] }), { status: 200 }); } });
-    const result = await google.autocomplete({ input: 'Camino' });
+    const result = await google.autocomplete({ input: '8111 Gratwein-Straßengel', scope: 'local_test', sessionToken: 'session', locale: 'de', location: { finalLocation: { latitude: 47.13, longitude: 15.6 } } });
     assert.equal(result.suggestions[0].placeId, 'places/x');
     assert.equal(calls[0].options.headers['x-goog-fieldmask'].includes('placeId'), true);
+    const localBody = JSON.parse(calls[0].options.body);
+    assert.equal(localBody.input, '8111 Gratwein-Straßengel');
+    assert.deepEqual(localBody.includedRegionCodes, ['at']);
+    assert.equal(localBody.regionCode, 'at');
+    assert.equal(localBody.languageCode, 'de');
+    assert.equal(localBody.includePureServiceAreaBusinesses, false);
+    assert.deepEqual(localBody.locationBias.circle.center, { latitude: 47.13, longitude: 15.6 });
+    assert.equal(localBody.locationBias.circle.radius, 50000);
+    const production = await google.autocomplete({ input: 'Saint-Jean-Pied-de-Port', scope: 'production', locale: 'es' });
+    assert.equal(production.ok, true);
+    const productionBody = JSON.parse(calls[1].options.body);
+    assert.deepEqual(productionBody.includedRegionCodes, ['es', 'fr']);
+    assert.equal(productionBody.regionCode, undefined);
+    assert.equal(productionBody.locationBias, undefined);
+    assert.equal(productionBody.languageCode, 'es');
+    assert.equal(calls[0].options.signal instanceof AbortSignal, true);
     assert.equal((await createGooglePlacesService({}, {}).autocomplete({ input: 'Camino' })).errorClass, 'google_places_not_configured');
   });
 });

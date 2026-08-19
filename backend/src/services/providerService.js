@@ -204,7 +204,7 @@ export function createProviderService(databaseService, googlePlacesService, need
 
   async function validateLocation(body, locale = 'de') {
     const placeId = readText(body?.googlePlaceId || body?.placeId, 'googlePlaceId', { min: 3, max: 200 });
-    const result = await googlePlacesService.details({ placeId, locale });
+    const result = await googlePlacesService.details({ placeId, sessionToken: body?.sessionToken || null, locale });
     if (!result.ok) { const error = new Error(result.errorClass); error.code = result.errorClass; error.upstreamStatus = result.upstreamStatus; throw error; }
     return canonicalGoogleLocation(result.place, body?.finalLatitude, body?.finalLongitude);
   }
@@ -217,6 +217,11 @@ export function createProviderService(databaseService, googlePlacesService, need
     const status = profile.status === 'blocked' ? 'blocked' : complete ? 'active' : 'pending';
     await profiles().updateOne({ _id: profile._id, userId: user._id, scope }, { $set: { location, status, updatedAt: timestamp, completedAt: complete ? (profile.completedAt || timestamp) : null } });
     return getProfile(user, scope);
+  }
+
+  async function locationHint(user, scope) {
+    const profile = await profiles().findOne({ userId: user._id, scope });
+    return profile?.location || null;
   }
 
   async function listOffers(user, scope) {
@@ -270,7 +275,7 @@ export function createProviderService(databaseService, googlePlacesService, need
 
   async function confirmOffer(user, scope, id) { return transitionOffer(user, scope, id, ['active', 'expired', 'paused'], 'active'); }
 
-  return { ensureProfile, getProfile, updateProfile, validateLocation, updateLocation, listOffers, getOffer, writeOffer, pause: (u, s, id) => transitionOffer(u, s, id, ['active', 'expired'], 'paused'), resume: (u, s, id) => transitionOffer(u, s, id, ['paused', 'expired'], 'active'), confirm: confirmOffer, publicProfile, publicOffer, PROFILE_STATUSES, OFFER_STATUSES };
+  return { ensureProfile, getProfile, locationHint, updateProfile, validateLocation, updateLocation, listOffers, getOffer, writeOffer, pause: (u, s, id) => transitionOffer(u, s, id, ['active', 'expired'], 'paused'), resume: (u, s, id) => transitionOffer(u, s, id, ['paused', 'expired'], 'active'), confirm: confirmOffer, publicProfile, publicOffer, PROFILE_STATUSES, OFFER_STATUSES };
 }
 
 export { canonicalGoogleLocation, haversineMeters, validatePrice, validateTimeWindows };
