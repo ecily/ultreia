@@ -823,3 +823,22 @@ nicht automatisch erzeugt. Bestehende Accounts werden serverseitig anhand der
 angeforderten Rolle geprüft. Der korrigierte Pfad ist durch die Auth-Suite
 abgedeckt; Microsoft-/Graph-Zustellung wird nach dem Deploy separat live
 verifiziert.
+
+## Repeated-Provider-Magic-Link (2026-08-19)
+
+Der bestehende Provider-Pfad erzeugt bei jedem Request einen neuen gehashten
+One-Time-Magic-Link und legt ihn mit eigener TTL erneut in `magicLinks` ab; ein
+neuer Request legt keinen zweiten User an. Der alte Link wird nicht durch den
+neuen Request ersetzt, bleibt aber bis zur TTL bzw. einmaligen Verwendung
+unabhängig gültig. Der atomare Verify-Filter verhindert Wiederverwendung.
+
+Es gibt keine E-Mail-Deduplizierung oder dauerhafte Suppression. Der einzige
+Schutz ist der prozesslokale Auth-Request-Limiter mit 8 Requests je IP in einem
+60-Sekunden-Fenster; danach ist ein neuer legitimer Request wieder möglich.
+
+Der korrigierte Production-Request für den bestehenden Provider wurde live
+ausgeführt: HTTP 200 `accepted`, Readiness HTTP 200. Der Backend-Log meldete
+ohne Empfänger-, Token- oder Secret-Daten `magic_link_delivered`,
+`channel=microsoft`, `upstreamStatus=202`. Damit ist der zweite Graph-
+`sendMail`-Aufruf technisch nachgewiesen. Die Zustellung in das Postfach selbst
+ist durch den Backend-Nachweis nicht weiter verifizierbar.
