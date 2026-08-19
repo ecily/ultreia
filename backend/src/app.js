@@ -15,6 +15,7 @@ import { createAuthService } from './services/authService.js';
 import { createTripService } from './services/tripService.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { createAccountRouter } from './routes/account.js';
+import { logEvent } from './lib/logger.js';
 
 function createCorsMiddleware(corsOrigins) {
   return function corsMiddleware(req, res, next) {
@@ -70,6 +71,8 @@ export function createApp(config = loadConfig(), services = {}) {
 
   app.use((err, req, res, next) => {
     if (res.headersSent) return next(err);
+
+    logEvent('error', 'unhandled_request_error', { errorClass: err?.code || err?.name || 'unknown', error: err });
 
     return res.status(500).json({
       ok: false,

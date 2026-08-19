@@ -23,9 +23,10 @@ function readCookie(req, name) {
 }
 
 function authError(res, error) {
-  if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token', 'local_test_not_authorized', 'scope_mismatch'].includes(error.message)) return res.status(['scope_mismatch', 'local_test_not_authorized'].includes(error.message) ? 403 : 401).json({ ok: false, status: error.message });
-  if (['admin_access_not_granted', 'provider_access_not_granted'].includes(error.message)) return res.status(403).json({ ok: false, status: 'access_not_available' });
-  if (error.message.includes('required') || error.message.includes('invalid')) return badRequest(res, error);
+  const message = typeof error?.message === 'string' ? error.message : 'server_error';
+  if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token', 'local_test_not_authorized', 'scope_mismatch'].includes(message)) return res.status(['scope_mismatch', 'local_test_not_authorized'].includes(message) ? 403 : 401).json({ ok: false, status: message });
+  if (['admin_access_not_granted', 'provider_access_not_granted'].includes(message)) return res.status(403).json({ ok: false, status: 'access_not_available' });
+  if (message.includes('required') || message.includes('invalid')) return badRequest(res, { message });
   return res.status(500).json({ ok: false, status: 'server_error' });
 }
 
