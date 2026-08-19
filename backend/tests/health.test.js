@@ -70,6 +70,39 @@ describe('GET /api/health', () => {
     assert.equal(denied.headers.get('access-control-allow-origin'), null);
   });
 
+  it('allows the provider PUT preflight without opening other origins', async () => {
+    for (const path of ['/api/provider/profile', '/api/provider/location']) {
+      const response = await fetch(`${baseUrl}${path}`, {
+        method: 'OPTIONS',
+        headers: {
+          Origin: 'http://localhost:5173',
+          'Access-Control-Request-Method': 'PUT',
+          'Access-Control-Request-Headers': 'content-type,x-ultreia-web',
+        },
+      });
+
+      assert.equal(response.status, 204);
+      assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:5173');
+      assert.equal(response.headers.get('access-control-allow-credentials'), 'true');
+      assert.deepEqual(
+        response.headers.get('access-control-allow-methods').split(','),
+        ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      );
+    }
+
+    const denied = await fetch(`${baseUrl}/api/provider/profile`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://example.invalid',
+        'Access-Control-Request-Method': 'PUT',
+      },
+    });
+
+    assert.equal(denied.status, 204);
+    assert.equal(denied.headers.get('access-control-allow-origin'), null);
+    assert.equal(denied.headers.get('access-control-allow-credentials'), null);
+  });
+
   it('keeps readiness red when the database is not connected', async () => {
     const response = await fetch(`${baseUrl}/api/ready`);
     const body = await response.json();

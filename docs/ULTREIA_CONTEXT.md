@@ -949,3 +949,12 @@ ausgelieferten Provider-Bundles sind erfolgreich. Der konkrete persönliche
 Andreas-Smoke mit bestehender Browser-Session wurde nicht simuliert: Ohne
 seine autorisierte Session bzw. eine interaktive Magic-Link-Bestätigung wäre
 ein angeblicher Places-Treffer kein echter Nachweis.
+
+## Provider-CORS-Preflight (2026-08-19)
+
+Die Provider-Weboberflaeche verwendet PUT fuer `/api/provider/profile` und
+`/api/provider/location`. Die Backend-CORS-Middleware hatte PUT bisher nicht
+in `Access-Control-Allow-Methods`; dadurch wurden die Browser-Preflights trotz
+korrekter Origin-Allowlist blockiert. Die Allowlist erlaubt jetzt GET, POST,
+PUT, PATCH, DELETE und OPTIONS. Die Origins bleiben auf `CORS_ORIGINS`
+beschraenkt, Credentials bleiben aktiviert, und es gibt keine Wildcard-Origin.

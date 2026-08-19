@@ -22,6 +22,8 @@ import { createProviderService } from './services/providerService.js';
 import { createProviderRouter } from './routes/provider.js';
 import { createNeedsRouter } from './routes/needs.js';
 
+const ALLOWED_CORS_METHODS = 'GET,POST,PUT,PATCH,DELETE,OPTIONS';
+
 function createCorsMiddleware(corsOrigins) {
   return function corsMiddleware(req, res, next) {
     const requestOrigin = req.headers.origin;
@@ -29,7 +31,7 @@ function createCorsMiddleware(corsOrigins) {
     if (requestOrigin && corsOrigins.includes(requestOrigin)) {
       res.setHeader('Access-Control-Allow-Origin', requestOrigin);
       res.setHeader('Vary', 'Origin');
-      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Methods', ALLOWED_CORS_METHODS);
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Ultreia-Scope,X-Ultreia-Web');
       res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
