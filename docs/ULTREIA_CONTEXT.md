@@ -908,3 +908,13 @@ vollstaendiger Adresse, lokaler/produktiver Scope-Policy und out-of-order-
 Response. Der reale Production-Smoke muss nach dem Deploy mit einer
 autorisierten `local_test`-Session gegen `8111 Gratwein` und eine vollstaendige
 Adresse wiederholt werden.
+
+Der Fix `04bcf0a` ist auf Backend und Web deployed; beide DigitalOcean-
+Deployments wurden ACTIVE, Health/Ready liefern weiterhin HTTP 200. Der
+geschuetzte Live-Provider-Endpunkt antwortet ohne Session mit 401. Eine
+autorisierte Places-Liveabfrage wurde nicht vorgetaeuscht: In der aktuell
+abrufbaren DigitalOcean-Backend-Komponentenkonfiguration ist kein
+`GOOGLE_PLACES_API_KEY`-Runtime-Eintrag sichtbar, obwohl die externe
+Betriebsannahme von einem gesetzten Secret ausging. Der echte
+`local_test`-Autocomplete-Nachweis bleibt deshalb bis zur Korrektur dieser
+Runtime-Diskrepanz offen.
