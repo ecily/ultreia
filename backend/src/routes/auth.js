@@ -24,7 +24,7 @@ function readCookie(req, name) {
 
 function authError(res, error) {
   const message = typeof error?.message === 'string' ? error.message : 'server_error';
-  if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token', 'local_test_not_authorized', 'scope_mismatch'].includes(message)) return res.status(['scope_mismatch', 'local_test_not_authorized'].includes(message) ? 403 : 401).json({ ok: false, status: message });
+  if (['invalid_token', 'invalid_or_expired_token', 'invalid_refresh_token', 'invalid_scope', 'local_test_not_authorized', 'scope_mismatch'].includes(message)) return res.status(['invalid_scope', 'scope_mismatch', 'local_test_not_authorized'].includes(message) ? 403 : 401).json({ ok: false, status: message });
   if (['admin_access_not_granted', 'provider_access_not_granted'].includes(message)) return res.status(403).json({ ok: false, status: 'access_not_available' });
   if (message.includes('required') || message.includes('invalid')) return badRequest(res, { message });
   return res.status(500).json({ ok: false, status: 'server_error' });
@@ -83,6 +83,16 @@ export function createAuthRouter(config, databaseService, authService, mailServi
       const result = await authService.refresh(req.body?.refreshToken || readCookie(req, 'ultreia_refresh'), req.body?.deviceId ? readDeviceId(req.body.deviceId) : null);
       if (req.get('x-ultreia-web') === '1') setSessionCookies(res, result.session, config);
       return res.json({ ok: true, user: result.user, session: req.get('x-ultreia-web') === '1' ? { scope: result.session.scope, accessExpiresAt: result.session.accessExpiresAt, refreshExpiresAt: result.session.refreshExpiresAt } : result.session });
+    } catch (error) { return authError(res, error); }
+  });
+
+  router.post('/session/switch-scope', authMiddleware.requireAuth, async (req, res) => {
+    try {
+      const targetScope = readString(req.body?.scope, { name: 'scope', max: 20, required: true });
+      const result = await authService.switchScope(req.user, req.session, targetScope);
+      const profiles = await authService.profilesFor(result.userId, result.session.scope);
+      if (req.get('x-ultreia-web') === '1') setSessionCookies(res, result.session, config);
+      return res.json({ ok: true, user: result.user, ...profiles, session: req.get('x-ultreia-web') === '1' ? { scope: result.session.scope, accessExpiresAt: result.session.accessExpiresAt, refreshExpiresAt: result.session.refreshExpiresAt } : result.session });
     } catch (error) { return authError(res, error); }
   });
 

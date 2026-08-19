@@ -55,3 +55,17 @@ maximal einen nicht abgeschlossenen Trip (`active` oder `paused`) je Pilger und
 Scope. Eine vollständige Löschkaskade für spätere Domänen bleibt ein späterer
 Service-Hook; die aktuelle Account-Basis wird sofort soft-deaktiviert,
 Sessions werden widerrufen und Devices entkoppelt.
+
+## Expliziter Provider-Scopewechsel (2026-08-19)
+
+Autorisierte Provider/Admin-Testnutzer können über eine geschützte
+`POST /api/auth/session/switch-scope`-Aktion zwischen `production` und
+`local_test` wechseln. Der Server prüft die Berechtigung gegen Admin-/Test-
+Claims oder die serverseitige `LOCAL_TEST_EMAILS`-Allowlist, widerruft die
+aktuelle Session und stellt eine neue Session mit dem Ziel-Scope aus. Normale
+Accounts erhalten `local_test_not_authorized`.
+
+ProviderProfile- und Offer-Abfragen verwenden ausschließlich `userId` plus
+Session-Scope; es gibt keinen Scope-Fallback auf Daten des jeweils anderen
+Bereichs. Der Client darf den Scope nicht durch einen Header, Query-Parameter
+oder eine reine lokale Variable erzwingen.

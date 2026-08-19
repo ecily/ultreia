@@ -918,3 +918,26 @@ abrufbaren DigitalOcean-Backend-Komponentenkonfiguration ist kein
 Betriebsannahme von einem gesetzten Secret ausging. Der echte
 `local_test`-Autocomplete-Nachweis bleibt deshalb bis zur Korrektur dieser
 Runtime-Diskrepanz offen.
+
+## Provider-local-test-Sessionwechsel (2026-08-19)
+
+Der erste Places-Live-Befund betrachtete nur die Service-Ebene der
+DigitalOcean-App. Der Google-Key liegt tatsaechlich als App-Level-Secret vor
+und ist im Backend-Runtime-Prozess vorgesehen. Fuer den autorisierten
+Testzugang wurde App-Level `LOCAL_TEST_EMAILS` mit Andreas' bekannter
+Provider-Adresse gesetzt; der Wert ist keine Secret-Ausgabe und bleibt aus
+Antworten und Logs heraus.
+
+Der Provider-Bereich besitzt jetzt einen expliziten Umschalter zwischen
+`production` und `local_test`. Der Server prueft beim Wechsel die aktuelle
+authentifizierte User-Session und autorisiert `local_test` nur fuer Admins,
+Test-Claims oder die serverseitige Allowlist. Der Wechsel widerruft die
+aktuelle Session und stellt eine neue Session mit dem Ziel-Scope aus. Der
+Browser-Storage dient nur der Anzeige/Anfrage; Provider-, Offer- und Places-
+Routen verwenden den serverseitigen Session-Scope.
+
+`providerProfiles` und `offers` werden ausschliesslich mit `userId` plus Scope
+gelesen. Ein lokaler Test sieht damit keine Production-Providerdaten und
+umgekehrt. `local_test` wird im Dashboard sichtbar als `TESTDATEN - NICHT
+PRODUKTIV` markiert. Der echte Andreas-Login-/Umschalt-/Places-Smoke folgt nach
+dem Code-Deploy; vorher wird kein Erfolg behauptet.

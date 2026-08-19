@@ -11,6 +11,6 @@ export function scopeFromRequest(req, config, user = req.user) {
 }
 
 export function isLocalTestAuthorized(user, config) {
-  if (user?.roles?.includes('admin') || user?.testAccess === true) return true;
+  if (user?.roles?.includes('admin') || user?.testAccess === true || user?.canUseLocalTest === true) return true;
   return Boolean(user?.emailNormalized && config.localTestEmails?.includes(user.emailNormalized));
 }

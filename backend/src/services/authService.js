@@ -123,6 +123,13 @@ export function createAuthService(config, databaseService, mailService) {
     return { user: publicUser(user), session: await issueSession(user._id, deviceId || current.deviceId, current.scope) };
   }
 
+  async function switchScope(user, currentSession, targetScope) {
+    if (!['production', 'local_test'].includes(targetScope)) throw new Error('invalid_scope');
+    if (targetScope === 'local_test' && config.runtimeMode === 'production' && !isLocalTestAuthorized(user, config)) throw new Error('local_test_not_authorized');
+    await logout(currentSession?._id);
+    return { user: publicUser(user), userId: user._id, session: await issueSession(user._id, currentSession?.deviceId, targetScope) };
+  }
+
   async function logout(sessionId) {
     if (sessionId) await databaseService.getDb().collection('sessions').updateOne({ _id: sessionId, revokedAt: null }, { $set: { revokedAt: now() } });
   }
@@ -130,7 +137,7 @@ export function createAuthService(config, databaseService, mailService) {
   async function profilesFor(userId, scope = 'production') {
     const [pilgrimProfile, providerProfile] = await Promise.all([
       databaseService.getDb().collection('pilgrimProfiles').findOne({ userId }),
-      databaseService.getDb().collection('providerProfiles').findOne({ userId, scope }).then((profile) => profile || databaseService.getDb().collection('providerProfiles').findOne({ userId })),
+      databaseService.getDb().collection('providerProfiles').findOne({ userId, scope }),
     ]);
     return { pilgrimProfile: publicProfile(pilgrimProfile), providerProfile: publicProfile(providerProfile) };
   }
@@ -146,7 +153,7 @@ export function createAuthService(config, databaseService, mailService) {
     ]);
   }
 
-  return { issueSession, requestMagicLink, verifyMagicLink, authenticateAccessToken, refresh, logout, profilesFor, accountDelete, publicUser, normalizeEmail, isLocalTestAuthorized: (user) => isLocalTestAuthorized(user, config) };
+  return { issueSession, requestMagicLink, verifyMagicLink, authenticateAccessToken, refresh, switchScope, logout, profilesFor, accountDelete, publicUser, normalizeEmail, isLocalTestAuthorized: (user) => isLocalTestAuthorized(user, config) };
 }
 
 export { publicUser };

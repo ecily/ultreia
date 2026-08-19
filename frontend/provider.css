@@ -33,4 +33,9 @@
 .provider-offer-card .scope-badge { margin-left: 8px; }
 .provider-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-content: center; gap: 6px; }
 .web-auth-button.secondary { background: #eef3f5; color: #17415f; }
+.provider-scope-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: auto; }
+.provider-scope-switch > span { margin-right: 2px; font-size: .8rem; color: #617184; }
+.provider-scope-switch .web-auth-button { margin-left: 0; }
+.provider-scope-switch .web-auth-button:disabled { opacity: .7; cursor: default; }
+.provider-test-banner { margin: 0 0 14px; padding: 12px 14px; border: 1px solid #b7791f; border-radius: 10px; background: #fff4d6; color: #6f4300; font-weight: 800; letter-spacing: .03em; text-align: center; }
 @media (max-width: 620px) { .provider-form-grid, .provider-need-grid { grid-template-columns: 1fr; } .provider-offer-card { display: grid; } .provider-actions { justify-content: flex-start; } .provider-stepper { font-size: .75rem; } }

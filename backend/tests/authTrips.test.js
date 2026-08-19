@@ -132,6 +132,8 @@ describe('V1 auth, device binding, scope and trips', () => {
     const requestForScope = { get: () => 'local_test', session: null };
     assert.equal(scopeFromRequest(requestForScope, productionConfig, { roles: ['pilgrim'], emailNormalized: 'normal@example.test' }).ok, false);
     assert.equal(scopeFromRequest(requestForScope, productionConfig, { roles: ['admin'], emailNormalized: 'admin@example.test' }).ok, true);
+    const strictAuth = createAuthService({ ...config, runtimeMode: 'production', localTestEmails: ['authorized@example.test'] }, createFakeDatabase().service, { sendMagicLink: async () => ({ delivered: true, channel: 'test' }) });
+    await assert.rejects(() => strictAuth.switchScope({ _id: new ObjectId(), emailNormalized: 'normal@example.test', roles: ['provider'] }, { _id: new ObjectId() }, 'local_test'), /local_test_not_authorized/);
   });
 
   it('creates a pending provider account from the provider web intent without requiring a display name', async () => {
@@ -200,6 +202,20 @@ describe('V1 auth, device binding, scope and trips', () => {
     const productionAutocomplete = await request('/api/provider/location/autocomplete', { method: 'POST', headers: { authorization: `Bearer ${productionSession.session.accessToken}`, 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ input: 'Saint-Jean-Pied-de-Port', locale: 'es', includedRegionCodes: ['at'] }) });
     assert.equal(productionAutocomplete.response.status, 200);
     assert.equal(providerGoogle.autocompleteCalls.at(-1).scope, 'production');
+    const productionAuth = { authorization: `Bearer ${productionSession.session.accessToken}`, 'x-ultreia-scope': 'production' };
+    const switchedLocal = await request('/api/auth/session/switch-scope', { method: 'POST', headers: { ...productionAuth, 'x-ultreia-scope': 'production' }, body: JSON.stringify({ scope: 'local_test' }) });
+    assert.equal(switchedLocal.response.status, 200);
+    assert.equal(switchedLocal.body.session.scope, 'local_test');
+    const localAuth = { authorization: `Bearer ${switchedLocal.body.session.accessToken}`, 'x-ultreia-scope': 'production' };
+    assert.equal((await request('/api/provider/profile', { headers: localAuth })).body.profile.scope, 'local_test');
+    await request('/api/provider/profile', { method: 'PUT', headers: localAuth, body: JSON.stringify({ businessName: 'Local Test Cafe', sourceLocale: 'de' }) });
+    assert.equal((await request('/api/provider/profile', { headers: productionAuth })).response.status, 401);
+    const switchedProduction = await request('/api/auth/session/switch-scope', { method: 'POST', headers: localAuth, body: JSON.stringify({ scope: 'production' }) });
+    assert.equal(switchedProduction.response.status, 200);
+    const restoredProductionAuth = { authorization: `Bearer ${switchedProduction.body.session.accessToken}`, 'x-ultreia-scope': 'local_test' };
+    const productionProfile = await request('/api/provider/profile', { headers: restoredProductionAuth });
+    assert.equal(productionProfile.body.profile.scope, 'production');
+    assert.equal(productionProfile.body.profile.businessName, '');
     const needs = await request('/api/needs?locale=en', { headers: auth });
     assert.equal(needs.response.status, 200, JSON.stringify(needs.body));
     assert.equal(needs.body.items.length, 40);
