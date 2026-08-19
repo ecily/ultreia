@@ -941,3 +941,11 @@ gelesen. Ein lokaler Test sieht damit keine Production-Providerdaten und
 umgekehrt. `local_test` wird im Dashboard sichtbar als `TESTDATEN - NICHT
 PRODUKTIV` markiert. Der echte Andreas-Login-/Umschalt-/Places-Smoke folgt nach
 dem Code-Deploy; vorher wird kein Erfolg behauptet.
+
+Der nachfolgende Production-Deploy `42ce028` wurde ACTIVE. Der Google-Key ist
+als App-Level-Secret vorhanden; `LOCAL_TEST_EMAILS` ist fuer Andreas als
+serverseitige, nicht-geheime Allowlist konfiguriert. Live Health/Ready und die
+ausgelieferten Provider-Bundles sind erfolgreich. Der konkrete persönliche
+Andreas-Smoke mit bestehender Browser-Session wurde nicht simuliert: Ohne
+seine autorisierte Session bzw. eine interaktive Magic-Link-Bestätigung wäre
+ein angeblicher Places-Treffer kein echter Nachweis.
