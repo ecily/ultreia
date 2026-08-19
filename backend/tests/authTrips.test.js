@@ -222,6 +222,10 @@ describe('V1 auth, device binding, scope and trips', () => {
     const offer = await request('/api/provider/offers', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'API breakfast', description: 'Breakfast for pilgrims.', sourceLocale: 'en', needKeys: ['eat', 'breakfast'], price: { type: 'free' }, availability: { weekly: { monday: [{ open: '08:00', close: '12:00' }] }, exceptions: [] }, radiusMeters: 250, activate: true }) });
     assert.equal(offer.response.status, 201);
     assert.equal(offer.body.offer.status, 'active');
+    const invalidOffer = await request('/api/provider/offers', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'Incomplete offer', description: 'Missing need and hours.', sourceLocale: 'en', price: { type: 'free' }, radiusMeters: 250, activate: true }) });
+    assert.equal(invalidOffer.response.status, 400);
+    assert.equal(invalidOffer.body.status, 'invalid_request');
+    assert.equal(invalidOffer.body.error, 'needKeys is required');
     assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/pause`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'paused');
     assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/resume`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'active');
     assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/confirm`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'active');

@@ -958,3 +958,20 @@ in `Access-Control-Allow-Methods`; dadurch wurden die Browser-Preflights trotz
 korrekter Origin-Allowlist blockiert. Die Allowlist erlaubt jetzt GET, POST,
 PUT, PATCH, DELETE und OPTIONS. Die Origins bleiben auf `CORS_ORIGINS`
 beschraenkt, Credentials bleiben aktiviert, und es gibt keine Wildcard-Origin.
+
+## Provider-Onboarding-Feedback (2026-08-19)
+
+Provider-Onboarding bleibt fachlich die Folge `Anbieter -> Standort ->
+Erstes Angebot`. Die API persistiert die Schritte getrennt und liefert bereits
+den aktualisierten Profil-/Offer-Zustand zurueck. Der unklare reale UI-Zustand
+entstand, weil das Frontend alle Mutationsfehler auf einen generischen Text
+reduzierte und Feedback nach `load()`/`render()` verlor. Ein unvollstaendiges
+Offer reproduziert serverseitig weiterhin einen fachlich korrekten
+`400 invalid_request` mit erhaltenem Entwicklercode; die UI zeigt diesen nun
+kontextbezogen am betroffenen Feld.
+
+Provider-Web verwendet jetzt ein zentrales Loading-/Success-/Error-Feedback,
+persistente Schritt- und Statusanzeige aus dem Backend sowie DE/EN/ES-Texte.
+Autorisierte `local_test`-Sessions sehen zusaetzlich nur kompakte technische
+Diagnostik (Methode, HTTP-Status, Scope und relevante Statusfelder); Production-
+Provider sehen keine solche Diagnostik und keine Secrets, Tokens oder IDs.
