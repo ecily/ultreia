@@ -3,6 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { ObjectId } from 'mongodb';
 import { createApp } from '../src/app.js';
 import { scopeFromRequest } from '../src/lib/scope.js';
+import { createAuthService } from '../src/services/authService.js';
 
 function valueAt(document, key) { return key.split('.').reduce((value, part) => value?.[part], document); }
 function equalValue(left, right) { return String(left) === String(right); }
@@ -138,5 +139,32 @@ describe('V1 auth, device binding, scope and trips', () => {
     const profile = await database.db.collection('providerProfiles').findOne({ userId: user._id });
     assert.equal(profile.status, 'pending');
     assert.equal(profile.preferredLocale, 'en');
+  });
+
+  it('sends independent magic links again after an existing provider logs out', async () => {
+    const isolated = createFakeDatabase();
+    const deliveries = [];
+    const authService = createAuthService(config, isolated.service, {
+      async sendMagicLink(payload) {
+        deliveries.push(payload);
+        return { delivered: false, channel: 'dev', diagnosticId: `diagnostic-${deliveries.length}` };
+      },
+    });
+    const email = 'repeat-provider@example.test';
+    const first = await authService.requestMagicLink({ email, role: 'provider', preferredLocale: 'en', scope: 'local_test' });
+    const firstToken = new URL(deliveries[0].verificationUrl).searchParams.get('token');
+    const verifiedFirst = await authService.verifyMagicLink(firstToken, null, 'local_test');
+    const firstStoredSession = await isolated.db.collection('sessions').findOne({ userId: verifiedFirst.userId });
+    await authService.logout(firstStoredSession._id);
+    const second = await authService.requestMagicLink({ email, role: 'provider', preferredLocale: 'en', scope: 'local_test' });
+    const secondToken = new URL(deliveries[1].verificationUrl).searchParams.get('token');
+    const verifiedSecond = await authService.verifyMagicLink(secondToken, null, 'local_test');
+
+    assert.equal(first.accepted, true);
+    assert.equal(second.accepted, true);
+    assert.equal(deliveries.length, 2);
+    assert.notEqual(firstToken, secondToken);
+    assert.equal(verifiedSecond.user.email, email);
+    await assert.rejects(() => authService.verifyMagicLink(firstToken, null, 'local_test'), /invalid_or_expired_token/);
   });
 });
