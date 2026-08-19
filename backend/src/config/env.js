@@ -6,6 +6,7 @@ const VALID_MODES = new Set(['local', 'lan', 'production']);
 const DEFAULT_ACCESS_TTL_SECONDS = 900;
 const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
 const DEFAULT_MAGIC_LINK_TTL_SECONDS = 900;
+const DEFAULT_MICROSOFT_GRAPH_TIMEOUT_MS = 10000;
 
 function parseBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
@@ -27,6 +28,13 @@ function parsePositiveInteger(value, fallback, name) {
   if (value === undefined || value === null || value === '') return fallback;
   const number = Number(value);
   if (!Number.isInteger(number) || number <= 0) throw new Error(`${name} must be a positive integer`);
+  return number;
+}
+
+function parseTimeout(value) {
+  if (value === undefined || value === null || value === '') return DEFAULT_MICROSOFT_GRAPH_TIMEOUT_MS;
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 1000 || number > 30000) throw new Error('MICROSOFT_GRAPH_TIMEOUT_MS must be an integer between 1000 and 30000');
   return number;
 }
 
@@ -73,7 +81,10 @@ export function loadConfig(env = process.env) {
     mailProvider: env.MAIL_PROVIDER || 'none',
     mailFrom: env.MAIL_FROM || '',
     authPublicBaseUrl: env.AUTH_PUBLIC_BASE_URL || 'ultreia://auth/verify',
-    mailApiKey: env.MAIL_API_KEY || '',
+    microsoftTenantId: env.MICROSOFT_TENANT_ID || '',
+    microsoftClientId: env.MICROSOFT_CLIENT_ID || '',
+    microsoftClientSecret: env.MICROSOFT_CLIENT_SECRET || '',
+    microsoftGraphTimeoutMs: parseTimeout(env.MICROSOFT_GRAPH_TIMEOUT_MS),
     allowLocalTestScope: parseBoolean(env.ALLOW_LOCAL_TEST_SCOPE, true),
     localTestEmails: parseCsv(env.LOCAL_TEST_EMAILS),
     serviceName: SERVICE_NAME,
@@ -92,6 +103,14 @@ export function validateRuntimeConfig(config) {
     if (!config.corsOrigins.length) errors.push('CORS_ORIGINS');
     if (config.pushTestEnabled && !config.pushTestKey) errors.push('PUSH_TEST_KEY when PUSH_TEST_ENABLED=true');
     if (config.pushTestEnabled && !config.expoProjectId) errors.push('EXPO_PROJECT_ID when PUSH_TEST_ENABLED=true');
+    try {
+      const authUrl = new URL(config.authPublicBaseUrl);
+      if (authUrl.protocol !== 'https:' || authUrl.hostname !== 'ultreia.app' || authUrl.pathname !== '/auth/verify' || authUrl.search || authUrl.hash || authUrl.username || authUrl.password) {
+        errors.push('AUTH_PUBLIC_BASE_URL=https://ultreia.app/auth/verify');
+      }
+    } catch {
+      errors.push('AUTH_PUBLIC_BASE_URL=https://ultreia.app/auth/verify');
+    }
   }
 
   return { ok: errors.length === 0, errors };

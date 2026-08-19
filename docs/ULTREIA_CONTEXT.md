@@ -786,3 +786,21 @@ Diagnose-Outbox-Fluss verfügbar gemacht; in Production ist ein Mail-Provider
 erforderlich. Provider-Dashboard, Needs,
 Offers, Matching, Route, Navigation, Offline-Cache und Hero-/Frontend-Arbeit
 gehören ausdrücklich nicht zu diesem Foundation-Block.
+
+## Microsoft-Graph-Mail fuer Production-Magic-Links
+
+Der Production-Mailversand folgt dem produktiv bestätigten `ecily.com`-Muster:
+Microsoft Graph, OAuth-2.0-Client-Credentials, Scope
+`https://graph.microsoft.com/.default`, Application Permission `Mail.Send`
+und `POST /v1.0/users/{MAIL_FROM}/sendMail`. `einfachsparen` bleibt als
+abweichender SMTP-/STARTTLS-Referenzstand ausschließlich lesend und wird nicht
+übernommen. Ultreia verwendet eine eigene App-Registration und eine eigene
+Absender-Mailbox.
+
+Die Runtime-Konfiguration ist in
+[`docs/ULTREIA_MICROSOFT_MAIL_OPERATOR.md`](ULTREIA_MICROSOFT_MAIL_OPERATOR.md)
+dokumentiert. Lokale und automatisierte Tests bleiben in der Diagnose-Outbox;
+Production fällt ohne vollständige Microsoft-Konfiguration mit
+`mail_provider_not_configured` aus. Tokenabruf und Mailversand loggen keine
+Secrets oder Access-Tokens; der Graph-Versand wird nach einem Timeout nicht
+blind wiederholt.

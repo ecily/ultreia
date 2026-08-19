@@ -47,7 +47,7 @@ function createFakeDatabase() {
 }
 
 const config = {
-  runtimeMode: 'local', nodeEnv: 'test', port: 0, corsOrigins: ['https://web.test'], logLevel: 'silent', serviceName: 'ultreia-backend', version: '0.1.0', commitShort: 'unknown', mongodbUri: '', mongodbDbName: 'ultreia_production', expoProjectId: '', expoAccessToken: '', pushTestEnabled: false, pushTestKey: '', accessTokenTtlSeconds: 900, refreshTokenTtlSeconds: 3600, magicLinkTtlSeconds: 900, mailProvider: 'none', mailFrom: '', authPublicBaseUrl: 'ultreia://auth/verify', mailApiKey: '', allowLocalTestScope: true, localTestEmails: [],
+  runtimeMode: 'local', nodeEnv: 'test', port: 0, corsOrigins: ['https://web.test'], logLevel: 'silent', serviceName: 'ultreia-backend', version: '0.1.0', commitShort: 'unknown', mongodbUri: '', mongodbDbName: 'ultreia_production', expoProjectId: '', expoAccessToken: '', pushTestEnabled: false, pushTestKey: '', accessTokenTtlSeconds: 900, refreshTokenTtlSeconds: 3600, magicLinkTtlSeconds: 900, mailProvider: 'none', mailFrom: '', authPublicBaseUrl: 'ultreia://auth/verify', microsoftTenantId: '', microsoftClientId: '', microsoftClientSecret: '', microsoftGraphTimeoutMs: 10000, allowLocalTestScope: true, localTestEmails: [],
 };
 
 describe('V1 auth, device binding, scope and trips', () => {

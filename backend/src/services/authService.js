@@ -58,7 +58,7 @@ export function createAuthService(config, databaseService, mailService) {
     const expiresAt = new Date(timestamp.getTime() + config.magicLinkTtlSeconds * 1000);
     await databaseService.getDb().collection('magicLinks').insertOne({ requestId, tokenHash: hashToken(rawToken), userId: user._id, emailNormalized, scope, expiresAt, usedAt: null, createdAt: timestamp });
     const verificationUrl = `${config.authPublicBaseUrl}${config.authPublicBaseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(rawToken)}`;
-    const delivery = await mailService.sendMagicLink({ emailNormalized, verificationUrl });
+    const delivery = await mailService.sendMagicLink({ emailNormalized, verificationUrl, preferredLocale: readLocale(preferredLocale || user.preferredLocale), expiresAt });
     return { accepted: true, diagnosticId: delivery.diagnosticId || null, delivered: delivery.delivered, channel: delivery.channel };
   }
 

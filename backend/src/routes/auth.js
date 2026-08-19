@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { createRateLimiter } from '../lib/rateLimit.js';
 import { badRequest, databaseRequired, readDeviceId, readString } from '../lib/validation.js';
 import { scopeFromRequest } from '../lib/scope.js';
+import { logEvent } from '../lib/logger.js';
 
 function cookieOptions(maxAge, config) {
   return `Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${config.runtimeMode === 'production' ? '; Secure' : ''}`;
@@ -41,7 +42,10 @@ export function createAuthRouter(config, databaseService, authService, mailServi
       const requestedScope = scopeFromRequest(req, config, existingUser || (config.localTestEmails?.includes(email) ? { emailNormalized: email } : null));
       if (!requestedScope.ok) return res.status(403).json({ ok: false, status: requestedScope.status });
       const result = await authService.requestMagicLink({ email, displayName: req.body?.displayName, preferredLocale: req.body?.preferredLocale, deviceId: req.body?.deviceId ? readDeviceId(req.body.deviceId) : null, scope: requestedScope.scope });
-      if (result.channel === 'resend' && !result.delivered) return res.status(502).json({ ok: false, status: 'mail_provider_failed' });
+      if (config.runtimeMode === 'production' && !result.delivered) {
+        logEvent('warn', 'magic_link_delivery_failed', { channel: result.channel, errorClass: result.errorClass || 'mail_provider_failed', upstreamStatus: result.upstreamStatus || null });
+        return res.status(result.errorClass === 'mail_provider_not_configured' ? 503 : 502).json({ ok: false, status: result.errorClass === 'mail_provider_not_configured' ? 'mail_provider_not_configured' : 'mail_provider_failed' });
+      }
       return res.json({ ok: true, status: 'accepted', diagnosticId: result.diagnosticId || undefined });
     } catch (error) { return authError(res, error); }
   });

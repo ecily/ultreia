@@ -13,7 +13,7 @@ describe('runtime configuration', () => {
     const config = loadConfig({ NODE_ENV: 'production', ULTREIA_MODE: 'production' });
     const validation = validateRuntimeConfig(config);
     assert.equal(validation.ok, false);
-    assert.deepEqual(validation.errors, ['MONGODB_URI', 'CORS_ORIGINS']);
+    assert.deepEqual(validation.errors, ['MONGODB_URI', 'CORS_ORIGINS', 'AUTH_PUBLIC_BASE_URL=https://ultreia.app/auth/verify']);
   });
 
   it('accepts a complete production configuration without exposing values', () => {
@@ -25,6 +25,7 @@ describe('runtime configuration', () => {
       MONGODB_DB_NAME: 'ultreia_production',
       CORS_ORIGINS: 'https://www.ultreia.app',
       PUSH_TEST_ENABLED: 'false',
+      AUTH_PUBLIC_BASE_URL: 'https://ultreia.app/auth/verify',
     });
     assert.deepEqual(validateRuntimeConfig(config), { ok: true, errors: [] });
   });

@@ -39,6 +39,10 @@ services:
         value: "true"
       - key: AUTH_PUBLIC_BASE_URL
         value: https://ultreia.app/auth/verify
+      - key: MAIL_PROVIDER
+        value: microsoft
+      - key: MICROSOFT_GRAPH_TIMEOUT_MS
+        value: "10000"
       - key: HEARTBEAT_TTL_SECONDS
         value: "604800"
       - key: DIAGNOSTIC_TTL_SECONDS
@@ -53,5 +57,17 @@ services:
         scope: RUN_TIME
         type: SECRET
       - key: PUSH_TEST_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: MICROSOFT_TENANT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: MICROSOFT_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: MICROSOFT_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: MAIL_FROM
         scope: RUN_TIME
         type: SECRET
