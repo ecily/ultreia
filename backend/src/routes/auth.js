@@ -47,6 +47,7 @@ export function createAuthRouter(config, databaseService, authService, mailServi
         logEvent('warn', 'magic_link_delivery_failed', { channel: result.channel, errorClass: result.errorClass || 'mail_provider_failed', upstreamStatus: result.upstreamStatus || null });
         return res.status(result.errorClass === 'mail_provider_not_configured' ? 503 : 502).json({ ok: false, status: result.errorClass === 'mail_provider_not_configured' ? 'mail_provider_not_configured' : 'mail_provider_failed' });
       }
+      if (config.runtimeMode === 'production') logEvent('info', 'magic_link_delivered', { channel: result.channel, upstreamStatus: result.upstreamStatus || null });
       return res.json({ ok: true, status: 'accepted', diagnosticId: result.diagnosticId || undefined });
     } catch (error) { return authError(res, error); }
   });

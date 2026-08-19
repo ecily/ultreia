@@ -92,7 +92,7 @@ export async function sendMicrosoftGraphMail({ config, accessToken, recipient, m
   try {
     const response = await fetchWithTimeout(fetchImpl, graphUrl, { method: 'POST', headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'text/plain' }, body: Buffer.from(buildMimeMessage({ sender: config.mailFrom, recipient, mail }), 'utf8').toString('base64') }, config);
     await response.text();
-    if (response.status === 202) return { status: 'sent', delivered: true };
+    if (response.status === 202) return { status: 'sent', delivered: true, upstreamStatus: response.status };
     return { status: 'failed', delivered: false, errorClass: classifyGraphError(response.status), upstreamStatus: response.status };
   } catch (error) {
     return { status: 'failed', delivered: false, errorClass: networkErrorClass(error, 'microsoft_graph'), upstreamStatus: null };

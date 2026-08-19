@@ -63,7 +63,7 @@ describe('Microsoft Graph magic-link mail service', () => {
       return calls.length === 1 ? response(200, { access_token: 'access-token-test' }) : new Response('', { status: 202 });
     } });
     const delivery = await service.sendMagicLink({ emailNormalized: 'recipient@example.test', verificationUrl: 'https://ultreia.app/auth/verify?token=opaque', preferredLocale: 'en' });
-    assert.deepEqual(delivery, { delivered: true, channel: 'microsoft', errorClass: undefined, upstreamStatus: undefined });
+    assert.deepEqual(delivery, { delivered: true, channel: 'microsoft', errorClass: undefined, upstreamStatus: 202 });
     assert.equal(calls.length, 2);
     const tokenBody = String(calls[0].options.body);
     assert.match(tokenBody, /grant_type=client_credentials/);
