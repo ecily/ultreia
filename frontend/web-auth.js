@@ -41,6 +41,10 @@ providerText.es.offerTitleRequired = 'Falta el título de la oferta.';
 providerText.de.offerDescriptionRequired = 'Beschreibung fehlt.';
 providerText.en.offerDescriptionRequired = 'Offer description is required.';
 providerText.es.offerDescriptionRequired = 'Falta la descripción de la oferta.';
+Object.assign(providerText.es, { radiusHelp: 'El radio es el área en la que Ultreia tendrá en cuenta tu oferta cuando sea relevante.' });
+Object.assign(providerText.de, { offerIntro: 'Was bietest du an?', offerTitlePlaceholder: 'z. B. Frühstück für Pilger', offerDescriptionPlaceholder: 'Beschreibe kurz, was Pilger bei dir bekommen.', selectedNeeds: 'Ausgewählte Needs', needSearch: 'Was bietet dein Angebot?', frequentNeeds: 'Häufige Needs', moreNeeds: 'Weitere Needs', showMore: 'Weitere anzeigen', hideMore: 'Weniger anzeigen', noNeedMatches: 'Keine passenden Needs gefunden.', needGroupCore: 'Häufige Angebote', needGroupSecondary: 'Weitere Angebote', needGroupDiscovery: 'Weitere Möglichkeiten', priceIntro: 'Preis', priceFree: 'Kostenlos', priceFixed: 'Fixpreis', priceFrom: 'Ab', priceRange: 'Preisspanne', priceDonativo: 'Spende', priceOnRequest: 'Auf Anfrage', priceHint: 'Wähle zuerst, wie Pilger den Preis verstehen sollen.', availabilityIntro: 'Wann gibt es das?', presetDaily: 'Täglich', presetWeekdays: 'Montag–Freitag', presetCustom: 'Eigene Zeiten', openTime: 'Öffnet', closeTime: 'Schließt', closed: 'Geschlossen', addWindow: '+ Zeitfenster', copyHours: 'Auf andere Tage übertragen', availabilityHint: 'Geschlossene Tage bleiben für Pilger klar erkennbar.', radiusIntro: 'Wie weit soll Ultreia es berücksichtigen?', radiusRecommended: 'Empfohlen', radiusHelp: 'Der Radius bestimmt den Bereich, in dem Ultreia dein Angebot bei passendem Bedarf berücksichtigt.', preview: 'Vorschau', previewEmpty: 'Deine Vorschau erscheint hier.', previewNeeds: 'Needs', previewAvailability: 'Verfügbarkeit', previewRadius: 'Radius', saveChanges: 'Änderungen speichern', validationTime: 'Bitte ergänze mindestens ein gültiges Zeitfenster.', dayMonday: 'Montag', dayTuesday: 'Dienstag', dayWednesday: 'Mittwoch', dayThursday: 'Donnerstag', dayFriday: 'Freitag', daySaturday: 'Samstag', daySunday: 'Sonntag' });
+Object.assign(providerText.en, { offerIntro: 'What are you offering?', offerTitlePlaceholder: 'e.g. Breakfast for pilgrims', offerDescriptionPlaceholder: 'Briefly describe what pilgrims can get from you.', selectedNeeds: 'Selected needs', needSearch: 'What does your offer provide?', frequentNeeds: 'Common needs', moreNeeds: 'More needs', showMore: 'Show more', hideMore: 'Show less', noNeedMatches: 'No matching needs found.', needGroupCore: 'Common offers', needGroupSecondary: 'More offers', needGroupDiscovery: 'More possibilities', priceIntro: 'Price', priceFree: 'Free', priceFixed: 'Fixed price', priceFrom: 'From', priceRange: 'Price range', priceDonativo: 'Donation', priceOnRequest: 'On request', priceHint: 'First choose how pilgrims should understand the price.', availabilityIntro: 'When is it available?', presetDaily: 'Every day', presetWeekdays: 'Monday–Friday', presetCustom: 'Custom times', openTime: 'Opens', closeTime: 'Closes', closed: 'Closed', addWindow: '+ Time window', copyHours: 'Copy to other days', availabilityHint: 'Closed days remain clear to pilgrims.', radiusIntro: 'How far should Ultreia consider it?', radiusRecommended: 'Recommended', radiusHelp: 'The radius is the area where Ultreia considers your offer for a relevant need.', preview: 'Preview', previewEmpty: 'Your preview will appear here.', previewNeeds: 'Needs', previewAvailability: 'Availability', previewRadius: 'Radius', saveChanges: 'Save changes', validationTime: 'Add at least one valid time window.', dayMonday: 'Monday', dayTuesday: 'Tuesday', dayWednesday: 'Wednesday', dayThursday: 'Thursday', dayFriday: 'Friday', daySaturday: 'Saturday', daySunday: 'Sunday' });
+Object.assign(providerText.es, { offerIntro: '¿Qué ofreces?', offerTitlePlaceholder: 'p. ej., Desayuno para peregrinos', offerDescriptionPlaceholder: 'Describe brevemente qué pueden recibir los peregrinos.', selectedNeeds: 'Necesidades seleccionadas', needSearch: '¿Qué ofrece tu servicio?', frequentNeeds: 'Necesidades frecuentes', moreNeeds: 'Más necesidades', showMore: 'Mostrar más', hideMore: 'Mostrar menos', noNeedMatches: 'No se encontraron necesidades.', needGroupCore: 'Servicios frecuentes', needGroupSecondary: 'Más servicios', needGroupDiscovery: 'Más posibilidades', priceIntro: 'Precio', priceFree: 'Gratis', priceFixed: 'Precio fijo', priceFrom: 'Desde', priceRange: 'Intervalo de precios', priceDonativo: 'Donativo', priceOnRequest: 'Consultar', priceHint: 'Elige primero cómo deben entender el precio los peregrinos.', availabilityIntro: '¿Cuándo está disponible?', presetDaily: 'Cada día', presetWeekdays: 'Lunes–viernes', presetCustom: 'Horarios propios', openTime: 'Abre', closeTime: 'Cierra', closed: 'Cerrado', addWindow: '+ Franja horaria', copyHours: 'Copiar a otros días', availabilityHint: 'Los días cerrados quedan claros para los peregrinos.', preview: 'Vista previa', previewEmpty: 'La vista previa aparecerá aquí.', previewNeeds: 'Necesidades', previewAvailability: 'Disponibilidad', previewRadius: 'Radio', saveChanges: 'Guardar cambios', validationTime: 'Añade al menos una franja horaria válida.', dayMonday: 'Lunes', dayTuesday: 'Martes', dayWednesday: 'Miércoles', dayThursday: 'Jueves', dayFriday: 'Viernes', daySaturday: 'Sábado', daySunday: 'Domingo' });
 
 function pt(key) { return providerText[currentWebLanguage()][key] || providerText.en[key] || key; }
 
@@ -66,8 +70,21 @@ function clearFieldErrors(form) {
 }
 
 function setFieldError(form, field, message) {
-  const target = form?.querySelector(`[name="${field}"]`) || (field === 'price' ? form?.querySelector('[name="priceType"]') : null) || (field === 'hours' ? form?.querySelector('input[type="time"]') : null);
-  if (target) { target.setAttribute('aria-invalid', 'true'); target.focus(); }
+  if (field === 'hours' && form) {
+    form.dataset.hoursExpanded = 'true';
+    const visibleWindow = form.querySelector('.provider-time-window:not([hidden])');
+    if (!visibleWindow) {
+      const firstWindow = form.querySelector('.provider-time-window');
+      firstWindow?.removeAttribute('hidden');
+      firstWindow?.closest('[data-hours-day]')?.querySelector('[data-hours-closed]')?.setAttribute('hidden', '');
+    }
+  }
+  const target = form?.querySelector(`[name="${field}"]`) || (field === 'price' ? form?.querySelector('[name="priceType"]') : null) || (field === 'hours' ? form?.querySelector('.provider-time-window:not([hidden]) input[type="time"]') : null);
+  if (target) {
+    target.setAttribute('aria-invalid', 'true');
+    target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    target.focus();
+  }
   const error = form?.querySelector(`[data-field-error="${field}"]`);
   if (error) error.textContent = message;
 }
@@ -168,20 +185,106 @@ async function renderVerify() {
 function escapeProviderHtml(value) { return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
 const providerDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
-function providerOfferForm(offer, needs) {
-  const weekly = offer?.availability?.weekly || {};
-  const price = offer?.price || { type: 'free', currency: 'EUR' };
-  const hours = providerDays.map((day) => `<label class="provider-hours-row"><span>${day}</span><input name="hours-open-${day}" data-hours-open="${day}" type="time" value="${escapeProviderHtml(weekly[day]?.[0]?.open || '')}"><input name="hours-close-${day}" data-hours-close="${day}" type="time" value="${escapeProviderHtml(weekly[day]?.[0]?.close || '')}"></label>`).join('');
+function providerNeedGroupLabel(group) { return pt(group === 'core' ? 'needGroupCore' : group === 'secondary' ? 'needGroupSecondary' : 'needGroupDiscovery'); }
+function providerDayLabel(day) { return pt(`day${day[0].toUpperCase()}${day.slice(1)}`); }
+
+function providerHoursEditor(weekly) {
+  return providerDays.map((day) => {
+    const windows = Array.isArray(weekly[day]) ? weekly[day] : [];
+    const rows = [0, 1, 2].map((index) => {
+      const window = windows[index] || {};
+      const visible = Boolean(windows[index]);
+      return `<div class="provider-time-window" data-hours-window="${day}-${index}" ${visible ? '' : 'hidden'}><input name="hours-open-${day}-${index}" data-hours-open="${day}" data-hours-index="${index}" type="time" aria-label="${escapeProviderHtml(providerDayLabel(day))} ${pt('openTime')}" value="${escapeProviderHtml(window.open || '')}"><span>–</span><input name="hours-close-${day}-${index}" data-hours-close="${day}" data-hours-index="${index}" type="time" aria-label="${escapeProviderHtml(providerDayLabel(day))} ${pt('closeTime')}" value="${escapeProviderHtml(window.close || '')}"></div>`;
+    }).join('');
+    return `<div class="provider-day-editor" data-hours-day="${day}"><div class="provider-day-heading"><strong>${escapeProviderHtml(providerDayLabel(day))}</strong><span data-hours-closed ${windows.length ? 'hidden' : ''}>${pt('closed')}</span></div><div class="provider-time-windows">${rows}</div><button class="provider-inline-button" data-add-window="${day}" type="button" ${windows.length >= 3 ? 'hidden' : ''}>${pt('addWindow')}</button></div>`;
+  }).join('');
+}
+
+function providerOfferPreview(offer, needs, weekly, price, radius) {
   const selected = new Set(offer?.needKeys || []);
-  return `<form class="provider-form provider-offer-form" data-offer-form data-offer-id="${offer?.id || ''}">
-    <div class="provider-form-grid"><label>${pt('title')}<input name="title" required maxlength="120" value="${escapeProviderHtml(offer?.title || '')}"><span class="provider-field-error" data-field-error="title"></span></label><label>${pt('priceType')}<select name="priceType"><option value="free" ${price.type === 'free' ? 'selected' : ''}>free</option><option value="fixed" ${price.type === 'fixed' ? 'selected' : ''}>fixed</option><option value="from" ${price.type === 'from' ? 'selected' : ''}>from</option><option value="range" ${price.type === 'range' ? 'selected' : ''}>range</option><span class="provider-field-error" data-field-error="price"></span></label></div>
-    <label>${pt('description')}<textarea name="description" required maxlength="1000">${escapeProviderHtml(offer?.description || '')}</textarea><span class="provider-field-error" data-field-error="description"></span></label>
-    <fieldset><legend>${pt('needs')}</legend><div class="provider-need-grid">${needs.map((need) => `<label><input type="checkbox" name="needKeys" value="${escapeProviderHtml(need.key)}" ${selected.has(need.key) ? 'checked' : ''}> ${escapeProviderHtml(need.label)}</label>`).join('')}</div><span class="provider-field-error" data-field-error="needKeys"></span></fieldset>
-    <div class="provider-form-grid"><label>${pt('amount')}<input name="amount" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.amount ?? '')}"></label><label>${pt('min')}<input name="min" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.min ?? '')}"></label><label>${pt('max')}<input name="max" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.max ?? '')}"></label><label>${pt('currency')}<input name="currency" maxlength="3" value="${escapeProviderHtml(price.currency || 'EUR')}"><span class="provider-field-error" data-field-error="currency"></span></label></div>
-    <fieldset><legend>${pt('hours')}</legend><div class="provider-hours-grid">${hours}</div><span class="provider-field-error" data-field-error="hours"></span></fieldset>
-    <label>${pt('radius')}<input name="radiusMeters" type="number" min="50" max="1000" step="50" value="${escapeProviderHtml(offer?.radiusMeters || 250)}"><span class="provider-field-error" data-field-error="radiusMeters"></span></label>
-    <button class="web-auth-button" type="submit">${offer ? pt('editOffer') : pt('publishOffer')}</button>${offer ? `<button class="web-auth-button secondary" data-cancel-offer type="button">${pt('cancel')}</button>` : ''}
+  const needLabels = needs.filter((need) => selected.has(need.key)).map((need) => need.label);
+  const priceLabel = price.type === 'free' ? pt('priceFree') : price.type === 'donativo' ? pt('priceDonativo') : price.type === 'on_request' ? pt('priceOnRequest') : price.type === 'range' ? `${price.min || '—'}–${price.max || '—'} ${price.currency || 'EUR'}` : `${price.amount || '—'} ${price.currency || 'EUR'}`;
+  const availability = providerDays.map((day) => `${providerDayLabel(day)}: ${(weekly[day] || []).length ? (weekly[day] || []).map((window) => `${window.open}–${window.close}`).join(', ') : pt('closed')}`).join(' · ');
+  return `<div class="provider-preview-block"><strong data-preview-title>${escapeProviderHtml(offer?.title || pt('previewEmpty'))}</strong><p data-preview-description>${escapeProviderHtml(offer?.description || '')}</p></div><div class="provider-preview-block"><span>${pt('previewNeeds')}</span><strong data-preview-needs>${escapeProviderHtml(needLabels.length ? needLabels.join(', ') : '—')}</strong></div><div class="provider-preview-block"><span>${pt('priceIntro')}</span><strong data-preview-price>${escapeProviderHtml(priceLabel)}</strong></div><div class="provider-preview-block"><span>${pt('previewAvailability')}</span><small data-preview-hours>${escapeProviderHtml(availability)}</small></div><div class="provider-preview-block"><span>${pt('previewRadius')}</span><strong data-preview-radius>${escapeProviderHtml(radius)} m</strong></div>`;
+}
+
+function providerOfferForm(offer, needs) {
+  const weekly = structuredClone(offer?.availability?.weekly || {});
+  const price = offer?.price || { type: 'free', currency: 'EUR' };
+  const selected = new Set(offer?.needKeys || []);
+  const ui = window.UltreiaProviderOfferUi;
+  const preset = Object.keys(weekly).some((day) => (weekly[day] || []).length) ? ui.detectHoursPreset(weekly) : '';
+  const popular = new Set(ui.popularNeeds(needs).map((need) => need.key));
+  const groups = ui.groupNeeds(needs);
+  const priceOptions = [['free', 'priceFree'], ['fixed', 'priceFixed'], ['from', 'priceFrom'], ['range', 'priceRange'], ['donativo', 'priceDonativo'], ['on_request', 'priceOnRequest']].map(([value, label]) => `<option value="${value}" ${price.type === value ? 'selected' : ''}>${pt(label)}</option>`).join('');
+  return `<form class="provider-form provider-offer-form provider-offer-editor" data-offer-form novalidate data-offer-id="${offer?.id || ''}" data-hours-preset="${preset}" data-hours-expanded="${preset === 'custom' ? 'true' : 'false'}">
+    <div class="provider-offer-editor-layout"><div class="provider-offer-main"><section class="provider-offer-section"><p class="provider-section-kicker">1</p><h3>${pt('offerIntro')}</h3><label>${pt('title')}<input name="title" required maxlength="120" placeholder="${pt('offerTitlePlaceholder')}" value="${escapeProviderHtml(offer?.title || '')}"><span class="provider-field-error" data-field-error="title"></span></label><label>${pt('description')}<textarea name="description" required maxlength="1000" placeholder="${pt('offerDescriptionPlaceholder')}">${escapeProviderHtml(offer?.description || '')}</textarea><span class="provider-field-error" data-field-error="description"></span></label></section>
+      <section class="provider-offer-section"><p class="provider-section-kicker">2</p><h3>${pt('selectedNeeds')}</h3><div class="provider-selected-needs" data-selected-needs>${needs.filter((need) => selected.has(need.key)).map((need) => `<span class="provider-need-chip">${escapeProviderHtml(need.label)}</span>`).join('') || `<span class="provider-empty-selection">${pt('noNeedMatches')}</span>`}</div><label class="provider-need-search"><span>${pt('needSearch')}</span><input type="search" data-need-search placeholder="${pt('needSearch')}" autocomplete="off"></label><div class="provider-need-list" data-need-list><section class="provider-need-group provider-popular-group"><h4>${pt('frequentNeeds')}</h4><div class="provider-need-grid">${needs.filter((need) => popular.has(need.key)).map((need) => `<label class="provider-need-card is-popular" data-need-card data-need-key="${escapeProviderHtml(need.key)}" data-need-text="${escapeProviderHtml(`${need.label} ${need.key}`.toLocaleLowerCase())}"><input type="checkbox" name="needKeys" value="${escapeProviderHtml(need.key)}" ${selected.has(need.key) ? 'checked' : ''}><span>${escapeProviderHtml(need.label)}</span></label>`).join('')}</div></section><div class="provider-more-needs" data-more-needs hidden><h4>${pt('moreNeeds')}</h4>${groups.map(({ group, items }) => `<section class="provider-need-group" data-need-group="${escapeProviderHtml(group)}"><h4>${escapeProviderHtml(providerNeedGroupLabel(group))}</h4><div class="provider-need-grid">${items.filter((need) => !popular.has(need.key)).map((need) => `<label class="provider-need-card is-more" data-need-card data-need-key="${escapeProviderHtml(need.key)}" data-need-text="${escapeProviderHtml(`${need.label} ${need.key}`.toLocaleLowerCase())}"><input type="checkbox" name="needKeys" value="${escapeProviderHtml(need.key)}" ${selected.has(need.key) ? 'checked' : ''}><span>${escapeProviderHtml(need.label)}</span></label>`).join('')}</div></section>`).join('')}</div></div><button class="provider-inline-button" data-toggle-needs type="button">${pt('showMore')}</button><span class="provider-field-error" data-field-error="needKeys"></span></section>
+      <section class="provider-offer-section"><p class="provider-section-kicker">3</p><h3>${pt('priceIntro')}</h3><p class="provider-section-help">${pt('priceHint')}</p><select name="priceType" data-price-type>${priceOptions}</select><div class="provider-price-fields" data-price-fields data-price-type="${price.type}"><label data-price-field="amount">${pt('amount')}<input name="amount" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.amount ?? '')}"></label><div class="provider-range-fields" data-price-field="range"><label>${pt('min')}<input name="min" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.min ?? '')}"></label><span>–</span><label>${pt('max')}<input name="max" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.max ?? '')}"></label></div><label data-price-field="currency">${pt('currency')}<input name="currency" maxlength="3" value="${escapeProviderHtml(price.currency || 'EUR')}"><span class="provider-field-error" data-field-error="currency"></span></label></div><span class="provider-field-error" data-field-error="price"></span></section>
+      <section class="provider-offer-section"><p class="provider-section-kicker">4</p><h3>${pt('availabilityIntro')}</h3><p class="provider-section-help">${pt('availabilityHint')}</p><div class="provider-hours-presets"><button type="button" class="provider-preset-button" data-hours-preset-action="daily">${pt('presetDaily')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="weekdays">${pt('presetWeekdays')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="custom">${pt('presetCustom')}</button></div><div class="provider-hours-editor" data-hours-editor>${providerHoursEditor(weekly)}</div><button type="button" class="provider-inline-button" data-copy-hours>${pt('copyHours')}</button><span class="provider-field-error" data-field-error="hours"></span></section>
+      <section class="provider-offer-section"><p class="provider-section-kicker">5</p><h3>${pt('radiusIntro')}</h3><div class="provider-radius-control"><input name="radiusMeters" data-radius-input type="range" min="50" max="1000" step="10" value="${escapeProviderHtml(offer?.radiusMeters || 250)}"><output data-radius-value>${escapeProviderHtml(offer?.radiusMeters || 250)} m</output><div class="provider-radius-scale"><span>50 m</span><span>${pt('radiusRecommended')}</span><span>1000 m</span></div></div><p class="provider-section-help">${pt('radiusHelp')}</p><span class="provider-field-error" data-field-error="radiusMeters"></span></section>
+      <button class="web-auth-button provider-publish-button" type="submit">${offer ? pt('saveChanges') : pt('publishOffer')}</button>${offer ? `<button class="web-auth-button secondary" data-cancel-offer type="button">${pt('cancel')}</button>` : ''}
+    </div><details class="provider-offer-preview" open><summary>${pt('preview')}</summary><div data-offer-preview>${providerOfferPreview(offer, needs, weekly, price, offer?.radiusMeters || 250)}</div></details></div>
   </form>`;
+}
+
+function providerFormWeekly(form) {
+  return Object.fromEntries(providerDays.map((day) => {
+    const windows = [...form.querySelectorAll(`[data-hours-open="${day}"]`)].map((openInput) => {
+      const index = openInput.dataset.hoursIndex;
+      const closeInput = form.querySelector(`[data-hours-close="${day}"][data-hours-index="${index}"]`);
+      return { open: openInput.value, close: closeInput?.value || '' };
+    }).filter((window) => window.open && window.close);
+    return [day, windows];
+  }));
+}
+
+function providerUpdateNeedChips(form, needs) {
+  const selected = new Set([...form.querySelectorAll('input[name="needKeys"]:checked')].map((input) => input.value));
+  const target = form.querySelector('[data-selected-needs]');
+  if (target) target.innerHTML = needs.filter((need) => selected.has(need.key)).map((need) => `<span class="provider-need-chip">${escapeProviderHtml(need.label)}</span>`).join('') || `<span class="provider-empty-selection">${pt('noNeedMatches')}</span>`;
+}
+
+function providerUpdateOfferPreview(form, needs) {
+  const weekly = providerFormWeekly(form);
+  const priceType = form.querySelector('[name="priceType"]')?.value || 'free';
+  const price = { type: priceType, currency: String(form.querySelector('[name="currency"]')?.value || 'EUR').toUpperCase() };
+  if (['fixed', 'from'].includes(priceType)) price.amount = form.querySelector('[name="amount"]')?.value || '';
+  if (priceType === 'range') { price.min = form.querySelector('[name="min"]')?.value || ''; price.max = form.querySelector('[name="max"]')?.value || ''; }
+  const selected = new Set([...form.querySelectorAll('input[name="needKeys"]:checked')].map((input) => input.value));
+  const labels = needs.filter((need) => selected.has(need.key)).map((need) => need.label);
+  const preview = form.querySelector('[data-offer-preview]');
+  if (!preview) return;
+  const priceLabel = price.type === 'free' ? pt('priceFree') : price.type === 'donativo' ? pt('priceDonativo') : price.type === 'on_request' ? pt('priceOnRequest') : price.type === 'range' ? `${price.min || '—'}–${price.max || '—'} ${price.currency}` : `${price.amount || '—'} ${price.currency}`;
+  const hours = providerDays.map((day) => `${providerDayLabel(day)}: ${weekly[day].length ? weekly[day].map((window) => `${window.open}–${window.close}`).join(', ') : pt('closed')}`).join(' · ');
+  preview.querySelector('[data-preview-title]').textContent = form.querySelector('[name="title"]')?.value || pt('previewEmpty');
+  preview.querySelector('[data-preview-description]').textContent = form.querySelector('[name="description"]')?.value || '';
+  preview.querySelector('[data-preview-needs]').textContent = labels.join(', ') || '—';
+  preview.querySelector('[data-preview-price]').textContent = priceLabel;
+  preview.querySelector('[data-preview-hours]').textContent = hours;
+  preview.querySelector('[data-preview-radius]').textContent = `${form.querySelector('[data-radius-input]')?.value || 250} m`;
+}
+
+function providerApplyHoursPreset(form, preset, needs) {
+  const weekly = window.UltreiaProviderOfferUi.presetWeekly(preset, providerFormWeekly(form));
+  providerDays.forEach((day) => {
+    const windows = weekly[day] || [];
+    form.querySelectorAll(`[data-hours-open="${day}"]`).forEach((input, index) => {
+      const window = windows[index] || {};
+      input.value = window.open || '';
+      const close = form.querySelector(`[data-hours-close="${day}"][data-hours-index="${index}"]`);
+      if (close) close.value = window.close || '';
+      const row = form.querySelector(`[data-hours-window="${day}-${index}"]`);
+      if (row) row.hidden = !windows[index];
+    });
+    const closed = form.querySelector(`[data-hours-day="${day}"] [data-hours-closed]`);
+    if (closed) closed.hidden = windows.length > 0;
+    const add = form.querySelector(`[data-add-window="${day}"]`);
+    if (add) add.hidden = windows.length >= 3;
+  });
+  form.dataset.hoursPreset = preset;
+  form.dataset.hoursExpanded = String(preset === 'custom');
+  providerUpdateOfferPreview(form, needs);
 }
 
 async function renderProviderStart() {
@@ -242,7 +345,61 @@ async function renderProviderStart() {
     locationInput?.addEventListener('input', () => autocomplete?.schedule(locationInput.value, currentWebLanguage()));
     document.querySelector('[data-suggestions]')?.addEventListener('click', async (event) => { const button = event.target.closest('[data-place-id]'); if (!button) return; autocomplete?.cancel(); const form = document.querySelector('[data-location-form]'); setProviderFeedback(state, 'location', 'saving', pt('saving')); try { const result = await webApi('/provider/location/validate', { method: 'POST', body: JSON.stringify({ googlePlaceId: button.dataset.placeId, sourceLocale: currentWebLanguage(), sessionToken: autocomplete?.sessionToken }) }); state.locationDraft = result.location; state.feedback.location = { state: 'success', message: pt('locationSelected'), diagnostic: diagnostic('POST /api/provider/location/validate', state.account?.scope || webScope(), result, state.profile) }; render(); } catch (error) { const details = providerErrorDetails(error, 'locationError'); setFieldError(form, details.field, details.message); setProviderFeedback(state, 'location', 'error', details.message, diagnostic('POST /api/provider/location/validate', state.account?.scope || webScope(), null, null, null, error)); } });
     document.querySelector('[data-save-location]')?.addEventListener('click', async (event) => { const formElement = event.currentTarget.closest('[data-location-form]'); clearFieldErrors(formElement); if (!state.locationDraft && !state.profile?.location) { setFieldError(formElement, 'locationSearch', pt('locationRequired')); return; } const location = state.locationDraft || state.profile.location; const latitude = document.querySelector('[name="finalLatitude"]')?.value; const longitude = document.querySelector('[name="finalLongitude"]')?.value; const scope = state.account?.scope || webScope(); setProviderFeedback(state, 'location', 'saving', pt('saving')); setFormBusy(formElement, true); try { const result = await webApi('/provider/location', { method: 'PUT', body: JSON.stringify({ googlePlaceId: location.googlePlaceId, finalLatitude: latitude ? Number(latitude) : undefined, finalLongitude: longitude ? Number(longitude) : undefined, sourceLocale: currentWebLanguage(), sessionToken: autocomplete?.sessionToken }) }); state.locationDraft = null; state.feedback.location = { state: 'success', message: pt('locationSaved'), diagnostic: diagnostic('PUT /api/provider/location', scope, result, result.profile) }; await load(); render(); document.querySelector('[data-offer-form]')?.querySelector('[name="title"]')?.focus(); } catch (error) { const details = providerErrorDetails(error, 'locationError'); setFieldError(formElement, details.field, details.message); setProviderFeedback(state, 'location', 'error', details.message, diagnostic('PUT /api/provider/location', scope, null, null, null, error)); } finally { setFormBusy(formElement, false); } });
-    document.querySelector('[data-offer-form]')?.addEventListener('submit', async (event) => { event.preventDefault(); const formElement = event.currentTarget; clearFieldErrors(formElement); const form = new FormData(formElement); const weekly = Object.fromEntries(providerDays.map((day) => { const open = form.get(`hours-open-${day}`); return [day, open ? [{ open, close: form.get(`hours-close-${day}`) }] : []]; })); const priceType = form.get('priceType'); const price = { type: priceType, currency: String(form.get('currency') || 'EUR').toUpperCase() }; if (['fixed', 'from'].includes(priceType)) price.amount = Number(form.get('amount')); if (priceType === 'range') { price.min = Number(form.get('min')); price.max = Number(form.get('max')); } const body = { title: String(form.get('title') || '').trim(), description: String(form.get('description') || '').trim(), sourceLocale: currentWebLanguage(), needKeys: form.getAll('needKeys'), price, availability: { weekly, exceptions: [] }, radiusMeters: Number(form.get('radiusMeters')), activate: true }; const validation = body.title.length < 2 ? ['title', pt('offerTitleRequired')] : body.description.length < 2 ? ['description', pt('offerDescriptionRequired')] : body.needKeys.length === 0 ? ['needKeys', pt('needRequired')] : !['free', 'donativo', 'on_request'].includes(priceType) && (!Number.isFinite(price.amount) && priceType !== 'range') ? ['price', pt('priceInvalid')] : priceType === 'range' && (!Number.isFinite(price.min) || !Number.isFinite(price.max) || price.max < price.min) ? ['price', pt('priceInvalid')] : !Object.values(weekly).some((windows) => windows.length && windows[0].open && windows[0].close && windows[0].open !== windows[0].close) ? ['hours', pt('hoursInvalid')] : (!Number.isInteger(body.radiusMeters) || body.radiusMeters < 50 || body.radiusMeters > 1000) ? ['radiusMeters', pt('radiusInvalid')] : null; if (validation) { setFieldError(formElement, validation[0], validation[1]); return; } const scope = state.account?.scope || webScope(); const id = formElement.dataset.offerId; const endpoint = id ? `/provider/offers/${id}` : '/provider/offers'; setProviderFeedback(state, 'offer', 'saving', pt('saving')); setFormBusy(formElement, true); try { const result = await webApi(endpoint, { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) }); const offer = result.offer; state.feedback.offer = { state: 'success', message: body.activate ? pt('offerPublished') : pt('offerSaved'), diagnostic: diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, result, state.profile, offer) }; state.editingOffer = null; await load(); render(); } catch (error) { const details = providerErrorDetails(error, id ? 'offerSaveError' : 'offerPublishError'); setFieldError(formElement, details.field, details.message); setProviderFeedback(state, 'offer', 'error', details.message, diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, null, null, null, error)); } finally { setFormBusy(formElement, false); } });
+    document.querySelector('[data-offer-form]')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formElement = event.currentTarget;
+      clearFieldErrors(formElement);
+      const form = new FormData(formElement);
+      const weekly = providerFormWeekly(formElement);
+      const priceType = form.get('priceType');
+      const price = { type: priceType, currency: String(form.get('currency') || 'EUR').toUpperCase() };
+      if (['fixed', 'from'].includes(priceType)) price.amount = Number(form.get('amount'));
+      if (priceType === 'range') { price.min = Number(form.get('min')); price.max = Number(form.get('max')); }
+      const body = { title: String(form.get('title') || '').trim(), description: String(form.get('description') || '').trim(), sourceLocale: currentWebLanguage(), needKeys: form.getAll('needKeys'), price, availability: { weekly, exceptions: [] }, radiusMeters: Number(form.get('radiusMeters')), activate: true };
+      const validationResult = window.UltreiaProviderOfferUi.validateOfferDraft(body);
+      const validationMessages = { title_required: 'offerTitleRequired', description_required: 'offerDescriptionRequired', needs_required: 'needRequired', price_invalid: 'priceInvalid', hours_required: 'validationTime', radius_invalid: 'radiusInvalid' };
+      const validation = validationResult ? [validationResult.field, pt(validationMessages[validationResult.code] || 'offerSaveError')] : null;
+      if (validation) { if (validation[0] === 'hours') formElement.dataset.hoursExpanded = 'true'; setFieldError(formElement, validation[0], validation[1]); return; }
+      const scope = state.account?.scope || webScope();
+      const id = formElement.dataset.offerId;
+      const endpoint = id ? `/provider/offers/${id}` : '/provider/offers';
+      setProviderFeedback(state, 'offer', 'saving', pt('saving'));
+      setFormBusy(formElement, true);
+      try {
+        const result = await webApi(endpoint, { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
+        const offer = result.offer;
+        state.feedback.offer = { state: 'success', message: body.activate ? pt('offerPublished') : pt('offerSaved'), diagnostic: diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, result, state.profile, offer) };
+        state.editingOffer = null;
+        await load();
+        render();
+      } catch (error) {
+        const details = providerErrorDetails(error, id ? 'offerSaveError' : 'offerPublishError');
+        setFieldError(formElement, details.field, details.message);
+        setProviderFeedback(state, 'offer', 'error', details.message, diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, null, null, null, error));
+      } finally { setFormBusy(formElement, false); }
+    });
+    const offerForm = document.querySelector('[data-offer-form]');
+    const refreshOfferPreview = () => { if (offerForm) { providerUpdateNeedChips(offerForm, state.needs); providerUpdateOfferPreview(offerForm, state.needs); } };
+    offerForm?.querySelectorAll('input, textarea, select').forEach((field) => field.addEventListener('input', () => {
+      if (field.matches('[data-radius-input]')) offerForm.querySelector('[data-radius-value]').textContent = `${field.value} m`;
+      if (field.matches('[data-price-type]')) offerForm.querySelector('[data-price-fields]').dataset.priceType = field.value;
+      refreshOfferPreview();
+    }));
+    offerForm?.querySelectorAll('input[name="needKeys"]').forEach((field) => field.addEventListener('change', refreshOfferPreview));
+    offerForm?.querySelector('[data-need-search]')?.addEventListener('input', (event) => {
+      const query = event.currentTarget.value;
+      const cards = [...offerForm.querySelectorAll('[data-need-card]')];
+      const matches = window.UltreiaProviderOfferUi.filterNeeds(state.needs, query).map((need) => need.key);
+      cards.forEach((card) => { card.hidden = !matches.includes(card.dataset.needKey); });
+      const more = offerForm.querySelector('[data-more-needs]');
+      if (more && query.trim()) more.hidden = false;
+      offerForm.querySelectorAll('[data-need-group]').forEach((group) => { group.hidden = !group.querySelector('[data-need-card]:not([hidden])'); });
+    });
+    offerForm?.querySelector('[data-toggle-needs]')?.addEventListener('click', (event) => { const more = offerForm.querySelector('[data-more-needs]'); more.hidden = !more.hidden; event.currentTarget.textContent = more.hidden ? pt('showMore') : pt('hideMore'); });
+    offerForm?.querySelectorAll('[data-hours-preset-action]').forEach((button) => button.addEventListener('click', () => { providerApplyHoursPreset(offerForm, button.dataset.hoursPresetAction, state.needs); offerForm.querySelectorAll('[data-hours-preset-action]').forEach((item) => item.classList.toggle('is-selected', item === button)); providerUpdateOfferPreview(offerForm, state.needs); }));
+    if (offerForm) offerForm.querySelector(`[data-hours-preset-action="${offerForm.dataset.hoursPreset}"]`)?.classList.add('is-selected');
+    offerForm?.querySelectorAll('[data-add-window]').forEach((button) => button.addEventListener('click', () => { const day = button.dataset.addWindow; const row = [...offerForm.querySelectorAll(`[data-hours-window^="${day}-"]`)].find((item) => item.hidden); if (row) { row.hidden = false; offerForm.dataset.hoursPreset = 'custom'; offerForm.dataset.hoursExpanded = 'true'; offerForm.querySelector(`[data-hours-day="${day}"] [data-hours-closed]`).hidden = true; button.hidden = [...offerForm.querySelectorAll(`[data-hours-window^="${day}-"]`)].every((item) => !item.hidden); } }));
+    offerForm?.querySelector('[data-copy-hours]')?.addEventListener('click', () => { const source = providerFormWeekly(offerForm).monday || []; providerDays.filter((day) => day !== 'monday').forEach((day) => { offerForm.querySelectorAll(`[data-hours-open="${day}"]`).forEach((input, index) => { const window = source[index] || {}; input.value = window.open || ''; const close = offerForm.querySelector(`[data-hours-close="${day}"][data-hours-index="${index}"]`); if (close) close.value = window.close || ''; const row = offerForm.querySelector(`[data-hours-window="${day}-${index}"]`); if (row) row.hidden = !source[index]; }); offerForm.querySelector(`[data-hours-day="${day}"] [data-hours-closed]`).hidden = source.length > 0; }); providerUpdateOfferPreview(offerForm, state.needs); });
     document.querySelector('[data-cancel-offer]')?.addEventListener('click', () => { state.editingOffer = null; render(); });
     document.querySelector('[data-new-offer]')?.addEventListener('click', () => { state.editingOffer = {}; render(); });
     document.querySelectorAll('[data-offer-action]').forEach((button) => button.addEventListener('click', async () => { const id = button.dataset.offerId; const action = button.dataset.offerAction; if (action === 'edit') { state.editingOffer = state.offers.find((offer) => offer.id === id); render(); return; } const scope = state.account?.scope || webScope(); setProviderFeedback(state, 'offer', 'saving', pt('saving')); setFormBusy(button.closest('.provider-panel'), true); try { const result = await webApi(`/provider/offers/${id}/${action}`, { method: 'POST', body: '{}' }); const messages = { pause: 'offerPaused', resume: 'offerResumed', confirm: 'offerConfirmed' }; state.feedback.offer = { state: 'success', message: pt(messages[action] || 'offerSaved'), diagnostic: diagnostic(`POST /api/provider/offers/${id}/${action}`, scope, result, state.profile, result.offer) }; await load(); render(); } catch (error) { const details = providerErrorDetails(error, 'offerActionError'); setProviderFeedback(state, 'offer', 'error', details.message, diagnostic(`POST /api/provider/offers/${id}/${action}`, scope, null, null, null, error)); } finally { setFormBusy(button.closest('.provider-panel'), false); } }));

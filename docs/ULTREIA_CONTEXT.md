@@ -975,3 +975,26 @@ persistente Schritt- und Statusanzeige aus dem Backend sowie DE/EN/ES-Texte.
 Autorisierte `local_test`-Sessions sehen zusaetzlich nur kompakte technische
 Diagnostik (Methode, HTTP-Status, Scope und relevante Statusfelder); Production-
 Provider sehen keine solche Diagnostik und keine Secrets, Tokens oder IDs.
+
+Der Offer-Editor zeigt fachliche Aufgaben statt interner Datenstrukturen:
+Needs werden aus der zentralen Taxonomie gesucht, als Chips gewaehlt und
+schrittweise gruppiert. Preis, Verfuegbarkeit und Radius werden progressiv
+eingeblendet; eine Live-Vorschau und responsive Desktop-/Mobile-Darstellung
+bleiben auf denselben bestehenden API-Feldern. Dauerhaftes UX-Prinzip:
+Komplexitaet wird schrittweise eingeblendet.
+
+## Offer-Submit-Validierung (2026-08-19)
+
+Der Offer-Editor verwendet fuer seinen Submit eine eigene fachliche
+Validierung. Das Formular ist deshalb jetzt mit `novalidate` versehen; native
+Browser-Validierung kann keine eingeklappte Zeitzeile oder ein anderes nicht
+fokussierbares Control mehr als Submit-Blocker verwenden. Titel und
+Beschreibung bleiben fachlich Pflichtfelder und werden bei Leerwert sichtbar
+am aktiven Feld gemeldet. Bei fehlenden Zeiten wird der Stundenbereich
+aufgeklappt, die erste Zeitzeile sichtbar gemacht und fokussiert.
+
+Die erzeugten Preis- und Profil-Selects sind explizit geschlossen. Es wird nur
+ein Offer-Formular gerendert; die Preview ist keine zweite Eingabekopie. Ein
+401 bei `/api/auth/me` bleibt ein separater Session-Zustand: der bestehende
+Refresh wird einmal versucht, danach leitet das Frontend ohne gueltige Session
+zum Provider-Login weiter und laesst keinen scheinbar aktiven Editor stehen.
