@@ -16,6 +16,11 @@ import { createTripService } from './services/tripService.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { createAccountRouter } from './routes/account.js';
 import { logEvent } from './lib/logger.js';
+import { createGooglePlacesService } from './services/googlePlacesService.js';
+import { createNeedService } from './services/needService.js';
+import { createProviderService } from './services/providerService.js';
+import { createProviderRouter } from './routes/provider.js';
+import { createNeedsRouter } from './routes/needs.js';
 
 function createCorsMiddleware(corsOrigins) {
   return function corsMiddleware(req, res, next) {
@@ -44,6 +49,9 @@ export function createApp(config = loadConfig(), services = {}) {
   const authService = services.authService || createAuthService(config, databaseService, mailService);
   const authMiddleware = createAuthMiddleware(authService);
   const tripService = services.tripService || createTripService(databaseService);
+  const googlePlacesService = services.googlePlacesService || createGooglePlacesService(config);
+  const needService = services.needService || createNeedService(databaseService);
+  const providerService = services.providerService || createProviderService(databaseService, googlePlacesService, needService);
 
   app.disable('x-powered-by');
   app.locals.corsOrigins = config.corsOrigins;
@@ -53,11 +61,13 @@ export function createApp(config = loadConfig(), services = {}) {
 
   app.use('/api', createHealthRouter(config, databaseService));
   app.use('/api/taxonomy', createTaxonomyRouter());
+  app.use('/api/needs', createNeedsRouter(databaseService, needService));
   app.use('/api/devices', createDeviceRouter(config, databaseService));
   app.use('/api/location', createLocationRouter(config, databaseService, authMiddleware));
   app.use('/api/push', createPushRouter(config, databaseService));
   app.use('/api/diagnostics', createDiagnosticsRouter(config, databaseService));
   app.use('/api/auth', createAuthRouter(config, databaseService, authService, mailService, authMiddleware));
+  app.use('/api/provider', createProviderRouter(config, databaseService, providerService, googlePlacesService, authMiddleware));
   app.use('/api/account', createAccountRouter(authService, authMiddleware));
   app.use('/api/profiles', createProfileRouter(databaseService, authService, authMiddleware));
   app.use('/api/trips', createTripRouter(config, databaseService, tripService, authMiddleware));

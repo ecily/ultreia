@@ -32,7 +32,7 @@ function authError(res, error) {
 
 export function createAuthRouter(config, databaseService, authService, mailService, authMiddleware) {
   const router = Router();
-  const requestLimiter = createRateLimiter({ max: 8 });
+  const requestLimiter = createRateLimiter({ max: config.authRequestRateLimitMax || 8 });
 
   router.post('/magic-link/request', requestLimiter, async (req, res) => {
     try {
@@ -72,7 +72,7 @@ export function createAuthRouter(config, databaseService, authService, mailServi
       const deviceId = req.body?.deviceId ? readDeviceId(req.body.deviceId) : null;
       const result = await authService.verifyMagicLink(req.body?.token, deviceId, requestedScope);
       if (requestedScope === 'local_test' && result.session.scope !== 'local_test') return res.status(403).json({ ok: false, status: 'scope_not_available' });
-      const profiles = await authService.profilesFor(result.userId);
+      const profiles = await authService.profilesFor(result.userId, result.session.scope);
       if (req.get('x-ultreia-web') === '1') setSessionCookies(res, result.session, config);
       return res.json({ ok: true, user: result.user, ...profiles, session: req.get('x-ultreia-web') === '1' ? { scope: result.session.scope, accessExpiresAt: result.session.accessExpiresAt, refreshExpiresAt: result.session.refreshExpiresAt } : result.session });
     } catch (error) { return authError(res, error); }
@@ -87,7 +87,7 @@ export function createAuthRouter(config, databaseService, authService, mailServi
   });
 
   router.get('/me', authMiddleware.requireAuth, async (req, res) => {
-    const profiles = await authService.profilesFor(req.user._id);
+    const profiles = await authService.profilesFor(req.user._id, req.session.scope);
     return res.json({ ok: true, user: authService.publicUser(req.user), scope: req.session.scope, localTestAuthorized: authService.isLocalTestAuthorized(req.user), ...profiles });
   });
 

@@ -824,6 +824,31 @@ angeforderten Rolle geprüft. Der korrigierte Pfad ist durch die Auth-Suite
 abgedeckt; Microsoft-/Graph-Zustellung wird nach dem Deploy separat live
 verifiziert.
 
+## Provider-V1-Self-Service (2026-08-19)
+
+Der erste Provider-V1-Workflow ist jetzt als eigener Scope-/Ownership-
+gesicherter Backend- und Web-Block implementiert: Providerprofil, Google-
+validierter Standort, Need-Katalog, Offer-Erstellung/-Bearbeitung,
+Pausieren/Reaktivieren und 30-Tage-Bestätigung. Matching, Navigation und Push
+bleiben außerhalb dieses Blocks.
+
+ProviderProfile und Offers tragen den autorisierten Session-Scope
+`production` oder `local_test`. Provider-Routen leiten Scope serverseitig aus
+der Session ab und prüfen die Eigentümerschaft. Ein Provider-Account bleibt in
+V1 an genau einen physischen Standort gebunden, kann aber mehrere Offers haben.
+
+Der kuratierte V1-Katalog aus der Produktspezifikation ist in der gemeinsamen
+Taxonomie als 40 aktive Needs mit DE/EN/ES-Übersetzungen angelegt und wird in die
+Mongo-Collection `needs` idempotent eingespielt. Nicht freigegebene historische
+oder kontrollierte Schlüssel bleiben inaktiv.
+
+Google Places (New) wird über einen Backend-Proxy mit expliziten Field Masks
+verwendet. Der Google-Key bleibt ein serverseitiges Runtime-Secret
+`GOOGLE_PLACES_API_KEY`; der Browser erhält keinen Key. Place Details wird beim
+Speichern erneut geladen, GeoJSON verwendet `[longitude, latitude]`, und eine
+Marker-Korrektur über 25 m wird serverseitig abgewiesen. Die genaue externe
+Einrichtung steht in `docs/ULTREIA_GOOGLE_PLACES_OPERATOR.md`.
+
 ## Repeated-Provider-Magic-Link (2026-08-19)
 
 Der bestehende Provider-Pfad erzeugt bei jedem Request einen neuen gehashten

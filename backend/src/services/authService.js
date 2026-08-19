@@ -12,7 +12,7 @@ function publicUser(user) {
 
 function publicProfile(profile) {
   if (!profile) return null;
-  return { id: String(profile._id), userId: String(profile.userId), status: profile.status || 'active', displayName: profile.displayName, preferredLocale: profile.preferredLocale, consent: profile.consent || null, createdAt: profile.createdAt, updatedAt: profile.updatedAt };
+  return { id: String(profile._id), userId: String(profile.userId), scope: profile.scope || null, status: profile.status || 'active', businessName: profile.businessName || null, displayName: profile.displayName, contactEmail: profile.contactEmail || null, phone: profile.phone || null, website: profile.website || null, sourceLocale: profile.sourceLocale || profile.preferredLocale || 'de', location: profile.location || null, preferredLocale: profile.preferredLocale, consent: profile.consent || null, completedAt: profile.completedAt || null, createdAt: profile.createdAt, updatedAt: profile.updatedAt };
 }
 
 export function normalizeEmail(value) {
@@ -68,7 +68,7 @@ export function createAuthService(config, databaseService, mailService) {
       user._id = inserted.insertedId;
       const profileCollection = requestedRole === 'provider' ? 'providerProfiles' : 'pilgrimProfiles';
       await databaseService.getDb().collection(profileCollection).insertOne(requestedRole === 'provider'
-        ? { userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, status: 'pending', createdAt: timestamp, updatedAt: timestamp }
+        ? { userId: user._id, scope, status: 'pending', businessName: null, displayName: user.displayName, contactEmail: user.emailNormalized, phone: null, website: null, sourceLocale: user.preferredLocale, preferredLocale: user.preferredLocale, location: null, completedAt: null, createdAt: timestamp, updatedAt: timestamp }
         : { userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, consent: { privacyAcceptedAt: null }, status: 'active', createdAt: timestamp, updatedAt: timestamp });
     } else if (requestedRole === 'admin' && !user.roles?.includes('admin')) {
       throw new Error('admin_access_not_granted');
@@ -77,7 +77,7 @@ export function createAuthService(config, databaseService, mailService) {
       const accountDisplayName = providerDisplayName(emailNormalized, displayName || user.displayName);
       await collection.updateOne({ _id: user._id }, { $set: { roles, displayName: accountDisplayName, updatedAt: timestamp } });
       user = { ...user, roles, displayName: accountDisplayName, updatedAt: timestamp };
-      await databaseService.getDb().collection('providerProfiles').updateOne({ userId: user._id }, { $set: { userId: user._id, displayName: accountDisplayName, preferredLocale: readLocale(preferredLocale || user.preferredLocale), status: 'pending', updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp } }, { upsert: true });
+      await databaseService.getDb().collection('providerProfiles').updateOne({ userId: user._id, scope }, { $set: { userId: user._id, scope, displayName: accountDisplayName, contactEmail: user.emailNormalized, sourceLocale: readLocale(preferredLocale || user.preferredLocale), preferredLocale: readLocale(preferredLocale || user.preferredLocale), status: 'pending', updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp, businessName: null, location: null, completedAt: null } }, { upsert: true });
     }
     const rawToken = randomBytes(32).toString('base64url');
     const requestId = randomBytes(12).toString('hex');
@@ -127,10 +127,10 @@ export function createAuthService(config, databaseService, mailService) {
     if (sessionId) await databaseService.getDb().collection('sessions').updateOne({ _id: sessionId, revokedAt: null }, { $set: { revokedAt: now() } });
   }
 
-  async function profilesFor(userId) {
+  async function profilesFor(userId, scope = 'production') {
     const [pilgrimProfile, providerProfile] = await Promise.all([
       databaseService.getDb().collection('pilgrimProfiles').findOne({ userId }),
-      databaseService.getDb().collection('providerProfiles').findOne({ userId }),
+      databaseService.getDb().collection('providerProfiles').findOne({ userId, scope }).then((profile) => profile || databaseService.getDb().collection('providerProfiles').findOne({ userId })),
     ]);
     return { pilgrimProfile: publicProfile(pilgrimProfile), providerProfile: publicProfile(providerProfile) };
   }

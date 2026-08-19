@@ -7,6 +7,7 @@ const DEFAULT_ACCESS_TTL_SECONDS = 900;
 const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
 const DEFAULT_MAGIC_LINK_TTL_SECONDS = 900;
 const DEFAULT_MICROSOFT_GRAPH_TIMEOUT_MS = 10000;
+const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 8000;
 
 function parseBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
@@ -85,6 +86,8 @@ export function loadConfig(env = process.env) {
     microsoftClientId: env.MICROSOFT_CLIENT_ID || '',
     microsoftClientSecret: env.MICROSOFT_CLIENT_SECRET || '',
     microsoftGraphTimeoutMs: parseTimeout(env.MICROSOFT_GRAPH_TIMEOUT_MS),
+    googlePlacesApiKey: env.GOOGLE_PLACES_API_KEY || '',
+    googlePlacesTimeoutMs: parseTimeout(env.GOOGLE_PLACES_TIMEOUT_MS || DEFAULT_GOOGLE_PLACES_TIMEOUT_MS),
     allowLocalTestScope: parseBoolean(env.ALLOW_LOCAL_TEST_SCOPE, true),
     localTestEmails: parseCsv(env.LOCAL_TEST_EMAILS),
     serviceName: SERVICE_NAME,

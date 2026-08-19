@@ -220,6 +220,188 @@
     }
   },
   {
+    "key": "breakfast",
+    "priority": "core",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Fruehstueck", "en": "Breakfast", "es": "Desayuno" },
+    "shortDescription": { "de": "Fruehstueck fuer Pilger.", "en": "Breakfast for pilgrims.", "es": "Desayuno para peregrinos." }
+  },
+  {
+    "key": "coffee_break",
+    "priority": "core",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Kaffee und Getraenkepause", "en": "Coffee and drink break", "es": "Cafe y pausa para beber" },
+    "shortDescription": { "de": "Kaffee, Getraenke und eine kurze Pause.", "en": "Coffee, drinks, and a short break.", "es": "Cafe, bebidas y una pausa breve." }
+  },
+  {
+    "key": "bakery",
+    "priority": "secondary",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Baeckerei", "en": "Bakery", "es": "Panaderia" },
+    "shortDescription": { "de": "Brot und einfache Backwaren.", "en": "Bread and simple baked goods.", "es": "Pan y productos de panaderia." }
+  },
+  {
+    "key": "medication",
+    "priority": "core",
+    "pushSuitability": "high_when_selected",
+    "labels": { "de": "Medikamente", "en": "Medicine", "es": "Medicinas" },
+    "shortDescription": { "de": "Medikamente und rezeptfreie Versorgung.", "en": "Medicine and over-the-counter supplies.", "es": "Medicinas y productos sin receta." }
+  },
+  {
+    "key": "foot_care",
+    "priority": "core",
+    "pushSuitability": "high_when_selected",
+    "labels": { "de": "Blasen- und Fussversorgung", "en": "Blister and foot care", "es": "Cuidado de pies y ampollas" },
+    "shortDescription": { "de": "Hilfe bei Blasen und Fussbeschwerden.", "en": "Help with blisters and foot problems.", "es": "Ayuda para ampollas y problemas de pies." }
+  },
+  {
+    "key": "physiotherapy",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Physiotherapie und Massage", "en": "Physiotherapy and massage", "es": "Fisioterapia y masaje" },
+    "shortDescription": { "de": "Physiotherapie, Massage und Regeneration.", "en": "Physiotherapy, massage, and recovery.", "es": "Fisioterapia, masaje y recuperacion." }
+  },
+  {
+    "key": "albergue",
+    "priority": "core",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Pilgerherberge", "en": "Pilgrim hostel", "es": "Albergue" },
+    "shortDescription": { "de": "Pilgerherbergen entlang des Camino.", "en": "Pilgrim hostels along the Camino.", "es": "Albergues del Camino." }
+  },
+  {
+    "key": "hotel",
+    "priority": "secondary",
+    "pushSuitability": "time_windowed",
+    "labels": { "de": "Privates Zimmer oder Hotel", "en": "Private room or hotel", "es": "Habitacion privada u hotel" },
+    "shortDescription": { "de": "Private Zimmer, Hotels und Pensionen.", "en": "Private rooms, hotels, and guesthouses.", "es": "Habitaciones privadas, hoteles y pensiones." }
+  },
+  {
+    "key": "dryer",
+    "priority": "secondary",
+    "pushSuitability": "in_app_or_time_windowed",
+    "labels": { "de": "Waeschetrockner", "en": "Clothes dryer", "es": "Secadora" },
+    "shortDescription": { "de": "Moeglichkeiten zum Trocknen von Waesche.", "en": "Ways to dry clothes.", "es": "Opciones para secar la ropa." }
+  },
+  {
+    "key": "shower",
+    "priority": "secondary",
+    "pushSuitability": "in_app_or_time_windowed",
+    "labels": { "de": "Dusche", "en": "Shower", "es": "Ducha" },
+    "shortDescription": { "de": "Duschen fuer Pilger.", "en": "Showers for pilgrims.", "es": "Duchas para peregrinos." }
+  },
+  {
+    "key": "shade",
+    "priority": "secondary",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Schatten und Hitzepause", "en": "Shade and heat break", "es": "Sombra y descanso del calor" },
+    "shortDescription": { "de": "Schatten und Pausen bei Hitze.", "en": "Shade and rest in hot weather.", "es": "Sombra y descanso cuando hace calor." }
+  },
+  {
+    "key": "shoe_store",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Schuhgeschaeft", "en": "Shoe shop", "es": "Zapateria" },
+    "shortDescription": { "de": "Schuhe und Ersatzschuhe fuer unterwegs.", "en": "Shoes and replacement footwear on the way.", "es": "Calzado y zapatos de repuesto." }
+  },
+  {
+    "key": "gear_repair",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Ausruestungsreparatur", "en": "Gear repair", "es": "Reparacion de equipo" },
+    "shortDescription": { "de": "Reparatur von Ausruestung unterwegs.", "en": "Repair of outdoor gear on the way.", "es": "Reparacion de equipo durante el Camino." }
+  },
+  {
+    "key": "hiking_poles",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Wanderstoecke und Ersatzteile", "en": "Hiking poles and spare parts", "es": "Bastones y repuestos" },
+    "shortDescription": { "de": "Wanderstoecke und kleine Ersatzteile.", "en": "Hiking poles and small spare parts.", "es": "Bastones y pequenos repuestos." }
+  },
+  {
+    "key": "rain_gear",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Regenausruestung", "en": "Rain gear", "es": "Equipo para la lluvia" },
+    "shortDescription": { "de": "Schutz und Ausruestung fuer Regen.", "en": "Protection and gear for rain.", "es": "Proteccion y equipo para la lluvia." }
+  },
+  {
+    "key": "sun_protection",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Sonnenschutz", "en": "Sun protection", "es": "Proteccion solar" },
+    "shortDescription": { "de": "Sonnencreme, Huete und Sonnenschutz.", "en": "Sunscreen, hats, and sun protection.", "es": "Protector solar, sombreros y proteccion solar." }
+  },
+  {
+    "key": "hygiene",
+    "priority": "secondary",
+    "pushSuitability": "in_app_or_time_windowed",
+    "labels": { "de": "Hygieneartikel", "en": "Hygiene supplies", "es": "Articulos de higiene" },
+    "shortDescription": { "de": "Alltaegliche Hygieneartikel.", "en": "Everyday hygiene supplies.", "es": "Articulos de higiene diaria." }
+  },
+  {
+    "key": "feminine_hygiene",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Damenhygiene", "en": "Feminine hygiene", "es": "Higiene femenina" },
+    "shortDescription": { "de": "Produkte fuer die weibliche Hygiene.", "en": "Feminine hygiene products.", "es": "Productos de higiene femenina." }
+  },
+  {
+    "key": "card_payment",
+    "priority": "secondary",
+    "pushSuitability": "in_app",
+    "labels": { "de": "Kartenzahlung", "en": "Card payment", "es": "Pago con tarjeta" },
+    "shortDescription": { "de": "Moeglichkeit zur Zahlung mit Karte.", "en": "Ability to pay by card.", "es": "Posibilidad de pagar con tarjeta." }
+  },
+  {
+    "key": "charging",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Handy laden", "en": "Phone charging", "es": "Cargar el telefono" },
+    "shortDescription": { "de": "Steckdose oder Lademoeglichkeit.", "en": "Power socket or charging option.", "es": "Enchufe u opcion de carga." }
+  },
+ {
+    "key": "powerbank",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Powerbank und Ladezubehoer", "en": "Power bank and charging gear", "es": "Bateria externa y accesorios" },
+    "shortDescription": { "de": "Powerbanks und mobiles Ladezubehoer.", "en": "Power banks and mobile charging gear.", "es": "Baterias externas y accesorios de carga." }
+  },
+  {
+    "key": "sim",
+    "priority": "secondary",
+    "pushSuitability": "in_app",
+    "labels": { "de": "Mobilfunk und SIM", "en": "Mobile service and SIM", "es": "Telefonia movil y SIM" },
+    "shortDescription": { "de": "SIM-Karten und Mobilfunkhilfe.", "en": "SIM cards and mobile service help.", "es": "Tarjetas SIM y ayuda de telefonia." }
+  },
+  {
+    "key": "luggage_transport",
+    "priority": "secondary",
+    "pushSuitability": "contextual_or_problem_case",
+    "labels": { "de": "Gepaecktransport", "en": "Luggage transport", "es": "Transporte de equipaje" },
+    "shortDescription": { "de": "Gepaecktransport zur naechsten Etappe.", "en": "Luggage transport to the next stage.", "es": "Transporte de equipaje a la siguiente etapa." }
+  },
+  {
+    "key": "parcel_shipping",
+    "priority": "secondary",
+    "pushSuitability": "in_app",
+    "labels": { "de": "Paket und Gepaeck versenden", "en": "Send parcels or luggage", "es": "Enviar paquetes o equipaje" },
+    "shortDescription": { "de": "Pakete oder Gepaeck nach Hause oder Santiago senden.", "en": "Send parcels or luggage home or to Santiago.", "es": "Enviar paquetes o equipaje a casa o Santiago." }
+  },
+  {
+    "key": "bike_service",
+    "priority": "secondary",
+    "pushSuitability": "contextual_push",
+    "labels": { "de": "Fahrradservice", "en": "Bike service", "es": "Servicio de bicicletas" },
+    "shortDescription": { "de": "Reparatur und Hilfe fuer Fahrrader.", "en": "Repair and help for bicycles.", "es": "Reparacion y ayuda para bicicletas." }
+  },
+  {
+    "key": "pilgrim_credential",
+    "priority": "discovery",
+    "pushSuitability": "in_app_or_low",
+    "labels": { "de": "Pilgerausweis", "en": "Pilgrim credential", "es": "Credencial del peregrino" },
+    "shortDescription": { "de": "Pilgerausweis und Credencial.", "en": "Pilgrim credential and related help.", "es": "Credencial del peregrino y ayuda relacionada." }
+  },
+  {
     "key": "warning",
     "priority": "controlled_later",
     "pushSuitability": "emergency_or_controlled",

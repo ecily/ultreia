@@ -196,6 +196,7 @@ export function createMongoService(config) {
 }
 
 async function ensureIndexes(database, heartbeatTtlSeconds = 604800, diagnosticTtlSeconds = 2592000) {
+  await database.collection('providerProfiles').dropIndex('userId_unique').catch(() => {});
   await Promise.all([
     database.collection('devices').createIndex({ deviceId: 1 }, { unique: true, name: 'deviceId_unique' }),
     database.collection('pushRegistrations').createIndex({ token: 1 }, { unique: true, name: 'token_unique' }),
@@ -208,7 +209,13 @@ async function ensureIndexes(database, heartbeatTtlSeconds = 604800, diagnosticT
     database.collection('diagnosticEvents').createIndex({ createdAt: 1 }, { expireAfterSeconds: diagnosticTtlSeconds, name: 'createdAt_ttl' }),
     database.collection('users').createIndex({ emailNormalized: 1 }, { unique: true, name: 'emailNormalized_unique' }),
     database.collection('pilgrimProfiles').createIndex({ userId: 1 }, { unique: true, name: 'userId_unique' }),
-    database.collection('providerProfiles').createIndex({ userId: 1 }, { unique: true, name: 'userId_unique' }),
+    database.collection('providerProfiles').createIndex({ userId: 1, scope: 1 }, { unique: true, name: 'user_scope_unique' }),
+    database.collection('needs').createIndex({ key: 1 }, { unique: true, name: 'key_unique' }),
+    database.collection('needs').createIndex({ status: 1, sortOrder: 1 }, { name: 'status_sortOrder' }),
+    database.collection('offers').createIndex({ providerId: 1, scope: 1, updatedAt: -1 }, { name: 'provider_scope_updatedAt' }),
+    database.collection('offers').createIndex({ scope: 1, status: 1 }, { name: 'scope_status' }),
+    database.collection('offers').createIndex({ scope: 1, needKeys: 1 }, { name: 'scope_needKeys' }),
+    database.collection('offers').createIndex({ confirmationDueAt: 1 }, { name: 'confirmationDueAt' }),
     database.collection('devices').createIndex({ userId: 1, status: 1 }, { name: 'user_status' }),
     database.collection('magicLinks').createIndex({ tokenHash: 1 }, { unique: true, name: 'tokenHash_unique' }),
     database.collection('magicLinks').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0, name: 'expiresAt_ttl' }),

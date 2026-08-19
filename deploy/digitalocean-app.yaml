@@ -43,6 +43,8 @@ services:
         value: microsoft
       - key: MICROSOFT_GRAPH_TIMEOUT_MS
         value: "10000"
+      - key: GOOGLE_PLACES_TIMEOUT_MS
+        value: "8000"
       - key: HEARTBEAT_TTL_SECONDS
         value: "604800"
       - key: DIAGNOSTIC_TTL_SECONDS
@@ -69,5 +71,8 @@ services:
         scope: RUN_TIME
         type: SECRET
       - key: MAIL_FROM
+        scope: RUN_TIME
+        type: SECRET
+      - key: GOOGLE_PLACES_API_KEY
         scope: RUN_TIME
         type: SECRET

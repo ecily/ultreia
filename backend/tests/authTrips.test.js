@@ -34,7 +34,7 @@ class FakeCollection {
   async updateOne(query, update, options = {}) { let document = this.documents.find((item) => matches(item, query)); const inserted = !document && options.upsert; if (!document && inserted) { document = {}; for (const [key, value] of Object.entries(query)) if (!key.includes('$')) document[key] = value; this.documents.push(document); } if (document) applyUpdate(document, update, inserted); return { matchedCount: document ? 1 : 0 }; }
   async updateMany(query, update) { for (const document of this.documents.filter((item) => matches(item, query))) applyUpdate(document, update); return {}; }
   async findOneAndUpdate(query, update) { const document = this.documents.find((item) => matches(item, query)); if (!document) return null; applyUpdate(document, update); return document; }
-  find(query) { const items = this.documents.filter((item) => matches(item, query)); return { sort: () => ({ limit: () => ({ toArray: async () => items }) }), toArray: async () => items }; }
+  find(query) { const items = this.documents.filter((item) => matches(item, query)); return { sort: () => ({ limit: () => ({ toArray: async () => items }), toArray: async () => items }), toArray: async () => items }; }
 }
 
 class FakeDb {
@@ -48,14 +48,20 @@ function createFakeDatabase() {
 }
 
 const config = {
-  runtimeMode: 'local', nodeEnv: 'test', port: 0, corsOrigins: ['https://web.test'], logLevel: 'silent', serviceName: 'ultreia-backend', version: '0.1.0', commitShort: 'unknown', mongodbUri: '', mongodbDbName: 'ultreia_production', expoProjectId: '', expoAccessToken: '', pushTestEnabled: false, pushTestKey: '', accessTokenTtlSeconds: 900, refreshTokenTtlSeconds: 3600, magicLinkTtlSeconds: 900, mailProvider: 'none', mailFrom: '', authPublicBaseUrl: 'ultreia://auth/verify', microsoftTenantId: '', microsoftClientId: '', microsoftClientSecret: '', microsoftGraphTimeoutMs: 10000, allowLocalTestScope: true, localTestEmails: [],
+  runtimeMode: 'local', nodeEnv: 'test', port: 0, corsOrigins: ['https://web.test'], logLevel: 'silent', serviceName: 'ultreia-backend', version: '0.1.0', commitShort: 'unknown', mongodbUri: '', mongodbDbName: 'ultreia_production', expoProjectId: '', expoAccessToken: '', pushTestEnabled: false, pushTestKey: '', accessTokenTtlSeconds: 900, refreshTokenTtlSeconds: 3600, magicLinkTtlSeconds: 900, mailProvider: 'none', mailFrom: '', authPublicBaseUrl: 'ultreia://auth/verify', microsoftTenantId: '', microsoftClientId: '', microsoftClientSecret: '', microsoftGraphTimeoutMs: 10000, allowLocalTestScope: true, localTestEmails: [], authRequestRateLimitMax: 100,
+};
+
+const providerGoogle = {
+  configured: () => true,
+  autocomplete: async () => ({ ok: true, suggestions: [] }),
+  details: async () => ({ ok: true, place: { id: 'places/provider-test', formattedAddress: 'Test Street 1, Camino', location: { latitude: 42.1, longitude: -4.5 }, addressComponents: [{ types: ['country'], shortText: 'ES', longText: 'Spain' }, { types: ['locality'], longText: 'Camino Town' }, { types: ['postal_code'], longText: '1000' }, { types: ['route'], longText: 'Test Street' }, { types: ['street_number'], longText: '1' }] } }),
 };
 
 describe('V1 auth, device binding, scope and trips', () => {
   let server;
   let baseUrl;
   let database;
-  before(async () => { database = createFakeDatabase(); server = createApp(config, { databaseService: database.service }).listen(0, '127.0.0.1'); await new Promise((resolve) => server.once('listening', resolve)); baseUrl = `http://127.0.0.1:${server.address().port}`; });
+  before(async () => { database = createFakeDatabase(); server = createApp(config, { databaseService: database.service, googlePlacesService: providerGoogle }).listen(0, '127.0.0.1'); await new Promise((resolve) => server.once('listening', resolve)); baseUrl = `http://127.0.0.1:${server.address().port}`; });
   after(async () => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));
 
   async function request(path, options = {}) { const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { 'content-type': 'application/json', ...(options.headers || {}) } }); const body = await response.json().catch(() => ({})); return { response, body }; }
@@ -166,5 +172,28 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.notEqual(firstToken, secondToken);
     assert.equal(verifiedSecond.user.email, email);
     await assert.rejects(() => authService.verifyMagicLink(firstToken, null, 'local_test'), /invalid_or_expired_token/);
+  });
+
+  it('exposes the scoped provider profile, needs and owned offer API', async () => {
+    const requested = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ email: 'api-provider@example.test', role: 'provider', preferredLocale: 'en' }) });
+    assert.equal(requested.response.status, 200, JSON.stringify(requested.body));
+    assert.ok(requested.body.diagnosticId);
+    const link = await request(`/api/auth/dev/magic-link/${requested.body.diagnosticId}`);
+    const token = new URL(link.body.verificationUrl).searchParams.get('token');
+    const verified = await request('/api/auth/magic-link/verify', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ token }) });
+    const auth = { authorization: `Bearer ${verified.body.session.accessToken}`, 'x-ultreia-scope': 'local_test' };
+    assert.equal((await request('/api/provider/profile', { headers: auth })).body.profile.status, 'pending');
+    assert.equal((await request('/api/provider/profile', { method: 'PUT', headers: auth, body: JSON.stringify({ businessName: 'API Camino Cafe', sourceLocale: 'en' }) })).body.profile.status, 'pending');
+    const location = await request('/api/provider/location', { method: 'PUT', headers: auth, body: JSON.stringify({ googlePlaceId: 'places/provider-test', sourceLocale: 'en' }) });
+    assert.equal(location.body.profile.status, 'active');
+    const needs = await request('/api/needs?locale=en', { headers: auth });
+    assert.equal(needs.response.status, 200, JSON.stringify(needs.body));
+    assert.equal(needs.body.items.length, 40);
+    const offer = await request('/api/provider/offers', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'API breakfast', description: 'Breakfast for pilgrims.', sourceLocale: 'en', needKeys: ['eat', 'breakfast'], price: { type: 'free' }, availability: { weekly: { monday: [{ open: '08:00', close: '12:00' }] }, exceptions: [] }, radiusMeters: 250, activate: true }) });
+    assert.equal(offer.response.status, 201);
+    assert.equal(offer.body.offer.status, 'active');
+    assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/pause`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'paused');
+    assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/resume`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'active');
+    assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/confirm`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'active');
   });
 });
