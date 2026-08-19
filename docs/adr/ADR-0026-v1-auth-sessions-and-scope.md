@@ -24,12 +24,12 @@ sein und Production-Daten strikt von lokal autorisierten Testdaten trennen.
 - `User` ist die gemeinsame Entität mit Rollenarray `pilgrim`, `provider` und
   `admin`; Profile bleiben in eigenen Collections. Rollen werden ausschließlich
   serverseitig geprüft.
-- `production` ist der Default. `local_test` wird nur von einem Nicht-
-  Production-Backend akzeptiert, wenn die Serverkonfiguration es erlaubt und
-  der technische Client den Scope beim Auth-Flow ausdrücklich anfordert.
-  Danach ist der Scope an die Session gebunden; ein Wechsel wird abgewiesen.
-  Der Scope wird nicht aus einer beliebigen Query- oder Body-Angabe
-  übernommen.
+- `production` ist der Default. `local_test` wird im Production-Backend nur
+  für serverseitig autorisierte Admin-/Test-Accounts akzeptiert, wenn die
+  Serverkonfiguration es erlaubt und der technische Client den Scope beim
+  Auth-Flow ausdrücklich anfordert. Danach ist der Scope an die Session
+  gebunden; ein Wechsel wird abgewiesen. Der Scope wird nicht aus einer
+  beliebigen Query- oder Body-Angabe übernommen.
 - Der lokale Mail-Provider ist eine technische Outbox-Diagnose. Production
   benötigt einen konfigurierten Transactional-Mail-Provider; Secrets werden
   ausschließlich aus der Runtime gelesen.

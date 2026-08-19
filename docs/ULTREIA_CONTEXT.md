@@ -777,11 +777,12 @@ konfigurierte Provider-Runtime meldet der Auth-Request explizit
 Die dauerhaften Entscheidungen stehen in
 [`docs/adr/ADR-0026-v1-auth-sessions-and-scope.md`](adr/ADR-0026-v1-auth-sessions-and-scope.md).
 
-Der lokale Testmodus ist ausschließlich bei einem Nicht-Production-Backend
-verfügbar und wird beim Magic-Link-Flow ausdrücklich über `X-Ultreia-Scope:
-local_test` angefordert. Production-Sessions bleiben auf `production`; ein
-Scope-Wechsel innerhalb einer Session wird abgewiesen. Magic-Link-URLs werden
-nur im lokalen technischen Diagnose-Outbox-Fluss verfügbar gemacht; in
-Production ist ein Mail-Provider erforderlich. Provider-Dashboard, Needs,
+Der technische Testmodus wird beim Magic-Link-Flow ausdrücklich über
+`X-Ultreia-Scope: local_test` angefordert und ist im Production-Backend nur
+für serverseitig autorisierte Admin-/Test-Accounts verfügbar. Production-
+Sessions bleiben auf `production`; ein Scope-Wechsel innerhalb einer Session
+wird abgewiesen. Magic-Link-URLs werden nur im lokalen technischen
+Diagnose-Outbox-Fluss verfügbar gemacht; in Production ist ein Mail-Provider
+erforderlich. Provider-Dashboard, Needs,
 Offers, Matching, Route, Navigation, Offline-Cache und Hero-/Frontend-Arbeit
 gehören ausdrücklich nicht zu diesem Foundation-Block.
