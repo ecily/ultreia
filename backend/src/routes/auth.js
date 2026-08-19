@@ -49,7 +49,10 @@ export function createAuthRouter(config, databaseService, authService, mailServi
       }
       if (config.runtimeMode === 'production') logEvent('info', 'magic_link_delivered', { channel: result.channel, upstreamStatus: result.upstreamStatus || null });
       return res.json({ ok: true, status: 'accepted', diagnosticId: result.diagnosticId || undefined });
-    } catch (error) { return authError(res, error); }
+    } catch (error) {
+      logEvent('error', 'magic_link_request_failed', { errorClass: error?.code || error?.name || 'unknown', error });
+      return authError(res, error);
+    }
   });
 
   router.get('/dev/magic-link/:diagnosticId', (req, res) => {
