@@ -16,8 +16,8 @@ Without a pilgrim identity, Ultreia cannot reliably persist selected needs, perm
 An authenticated PilgrimUser is required for the MVP. The account binds
 location and push consent, active Trip, active Needs and their drag-and-drop
 priority, push token, and OfferUserStates such as saved, dismissed and
-completed. Magic Link is the preferred login path; email/password remains a
-fallback and social login is later/optional.
+completed. Magic Link is the only V1 login path; password and social login are
+later extensions.
 
 Location and notification permissions are explained and requested shortly
 before the user consciously starts the Camino, not immediately on first app
@@ -101,3 +101,10 @@ Future backend, mobile, and frontend work must model pilgrim identity as a first
 Authentication and onboarding choices must preserve the strict separation between pilgrim users and provider users.
 
 Push and diagnostic implementation must be designed around explicit consent, language, selected needs, and dedupe state.
+
+## V1-Konsolidierung (2026-08-19)
+
+V1 registriert den Pilger verbindlich erst beim bewussten Start von „Camino
+starten“. Eine Passwortpflicht oder ein Passwort-Fallback gehört nicht zu V1.
+Die fachliche Account-/Device-, Trip- und Wiederherstellungsdefinition steht
+in `docs/ULTREIA_V1_PRODUCT_SPEC.md`.

@@ -310,3 +310,10 @@ Mobile implementation must prioritize the complete heartbeat, matching, push, de
 DE / EN / ES must be built into visible Mobile UX from the start.
 
 Camino Mode and Development/Test Mode must be considered from the beginning so field tests can verify the same pipeline that will later support the Camino Frances.
+
+## V1-Konsolidierung (2026-08-19)
+
+Die fachliche V1-Spezifikation ergänzt den mobilen MVP um Track/Historie,
+Export, persönliche Rückschau sowie Trust-/Bewertungs- und Meldeflüsse. Diese
+Ergänzungen ändern den ruhigen, reduzierten Pilger-Hauptfluss nicht. Ein
+öffentlicher Social Feed, Werbung und allgemeine Suche bleiben ausgeschlossen.

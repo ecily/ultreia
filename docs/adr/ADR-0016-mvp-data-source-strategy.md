@@ -396,3 +396,10 @@ Provider onboarding can improve data later, but does not block the MVP.
 Pre-filled provider entries need an early claim, correction, and remove / opt-out request path without implying provider confirmation.
 
 Test data must be deliberately separated from real Camino data from the beginning.
+
+## V1-Konsolidierung (2026-08-19)
+
+Provider-Self-Service ist fachlich Bestandteil von V1. Die in dieser ADR als
+spätere Verbesserung beschriebene Providerpflege bleibt als Erweiterungs- und
+Betriebsweg relevant, darf aber den V1-Self-Service nicht mehr ersetzen.
+Controlled Seed ist der operative Start, kein fachliches V1-Nichtziel.

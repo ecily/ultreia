@@ -118,9 +118,9 @@ Die Implementierung braucht getrennte Zustände für Match, Notification,
 OfferUserState und Trip. Radius kann früh Kandidaten liefern, darf aber keine
 Gehbarkeit, Richtung, Availability oder Userentscheidung ersetzen.
 
-Provider-Self-Service kann später folgen. Die frühe MVP-Datenquelle bleibt
-manuell kuratiert durch Andreas. Payment und Premium bleiben vorbereitet, aber
-außerhalb des MVP.
+Provider-Self-Service ist Bestandteil von V1; die frühe MVP-Datenquelle kann
+operativ weiterhin kontrolliert durch Andreas geseedet werden. Payment und
+Premium bleiben vorbereitet, aber außerhalb des MVP.
 
 ## Non-Goals
 

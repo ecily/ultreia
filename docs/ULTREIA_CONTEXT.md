@@ -728,5 +728,23 @@ finally { Remove-Item Env:PUSH_TEST_KEY -ErrorAction SilentlyContinue; [Runtime.
 ```
 
 Das Technikpanel bietet keinen lokalen Server-Push-Button mehr. Es weist
-stattdessen auf den externen Operator-Testweg hin. Dadurch kann die
-Production-APK niemals den geheim authentifizierten Test selbst auslösen.
+stattdessen auf den externen Operator-Testweg hin. Der Production-Button ist
+entfernt; die APK kann den Operator-Test nicht selbst auslösen.
+
+## Konsolidierter V1-Produktstand (2026-08-19)
+
+Die fachliche Produktdefinition für die erste tatsächlich nutzbare Ultreia-
+Version ist jetzt zentral in
+[`docs/ULTREIA_V1_PRODUCT_SPEC.md`](ULTREIA_V1_PRODUCT_SPEC.md) dokumentiert.
+Diese Datei ist die fachliche Source of Truth für Pilgerverhalten,
+PilgrimUser/Device, Magic-Link-Onboarding, Trip, Needs, Provider-Self-Service,
+POI/Service/Offer, route-first Matching, Push-Policy, Navigation, Offline,
+Track/Historie, Trust, Datenschutz, DE/EN/ES, lokale Beta, Camino-Beta und
+V1-Definition-of-Done.
+
+`ULTREIA_CONTEXT.md` bleibt auf technischem Projektstand, Architektur,
+Infrastruktur, Nachweisen, Risiken und offenen technischen Arbeitsblöcken.
+Ältere ADRs mit früheren Produktannahmen sind in der Spezifikation bzw. direkt
+an den betroffenen ADRs als übersteuert markiert. In diesem Dokumentationsblock
+wurde keine fachliche Funktion implementiert; der nächste Modus ist die
+schrittweise Planung der V1-Implementierung gegen diese Spezifikation.

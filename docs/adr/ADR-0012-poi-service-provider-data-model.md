@@ -279,3 +279,12 @@ Route context belongs primarily to POIs.
 Services must consume NeedCategories from `shared/taxonomy/`.
 
 Provider claiming can be added later without blocking the MVP data basis.
+
+## V1-Konsolidierung (2026-08-19)
+
+Die fachliche V1-Spezifikation erweitert diese Grundlage: Provider-Self-Service
+ist in V1 funktionsfähig, auch wenn der operative Start kontrolliert mit Seed-
+Daten erfolgt. Die Trennung von POI, Service, ProviderAccount,
+ProviderProfile, Claim und Offer bleibt unverändert; die frühere Aussage
+„claiming later“ beschreibt nur die historische Reihenfolge und nicht mehr den
+V1-Funktionsumfang.

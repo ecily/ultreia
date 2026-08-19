@@ -416,4 +416,13 @@ Future Provider features must distinguish early claim / remove requests from ver
 
 Provider-maintained content can improve trust and freshness, but must never bypass Matching, Notification Policy, cooldowns, DataScope, or route context.
 
+## V1-Konsolidierung (2026-08-19)
+
+Der Titel und die historische Einordnung „later“ werden für den V1-Umfang
+übersteuert. V1 verlangt einen funktionsfähigen Provider-Self-Service mit
+E-Mail-Verifikation, Google-validiertem Standort und Offer-Pflichtdaten. Diese
+ADR bleibt für Verifikation, Rollen, Rechte, Abuse-Schutz, Audit und spätere
+Ausbaustufen maßgeblich. Controlled Seed bleibt der operative Start, nicht der
+Ersatz für die Funktion.
+
 Provider-facing UX and public communication must be multilingual and cautious, without guarantees of reach, revenue, visibility, push delivery, availability, prices, opening hours, or medical safety.

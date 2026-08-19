@@ -160,3 +160,13 @@ Ultreia must design for a wide route footprint from the beginning while keeping 
 The main MVP challenge is not covering every POI. It is making the full Camino Frances promise credible with selective, useful, clearly labeled content and quiet route-aware prompts.
 
 Next architecture work should define flexible data models for route, stage, place, need, prompt, content source, and prompt visibility before MongoDB schemas are fixed.
+
+## V1-Konsolidierung (2026-08-19)
+
+Die frühere Arbeitsliste und die dort genannten MVP-Nichtziele sind für den
+fachlichen V1-Umfang durch `docs/ULTREIA_V1_PRODUCT_SPEC.md` übersteuert. Der
+vollständige Camino Francés bleibt der geografische Rahmen. V1 umfasst nun
+auch die fachlich notwendige Provider-Self-Service-Funktion, Trust und
+Bewertungen, Trip-Historie/Export, Offline-Grundfunktionen sowie einen
+funktionsfähigen Admin-/Diagnoseumfang. Booking, Payment, Social Feed,
+allgemeine Suche und Garantien bleiben ausgeschlossen.
