@@ -849,6 +849,15 @@ Speichern erneut geladen, GeoJSON verwendet `[longitude, latitude]`, und eine
 Marker-Korrektur über 25 m wird serverseitig abgewiesen. Die genaue externe
 Einrichtung steht in `docs/ULTREIA_GOOGLE_PLACES_OPERATOR.md`.
 
+Der Block wurde mit Commit `9d0b601` nach `origin/main` gepusht und auf
+DigitalOcean sowie dem statischen Web deployt. Live-Smoke: `/api/health` 200,
+`/api/ready` 200, `/api/needs?locale=en` 200 mit 40 aktiven V1-Needs,
+`/api/provider/profile` ohne Session 401 und `/provider/` 200 mit der neuen
+Provider-Oberfläche. Die aktuelle DO-Runtime enthält noch keinen
+`GOOGLE_PLACES_API_KEY`; deshalb ist der reale Login→Google-Auswahl→Offer-
+Smoke bis zur manuellen Google-Cloud-Einrichtung offen. Es wurden keine
+Production-Testdaten angelegt.
+
 ## Repeated-Provider-Magic-Link (2026-08-19)
 
 Der bestehende Provider-Pfad erzeugt bei jedem Request einen neuen gehashten
