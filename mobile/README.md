@@ -20,9 +20,9 @@ sets `ULTREIA_MODE=production` and requires HTTPS.
 
 The Android package is `com.ecily.ultreia`. No StepsMatch Firebase or Google
 configuration is used. The native release APK contains the production JS
-bundle and does not require Expo Go, Metro or a browser. Expo/Firebase
-credentials are required separately before push-token retrieval can work in a
-release build. For a local standalone Android build, place the own
+bundle and does not require Expo Go, Metro or a browser. The own Expo/Firebase
+configuration is provisioned outside Git and has been verified with the
+standalone release APK. For a local standalone Android build, place the own
 `google-services.json` in this directory; it is git-ignored and must never be
 copied from StepsMatch. EAS can provide the corresponding own Firebase
 credentials through its protected project configuration.
@@ -36,5 +36,7 @@ position with a 25 m radius. This gives the hardware test a reproducible
 The first screen exposes explicit actions for device registration, notification
 permission, foreground/background location, current location, heartbeat, local
 notification, push-token registration, background location and geofence ENTER.
-Each action reports a visible result. Background tasks are registered once at
-module load and use only the Ultreia API.
+Each action reports a visible result. The protected Production server-push test
+is intentionally not an APK action; it is operator-only through the root
+command `npm run push:test -- --device <allowlisted-device-id>`. Background
+tasks are registered once at module load and use only the Ultreia API.

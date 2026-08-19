@@ -23,6 +23,6 @@ Die aktuelle DigitalOcean-Preisdokumentation führt `apps-s-1vcpu-0.5gb` mit
 512 MiB, 1 shared CPU, 5 USD/Monat und ohne manuelles oder automatisches
 Scaling. Die Repo-Spezifikation verwendet diese Größe.
 
-Der externe API-Aufruf konnte in diesem Lauf nicht erfolgen, weil
-`DIGITALOCEAN_ACCESS_TOKEN` in der Codex-Shell nicht vorhanden war. Es wurde
-deshalb keine kostenpflichtige Ressource erstellt.
+Die App wurde mit genau dieser Größen- und Instance-Grenze provisioniert. Die
+Kostenentscheidung bleibt auf eine Instance ohne Autoscaling und ohne Managed
+Database begrenzt; Änderungen benötigen eine neue bewusste Prüfung.

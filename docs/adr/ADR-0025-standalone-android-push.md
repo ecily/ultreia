@@ -38,6 +38,7 @@ Kontext sind erledigt: Ultreia nutzt den eigenen Account `ecily`, das eigene
 Projekt `@ecily/ultreia`, Firebase `ultreia-37602` und FCM v1 für
 `com.ecily.ultreia`. Die lokale/native Google-Services-Datei bleibt ignoriert;
 EAS/DO-Credentials bleiben außerhalb des Repositories. Der Production-Build
-ist mit FCM erfolgreich gebaut, der Server-Push-Test ist live aktiviert und
-geschützt. Offen bleibt ausschließlich der physische Android-Hardwarebeweis
-für Token, tatsächliche Zustellung, Background Location und Geofence-ENTER.
+ist mit FCM erfolgreich gebaut, das Testgerät hat Permission-, Token-,
+Heartbeat-, lokale Notification- und Geofence-Registrierungsnachweise geliefert.
+Offen bleiben die tatsächliche Server-Push-Zustellung, ein Geofence-ENTER nach
+physischer Bewegung und die vollständige Feldbestätigung.

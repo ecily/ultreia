@@ -1,8 +1,13 @@
 # Ultreia Shared Taxonomy
 
-This directory contains shared static product configuration for Ultreia.
+This directory contains the current shared technical taxonomy baseline for
+Ultreia.
 
-The files are intended for later use by backend, mobile, and frontend. They are not a MongoDB schema and do not define persistence or runtime environment values.
+The files are consumed centrally by backend, mobile, and frontend. They are not
+a MongoDB schema and do not define persistence or runtime environment values.
+The broader fachliche V1-Need-Definition is in
+`docs/ULTREIA_V1_PRODUCT_SPEC.md`; the final catalog remains centrally
+admin-managed and must not be duplicated in clients.
 
 ## Files
 
