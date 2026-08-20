@@ -39,6 +39,7 @@ export function createLocationRouter(config, databaseService, authMiddleware) {
           { deviceId },
           {
             $set: {
+              scope: scopeResult.scope,
               lastLocation: point,
               lastLocationAccuracy: location.accuracy,
               lastLocationSpeed: location.speed,

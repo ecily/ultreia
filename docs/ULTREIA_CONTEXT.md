@@ -1020,3 +1020,26 @@ Admin-Magic-Link-Request lieferte HTTP 200; der Backend-Delivery-Log bestaetigt
 den Microsoft-Graph-`sendMail`-Status 202. Token-Verify, Session-Cookie und
 Redirect sind erst nach dem Oeffnen des Links im Postfach ein interaktiv
 beobachtbarer Schritt.
+
+## Implementierungs-Audit und Scope-Konsistenz (2026-08-20)
+
+Der aktuelle V1-Stand wurde ueber Backend, Web-Provider, Mobile-Technical-App,
+Mongo-Indizes, Auth-/Scope-Logik, Places-Integration, CORS und Deployment-
+Konfiguration geprueft. Die bestehenden Provider-, Places- und Auth-Smokes
+sowie Backend-, Frontend- und Mobile-Checks waren gruen; veraltete fruehere
+Audittexte ohne Provider-/Auth-Stand gelten nicht als aktueller Quellstand.
+
+Behoben wurden zwei belastbare Scope-/Datenfehler: Device-Dokumente erhalten
+bei Registrierung, Push-Registrierung und Heartbeat jetzt den autorisierten
+Request-/Session-Scope statt pauschal `production`. Dadurch bleiben technische
+local_test-Daten auch bei nachgelagerten Device-Reads korrekt getrennt. Die
+Account-Loeschung markiert jetzt Providerprofile in allen Scopes statt nur des
+ersten gefundenen Profils als geloescht. Der Mobile-Client klassifiziert HTTP
+503 nun korrekt als `backend_not_ready`.
+
+Regressionstests decken die Scope-Persistenz technischer Writes, die
+mehrfachen Providerprofile bei Account-Loeschung, One-Time-Magic-Links,
+Provider-Ownership, Places-Scope-Filter, CORS-Preflight, race-sichere lange
+Autocomplete-Eingaben und Mobile-Typecheck/Lint ab. Die fremden
+Hero-/Landingpage-Dateien bleiben bewusst ausserhalb dieses Audits und werden
+nicht staged.

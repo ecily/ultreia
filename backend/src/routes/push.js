@@ -67,7 +67,7 @@ export function createPushRouter(config, databaseService) {
       const now = new Date();
       await db.collection('devices').updateOne(
         { deviceId },
-        { $set: { platform, lastSeenAt: now }, $setOnInsert: { deviceId, createdAt: now, scope: 'production' } },
+        { $set: { platform, scope: scopeResult.scope, lastSeenAt: now }, $setOnInsert: { deviceId, createdAt: now } },
         { upsert: true },
       );
       await db.collection('pushRegistrations').updateMany(

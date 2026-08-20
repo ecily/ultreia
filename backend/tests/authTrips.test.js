@@ -74,8 +74,27 @@ describe('V1 auth, device binding, scope and trips', () => {
     const me = await request('/api/auth/me', { headers: { authorization: `Bearer ${session.session.accessToken}`, 'x-ultreia-scope': 'local_test' } });
     assert.equal(me.response.status, 200);
     assert.equal(me.body.scope, 'local_test');
-    const device = await request('/api/devices/register', { method: 'POST', headers: { authorization: `Bearer ${session.session.accessToken}` }, body: JSON.stringify({ deviceId: 'ultreia-test-device-1', platform: 'android' }) });
+    const device = await request('/api/devices/register', { method: 'POST', headers: { authorization: `Bearer ${session.session.accessToken}`, 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ deviceId: 'ultreia-test-device-1', platform: 'android' }) });
     assert.equal(device.response.status, 200);
+    assert.equal((await database.db.collection('devices').findOne({ deviceId: 'ultreia-test-device-1' })).scope, 'local_test');
+  });
+
+  it('keeps technical device writes in the authenticated scope', async () => {
+    const session = await login('scoped-device@example.test', 'ultreia-test-device-scope');
+    const auth = { authorization: `Bearer ${session.session.accessToken}`, 'x-ultreia-scope': 'local_test' };
+    const heartbeat = await request('/api/location/heartbeat', {
+      method: 'POST', headers: auth,
+      body: JSON.stringify({ deviceId: 'ultreia-test-device-scope', lat: 47.1, lng: 15.6, accuracy: 12 }),
+    });
+    assert.equal(heartbeat.response.status, 200);
+    assert.equal((await database.db.collection('devices').findOne({ deviceId: 'ultreia-test-device-scope' })).scope, 'local_test');
+
+    const push = await request('/api/push/register', {
+      method: 'POST', headers: auth,
+      body: JSON.stringify({ deviceId: 'ultreia-test-device-scope', token: 'ExpoPushToken[scoped-device-token]' }),
+    });
+    assert.equal(push.response.status, 200);
+    assert.equal((await database.db.collection('pushRegistrations').findOne({ deviceId: 'ultreia-test-device-scope' })).scope, 'local_test');
   });
 
   it('enforces role and scope guards and recovers one current trip on a second device', async () => {
@@ -205,6 +224,18 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.notEqual(firstToken, secondToken);
     assert.equal(verifiedSecond.user.email, email);
     await assert.rejects(() => authService.verifyMagicLink(firstToken, null, 'local_test'), /invalid_or_expired_token/);
+  });
+
+  it('deletes provider profiles in every scope when an account is deleted', async () => {
+    const isolated = createFakeDatabase();
+    const service = createAuthService(config, isolated.service, { sendMagicLink: async () => ({ delivered: false, channel: 'dev' }) });
+    const userId = new ObjectId();
+    await isolated.db.collection('users').insertOne({ _id: userId, emailNormalized: 'delete-all-scopes@example.test', status: 'active' });
+    await isolated.db.collection('providerProfiles').insertOne({ userId, scope: 'production', status: 'active' });
+    await isolated.db.collection('providerProfiles').insertOne({ userId, scope: 'local_test', status: 'active' });
+    await service.accountDelete(userId);
+    const profiles = await isolated.db.collection('providerProfiles').find({ userId }).toArray();
+    assert.deepEqual(profiles.map((profile) => profile.status).sort(), ['deleted', 'deleted']);
   });
 
   it('exposes the scoped provider profile, needs and owned offer API', async () => {

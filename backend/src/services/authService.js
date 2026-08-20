@@ -149,7 +149,7 @@ export function createAuthService(config, databaseService, mailService) {
       databaseService.getDb().collection('sessions').updateMany({ userId, revokedAt: null }, { $set: { revokedAt: timestamp } }),
       databaseService.getDb().collection('devices').updateMany({ userId }, { $set: { userId: null, bindingStatus: 'logged_out', updatedAt: timestamp } }),
       databaseService.getDb().collection('pilgrimProfiles').updateOne({ userId }, { $set: { status: 'deleted', updatedAt: timestamp } }),
-      databaseService.getDb().collection('providerProfiles').updateOne({ userId }, { $set: { status: 'deleted', updatedAt: timestamp } }),
+      databaseService.getDb().collection('providerProfiles').updateMany({ userId }, { $set: { status: 'deleted', updatedAt: timestamp } }),
     ]);
   }
 

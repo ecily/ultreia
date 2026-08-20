@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { badRequest, databaseRequired, readDeviceId, readString } from '../lib/validation.js';
 import { logEvent } from '../lib/logger.js';
+import { scopeFromRequest } from '../lib/scope.js';
 
 function deviceFields(body) {
   return {
@@ -18,6 +19,8 @@ export function createDeviceRouter(config, databaseService, authMiddleware) {
       const deviceId = readDeviceId(req.body?.deviceId);
       const db = databaseRequired(res, databaseService);
       if (!db) return;
+      const scopeResult = scopeFromRequest(req, config);
+      if (!scopeResult.ok) return res.status(403).json({ ok: false, status: scopeResult.status });
 
       const now = new Date();
       const fields = deviceFields(req.body || {});
@@ -26,7 +29,7 @@ export function createDeviceRouter(config, databaseService, authMiddleware) {
       if (existing?.userId && String(existing.userId) !== String(req.user._id)) return res.status(409).json({ ok: false, status: 'device_bound_to_other_user' });
       await db.collection('devices').updateOne(
         { deviceId },
-        { $set: { ...fields, ...binding, lastSeenAt: now }, $setOnInsert: { createdAt: now, scope: 'production' } },
+        { $set: { ...fields, ...binding, scope: scopeResult.scope, lastSeenAt: now }, $setOnInsert: { createdAt: now } },
         { upsert: true },
       );
 

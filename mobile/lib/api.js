@@ -38,7 +38,7 @@ export async function apiRequest(path, options = {}) {
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
       const apiError = new Error(body.error || body.status || `HTTP ${response.status}`);
-      apiError.code = response.status >= 500 ? 'http_5xx' : response.status === 503 ? 'backend_not_ready' : 'http_4xx';
+      apiError.code = response.status === 503 ? 'backend_not_ready' : response.status >= 500 ? 'http_5xx' : 'http_4xx';
       throw apiError;
     }
   return body;
