@@ -1060,3 +1060,13 @@ Admin-Kontext und ein Admin-Login keinen Provider-Kontext vortaeuscht.
 `GET /api/auth/me` liefert die zentrale Useridentitaet, Rollen sowie aktiven
 Rollen- und Scope-Kontext. Ein neuer Magic-Link-Verify ersetzt die bestehenden
 Web-Cookies durch die neue Session.
+
+Der neue Multi-Role-Stand wurde mit dem realen autorisierten Andreas-Account
+gegen Production geprüft. Provider-Request A, Admin-Request B und der erneute
+Provider-Request C lieferten jeweils HTTP 200. Die zugehörigen geschützten
+Deployment-Logs enthalten drei `magic_link_delivered`-Ereignisse mit jeweils
+Microsoft-Graph-`sendMail`-Status 202 und keine Delivery-Fehler. Damit sind
+beide Rollen serverseitig zugelassen und wiederholbarer Versand ist belegt;
+die drei One-Time-Links selbst sowie Tokens werden nicht ausgegeben. Das
+Öffnen und die anschließende Anzeige von `/provider/` bzw. `/admin/` bleibt
+der externe Browser-Schritt durch Andreas.
