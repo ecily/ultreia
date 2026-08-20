@@ -43,6 +43,9 @@ describe('provider offer UI helpers', () => {
 
   it('keeps the editor responsive and translates the new workflow', () => {
     assert.match(styleSource, /provider-offer-editor-layout/);
+    assert.match(styleSource, /web-auth-card:has\(\.provider-panel\).*1100px/);
+    assert.match(styleSource, /overflow-wrap: normal; word-break: normal/);
+    assert.match(styleSource, /@media \(max-width: 900px\).*provider-offer-card.*grid-template-columns: minmax\(0, 1fr\)/);
     assert.match(styleSource, /@media \(max-width: 760px\).*grid-template-columns: 1fr/s);
     for (const key of ['offerIntro', 'priceFree', 'availabilityIntro', 'radiusHelp', 'saveChanges']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
     assert.match(authSource, /data-offer-form novalidate/);
@@ -53,6 +56,7 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /providerOffersOverview/);
     assert.match(authSource, /function offerTodaySummary\(offer\)/);
     assert.match(authSource, /provider-offer-status status-\$\{escapeProviderHtml\(status\)\}/);
+    assert.match(authSource, /class="web-auth-button" data-offer-action="edit"/);
     assert.match(authSource, /<details class="provider-offer-diagnostics">/);
     assert.match(authSource, /providerMoney\(price\.amount, price\.currency\)/);
     assert.match(authSource, /error\.status === 'access_not_available'/);

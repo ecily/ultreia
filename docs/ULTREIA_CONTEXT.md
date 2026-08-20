@@ -1091,3 +1091,19 @@ Aktionen. Die lokale Technikdiagnose ist ein separates aufklappbares Detail;
 der Produktionsbereich zeigt sie nicht. Eine leere Liste bietet direkt das
 Anlegen des ersten Offers an. Die Darstellung bleibt ohne Zeitzonen-Engine
 und nutzt fuer die heutige Kurzinfo die lokale Browserzeit.
+
+## Responsive Provider-Offer-Cards (2026-08-20)
+
+Der reale Browserbefund zeigte zeichenweise Umbrueche in der Offer-Card. Die
+Ursache war die allgemeine schmale `520px`-Auth-Karte in Kombination mit
+einer reservierten Aktionsspalte; ausserdem erbte der Inhalt
+`overflow-wrap:anywhere`. Provider-Seiten verwenden jetzt bis zu `1100px`,
+die Card nutzt auf Desktop eine flexible Inhalts- und Aktionsaufteilung und
+wechselt ab Tablet in eine Einspaltenstruktur. Normale Needs und Titel werden
+nicht mehr zeichenweise gebrochen; nur normale Wortgrenzen beziehungsweise
+lange untrennbare Werte duerfen umbrechen.
+
+Die Card-Hierarchie bleibt Titel/Status, kompakte Needs, Preis/Heute/Radius,
+sekundaere Bestaetigungsdaten und statusgerechte Aktionen. Bearbeiten ist die
+primaere Aktion, weitere Aktionen sind dezenter. Der Fix ist rein responsives
+Frontend-Layout und fuehrt keine neue Produktfunktion ein.

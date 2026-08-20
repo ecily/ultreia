@@ -250,7 +250,7 @@ function offerTodaySummary(offer) {
 }
 
 function providerOfferActions(offer) {
-  const actions = [`<button class="web-auth-button secondary" data-offer-action="edit" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('editOffer')}</button>`];
+  const actions = [`<button class="web-auth-button" data-offer-action="edit" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('editOffer')}</button>`];
   if (offer.status === 'active') actions.push(`<button class="web-auth-button secondary" data-offer-action="pause" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('pause')}</button>`);
   if (offer.status === 'paused') actions.push(`<button class="web-auth-button secondary" data-offer-action="resume" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('resume')}</button>`);
   if (offer.status === 'expired') actions.push(`<button class="web-auth-button secondary" data-offer-action="confirm" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('confirm')}</button>`);
