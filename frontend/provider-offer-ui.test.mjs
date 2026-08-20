@@ -51,6 +51,11 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /if \(response\.status === 401[\s\S]*?webRefresh\(\)/);
     assert.match(authSource, /catch \{ window\.location\.replace\(`\/\$\{role\}\/login\//);
     assert.match(authSource, /providerOffersOverview/);
+    assert.match(authSource, /function offerTodaySummary\(offer\)/);
+    assert.match(authSource, /provider-offer-status status-\$\{escapeProviderHtml\(status\)\}/);
+    assert.match(authSource, /<details class="provider-offer-diagnostics">/);
+    assert.match(authSource, /providerMoney\(price\.amount, price\.currency\)/);
+    assert.match(authSource, /error\.status === 'access_not_available'/);
     assert.match(authSource, /lastConfirmedAt/);
     assert.match(authSource, /confirmationDueAt/);
     assert.match(authSource, /offer\.status === 'active'/);

@@ -1070,3 +1070,24 @@ beide Rollen serverseitig zugelassen und wiederholbarer Versand ist belegt;
 die drei One-Time-Links selbst sowie Tokens werden nicht ausgegeben. Das
 Öffnen und die anschließende Anzeige von `/provider/` bzw. `/admin/` bleibt
 der externe Browser-Schritt durch Andreas.
+
+## Admin-Browser-Smoke und Offer-UX (2026-08-20)
+
+Der aktuelle Production-Admin-Request fuer den provisionierten Andreas-Account
+sendet aus dem Web-Login explizit `role=admin` und liefert HTTP 200 mit dem
+neutralen Accepted-Status. Der zugehoerige Delivery-Log bestaetigt erneut
+Microsoft-Graph `sendMail` HTTP 202 ohne Delivery-Fehler. Die fruehere Anzeige
+des generischen Frontend-Fehlers war damit kein Backend- oder Graph-Fehler;
+der Web-Client hatte fuer fachliche Fehler nur einen pauschalen Fallback und
+konnte einen veralteten statischen Clientstand aus dem Cache verwenden. Der
+Client setzt den Submit waehrend des Requests auf busy, mappt bekannte
+Berechtigungs-/Mailfehler freundlich und zeigt technische HTTP-/Statusdaten
+nur im autorisierten `local_test`.
+
+Die Provider-Offer-Uebersicht ist als Kartenansicht umgesetzt: Status-Badge,
+kompakte Needs, lokalisierte Waehrungsformatierung, heutige Verfuegbarkeit,
+Radius sowie letzte/naechste Bestaetigung stehen vor den statusgerechten
+Aktionen. Die lokale Technikdiagnose ist ein separates aufklappbares Detail;
+der Produktionsbereich zeigt sie nicht. Eine leere Liste bietet direkt das
+Anlegen des ersten Offers an. Die Darstellung bleibt ohne Zeitzonen-Engine
+und nutzt fuer die heutige Kurzinfo die lokale Browserzeit.

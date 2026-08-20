@@ -27,7 +27,7 @@
 .provider-map-preview small { color: #3c5969; }
 .provider-location-help { margin: 0; color: #617184; font-size: .84rem; }
 .provider-offer-list { display: grid; gap: 12px; margin: 18px 0; }
-.provider-offer-card { display: flex; justify-content: space-between; gap: 14px; padding: 14px; border: 1px solid #d5dde2; border-radius: 10px; background: #fff; }
+.provider-offer-card { display: flex; justify-content: space-between; gap: 18px; padding: 16px; border: 1px solid #d5dde2; border-radius: 12px; background: #fff; box-shadow: 0 4px 14px rgba(5, 40, 74, .04); }
 .provider-offer-card p { margin: 6px 0; color: #53677a; }
 .provider-offer-card small { color: #617184; }
 .provider-offer-card .scope-badge { margin-left: 8px; }
@@ -110,9 +110,20 @@
 .provider-offer-counts strong { margin-left: 4px; color: #05284a; }
 .provider-offer-card-main { min-width: 0; flex: 1; }
 .provider-offer-card-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.provider-offer-status { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-size: .76rem; font-weight: 800; }
+.provider-offer-status.status-active { background: #e6f4ea; color: #24613b; }
+.provider-offer-status.status-paused, .provider-offer-status.status-draft { background: #fff4d6; color: #805c16; }
+.provider-offer-status.status-expired, .provider-offer-status.status-blocked { background: #fff0ed; color: #8c3325; }
+.provider-offer-needs { max-width: 75ch; }
+.provider-offer-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; margin-top: 12px; color: #53677a; font-size: .86rem; }
+.provider-offer-meta strong { color: #05284a; font-size: 1.02rem; }
+.provider-offer-meta span + span { padding-left: 16px; border-left: 1px solid #d5dde2; }
 .provider-offer-dates { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0 0; }
 .provider-offer-dates div { display: grid; gap: 2px; }
 .provider-offer-dates dt { color: #617184; font-size: .76rem; }
 .provider-offer-dates dd { margin: 0; color: #34465a; font-size: .82rem; }
-.provider-offer-diagnostics { color: #617184; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .75rem; }
-.provider-empty-offers { margin: 0; color: #617184; }
+.provider-offer-diagnostics { color: #617184; font-size: .75rem; }
+.provider-offer-diagnostics summary { width: fit-content; cursor: pointer; font-weight: 700; }
+.provider-offer-diagnostics small { display: block; margin-top: 6px; color: #617184; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.provider-empty-offers { display: grid; justify-items: start; gap: 8px; margin: 0; color: #617184; }
+@media (max-width: 620px) { .provider-offer-meta span + span { padding-left: 0; border-left: 0; } }

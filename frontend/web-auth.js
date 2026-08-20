@@ -158,16 +158,25 @@ function renderLogin(role) {
   webShell(title, `<form class="web-auth-form" data-auth-form><label for="auth-email">${tx('email')}</label><input id="auth-email" name="email" type="email" autocomplete="email" required><button class="web-auth-button" type="submit">${tx('send')}</button>${isAdmin ? `<label class="web-scope-option"><input type="checkbox" name="localTest"> <span>${tx('localTest')}</span><small>${tx('localTestHint')}</small></label>` : ''}</form><p class="web-auth-message" data-auth-message aria-live="polite"></p><p class="web-auth-back"><a href="/">${tx('back')}</a></p>`);
   document.querySelector('[data-auth-form]')?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const formElement = event.currentTarget;
     const form = new FormData(event.currentTarget);
     const scope = isAdmin && form.get('localTest') === 'on' ? 'local_test' : 'production';
     window.sessionStorage.setItem(WEB_SCOPE_KEY, scope);
     const message = document.querySelector('[data-auth-message]');
+    const submitButton = formElement.querySelector('button[type="submit"]');
     message.textContent = '';
+    submitButton?.setAttribute('aria-busy', 'true');
+    if (submitButton) submitButton.disabled = true;
     try {
       const result = await webApi('/auth/magic-link/request', { method: 'POST', body: JSON.stringify({ email: form.get('email'), role, preferredLocale: currentWebLanguage() }) }, false);
       message.textContent = result.diagnosticId ? `${tx('sent')} ${result.diagnosticId}` : tx('sent');
     } catch (error) {
-      message.textContent = error.status === 'mail_provider_not_configured' ? tx('mailMissing') : error.status === 'mail_provider_failed' ? tx('mailFailed') : tx('requested');
+      const friendly = error.status === 'access_not_available' || error.status === 'role_access_not_granted' ? tx('denied') : error.status === 'mail_provider_not_configured' ? tx('mailMissing') : error.status === 'mail_provider_failed' ? tx('mailFailed') : tx('requested');
+      const diagnosticText = scope === 'local_test' && error.httpStatus ? ` (HTTP ${error.httpStatus} · ${error.status || 'request_failed'})` : '';
+      message.textContent = `${friendly}${diagnosticText}`;
+    } finally {
+      submitButton?.removeAttribute('aria-busy');
+      if (submitButton) submitButton.disabled = false;
     }
   });
 }
@@ -198,22 +207,54 @@ function providerDate(value) {
   return Number.isNaN(date.getTime()) ? tx('notAvailable') : new Intl.DateTimeFormat(currentWebLanguage(), { dateStyle: 'medium' }).format(date);
 }
 
+const offerUxText = {
+  de: { openNow: 'Jetzt geoeffnet', today: 'Heute', closedToday: 'Heute geschlossen', moreTimes: 'Weitere Zeiten', moreNeeds: 'weitere' },
+  en: { openNow: 'Open now', today: 'Today', closedToday: 'Closed today', moreTimes: 'More times', moreNeeds: 'more' },
+  es: { openNow: 'Abierto ahora', today: 'Hoy', closedToday: 'Cerrado hoy', moreTimes: 'Mas horarios', moreNeeds: 'mas' },
+};
+
+function ot(key) { return offerUxText[currentWebLanguage()]?.[key] || offerUxText.en[key] || key; }
+
+function providerMoney(value, currency) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return String(value ?? '—');
+  try { return new Intl.NumberFormat(currentWebLanguage(), { style: 'currency', currency: String(currency || 'EUR').toUpperCase() }).format(amount); } catch { return `${amount} ${currency || 'EUR'}`; }
+}
+
 function providerPriceLabel(price) {
   if (!price) return tx('notAvailable');
-  const currency = escapeProviderHtml(price.currency || 'EUR');
   if (price.type === 'free') return pt('priceFree');
   if (price.type === 'donativo') return pt('priceDonativo');
   if (price.type === 'on_request') return pt('priceOnRequest');
-  if (price.type === 'range') return `${escapeProviderHtml(price.min ?? '—')}–${escapeProviderHtml(price.max ?? '—')} ${currency}`;
-  if (price.type === 'from') return `${pt('priceFrom')} ${escapeProviderHtml(price.amount ?? '—')} ${currency}`;
-  return `${escapeProviderHtml(price.amount ?? '—')} ${currency}`;
+  if (price.type === 'range') return `${providerMoney(price.min, price.currency)}–${providerMoney(price.max, price.currency)}`;
+  if (price.type === 'from') return `${pt('priceFrom')} ${providerMoney(price.amount, price.currency)}`;
+  return providerMoney(price.amount, price.currency);
+}
+
+function offerTodaySummary(offer) {
+  const dayNames = ['sunday', ...providerDays];
+  const today = dayNames[new Date().getDay()];
+  const windows = offer?.availability?.weekly?.[today] || offer?.openingHours?.[today] || [];
+  if (!windows.length) return ot('closedToday');
+  const now = new Date();
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const isOpen = windows.some((window) => {
+    const [openHour, openMinute] = String(window.open).split(':').map(Number);
+    const [closeHour, closeMinute] = String(window.close).split(':').map(Number);
+    const open = openHour * 60 + openMinute;
+    const close = closeHour * 60 + closeMinute;
+    return Number.isFinite(open) && Number.isFinite(close) && minutes >= open && minutes < close;
+  });
+  const times = windows.map((window) => `${window.open}–${window.close}`).join(', ');
+  return `${isOpen ? ot('openNow') : ot('today')} · ${times}`;
 }
 
 function providerOfferActions(offer) {
   const actions = [`<button class="web-auth-button secondary" data-offer-action="edit" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('editOffer')}</button>`];
   if (offer.status === 'active') actions.push(`<button class="web-auth-button secondary" data-offer-action="pause" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('pause')}</button>`);
-  if (['paused', 'expired'].includes(offer.status)) actions.push(`<button class="web-auth-button secondary" data-offer-action="resume" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('resume')}</button>`);
-  if (['active', 'paused', 'expired'].includes(offer.status)) actions.push(`<button class="web-auth-button secondary" data-offer-action="confirm" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('confirm')}</button>`);
+  if (offer.status === 'paused') actions.push(`<button class="web-auth-button secondary" data-offer-action="resume" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('resume')}</button>`);
+  if (offer.status === 'expired') actions.push(`<button class="web-auth-button secondary" data-offer-action="confirm" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('confirm')}</button>`);
+  if (offer.status === 'active') actions.push(`<button class="web-auth-button secondary" data-offer-action="confirm" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('confirm')}</button>`);
   return actions.join('');
 }
 
@@ -221,13 +262,16 @@ function providerOffersOverview(offers, needs, requestInfo, account, showNew = t
   const counts = { active: 0, paused: 0, draft: 0 };
   offers.forEach((offer) => { if (Object.hasOwn(counts, offer.status)) counts[offer.status] += 1; });
   const diagnostics = account?.scope === 'local_test' && account?.localTestAuthorized === true && requestInfo
-    ? `<small class="provider-offer-diagnostics">${tx('offerDiagnostics')}: GET /api/provider/offers · HTTP ${escapeProviderHtml(requestInfo.httpStatus)} · scope=${escapeProviderHtml(requestInfo.scope)} · count=${offers.length}</small>`
+    ? `<details class="provider-offer-diagnostics"><summary>${tx('offerDiagnostics')}</summary><small>GET /api/provider/offers · HTTP ${escapeProviderHtml(requestInfo.httpStatus)} · scope=${escapeProviderHtml(requestInfo.scope)} · count=${offers.length}</small></details>`
     : '';
   const cards = offers.map((offer) => {
-    const needLabels = (offer.needKeys || []).map((key) => needs.find((need) => need.key === key)?.label || key).join(', ');
-    return `<article class="provider-offer-card"><div class="provider-offer-card-main"><div class="provider-offer-card-heading"><strong>${escapeProviderHtml(offer.title)}</strong><span class="scope-badge">${escapeProviderHtml(pt(offer.status) || offer.status)}</span></div><p>${escapeProviderHtml(needLabels || tx('notAvailable'))}</p><small>${escapeProviderHtml(providerPriceLabel(offer.price))} · ${escapeProviderHtml(offer.radiusMeters)} m</small><dl class="provider-offer-dates"><div><dt>${tx('lastConfirmed')}</dt><dd>${providerDate(offer.lastConfirmedAt)}</dd></div><div><dt>${tx('nextConfirmation')}</dt><dd>${providerDate(offer.confirmationDueAt)}</dd></div></dl></div><div class="provider-actions">${providerOfferActions(offer)}</div></article>`;
+    const allNeedLabels = (offer.needKeys || []).map((key) => needs.find((need) => need.key === key)?.label || key);
+    const needLabels = allNeedLabels.slice(0, 3).join(', ');
+    const moreNeeds = allNeedLabels.length > 3 ? ` +${allNeedLabels.length - 3} ${ot('moreNeeds')}` : '';
+    const status = String(offer.status || 'draft');
+    return `<article class="provider-offer-card"><div class="provider-offer-card-main"><div class="provider-offer-card-heading"><strong>${escapeProviderHtml(offer.title)}</strong><span class="provider-offer-status status-${escapeProviderHtml(status)}">${escapeProviderHtml(pt(status) || status)}</span></div><p class="provider-offer-needs">${escapeProviderHtml(needLabels || tx('notAvailable'))}${escapeProviderHtml(moreNeeds)}</p><div class="provider-offer-meta"><strong>${escapeProviderHtml(providerPriceLabel(offer.price))}</strong><span>${escapeProviderHtml(offerTodaySummary(offer))}</span><span>${escapeProviderHtml(offer.radiusMeters)} m</span></div><dl class="provider-offer-dates"><div><dt>${tx('lastConfirmed')}</dt><dd>${providerDate(offer.lastConfirmedAt)}</dd></div><div><dt>${tx('nextConfirmation')}</dt><dd>${providerDate(offer.confirmationDueAt)}</dd></div></dl></div><div class="provider-actions">${providerOfferActions(offer)}</div></article>`;
   }).join('');
-  return `<section class="provider-offers-overview"><div class="provider-offers-heading"><div><p class="section-label">${tx('myOffers')}</p><h3>${tx('myOffers')}</h3></div>${showNew ? `<button class="web-auth-button secondary" data-new-offer type="button">${tx('newOffer')}</button>` : ''}</div><div class="provider-offer-counts"><span>${tx('activeCount')} <strong>${counts.active}</strong></span><span>${tx('pausedCount')} <strong>${counts.paused}</strong></span><span>${tx('draftCount')} <strong>${counts.draft}</strong></span></div>${diagnostics}${offers.length ? `<div class="provider-offer-list">${cards}</div>` : `<p class="provider-empty-offers">${pt('noOffers')}</p>`}</section>`;
+  return `<section class="provider-offers-overview"><div class="provider-offers-heading"><div><p class="section-label">${tx('myOffers')}</p><h3>${tx('myOffers')}</h3></div>${showNew ? `<button class="web-auth-button secondary" data-new-offer type="button">${tx('newOffer')}</button>` : ''}</div><div class="provider-offer-counts"><span>${tx('activeCount')} <strong>${counts.active}</strong></span><span>${tx('pausedCount')} <strong>${counts.paused}</strong></span><span>${tx('draftCount')} <strong>${counts.draft}</strong></span></div>${diagnostics}${offers.length ? `<div class="provider-offer-list">${cards}</div>` : `<div class="provider-empty-offers"><p>${pt('noOffers')}</p>${showNew ? `<button class="web-auth-button" data-new-offer type="button">${tx('newOffer')}</button>` : ''}</div>`}</section>`;
 }
 
 function providerHoursEditor(weekly) {
