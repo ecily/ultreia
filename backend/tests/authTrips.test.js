@@ -189,7 +189,8 @@ describe('V1 auth, device binding, scope and trips', () => {
     const me = await request('/api/auth/me', { headers: { cookie: `ultreia_access=${accessCookie}` } });
     assert.equal(me.response.status, 200);
     assert.equal(me.body.user.roles.includes('admin'), true);
-    assert.equal((await request('/api/provider/offers', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 200);
+    assert.equal(me.body.session.activeRole, 'admin');
+    assert.equal((await request('/api/provider/offers', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 403);
     assert.equal((await request('/api/trips/current', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 403);
     assert.equal((await request('/api/auth/logout', { method: 'POST', headers: { origin: 'https://web.test', cookie: `ultreia_access=${accessCookie}` } })).response.status, 200);
     assert.equal((await request('/api/auth/me', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 401);
@@ -224,6 +225,54 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.notEqual(firstToken, secondToken);
     assert.equal(verifiedSecond.user.email, email);
     await assert.rejects(() => authService.verifyMagicLink(firstToken, null, 'local_test'), /invalid_or_expired_token/);
+  });
+
+  it('keeps multi-role identity while isolating provider and admin active contexts', async () => {
+    const userId = new ObjectId();
+    await database.db.collection('users').insertOne({ _id: userId, emailNormalized: 'multi-role@example.test', displayName: 'Multi Role', roles: ['provider', 'admin'], preferredLocale: 'en', status: 'active', testAccess: true, createdAt: new Date(), updatedAt: new Date(), lastLoginAt: null });
+
+    async function roleLogin(role) {
+      const requested = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ email: 'multi-role@example.test', role, preferredLocale: 'en' }) });
+      assert.equal(requested.response.status, 200);
+      const link = await request(`/api/auth/dev/magic-link/${requested.body.diagnosticId}`);
+      const token = new URL(link.body.verificationUrl).searchParams.get('token');
+      return request('/api/auth/magic-link/verify', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ token }) });
+    }
+
+    const provider = await roleLogin('provider');
+    assert.equal(provider.response.status, 200);
+    assert.deepEqual(provider.body.user.roles, ['provider', 'admin']);
+    assert.equal(provider.body.session.activeRole, 'provider');
+    assert.deepEqual(provider.body.session.allowedRoles, ['provider', 'admin']);
+    const providerAuth = { authorization: `Bearer ${provider.body.session.accessToken}`, 'x-ultreia-scope': 'local_test' };
+    assert.equal((await request('/api/provider/offers', { headers: providerAuth })).response.status, 200);
+
+    const admin = await roleLogin('admin');
+    assert.equal(admin.response.status, 200);
+    assert.deepEqual(admin.body.user.roles, ['provider', 'admin']);
+    assert.equal(admin.body.session.activeRole, 'admin');
+    const adminAuth = { authorization: `Bearer ${admin.body.session.accessToken}`, 'x-ultreia-scope': 'local_test' };
+    assert.equal((await request('/api/provider/offers', { headers: adminAuth })).response.status, 403);
+    const adminMe = await request('/api/auth/me', { headers: adminAuth });
+    assert.equal(adminMe.body.session.activeRole, 'admin');
+    assert.deepEqual(adminMe.body.user.roles, ['provider', 'admin']);
+    const refreshedAdmin = await request('/api/auth/session/refresh', { method: 'POST', body: JSON.stringify({ refreshToken: admin.body.session.refreshToken }) });
+    assert.equal(refreshedAdmin.response.status, 200);
+    assert.equal(refreshedAdmin.body.session.activeRole, 'admin');
+    assert.deepEqual(refreshedAdmin.body.session.allowedRoles, ['provider', 'admin']);
+
+    const providerAgain = await roleLogin('provider');
+    assert.equal(providerAgain.response.status, 200);
+    assert.equal(providerAgain.body.session.activeRole, 'provider');
+    assert.deepEqual((await database.db.collection('users').findOne({ emailNormalized: 'multi-role@example.test' })).roles, ['provider', 'admin']);
+  });
+
+  it('does not add provider access to an existing admin-only user', async () => {
+    await database.db.collection('users').insertOne({ emailNormalized: 'admin-only@example.test', displayName: 'Admin Only', roles: ['admin'], preferredLocale: 'en', status: 'active', testAccess: true, createdAt: new Date(), updatedAt: new Date(), lastLoginAt: null });
+    const providerRequest = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ email: 'admin-only@example.test', role: 'provider' }) });
+    assert.equal(providerRequest.response.status, 403);
+    assert.equal(providerRequest.body.status, 'access_not_available');
+    assert.deepEqual((await database.db.collection('users').findOne({ emailNormalized: 'admin-only@example.test' })).roles, ['admin']);
   });
 
   it('deletes provider profiles in every scope when an account is deleted', async () => {
@@ -267,6 +316,7 @@ describe('V1 auth, device binding, scope and trips', () => {
     const switchedLocal = await request('/api/auth/session/switch-scope', { method: 'POST', headers: { ...productionAuth, 'x-ultreia-scope': 'production' }, body: JSON.stringify({ scope: 'local_test' }) });
     assert.equal(switchedLocal.response.status, 200);
     assert.equal(switchedLocal.body.session.scope, 'local_test');
+    assert.equal(switchedLocal.body.session.activeRole, 'provider');
     const localAuth = { authorization: `Bearer ${switchedLocal.body.session.accessToken}`, 'x-ultreia-scope': 'production' };
     assert.equal((await request('/api/provider/profile', { headers: localAuth })).body.profile.scope, 'local_test');
     await request('/api/provider/profile', { method: 'PUT', headers: localAuth, body: JSON.stringify({ businessName: 'Local Test Cafe', sourceLocale: 'de' }) });

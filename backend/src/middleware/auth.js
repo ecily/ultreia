@@ -28,7 +28,8 @@ export function createAuthMiddleware(authService) {
 
   function requireRole(...roles) {
     return (req, res, next) => {
-      if (!req.user || !roles.some((role) => req.user.roles?.includes(role))) return res.status(403).json({ ok: false, status: 'forbidden' });
+      const activeRole = req.session?.activeRole;
+      if (!req.user || !activeRole || !roles.includes(activeRole) || !req.user.roles?.includes(activeRole)) return res.status(403).json({ ok: false, status: 'forbidden' });
       return next();
     };
   }

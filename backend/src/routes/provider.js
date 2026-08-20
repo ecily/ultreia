@@ -21,7 +21,7 @@ function sessionScope(req) {
 
 export function createProviderRouter(config, databaseService, providerService, googlePlacesService, authMiddleware) {
   const router = Router();
-  router.use(authMiddleware.requireAuth, authMiddleware.requireRole('provider', 'admin'));
+  router.use(authMiddleware.requireAuth, authMiddleware.requireRole('provider'));
 
   router.get('/profile', async (req, res) => {
     try { const db = databaseRequired(res, databaseService); if (!db) return; return res.json({ ok: true, profile: await providerService.getProfile(req.user, sessionScope(req)) }); } catch (error) { return providerError(res, error); }

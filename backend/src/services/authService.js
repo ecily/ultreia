@@ -44,13 +44,13 @@ function providerDisplayName(emailNormalized, displayName) {
 }
 
 export function createAuthService(config, databaseService, mailService) {
-  async function issueSession(userId, deviceId, scope = 'production') {
+  async function issueSession(userId, deviceId, scope = 'production', activeRole, allowedRoles = []) {
     const accessToken = randomBytes(32).toString('base64url');
     const refreshToken = randomBytes(48).toString('base64url');
     const createdAt = now();
-    const session = { userId, deviceId: deviceId || null, scope, accessTokenHash: hashToken(accessToken), refreshTokenHash: hashToken(refreshToken), accessExpiresAt: new Date(createdAt.getTime() + config.accessTokenTtlSeconds * 1000), refreshExpiresAt: new Date(createdAt.getTime() + config.refreshTokenTtlSeconds * 1000), createdAt, lastUsedAt: createdAt, revokedAt: null };
+    const session = { userId, deviceId: deviceId || null, scope, activeRole, allowedRoles: [...new Set(allowedRoles)], accessTokenHash: hashToken(accessToken), refreshTokenHash: hashToken(refreshToken), accessExpiresAt: new Date(createdAt.getTime() + config.accessTokenTtlSeconds * 1000), refreshExpiresAt: new Date(createdAt.getTime() + config.refreshTokenTtlSeconds * 1000), createdAt, lastUsedAt: createdAt, revokedAt: null };
     await databaseService.getDb().collection('sessions').insertOne(session);
-    return { accessToken, refreshToken, scope, accessExpiresAt: session.accessExpiresAt, refreshExpiresAt: session.refreshExpiresAt };
+    return { accessToken, refreshToken, scope, activeRole, allowedRoles: session.allowedRoles, accessExpiresAt: session.accessExpiresAt, refreshExpiresAt: session.refreshExpiresAt };
   }
 
   async function requestMagicLink({ email, displayName, preferredLocale, role, scope = 'production' }) {
@@ -70,19 +70,13 @@ export function createAuthService(config, databaseService, mailService) {
       await databaseService.getDb().collection(profileCollection).insertOne(requestedRole === 'provider'
         ? { userId: user._id, scope, status: 'pending', businessName: null, displayName: user.displayName, contactEmail: user.emailNormalized, phone: null, website: null, sourceLocale: user.preferredLocale, preferredLocale: user.preferredLocale, location: null, completedAt: null, createdAt: timestamp, updatedAt: timestamp }
         : { userId: user._id, displayName: user.displayName, preferredLocale: user.preferredLocale, consent: { privacyAcceptedAt: null }, status: 'active', createdAt: timestamp, updatedAt: timestamp });
-    } else if (requestedRole === 'admin' && !user.roles?.includes('admin')) {
-      throw new Error('admin_access_not_granted');
-    } else if (requestedRole === 'provider' && !user.roles?.includes('provider')) {
-      const roles = [...new Set([...(user.roles || []), 'provider'])];
-      const accountDisplayName = providerDisplayName(emailNormalized, displayName || user.displayName);
-      await collection.updateOne({ _id: user._id }, { $set: { roles, displayName: accountDisplayName, updatedAt: timestamp } });
-      user = { ...user, roles, displayName: accountDisplayName, updatedAt: timestamp };
-      await databaseService.getDb().collection('providerProfiles').updateOne({ userId: user._id, scope }, { $set: { userId: user._id, scope, displayName: accountDisplayName, contactEmail: user.emailNormalized, sourceLocale: readLocale(preferredLocale || user.preferredLocale), preferredLocale: readLocale(preferredLocale || user.preferredLocale), status: 'pending', updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp, businessName: null, location: null, completedAt: null } }, { upsert: true });
+    } else if (!user.roles?.includes(requestedRole)) {
+      throw new Error(requestedRole === 'admin' ? 'admin_access_not_granted' : requestedRole === 'provider' ? 'provider_access_not_granted' : 'role_access_not_granted');
     }
     const rawToken = randomBytes(32).toString('base64url');
     const requestId = randomBytes(12).toString('hex');
     const expiresAt = new Date(timestamp.getTime() + config.magicLinkTtlSeconds * 1000);
-    await databaseService.getDb().collection('magicLinks').insertOne({ requestId, tokenHash: hashToken(rawToken), userId: user._id, emailNormalized, scope, expiresAt, usedAt: null, createdAt: timestamp });
+    await databaseService.getDb().collection('magicLinks').insertOne({ requestId, tokenHash: hashToken(rawToken), userId: user._id, emailNormalized, requestedRole, scope, expiresAt, usedAt: null, createdAt: timestamp });
     const verificationUrl = `${config.authPublicBaseUrl}${config.authPublicBaseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(rawToken)}`;
     const delivery = await mailService.sendMagicLink({ emailNormalized, verificationUrl, preferredLocale: readLocale(preferredLocale || user.preferredLocale), expiresAt });
     return { accepted: true, diagnosticId: delivery.diagnosticId || null, delivered: delivery.delivered, channel: delivery.channel, errorClass: delivery.errorClass, upstreamStatus: delivery.upstreamStatus };
@@ -95,11 +89,13 @@ export function createAuthService(config, databaseService, mailService) {
     if (!link) throw new Error('invalid_or_expired_token');
     const user = await databaseService.getDb().collection('users').findOne({ _id: link.userId, status: 'active' });
     if (!user) throw new Error('account_unavailable');
+    const activeRole = link.requestedRole;
+    if (!['pilgrim', 'provider', 'admin'].includes(activeRole) || !user.roles?.includes(activeRole)) throw new Error('role_access_not_granted');
     const timestamp = now();
     await databaseService.getDb().collection('users').updateOne({ _id: user._id }, { $set: { lastLoginAt: timestamp, updatedAt: timestamp } });
     if (link.scope === 'local_test' && config.runtimeMode === 'production' && !isLocalTestAuthorized(user, config)) throw new Error('local_test_not_authorized');
     if (link.scope !== requestedScope) throw new Error('scope_mismatch');
-    const session = await issueSession(user._id, deviceId, link.scope === requestedScope ? link.scope : 'production');
+    const session = await issueSession(user._id, deviceId, link.scope === requestedScope ? link.scope : 'production', activeRole, user.roles);
     return { user: publicUser({ ...user, lastLoginAt: timestamp, updatedAt: timestamp }), userId: user._id, session };
   }
 
@@ -120,14 +116,18 @@ export function createAuthService(config, databaseService, mailService) {
     const user = await databaseService.getDb().collection('users').findOne({ _id: current.userId, status: 'active' });
     if (!user) throw new Error('account_unavailable');
     await sessions.updateOne({ _id: current._id, revokedAt: null }, { $set: { revokedAt: now(), rotatedAt: now() } });
-    return { user: publicUser(user), session: await issueSession(user._id, deviceId || current.deviceId, current.scope) };
+    const activeRole = current.activeRole || (user.roles?.length === 1 ? user.roles[0] : null);
+    if (!activeRole || !user.roles?.includes(activeRole)) throw new Error('role_access_not_granted');
+    return { user: publicUser(user), session: await issueSession(user._id, deviceId || current.deviceId, current.scope, activeRole, user.roles) };
   }
 
   async function switchScope(user, currentSession, targetScope) {
     if (!['production', 'local_test'].includes(targetScope)) throw new Error('invalid_scope');
     if (targetScope === 'local_test' && config.runtimeMode === 'production' && !isLocalTestAuthorized(user, config)) throw new Error('local_test_not_authorized');
     await logout(currentSession?._id);
-    return { user: publicUser(user), userId: user._id, session: await issueSession(user._id, currentSession?.deviceId, targetScope) };
+    const activeRole = currentSession?.activeRole || (user.roles?.length === 1 ? user.roles[0] : null);
+    if (!activeRole || !user.roles?.includes(activeRole)) throw new Error('role_access_not_granted');
+    return { user: publicUser(user), userId: user._id, session: await issueSession(user._id, currentSession?.deviceId, targetScope, activeRole, user.roles) };
   }
 
   async function logout(sessionId) {

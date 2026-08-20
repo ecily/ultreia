@@ -1043,3 +1043,20 @@ Provider-Ownership, Places-Scope-Filter, CORS-Preflight, race-sichere lange
 Autocomplete-Eingaben und Mobile-Typecheck/Lint ab. Die fremden
 Hero-/Landingpage-Dateien bleiben bewusst ausserhalb dieses Audits und werden
 nicht staged.
+
+## Gemeinsame Multi-Role-Identitaet (2026-08-20)
+
+Der Login-Fehler bei derselben E-Mail in Provider- und Admin-Einstieg lag in
+der fehlenden Rollenbindung des Magic-Links und dem fehlenden aktiven
+Session-Kontext. `User.roles` bleibt die zentrale Berechtigungsmenge; ein
+Magic-Link speichert jetzt `requestedRole`, und Verify erzeugt eine neue
+Session mit `activeRole`, `allowedRoles` und dem unveraenderten Scope.
+
+Ein bestehender User bekommt durch den Login keine neue Rolle und verliert
+keine Rolle. Provider- und Admin-Login pruefen die jeweils angeforderte Rolle;
+unbekannte Admins werden weiterhin nicht angelegt. `requireRole` prueft jetzt
+User-Rolle und aktiven Session-Kontext, sodass ein Provider-Login keinen
+Admin-Kontext und ein Admin-Login keinen Provider-Kontext vortaeuscht.
+`GET /api/auth/me` liefert die zentrale Useridentitaet, Rollen sowie aktiven
+Rollen- und Scope-Kontext. Ein neuer Magic-Link-Verify ersetzt die bestehenden
+Web-Cookies durch die neue Session.

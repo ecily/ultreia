@@ -181,8 +181,8 @@ async function renderVerify() {
   try {
     const result = await webApi('/auth/magic-link/verify', { method: 'POST', body: JSON.stringify({ token }) }, false);
     message.textContent = tx('success');
-    const roles = result.user?.roles || [];
-    window.location.replace(roles.includes('admin') ? '/admin/' : roles.includes('provider') ? '/provider/' : '/auth/verify?denied=1');
+    const activeRole = result.session?.activeRole;
+    window.location.replace(activeRole === 'admin' ? '/admin/' : activeRole === 'provider' ? '/provider/' : '/auth/verify?denied=1');
   } catch (error) { message.textContent = error.status === 'local_test_not_authorized' ? tx('denied') : tx('requested'); }
 }
 
@@ -333,6 +333,7 @@ async function renderProviderStart() {
   const state = { account: null, profile: null, offers: [], offersRequest: null, needs: [], locationDraft: null, editingOffer: null, feedback: { profile: { state: 'idle' }, location: { state: 'idle' }, offer: { state: 'idle' } } };
   const load = async () => {
     const accountResult = await webApi('/auth/me');
+    if (accountResult.session?.activeRole !== 'provider') throw Object.assign(new Error('role_context_mismatch'), { status: 'role_context_mismatch' });
     window.sessionStorage.setItem(WEB_SCOPE_KEY, accountResult.scope || 'production');
     state.account = accountResult;
     const [profileResult, needsResult, offersResult] = await Promise.all([webApi('/provider/profile'), webApi(`/needs?locale=${currentWebLanguage()}`), webApi('/provider/offers')]);
@@ -453,14 +454,14 @@ async function renderProviderStart() {
 async function renderStart(role) {
   if (role === 'provider') return renderProviderStart();
   const title = tx('admin');
-  webShell(title, `<p class="web-auth-message" data-start-message>${tx('verify')}</p><section class="admin-foundation-panel" data-admin-panel hidden><p class="section-label">${tx('adminFoundation')}</p><h2>${tx('adminFoundation')}</h2><div class="web-account" data-account></div><nav class="admin-foundation-nav" aria-label="${tx('adminFoundation')}"><a href="/provider/">${tx('adminNavProvider')}</a></nav></section><button class="web-auth-button" data-logout type="button">${tx('logout')}</button>`);
+  webShell(title, `<p class="web-auth-message" data-start-message>${tx('verify')}</p><section class="admin-foundation-panel" data-admin-panel hidden><p class="section-label">${tx('adminFoundation')}</p><h2>${tx('adminFoundation')}</h2><div class="web-account" data-account></div><nav class="admin-foundation-nav" aria-label="${tx('adminFoundation')}"><a href="/provider/login/">${tx('adminNavProvider')}</a></nav></section><button class="web-auth-button" data-logout type="button">${tx('logout')}</button>`);
   try {
     const result = await webApi('/auth/me');
-    if (!result.user?.roles?.includes(role)) { document.querySelector('[data-start-message]').textContent = tx('denied'); return; }
+    if (!result.user?.roles?.includes(role) || result.session?.activeRole !== role) { document.querySelector('[data-start-message]').textContent = tx('denied'); return; }
     document.querySelector('[data-start-message]').textContent = tx('adminFoundation');
     const panel = document.querySelector('[data-admin-panel]');
     panel.hidden = false;
-    document.querySelector('[data-account]').innerHTML = `<strong>${tx('adminSignedInAs')}: ${escapeProviderHtml(result.user.email)}</strong><span>${tx('adminRoleLabel')}: ${escapeProviderHtml(result.user.roles.join(', '))}</span><span>${tx('adminScopeLabel')}: <span class="scope-badge">${escapeProviderHtml(result.scope)}</span></span>`;
+    document.querySelector('[data-account]').innerHTML = `<strong>${tx('adminSignedInAs')}: ${escapeProviderHtml(result.user.email)}</strong><span>${tx('adminRoleLabel')}: ${escapeProviderHtml(result.session.activeRole)}</span><span>${tx('adminScopeLabel')}: <span class="scope-badge">${escapeProviderHtml(result.scope)}</span></span>`;
   } catch { window.location.replace(`/${role}/login/`); return; }
   document.querySelector('[data-logout]')?.addEventListener('click', async () => { await webApi('/auth/logout', { method: 'POST' }, false).catch(() => {}); window.location.replace(`/${role}/login/`); });
 }

@@ -11,7 +11,7 @@ async function refreshAccessToken() {
       const response = await fetch(`${API_BASE}/auth/session/refresh`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ refreshToken }) });
       if (!response.ok) { await clearSession(); return false; }
       const body = await response.json();
-      await saveSession({ accessToken: body.session.accessToken, refreshToken: body.session.refreshToken, user: body.user, scope: body.session.scope });
+      await saveSession({ accessToken: body.session.accessToken, refreshToken: body.session.refreshToken, user: body.user, scope: body.session.scope, activeRole: body.session.activeRole, allowedRoles: body.session.allowedRoles || body.user?.roles || [] });
       return true;
     })().finally(() => { refreshPromise = null; });
   }

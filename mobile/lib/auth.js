@@ -4,7 +4,7 @@ import { getJson, postJson, apiRequest } from './api';
 import { clearSession, getSession, saveSession } from './session';
 
 function sessionFromResponse(body) {
-  return { accessToken: body.session.accessToken, refreshToken: body.session.refreshToken, user: body.user, scope: body.session.scope };
+  return { accessToken: body.session.accessToken, refreshToken: body.session.refreshToken, user: body.user, scope: body.session.scope, activeRole: body.session.activeRole, allowedRoles: body.session.allowedRoles || body.user?.roles || [] };
 }
 
 export async function requestMagicLink(email, displayName, preferredLocale = 'de') {

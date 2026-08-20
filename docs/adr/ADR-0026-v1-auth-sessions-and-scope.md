@@ -69,3 +69,24 @@ ProviderProfile- und Offer-Abfragen verwenden ausschließlich `userId` plus
 Session-Scope; es gibt keinen Scope-Fallback auf Daten des jeweils anderen
 Bereichs. Der Client darf den Scope nicht durch einen Header, Query-Parameter
 oder eine reine lokale Variable erzwingen.
+
+## Mehrere Rollen und aktiver Rollen-Kontext (2026-08-20)
+
+Ein User bleibt eine zentrale Identitaet und kann gleichzeitig mehrere
+zulaessige Rollen in `User.roles` besitzen, zum Beispiel `provider` und
+`admin`. Der Login-Einstieg sendet `requestedRole`; dieser Kontext wird im
+One-Time-Magic-Link gespeichert und beim Verify gegen die aktuellen User-
+Rollen geprueft. Ein unbekannter Admin wird weiterhin nie automatisch
+angelegt; ein bestehender User bekommt durch einen Login keine neue Rolle und
+verliert keine vorhandene Rolle.
+
+Jede neue Session traegt neben `userId` und `scope` den `activeRole` sowie die
+serverseitig abgeleiteten `allowedRoles`. `scope` und `activeRole` sind
+getrennte Dimensionen. `requireRole` prueft sowohl die User-Berechtigung als
+auch den aktiven Session-Kontext. Ein Provider-Login kann daher nicht als
+Admin-Session auf Admin-Routen verwendet werden und umgekehrt. Ein neuer
+Magic-Link-Verify ersetzt die Web-Cookies durch die neue Session; ein
+vorhandener Cookie blockiert den anderen Rollen-Login nicht.
+
+`GET /api/auth/me` liefert User-Rollen sowie `session.activeRole`,
+`session.allowedRoles` und `session.scope` ohne Access-/Refresh-Token.
