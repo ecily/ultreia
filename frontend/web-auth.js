@@ -453,7 +453,7 @@ async function renderProviderStart() {
 async function renderStart(role) {
   if (role === 'provider') return renderProviderStart();
   const title = tx('admin');
-  webShell(title, `<p class="web-auth-message" data-start-message>${tx('verify')}</p><section class="admin-foundation-panel" data-admin-panel hidden><p class="section-label">${tx('adminFoundation')}</p><h2>${tx('adminFoundation')}</h2><div class="web-account" data-account></div><nav class="admin-foundation-nav" aria-label="${tx('adminFoundation')}"><a href="/provider/">${tx('adminNavProvider')}</a><a href="#offers">${tx('adminNavOffers')}</a><a href="#needs">${tx('adminNavNeeds')}</a></nav></section><button class="web-auth-button" data-logout type="button">${tx('logout')}</button>`);
+  webShell(title, `<p class="web-auth-message" data-start-message>${tx('verify')}</p><section class="admin-foundation-panel" data-admin-panel hidden><p class="section-label">${tx('adminFoundation')}</p><h2>${tx('adminFoundation')}</h2><div class="web-account" data-account></div><nav class="admin-foundation-nav" aria-label="${tx('adminFoundation')}"><a href="/provider/">${tx('adminNavProvider')}</a></nav></section><button class="web-auth-button" data-logout type="button">${tx('logout')}</button>`);
   try {
     const result = await webApi('/auth/me');
     if (!result.user?.roles?.includes(role)) { document.querySelector('[data-start-message]').textContent = tx('denied'); return; }

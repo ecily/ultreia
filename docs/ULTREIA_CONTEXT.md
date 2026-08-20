@@ -1009,11 +1009,14 @@ Aktionen entsprechen dem serverseitigen Statusmodell; die Daten bleiben an
 User-ID und Session-Scope gebunden. Autorisiertes `local_test` zeigt nur die
 kompakte, nicht-geheime GET-Diagnostik.
 
-Der Admin-Magic-Link-Request fuer `andreas.franz@ecily.com` liefert aktuell
-`403 access_not_available`, weil der Account noch nicht serverseitig die
-Rolle `admin` besitzt. Unbekannte Admin-Adressen werden weiterhin nicht
-automatisch angelegt. Der sichere One-shot-Operatorpfad liegt in
+Unbekannte Admin-Adressen werden weiterhin nicht automatisch angelegt. Der
+sichere One-shot-Operatorpfad liegt in
 `backend/scripts/provision-admin.mjs`, benoetigt Produktionsmodus, die
 Runtime-Variable `MONGODB_URI`, `ADMIN_PROVISION_EMAIL` und die exakte
 Bestaetigungsvariable `ADMIN_PROVISION_CONFIRM=ULTREIA_ADMIN_PROVISION_V1`;
-er hat keine HTTP-Route und gibt keine Geheimnisse aus.
+er hat keine HTTP-Route und gibt keine Geheimnisse aus. Andreas wurde damit
+einmalig serverseitig als `admin` provisioniert. Der anschliessende reale
+Admin-Magic-Link-Request lieferte HTTP 200; der Backend-Delivery-Log bestaetigt
+den Microsoft-Graph-`sendMail`-Status 202. Token-Verify, Session-Cookie und
+Redirect sind erst nach dem Oeffnen des Links im Postfach ein interaktiv
+beobachtbarer Schritt.
