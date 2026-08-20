@@ -32,6 +32,10 @@ const providerText = {
   },
 };
 
+Object.assign(webText.de, { adminSignedInAs: 'Angemeldet als', adminRoleLabel: 'Rolle', adminScopeLabel: 'Bereich', adminFoundation: 'Admin-Grundlage', adminNavProvider: 'Provider', adminNavOffers: 'Offers', adminNavNeeds: 'Needs', myOffers: 'Meine Angebote', activeCount: 'Aktiv', pausedCount: 'Pausiert', draftCount: 'Entwürfe', lastConfirmed: 'Zuletzt bestätigt', nextConfirmation: 'Nächste Bestätigung', notAvailable: '—', offerDiagnostics: 'Technik', newOffer: 'Neues Angebot' });
+Object.assign(webText.en, { adminSignedInAs: 'Signed in as', adminRoleLabel: 'Role', adminScopeLabel: 'Scope', adminFoundation: 'Admin foundation', adminNavProvider: 'Providers', adminNavOffers: 'Offers', adminNavNeeds: 'Needs', myOffers: 'My offers', activeCount: 'Active', pausedCount: 'Paused', draftCount: 'Drafts', lastConfirmed: 'Last confirmed', nextConfirmation: 'Next confirmation', notAvailable: '—', offerDiagnostics: 'Technical', newOffer: 'New offer' });
+Object.assign(webText.es, { adminSignedInAs: 'Sesión iniciada como', adminRoleLabel: 'Rol', adminScopeLabel: 'Ámbito', adminFoundation: 'Base de administración', adminNavProvider: 'Proveedores', adminNavOffers: 'Ofertas', adminNavNeeds: 'Necesidades', myOffers: 'Mis ofertas', activeCount: 'Activas', pausedCount: 'Pausadas', draftCount: 'Borradores', lastConfirmed: 'Última confirmación', nextConfirmation: 'Próxima confirmación', notAvailable: '—', offerDiagnostics: 'Técnica', newOffer: 'Nueva oferta' });
+
 providerText.de.providerStatus = 'Providerstatus';
 providerText.en.providerStatus = 'Provider status';
 providerText.es.providerStatus = 'Estado del proveedor';
@@ -188,6 +192,44 @@ const providerDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 's
 function providerNeedGroupLabel(group) { return pt(group === 'core' ? 'needGroupCore' : group === 'secondary' ? 'needGroupSecondary' : 'needGroupDiscovery'); }
 function providerDayLabel(day) { return pt(`day${day[0].toUpperCase()}${day.slice(1)}`); }
 
+function providerDate(value) {
+  if (!value) return tx('notAvailable');
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? tx('notAvailable') : new Intl.DateTimeFormat(currentWebLanguage(), { dateStyle: 'medium' }).format(date);
+}
+
+function providerPriceLabel(price) {
+  if (!price) return tx('notAvailable');
+  const currency = escapeProviderHtml(price.currency || 'EUR');
+  if (price.type === 'free') return pt('priceFree');
+  if (price.type === 'donativo') return pt('priceDonativo');
+  if (price.type === 'on_request') return pt('priceOnRequest');
+  if (price.type === 'range') return `${escapeProviderHtml(price.min ?? '—')}–${escapeProviderHtml(price.max ?? '—')} ${currency}`;
+  if (price.type === 'from') return `${pt('priceFrom')} ${escapeProviderHtml(price.amount ?? '—')} ${currency}`;
+  return `${escapeProviderHtml(price.amount ?? '—')} ${currency}`;
+}
+
+function providerOfferActions(offer) {
+  const actions = [`<button class="web-auth-button secondary" data-offer-action="edit" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('editOffer')}</button>`];
+  if (offer.status === 'active') actions.push(`<button class="web-auth-button secondary" data-offer-action="pause" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('pause')}</button>`);
+  if (['paused', 'expired'].includes(offer.status)) actions.push(`<button class="web-auth-button secondary" data-offer-action="resume" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('resume')}</button>`);
+  if (['active', 'paused', 'expired'].includes(offer.status)) actions.push(`<button class="web-auth-button secondary" data-offer-action="confirm" data-offer-id="${escapeProviderHtml(offer.id)}" type="button">${pt('confirm')}</button>`);
+  return actions.join('');
+}
+
+function providerOffersOverview(offers, needs, requestInfo, account, showNew = true) {
+  const counts = { active: 0, paused: 0, draft: 0 };
+  offers.forEach((offer) => { if (Object.hasOwn(counts, offer.status)) counts[offer.status] += 1; });
+  const diagnostics = account?.scope === 'local_test' && account?.localTestAuthorized === true && requestInfo
+    ? `<small class="provider-offer-diagnostics">${tx('offerDiagnostics')}: GET /api/provider/offers · HTTP ${escapeProviderHtml(requestInfo.httpStatus)} · scope=${escapeProviderHtml(requestInfo.scope)} · count=${offers.length}</small>`
+    : '';
+  const cards = offers.map((offer) => {
+    const needLabels = (offer.needKeys || []).map((key) => needs.find((need) => need.key === key)?.label || key).join(', ');
+    return `<article class="provider-offer-card"><div class="provider-offer-card-main"><div class="provider-offer-card-heading"><strong>${escapeProviderHtml(offer.title)}</strong><span class="scope-badge">${escapeProviderHtml(pt(offer.status) || offer.status)}</span></div><p>${escapeProviderHtml(needLabels || tx('notAvailable'))}</p><small>${escapeProviderHtml(providerPriceLabel(offer.price))} · ${escapeProviderHtml(offer.radiusMeters)} m</small><dl class="provider-offer-dates"><div><dt>${tx('lastConfirmed')}</dt><dd>${providerDate(offer.lastConfirmedAt)}</dd></div><div><dt>${tx('nextConfirmation')}</dt><dd>${providerDate(offer.confirmationDueAt)}</dd></div></dl></div><div class="provider-actions">${providerOfferActions(offer)}</div></article>`;
+  }).join('');
+  return `<section class="provider-offers-overview"><div class="provider-offers-heading"><div><p class="section-label">${tx('myOffers')}</p><h3>${tx('myOffers')}</h3></div>${showNew ? `<button class="web-auth-button secondary" data-new-offer type="button">${tx('newOffer')}</button>` : ''}</div><div class="provider-offer-counts"><span>${tx('activeCount')} <strong>${counts.active}</strong></span><span>${tx('pausedCount')} <strong>${counts.paused}</strong></span><span>${tx('draftCount')} <strong>${counts.draft}</strong></span></div>${diagnostics}${offers.length ? `<div class="provider-offer-list">${cards}</div>` : `<p class="provider-empty-offers">${pt('noOffers')}</p>`}</section>`;
+}
+
 function providerHoursEditor(weekly) {
   return providerDays.map((day) => {
     const windows = Array.isArray(weekly[day]) ? weekly[day] : [];
@@ -288,13 +330,13 @@ function providerApplyHoursPreset(form, preset, needs) {
 }
 
 async function renderProviderStart() {
-  const state = { account: null, profile: null, offers: [], needs: [], locationDraft: null, editingOffer: null, feedback: { profile: { state: 'idle' }, location: { state: 'idle' }, offer: { state: 'idle' } } };
+  const state = { account: null, profile: null, offers: [], offersRequest: null, needs: [], locationDraft: null, editingOffer: null, feedback: { profile: { state: 'idle' }, location: { state: 'idle' }, offer: { state: 'idle' } } };
   const load = async () => {
     const accountResult = await webApi('/auth/me');
     window.sessionStorage.setItem(WEB_SCOPE_KEY, accountResult.scope || 'production');
     state.account = accountResult;
     const [profileResult, needsResult, offersResult] = await Promise.all([webApi('/provider/profile'), webApi(`/needs?locale=${currentWebLanguage()}`), webApi('/provider/offers')]);
-    state.profile = profileResult.profile; state.needs = needsResult.items || []; state.offers = offersResult.items || [];
+    state.profile = profileResult.profile; state.needs = needsResult.items || []; state.offers = offersResult.items || []; state.offersRequest = { httpStatus: offersResult._httpStatus, scope: accountResult.scope };
   };
   const render = () => {
     const profile = state.profile || {};
@@ -304,7 +346,7 @@ async function renderProviderStart() {
     const profileForm = `<section class="provider-panel"><p class="section-label">1. ${pt('providerStep')}</p><h2>${pt('businessName')}</h2><form class="provider-form" data-profile-form><label>${pt('businessName')}<input name="businessName" required maxlength="120" value="${escapeProviderHtml(profile.businessName)}"><span class="provider-field-error" data-field-error="businessName"></span></label><label>${pt('sourceLocale')}<select name="sourceLocale"><option value="de" ${profile.sourceLocale === 'de' ? 'selected' : ''}>DE</option><option value="en" ${profile.sourceLocale === 'en' ? 'selected' : ''}>EN</option><option value="es" ${profile.sourceLocale === 'es' ? 'selected' : ''}>ES</option></select></label><label>${pt('phone')}<input name="phone" value="${escapeProviderHtml(profile.phone)}"></label><label>${pt('website')}<input name="website" type="url" value="${escapeProviderHtml(profile.website)}"><span class="provider-field-error" data-field-error="website"></span></label><p>${escapeProviderHtml(profile.contactEmail || '')}</p>${providerFeedback(state, 'profile')}<button class="web-auth-button" type="submit">${pt('continue')}</button></form></section>`;
     const location = state.locationDraft || profile.location;
     const locationForm = `<section class="provider-panel"><p class="section-label">2. ${pt('locationStep')}</p><h2>${pt('locationSearch')}</h2><form class="provider-form" data-location-form><label>${pt('locationSearch')}<input name="locationSearch" autocomplete="off" required><span class="provider-field-error" data-field-error="locationSearch"></span><div class="provider-suggestions" data-suggestions></div></label><p class="provider-location-help">${pt('locationAdjust')}</p><div class="provider-map-preview" data-map-preview>${location ? `<span class="provider-map-marker">+</span><strong>${escapeProviderHtml(location.formattedAddress)}</strong><small>${Number(location.latitude).toFixed(6)}, ${Number(location.longitude).toFixed(6)}</small>` : '<span>Google Place</span>'}</div>${location ? `<div class="provider-form-grid"><label>Latitude<input name="finalLatitude" type="number" step="0.000001" value="${location.latitude}"></label><label>Longitude<input name="finalLongitude" type="number" step="0.000001" value="${location.longitude}"></label></div>` : ''}${providerFeedback(state, 'location')}<button class="web-auth-button" data-save-location type="button" ${location ? '' : 'disabled'}>${pt('saveLocation')}</button></form></section>`;
-    const offerSection = profile.status === 'active' && profile.location ? `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><h2>${state.editingOffer ? pt('editOffer') : pt('offerStep')}</h2>${providerFeedback(state, 'offer')}${state.editingOffer || state.offers.length === 0 ? providerOfferForm(state.editingOffer, state.needs) : ''}<div class="provider-offer-list">${state.offers.length === 0 ? `<p>${pt('noOffers')}</p>` : state.offers.map((offer) => `<article class="provider-offer-card"><div><strong>${escapeProviderHtml(offer.title)}</strong><span class="scope-badge">${escapeProviderHtml(pt(offer.status) || offer.status)}</span><p>${escapeProviderHtml(offer.description)}</p><small>${escapeProviderHtml(offer.needKeys.join(', '))} · ${offer.radiusMeters} m</small></div><div class="provider-actions"><button class="web-auth-button secondary" data-offer-action="edit" data-offer-id="${offer.id}" type="button">${pt('editOffer')}</button>${offer.status === 'active' ? `<button class="web-auth-button secondary" data-offer-action="pause" data-offer-id="${offer.id}" type="button">${pt('pause')}</button>` : `<button class="web-auth-button secondary" data-offer-action="resume" data-offer-id="${offer.id}" type="button">${pt('resume')}</button>`}<button class="web-auth-button secondary" data-offer-action="confirm" data-offer-id="${offer.id}" type="button">${pt('confirm')}</button></div></article>`).join('')}</div>${state.offers.length > 0 && !state.editingOffer ? `<button class="web-auth-button" data-new-offer type="button">${pt('publishOffer')}</button>` : ''}</section>` : `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><p>${pt('offerLocked')}</p></section>`;
+    const offerSection = profile.status === 'active' && profile.location ? `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><h2>${state.editingOffer ? pt('editOffer') : pt('offerStep')}</h2>${providerFeedback(state, 'offer')}${state.editingOffer || state.offers.length === 0 ? providerOfferForm(state.editingOffer, state.needs) : ''}${providerOffersOverview(state.offers, state.needs, state.offersRequest, state.account, state.offers.length > 0 && !state.editingOffer)}</section>` : `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><p>${pt('offerLocked')}</p></section>`;
     const scopeSwitcher = state.account?.localTestAuthorized ? `<div class="provider-scope-switch"><span>${tx('switchScope')}</span><button class="web-auth-button secondary" data-scope-switch="production" type="button" ${scope === 'production' ? 'disabled' : ''}>${tx('scopeProduction')}</button><button class="web-auth-button secondary" data-scope-switch="local_test" type="button" ${scope === 'local_test' ? 'disabled' : ''}>${tx('scopeLocalTest')}</button></div>` : '';
     const testBanner = scope === 'local_test' ? `<div class="provider-test-banner" role="status">${tx('testBanner')}</div>` : '';
     webShell(tx('provider'), `${testBanner}${steps}<div class="provider-account"><strong>${escapeProviderHtml(profile.displayName || profile.contactEmail || '')}</strong><span>${escapeProviderHtml(profile.contactEmail || '')}</span><span class="scope-badge">${escapeProviderHtml(scope)}</span>${scopeSwitcher}<button class="web-auth-button secondary" data-logout type="button">${tx('logout')}</button></div>${statusPanel}${profileForm}${locationForm}${offerSection}`);
@@ -411,8 +453,15 @@ async function renderProviderStart() {
 async function renderStart(role) {
   if (role === 'provider') return renderProviderStart();
   const title = tx('admin');
-  webShell(title, `<p class="web-auth-message" data-start-message>${tx('verify')}</p><div class="web-account" data-account></div><button class="web-auth-button" data-logout type="button">${tx('logout')}</button>`);
-  try { const result = await webApi('/auth/me'); if (!result.user?.roles?.includes(role)) { document.querySelector('[data-start-message]').textContent = tx('denied'); return; } document.querySelector('[data-start-message]').textContent = tx('adminPending'); document.querySelector('[data-account]').innerHTML = `<strong>${escapeProviderHtml(result.user.displayName || result.user.email)}</strong><br>${escapeProviderHtml(result.user.email)}<br>${tx('role')}: ${escapeProviderHtml(result.user.roles.join(', '))}<br>${tx('scope')}: <span class="scope-badge">${escapeProviderHtml(result.scope)}</span>`; } catch { window.location.replace(`/${role}/login/`); return; }
+  webShell(title, `<p class="web-auth-message" data-start-message>${tx('verify')}</p><section class="admin-foundation-panel" data-admin-panel hidden><p class="section-label">${tx('adminFoundation')}</p><h2>${tx('adminFoundation')}</h2><div class="web-account" data-account></div><nav class="admin-foundation-nav" aria-label="${tx('adminFoundation')}"><a href="/provider/">${tx('adminNavProvider')}</a><a href="#offers">${tx('adminNavOffers')}</a><a href="#needs">${tx('adminNavNeeds')}</a></nav></section><button class="web-auth-button" data-logout type="button">${tx('logout')}</button>`);
+  try {
+    const result = await webApi('/auth/me');
+    if (!result.user?.roles?.includes(role)) { document.querySelector('[data-start-message]').textContent = tx('denied'); return; }
+    document.querySelector('[data-start-message]').textContent = tx('adminFoundation');
+    const panel = document.querySelector('[data-admin-panel]');
+    panel.hidden = false;
+    document.querySelector('[data-account]').innerHTML = `<strong>${tx('adminSignedInAs')}: ${escapeProviderHtml(result.user.email)}</strong><span>${tx('adminRoleLabel')}: ${escapeProviderHtml(result.user.roles.join(', '))}</span><span>${tx('adminScopeLabel')}: <span class="scope-badge">${escapeProviderHtml(result.scope)}</span></span>`;
+  } catch { window.location.replace(`/${role}/login/`); return; }
   document.querySelector('[data-logout]')?.addEventListener('click', async () => { await webApi('/auth/logout', { method: 'POST' }, false).catch(() => {}); window.location.replace(`/${role}/login/`); });
 }
 

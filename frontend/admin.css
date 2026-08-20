@@ -1,0 +1,5 @@
+.admin-foundation-panel { display: grid; gap: 14px; margin: 18px 0; padding: 20px; border: 1px solid rgba(5, 40, 74, .13); border-radius: 14px; background: rgba(255, 255, 255, .88); }
+.admin-foundation-panel h2 { margin: 0; color: #05284a; }
+.admin-foundation-panel .web-account { display: grid; gap: 6px; margin: 0; }
+.admin-foundation-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-foundation-nav a { padding: 9px 12px; border-radius: 8px; background: #eef3f5; color: #17415f; text-decoration: none; }

@@ -150,6 +150,36 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.equal(profile.preferredLocale, 'en');
   });
 
+  it('keeps admin provisioning closed and supports repeated provisioned admin login', async () => {
+    const unknown = await request('/api/auth/magic-link/request', { method: 'POST', body: JSON.stringify({ email: 'unknown-admin@example.test', role: 'admin', preferredLocale: 'en' }) });
+    assert.equal(unknown.response.status, 403);
+    assert.equal(unknown.body.status, 'access_not_available');
+    assert.equal(await database.db.collection('users').findOne({ emailNormalized: 'unknown-admin@example.test' }), null);
+
+    const adminId = new ObjectId();
+    await database.db.collection('users').insertOne({ _id: adminId, emailNormalized: 'provisioned-admin@example.test', displayName: 'Provisioned Admin', roles: ['admin'], preferredLocale: 'en', status: 'active', testAccess: false, createdAt: new Date(), updatedAt: new Date(), lastLoginAt: null });
+    const first = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ email: 'provisioned-admin@example.test', role: 'admin', preferredLocale: 'en' }) });
+    assert.equal(first.response.status, 200);
+    const firstLink = await request(`/api/auth/dev/magic-link/${first.body.diagnosticId}`);
+    const firstToken = new URL(firstLink.body.verificationUrl).searchParams.get('token');
+    const verified = await request('/api/auth/magic-link/verify', { method: 'POST', headers: { 'x-ultreia-web': '1', 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ token: firstToken }) });
+    assert.equal(verified.response.status, 200);
+    assert.deepEqual(verified.body.user.roles, ['admin']);
+    const accessCookie = verified.response.headers.get('set-cookie').match(/ultreia_access=([^;]+)/)?.[1];
+    assert.ok(accessCookie);
+    const me = await request('/api/auth/me', { headers: { cookie: `ultreia_access=${accessCookie}` } });
+    assert.equal(me.response.status, 200);
+    assert.equal(me.body.user.roles.includes('admin'), true);
+    assert.equal((await request('/api/provider/offers', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 200);
+    assert.equal((await request('/api/trips/current', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 403);
+    assert.equal((await request('/api/auth/logout', { method: 'POST', headers: { origin: 'https://web.test', cookie: `ultreia_access=${accessCookie}` } })).response.status, 200);
+    assert.equal((await request('/api/auth/me', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 401);
+
+    const second = await request('/api/auth/magic-link/request', { method: 'POST', headers: { 'x-ultreia-scope': 'local_test' }, body: JSON.stringify({ email: 'provisioned-admin@example.test', role: 'admin', preferredLocale: 'de' }) });
+    assert.equal(second.response.status, 200);
+    assert.notEqual(first.body.diagnosticId, second.body.diagnosticId);
+  });
+
   it('sends independent magic links again after an existing provider logs out', async () => {
     const isolated = createFakeDatabase();
     const deliveries = [];
@@ -222,6 +252,15 @@ describe('V1 auth, device binding, scope and trips', () => {
     const offer = await request('/api/provider/offers', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'API breakfast', description: 'Breakfast for pilgrims.', sourceLocale: 'en', needKeys: ['eat', 'breakfast'], price: { type: 'free' }, availability: { weekly: { monday: [{ open: '08:00', close: '12:00' }] }, exceptions: [] }, radiusMeters: 250, activate: true }) });
     assert.equal(offer.response.status, 201);
     assert.equal(offer.body.offer.status, 'active');
+    const initialOffers = await request('/api/provider/offers', { headers: auth });
+    assert.equal(initialOffers.response.status, 200);
+    assert.equal(initialOffers.body.items.length, 1);
+    assert.equal(initialOffers.body.items[0].status, 'active');
+    const draft = await request('/api/provider/offers', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'API water point', description: 'Water for pilgrims.', sourceLocale: 'en', needKeys: ['water'], price: { type: 'free' }, availability: { weekly: { monday: [{ open: '09:00', close: '10:00' }] }, exceptions: [] }, radiusMeters: 250, activate: false }) });
+    assert.equal(draft.response.status, 201);
+    assert.equal(draft.body.offer.status, 'draft');
+    const multipleStatuses = await request('/api/provider/offers', { headers: auth });
+    assert.deepEqual(multipleStatuses.body.items.map((item) => item.status).sort(), ['active', 'draft']);
     const invalidOffer = await request('/api/provider/offers', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'Incomplete offer', description: 'Missing need and hours.', sourceLocale: 'en', price: { type: 'free' }, radiusMeters: 250, activate: true }) });
     assert.equal(invalidOffer.response.status, 400);
     assert.equal(invalidOffer.body.status, 'invalid_request');
@@ -229,5 +268,10 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/pause`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'paused');
     assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/resume`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'active');
     assert.equal((await request(`/api/provider/offers/${offer.body.offer.id}/confirm`, { method: 'POST', headers: auth, body: '{}' })).body.offer.status, 'active');
+    const switchedToProduction = await request('/api/auth/session/switch-scope', { method: 'POST', headers: auth, body: JSON.stringify({ scope: 'production' }) });
+    assert.equal(switchedToProduction.response.status, 200);
+    const productionOffers = await request('/api/provider/offers', { headers: { authorization: `Bearer ${switchedToProduction.body.session.accessToken}`, 'x-ultreia-scope': 'production' } });
+    assert.equal(productionOffers.response.status, 200);
+    assert.equal(productionOffers.body.items.length, 0);
   });
 });

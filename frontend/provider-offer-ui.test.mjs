@@ -50,5 +50,10 @@ describe('provider offer UI helpers', () => {
     assert.equal((authSource.match(/<select/g) || []).length, (authSource.match(/<\/select>/g) || []).length, 'every generated select must close');
     assert.match(authSource, /if \(response\.status === 401[\s\S]*?webRefresh\(\)/);
     assert.match(authSource, /catch \{ window\.location\.replace\(`\/\$\{role\}\/login\//);
+    assert.match(authSource, /providerOffersOverview/);
+    assert.match(authSource, /lastConfirmedAt/);
+    assert.match(authSource, /confirmationDueAt/);
+    assert.match(authSource, /offer\.status === 'active'/);
+    assert.match(authSource, /data-admin-panel/);
   });
 });

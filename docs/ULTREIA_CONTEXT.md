@@ -998,3 +998,22 @@ ein Offer-Formular gerendert; die Preview ist keine zweite Eingabekopie. Ein
 401 bei `/api/auth/me` bleibt ein separater Session-Zustand: der bestehende
 Refresh wird einmal versucht, danach leitet das Frontend ohne gueltige Session
 zum Provider-Login weiter und laesst keinen scheinbar aktiven Editor stehen.
+
+## Provider-Offer-Uebersicht und Admin-Grundlage (2026-08-20)
+
+Die Provider-Startseite laedt `GET /api/provider/offers` nach jedem Reload und
+nach jeder Aktion neu. Die eigene Sektion `Meine Angebote` zeigt Titel,
+Taxonomie-Needs, Preis, Status, Radius sowie letzte und naechste Bestaetigung.
+Die Zaehler beschraenken sich auf echte `active`, `paused` und `draft` Offers.
+Aktionen entsprechen dem serverseitigen Statusmodell; die Daten bleiben an
+User-ID und Session-Scope gebunden. Autorisiertes `local_test` zeigt nur die
+kompakte, nicht-geheime GET-Diagnostik.
+
+Der Admin-Magic-Link-Request fuer `andreas.franz@ecily.com` liefert aktuell
+`403 access_not_available`, weil der Account noch nicht serverseitig die
+Rolle `admin` besitzt. Unbekannte Admin-Adressen werden weiterhin nicht
+automatisch angelegt. Der sichere One-shot-Operatorpfad liegt in
+`backend/scripts/provision-admin.mjs`, benoetigt Produktionsmodus, die
+Runtime-Variable `MONGODB_URI`, `ADMIN_PROVISION_EMAIL` und die exakte
+Bestaetigungsvariable `ADMIN_PROVISION_CONFIRM=ULTREIA_ADMIN_PROVISION_V1`;
+er hat keine HTTP-Route und gibt keine Geheimnisse aus.
