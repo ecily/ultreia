@@ -62,6 +62,9 @@ Object.assign(providerText.es, { noOffers: 'Todav\u00eda no hay ofertas.' });
 Object.assign(webText.de, { offerDiagnostics: 'Technikdetails' });
 Object.assign(webText.en, { offerDiagnostics: 'Technical details' });
 Object.assign(webText.es, { offerDiagnostics: 'Detalles t\u00e9cnicos' });
+Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerTooFar: 'Die Marker-Korrektur darf höchstens 25 m betragen.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', photos: 'Angebotsfotos', photosHint: 'Bis zu 3 Fotos, JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoUpload: 'Fotos werden hochgeladen …', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUploadError: 'Ein Foto konnte nicht hochgeladen werden.' });
+Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerTooFar: 'Marker correction must not exceed 25 m.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', photos: 'Offer photos', photosHint: 'Up to 3 photos, JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoUpload: 'Uploading photos …', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUploadError: 'A photo could not be uploaded.' });
+Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador movido', markerTooFar: 'La corrección no puede superar los 25 m.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', photos: 'Fotos de la oferta', photosHint: 'Hasta 3 fotos, JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoUpload: 'Subiendo fotos …', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUploadError: 'No se pudo subir una foto.' });
 
 function pt(key) { return providerText[currentWebLanguage()][key] || providerText.en[key] || key; }
 
@@ -151,7 +154,8 @@ async function webRefresh() {
 }
 
 async function webApi(path, options = {}, allowRefresh = true) {
-  const response = await fetch(`${WEB_API_BASE}${path}`, { ...options, credentials: 'include', headers: { 'content-type': 'application/json', 'x-ultreia-web': '1', 'x-ultreia-scope': webScope(), ...(options.headers || {}) } });
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const response = await fetch(`${WEB_API_BASE}${path}`, { ...options, credentials: 'include', headers: { ...(isFormData ? {} : { 'content-type': 'application/json' }), 'x-ultreia-web': '1', 'x-ultreia-scope': webScope(), ...(options.headers || {}) } });
   if (response.status === 401 && allowRefresh && !path.includes('/session/refresh') && await webRefresh()) return webApi(path, options, false);
   const body = await response.json().catch(() => ({}));
   if (!response.ok) { const error = new Error(body.status || 'request_failed'); error.status = body.status || 'request_failed'; error.detail = body.error || null; error.httpStatus = response.status; throw error; }
@@ -280,10 +284,12 @@ function providerOffersOverview(offers, needs, requestInfo, account, showNew = t
     : '';
   const cards = offers.map((offer) => {
     const allNeedLabels = (offer.needKeys || []).map((key) => needs.find((need) => need.key === key)?.label).filter(Boolean);
-    const needLabels = allNeedLabels.slice(0, 3).join(', ');
-    const moreNeeds = allNeedLabels.length > 3 ? ` +${allNeedLabels.length - 3} ${ot('moreNeeds')}` : '';
+    const needSummary = window.UltreiaProviderOfferUi.summarizeNeedLabels(allNeedLabels);
+    const needLabels = needSummary.visible.join(', ');
+    const moreNeeds = needSummary.hidden.length ? `<button class="provider-inline-button provider-needs-toggle" data-toggle-offer-needs data-more-label="+${needSummary.hidden.length} ${escapeProviderHtml(pt('moreNeedsShort'))}" type="button" aria-expanded="false">+${needSummary.hidden.length} ${pt('moreNeedsShort')}</button><span class="provider-offer-needs-expanded" data-full-offer-needs hidden>${escapeProviderHtml(needSummary.hidden.join(', '))}</span>` : '';
+    const thumbnail = offer.images?.[0]?.secureUrl ? `<img class="provider-offer-thumbnail" src="${escapeProviderHtml(offer.images[0].secureUrl)}" alt="${escapeProviderHtml(offer.title)}">` : '';
     const status = String(offer.status || 'draft');
-    return `<article class="provider-offer-card"><div class="provider-offer-card-main"><div class="provider-offer-card-heading"><strong>${escapeProviderHtml(offer.title)}</strong><span class="provider-offer-status status-${escapeProviderHtml(status)}">${escapeProviderHtml(pt(status) || status)}</span></div><p class="provider-offer-needs">${escapeProviderHtml(needLabels || tx('notAvailable'))}${escapeProviderHtml(moreNeeds)}</p><div class="provider-offer-meta"><strong>${escapeProviderHtml(providerPriceLabel(offer.price))}</strong><span>${escapeProviderHtml(offerTodaySummary(offer))}</span><span>${escapeProviderHtml(offer.radiusMeters)} m</span></div><dl class="provider-offer-dates"><div><dt>${tx('lastConfirmed')}</dt><dd>${providerDate(offer.lastConfirmedAt)}</dd></div><div><dt>${tx('nextConfirmation')}</dt><dd>${providerDate(offer.confirmationDueAt)}</dd></div></dl></div><div class="provider-actions">${providerOfferActions(offer)}</div></article>`;
+    return `<article class="provider-offer-card">${thumbnail}<div class="provider-offer-card-main"><div class="provider-offer-card-heading"><strong>${escapeProviderHtml(offer.title)}</strong><span class="provider-offer-status status-${escapeProviderHtml(status)}">${escapeProviderHtml(pt(status) || status)}</span></div><p class="provider-offer-needs">${escapeProviderHtml(needLabels || tx('notAvailable'))} ${moreNeeds}</p><div class="provider-offer-meta"><strong>${escapeProviderHtml(providerPriceLabel(offer.price))}</strong><span>${escapeProviderHtml(offerTodaySummary(offer))}</span><span>${escapeProviderHtml(offer.radiusMeters)} m</span></div><dl class="provider-offer-dates"><div><dt>${tx('lastConfirmed')}</dt><dd>${providerDate(offer.lastConfirmedAt)}</dd></div><div><dt>${tx('nextConfirmation')}</dt><dd>${providerDate(offer.confirmationDueAt)}</dd></div></dl></div><div class="provider-actions">${providerOfferActions(offer)}</div></article>`;
   }).join('');
   return `<section class="provider-offers-overview"><div class="provider-offers-heading"><div><p class="section-label">${tx('myOffers')}</p><h3>${tx('myOffers')}</h3></div>${showNew ? `<button class="web-auth-button" data-new-offer type="button">${newOfferLabel}</button>` : ''}</div><div class="provider-offer-counts"><span>${tx('activeCount')} <strong>${counts.active}</strong></span><span>${tx('pausedCount')} <strong>${counts.paused}</strong></span><span>${tx('draftCount')} <strong>${counts.draft}</strong></span></div>${diagnostics}${offers.length ? `<div class="provider-offer-list">${cards}</div>` : `<div class="provider-empty-offers"><p>${pt('noOffers')}</p>${showNew ? `<button class="web-auth-button" data-new-offer type="button">${newOfferLabel}</button>` : ''}</div>`}</section>`;
 }
@@ -308,7 +314,27 @@ function providerOfferPreview(offer, needs, weekly, price, radius) {
   return `<div class="provider-preview-block"><strong data-preview-title>${escapeProviderHtml(offer?.title || pt('previewEmpty'))}</strong><p data-preview-description>${escapeProviderHtml(offer?.description || '')}</p></div><div class="provider-preview-block"><span>${pt('previewNeeds')}</span><strong data-preview-needs>${escapeProviderHtml(needLabels.length ? needLabels.join(', ') : '—')}</strong></div><div class="provider-preview-block"><span>${pt('priceIntro')}</span><strong data-preview-price>${escapeProviderHtml(priceLabel)}</strong></div><div class="provider-preview-block"><span>${pt('previewAvailability')}</span><small data-preview-hours>${escapeProviderHtml(availability)}</small></div><div class="provider-preview-block"><span>${pt('previewRadius')}</span><strong data-preview-radius>${escapeProviderHtml(radius)} m</strong></div>`;
 }
 
-function providerOfferForm(offer, needs) {
+function providerOfferPhotos(offer) {
+  const images = Array.isArray(offer?.images) ? offer.images : [];
+  if (!images.length) return `<p class="provider-empty-selection">${pt('noNeedMatches')}</p>`;
+  return images.map((image, index) => `<li class="provider-photo-item" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index + 1}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
+}
+
+function validProviderPhoto(file) {
+  return file && ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 8 * 1024 * 1024;
+}
+
+async function uploadPendingOfferPhotos(offerId, files, formElement) {
+  const status = formElement.querySelector('[data-photo-status]');
+  for (const file of files) {
+    if (status) status.textContent = `${pt('photoUpload')} ${file.name}`;
+    const body = new FormData();
+    body.append('image', file, file.name);
+    await webApi(`/provider/offers/${offerId}/images`, { method: 'POST', body });
+  }
+}
+
+function providerOfferForm(offer, needs, pendingPhotoFiles = []) {
   const weekly = structuredClone(offer?.availability?.weekly || {});
   const price = offer?.price || { type: 'free', currency: 'EUR' };
   const selected = new Set(offer?.needKeys || []);
@@ -323,6 +349,7 @@ function providerOfferForm(offer, needs) {
       <section class="provider-offer-section"><p class="provider-section-kicker">3</p><h3>${pt('priceIntro')}</h3><p class="provider-section-help">${pt('priceHint')}</p><select name="priceType" data-price-type>${priceOptions}</select><div class="provider-price-fields" data-price-fields data-price-type="${price.type}"><label data-price-field="amount">${pt('amount')}<input name="amount" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.amount ?? '')}"></label><div class="provider-range-fields" data-price-field="range"><label>${pt('min')}<input name="min" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.min ?? '')}"></label><span>–</span><label>${pt('max')}<input name="max" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.max ?? '')}"></label></div><label data-price-field="currency">${pt('currency')}<input name="currency" maxlength="3" value="${escapeProviderHtml(price.currency || 'EUR')}"><span class="provider-field-error" data-field-error="currency"></span></label></div><span class="provider-field-error" data-field-error="price"></span></section>
       <section class="provider-offer-section"><p class="provider-section-kicker">4</p><h3>${pt('availabilityIntro')}</h3><p class="provider-section-help">${pt('availabilityHint')}</p><div class="provider-hours-presets"><button type="button" class="provider-preset-button" data-hours-preset-action="daily">${pt('presetDaily')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="weekdays">${pt('presetWeekdays')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="custom">${pt('presetCustom')}</button></div><div class="provider-hours-editor" data-hours-editor>${providerHoursEditor(weekly)}</div><button type="button" class="provider-inline-button" data-copy-hours>${pt('copyHours')}</button><span class="provider-field-error" data-field-error="hours"></span></section>
       <section class="provider-offer-section"><p class="provider-section-kicker">5</p><h3>${pt('radiusIntro')}</h3><div class="provider-radius-control"><input name="radiusMeters" data-radius-input type="range" min="50" max="1000" step="10" value="${escapeProviderHtml(offer?.radiusMeters || 250)}"><output data-radius-value>${escapeProviderHtml(offer?.radiusMeters || 250)} m</output><div class="provider-radius-scale"><span>50 m</span><span>${pt('radiusRecommended')}</span><span>1000 m</span></div></div><p class="provider-section-help">${pt('radiusHelp')}</p><span class="provider-field-error" data-field-error="radiusMeters"></span></section>
+      <section class="provider-offer-section"><p class="provider-section-kicker">6</p><h3>${pt('photos')}</h3><p class="provider-section-help">${pt('photosHint')}</p><input type="file" data-photo-input accept="image/jpeg,image/png,image/webp" multiple><ul class="provider-photo-list" data-photo-list>${providerOfferPhotos(offer)}</ul><ul class="provider-photo-pending" data-photo-pending>${pendingPhotoFiles.map((file) => `<li>${escapeProviderHtml(file.name)}</li>`).join('')}</ul><p class="provider-photo-status" data-photo-status aria-live="polite"></p><span class="provider-field-error" data-field-error="photos"></span></section>
       <button class="web-auth-button provider-publish-button" type="submit">${offer ? pt('saveChanges') : pt('publishOffer')}</button><button class="web-auth-button secondary" data-cancel-offer type="button">${pt('cancel')}</button>
     </div><details class="provider-offer-preview" open><summary>${pt('preview')}</summary><div data-offer-preview>${providerOfferPreview(offer, needs, weekly, price, offer?.radiusMeters || 250)}</div></details></div>
   </form>`;
@@ -396,7 +423,7 @@ function providerProfileLocationSummary(profile) {
     [pt('phone'), profile?.phone || tx('notAvailable')],
     [pt('website'), profile?.website || tx('notAvailable')],
   ];
-  return `<section class="provider-profile-summary"><div class="provider-profile-summary-heading"><div><p class="section-label">${pt('profileLocation')}</p><h2>${pt('profileLocation')}</h2></div><button class="web-auth-button secondary" data-edit-profile-location type="button">${pt('editProfileLocation')}</button></div><dl>${rows.map(([label, value]) => `<div><dt>${escapeProviderHtml(label)}</dt><dd>${escapeProviderHtml(value)}</dd></div>`).join('')}</dl></section>`;
+  return `<section class="provider-profile-summary"><div class="provider-profile-summary-heading"><div><p class="section-label">${pt('profileLocation')}</p><h2>${pt('profileLocation')}</h2></div><button class="web-auth-button secondary" data-edit-profile-location type="button">${pt('editProfileLocation')}</button></div><dl>${rows.map(([label, value]) => `<div><dt>${escapeProviderHtml(label)}</dt><dd>${escapeProviderHtml(value)}</dd></div>`).join('')}</dl>${location.formattedAddress ? `<div class="provider-map-preview provider-map-summary" data-map-preview data-map-label="${escapeProviderHtml(pt('mapLabel'))}"><span>${escapeProviderHtml(location.formattedAddress)}</span></div>` : ''}</section>`;
 }
 
 function providerProfileFormMarkup(profile, state) {
@@ -405,11 +432,11 @@ function providerProfileFormMarkup(profile, state) {
 
 function providerLocationFormMarkup(profile, state) {
   const location = state.locationDraft || profile.location;
-  return `<section class="provider-panel"><p class="section-label">2. ${pt('locationStep')}</p><h2>${pt('locationSearch')}</h2><form class="provider-form" data-location-form><label>${pt('locationSearch')}<input name="locationSearch" autocomplete="off" required><span class="provider-field-error" data-field-error="locationSearch"></span><div class="provider-suggestions" data-suggestions></div></label><p class="provider-location-help">${pt('locationAdjust')}</p><div class="provider-map-preview" data-map-preview>${location ? `<span class="provider-map-marker">+</span><strong>${escapeProviderHtml(location.formattedAddress)}</strong><small>${Number(location.latitude).toFixed(6)}, ${Number(location.longitude).toFixed(6)}</small>` : '<span>Google Place</span>'}</div>${location ? `<div class="provider-form-grid"><label>Latitude<input name="finalLatitude" type="number" step="0.000001" value="${location.latitude}"></label><label>Longitude<input name="finalLongitude" type="number" step="0.000001" value="${location.longitude}"></label></div>` : ''}${providerFeedback(state, 'location')}<button class="web-auth-button" data-save-location type="button" ${location ? '' : 'disabled'}>${pt('saveLocation')}</button></form></section>`;
+  return `<section class="provider-panel"><p class="section-label">2. ${pt('locationStep')}</p><h2>${pt('locationSearch')}</h2><form class="provider-form" data-location-form><label>${pt('locationSearch')}<input name="locationSearch" autocomplete="off" required><span class="provider-field-error" data-field-error="locationSearch"></span><div class="provider-suggestions" data-suggestions></div></label><p class="provider-location-help">${pt('locationAdjust')}</p><div class="provider-map-preview" data-map-preview data-map-label="${escapeProviderHtml(pt('mapLabel'))}">${location ? `<span class="provider-map-marker">+</span><strong>${escapeProviderHtml(location.formattedAddress)}</strong><small>${Number(location.latitude).toFixed(6)}, ${Number(location.longitude).toFixed(6)}</small>` : '<span>Google Place</span>'}</div>${location ? `<div class="provider-form-grid"><label>Latitude<input name="finalLatitude" type="number" step="0.000001" value="${location.latitude}"></label><label>Longitude<input name="finalLongitude" type="number" step="0.000001" value="${location.longitude}"></label></div>` : ''}${providerFeedback(state, 'location')}<button class="web-auth-button" data-save-location type="button" ${location ? '' : 'disabled'}>${pt('saveLocation')}</button></form></section>`;
 }
 
 async function renderProviderStart() {
-  const state = { account: null, profile: null, offers: [], offersRequest: null, needs: [], locationDraft: null, editingOffer: null, editingSetup: false, feedback: { profile: { state: 'idle' }, location: { state: 'idle' }, offer: { state: 'idle' } } };
+  const state = { account: null, profile: null, offers: [], offersRequest: null, needs: [], locationDraft: null, editingOffer: null, editingSetup: false, pendingPhotoFiles: [], feedback: { profile: { state: 'idle' }, location: { state: 'idle' }, offer: { state: 'idle' } } };
   const load = async () => {
     const accountResult = await webApi('/auth/me');
     if (accountResult.session?.activeRole !== 'provider') throw Object.assign(new Error('role_context_mismatch'), { status: 'role_context_mismatch' });
@@ -428,7 +455,7 @@ async function renderProviderStart() {
     const account = `<div class="provider-account"><strong>${escapeProviderHtml(profile.businessName || profile.displayName || profile.contactEmail || '')}</strong><span>${escapeProviderHtml(profile.contactEmail || '')}</span><span class="scope-badge">${escapeProviderHtml(scopeLabel)}</span>${scopeSwitcher}<button class="web-auth-button secondary" data-logout type="button">${tx('logout')}</button></div>`;
     let content;
     if (state.editingOffer) {
-      content = `<section class="provider-panel provider-offer-workspace"><p class="section-label">${pt('myOffers')}</p><h2>${pt('editOffer')}</h2>${providerFeedback(state, 'offer')}${providerOfferForm(state.editingOffer, state.needs)}</section>`;
+      content = `<section class="provider-panel provider-offer-workspace"><p class="section-label">${pt('myOffers')}</p><h2>${pt('editOffer')}</h2>${providerFeedback(state, 'offer')}${providerOfferForm(state.editingOffer, state.needs, state.pendingPhotoFiles)}</section>`;
     } else if (state.editingSetup) {
       content = `<section class="provider-panel provider-setup-editor"><p class="section-label">${pt('profileLocation')}</p><h2>${pt('editProfileLocation')}</h2>${providerProfileFormMarkup(profile, state)}${providerLocationFormMarkup(profile, state)}<button class="web-auth-button secondary" data-cancel-setup type="button">${pt('cancel')}</button></section>`;
     } else {
@@ -448,8 +475,8 @@ async function renderProviderStart() {
     const statusPanel = `<div class="provider-status-panel"><div><span>${pt('businessName')}</span><strong>${profile.businessName ? pt('complete') : pt('incomplete')}</strong></div><div><span>${pt('locationStep')}</span><strong>${profile.location ? pt('confirmed') : pt('missing')}</strong></div><div><span>${pt('providerStatus')}</span><strong>${escapeProviderHtml(pt(profile.status || 'pending'))}</strong></div></div>`;
     const profileForm = `<section class="provider-panel"><p class="section-label">1. ${pt('providerStep')}</p><h2>${pt('businessName')}</h2><form class="provider-form" data-profile-form><label>${pt('businessName')}<input name="businessName" required maxlength="120" value="${escapeProviderHtml(profile.businessName)}"><span class="provider-field-error" data-field-error="businessName"></span></label><label>${pt('sourceLocale')}<select name="sourceLocale"><option value="de" ${profile.sourceLocale === 'de' ? 'selected' : ''}>DE</option><option value="en" ${profile.sourceLocale === 'en' ? 'selected' : ''}>EN</option><option value="es" ${profile.sourceLocale === 'es' ? 'selected' : ''}>ES</option></select></label><label>${pt('phone')}<input name="phone" value="${escapeProviderHtml(profile.phone)}"></label><label>${pt('website')}<input name="website" type="url" value="${escapeProviderHtml(profile.website)}"><span class="provider-field-error" data-field-error="website"></span></label><p>${escapeProviderHtml(profile.contactEmail || '')}</p>${providerFeedback(state, 'profile')}<button class="web-auth-button" type="submit">${pt('continue')}</button></form></section>`;
     const location = state.locationDraft || profile.location;
-    const locationForm = `<section class="provider-panel"><p class="section-label">2. ${pt('locationStep')}</p><h2>${pt('locationSearch')}</h2><form class="provider-form" data-location-form><label>${pt('locationSearch')}<input name="locationSearch" autocomplete="off" required><span class="provider-field-error" data-field-error="locationSearch"></span><div class="provider-suggestions" data-suggestions></div></label><p class="provider-location-help">${pt('locationAdjust')}</p><div class="provider-map-preview" data-map-preview>${location ? `<span class="provider-map-marker">+</span><strong>${escapeProviderHtml(location.formattedAddress)}</strong><small>${Number(location.latitude).toFixed(6)}, ${Number(location.longitude).toFixed(6)}</small>` : '<span>Google Place</span>'}</div>${location ? `<div class="provider-form-grid"><label>Latitude<input name="finalLatitude" type="number" step="0.000001" value="${location.latitude}"></label><label>Longitude<input name="finalLongitude" type="number" step="0.000001" value="${location.longitude}"></label></div>` : ''}${providerFeedback(state, 'location')}<button class="web-auth-button" data-save-location type="button" ${location ? '' : 'disabled'}>${pt('saveLocation')}</button></form></section>`;
-    const offerSection = profile.status === 'active' && profile.location ? `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><h2>${state.editingOffer ? pt('editOffer') : pt('offerStep')}</h2>${providerFeedback(state, 'offer')}${state.editingOffer || state.offers.length === 0 ? providerOfferForm(state.editingOffer, state.needs) : ''}${providerOffersOverview(state.offers, state.needs, state.offersRequest, state.account, state.offers.length > 0 && !state.editingOffer)}</section>` : `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><p>${pt('offerLocked')}</p></section>`;
+    const locationForm = `<section class="provider-panel"><p class="section-label">2. ${pt('locationStep')}</p><h2>${pt('locationSearch')}</h2><form class="provider-form" data-location-form><label>${pt('locationSearch')}<input name="locationSearch" autocomplete="off" required><span class="provider-field-error" data-field-error="locationSearch"></span><div class="provider-suggestions" data-suggestions></div></label><p class="provider-location-help">${pt('locationAdjust')}</p><div class="provider-map-preview" data-map-preview data-map-label="${escapeProviderHtml(pt('mapLabel'))}">${location ? `<span class="provider-map-marker">+</span><strong>${escapeProviderHtml(location.formattedAddress)}</strong><small>${Number(location.latitude).toFixed(6)}, ${Number(location.longitude).toFixed(6)}</small>` : '<span>Google Place</span>'}</div>${location ? `<div class="provider-form-grid"><label>Latitude<input name="finalLatitude" type="number" step="0.000001" value="${location.latitude}"></label><label>Longitude<input name="finalLongitude" type="number" step="0.000001" value="${location.longitude}"></label></div>` : ''}${providerFeedback(state, 'location')}<button class="web-auth-button" data-save-location type="button" ${location ? '' : 'disabled'}>${pt('saveLocation')}</button></form></section>`;
+    const offerSection = profile.status === 'active' && profile.location ? `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><h2>${state.editingOffer ? pt('editOffer') : pt('offerStep')}</h2>${providerFeedback(state, 'offer')}${state.editingOffer || state.offers.length === 0 ? providerOfferForm(state.editingOffer, state.needs, state.pendingPhotoFiles) : ''}${providerOffersOverview(state.offers, state.needs, state.offersRequest, state.account, state.offers.length > 0 && !state.editingOffer)}</section>` : `<section class="provider-panel"><p class="section-label">3. ${pt('offerStep')}</p><p>${pt('offerLocked')}</p></section>`;
     const scopeSwitcher = state.account?.localTestAuthorized ? `<div class="provider-scope-switch"><span>${tx('switchScope')}</span><button class="web-auth-button secondary" data-scope-switch="production" type="button" ${scope === 'production' ? 'disabled' : ''}>${tx('scopeProduction')}</button><button class="web-auth-button secondary" data-scope-switch="local_test" type="button" ${scope === 'local_test' ? 'disabled' : ''}>${tx('scopeLocalTest')}</button></div>` : '';
     const testBanner = scope === 'local_test' ? `<div class="provider-test-banner" role="status">${tx('testBanner')}</div>` : '';
     webShell(tx('provider'), `${testBanner}${steps}<div class="provider-account"><strong>${escapeProviderHtml(profile.displayName || profile.contactEmail || '')}</strong><span>${escapeProviderHtml(profile.contactEmail || '')}</span><span class="scope-badge">${escapeProviderHtml(scope)}</span>${scopeSwitcher}<button class="web-auth-button secondary" data-logout type="button">${tx('logout')}</button></div>${statusPanel}${profileForm}${locationForm}${offerSection}`);
@@ -482,6 +509,31 @@ async function renderProviderStart() {
       } finally { setFormBusy(formElement, false); }
     });
     const locationInput = document.querySelector('[name="locationSearch"]');
+    const mapContainer = document.querySelector('[data-map-preview]');
+    const mapLocation = state.locationDraft || state.profile?.location;
+    if (mapContainer && mapLocation && window.UltreiaProviderMap) {
+      webApi('/provider/maps-config').then((config) => {
+        if (!config.configured || !config.key) {
+          mapContainer.classList.add('provider-map-error');
+          mapContainer.textContent = pt('mapUnavailable');
+          return null;
+        }
+        return window.UltreiaProviderMap.mount(mapContainer, {
+          apiKey: config.key,
+          location: mapLocation,
+          editable: Boolean(document.querySelector('[data-location-form]')),
+          labels: { mapLabel: pt('mapLabel'), markerMoved: pt('markerMoved'), markerTooFar: pt('markerTooFar'), mapUnavailable: pt('mapUnavailable') },
+          onMove: ({ lat, lng, accepted }) => {
+            const latitude = document.querySelector('[name="finalLatitude"]');
+            const longitude = document.querySelector('[name="finalLongitude"]');
+            if (latitude && longitude && accepted) { latitude.value = lat.toFixed(6); longitude.value = lng.toFixed(6); }
+            const save = document.querySelector('[data-save-location]');
+            if (save) save.disabled = !accepted;
+          },
+          onError: () => { mapContainer.classList.add('provider-map-error'); },
+        });
+      }).catch(() => { mapContainer.classList.add('provider-map-error'); mapContainer.textContent = pt('mapUnavailable'); });
+    }
     const autocomplete = window.UltreiaProviderAutocomplete?.create({
       fetchSuggestions: async ({ input, locale, sessionToken, signal }) => { const result = await webApi('/provider/location/autocomplete', { method: 'POST', signal, body: JSON.stringify({ input, locale, sessionToken }) }); return result.suggestions || []; },
       onResults: (suggestions) => { document.querySelector('[data-suggestions]').innerHTML = suggestions.map((item) => `<button type="button" class="provider-suggestion" data-place-id="${escapeProviderHtml(item.placeId)}"><strong>${escapeProviderHtml(item.mainText || item.text)}</strong><small>${escapeProviderHtml(item.secondaryText)}</small></button>`).join(''); },
@@ -505,6 +557,9 @@ async function renderProviderStart() {
       const validationMessages = { title_required: 'offerTitleRequired', description_required: 'offerDescriptionRequired', needs_required: 'needRequired', price_invalid: 'priceInvalid', hours_required: 'validationTime', radius_invalid: 'radiusInvalid' };
       const validation = validationResult ? [validationResult.field, pt(validationMessages[validationResult.code] || 'offerSaveError')] : null;
       if (validation) { if (validation[0] === 'hours') formElement.dataset.hoursExpanded = 'true'; setFieldError(formElement, validation[0], validation[1]); return; }
+      const pendingPhotos = state.pendingPhotoFiles || [];
+      const existingPhotoCount = Array.isArray(state.editingOffer?.images) ? state.editingOffer.images.length : 0;
+      if (existingPhotoCount + pendingPhotos.length > 3) { setFieldError(formElement, 'photos', pt('photoLimit')); return; }
       const scope = state.account?.scope || webScope();
       const id = formElement.dataset.offerId;
       const endpoint = id ? `/provider/offers/${id}` : '/provider/offers';
@@ -513,8 +568,10 @@ async function renderProviderStart() {
       try {
         const result = await webApi(endpoint, { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
         const offer = result.offer;
+        if (pendingPhotos.length) await uploadPendingOfferPhotos(offer.id, pendingPhotos, formElement);
         state.feedback.offer = { state: 'success', message: body.activate ? pt('offerPublished') : pt('offerSaved'), diagnostic: diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, result, state.profile, offer) };
         state.editingOffer = null;
+        state.pendingPhotoFiles = [];
         await load();
         render();
       } catch (error) {
@@ -524,6 +581,46 @@ async function renderProviderStart() {
       } finally { setFormBusy(formElement, false); }
     });
     const offerForm = document.querySelector('[data-offer-form]');
+    document.querySelectorAll('[data-toggle-offer-needs]').forEach((button) => button.addEventListener('click', () => {
+      const expanded = document.querySelector(`[data-full-offer-needs]`);
+      if (!expanded) return;
+      expanded.hidden = !expanded.hidden;
+      button.setAttribute('aria-expanded', String(!expanded.hidden));
+      button.textContent = expanded.hidden ? button.dataset.moreLabel : pt('hideNeeds');
+    }));
+    offerForm?.querySelector('[data-photo-input]')?.addEventListener('change', (event) => {
+      const selectedFiles = [...event.currentTarget.files];
+      const currentCount = Array.isArray(state.editingOffer?.images) ? state.editingOffer.images.length : 0;
+      if (selectedFiles.some((file) => !validProviderPhoto(file)) || currentCount + selectedFiles.length > 3) {
+        setFieldError(offerForm, 'photos', selectedFiles.some((file) => !validProviderPhoto(file)) ? pt('photoInvalid') : pt('photoLimit'));
+        event.currentTarget.value = '';
+        return;
+      }
+      state.pendingPhotoFiles = selectedFiles;
+      const pending = offerForm.querySelector('[data-photo-pending]');
+      if (pending) pending.innerHTML = selectedFiles.map((file) => `<li>${escapeProviderHtml(file.name)}</li>`).join('');
+    });
+    offerForm?.querySelectorAll('[data-photo-remove]')?.forEach((button) => button.addEventListener('click', async () => {
+      const offerId = offerForm.dataset.offerId;
+      if (!offerId) return;
+      setProviderFeedback(state, 'offer', 'saving', pt('saving'));
+      try {
+        await webApi(`/provider/offers/${offerId}/images`, { method: 'DELETE', body: JSON.stringify({ publicId: button.dataset.photoRemove }) });
+        await load();
+        state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer;
+        render();
+      } catch (error) { setProviderFeedback(state, 'offer', 'error', pt('photoUploadError'), diagnostic(`DELETE /api/provider/offers/${offerId}/images`, state.account?.scope || webScope(), null, null, null, error)); }
+    }));
+    offerForm?.querySelectorAll('[data-photo-move]')?.forEach((button) => button.addEventListener('click', async () => {
+      const offerId = offerForm.dataset.offerId;
+      if (!offerId) return;
+      const publicIds = [...offerForm.querySelectorAll('[data-photo-id]')].map((item) => item.dataset.photoId).filter(Boolean);
+      const from = publicIds.indexOf(button.dataset.photoId);
+      const to = button.dataset.photoMove === 'up' ? from - 1 : from + 1;
+      if (from < 0 || to < 0 || to >= publicIds.length) return;
+      [publicIds[from], publicIds[to]] = [publicIds[to], publicIds[from]];
+      try { await webApi(`/provider/offers/${offerId}/images/reorder`, { method: 'POST', body: JSON.stringify({ publicIds }) }); await load(); state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer; render(); } catch (error) { setProviderFeedback(state, 'offer', 'error', pt('photoUploadError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, state.account?.scope || webScope(), null, null, null, error)); }
+    }));
     const refreshOfferPreview = () => { if (offerForm) { providerUpdateNeedChips(offerForm, state.needs); providerUpdateOfferPreview(offerForm, state.needs); } };
     offerForm?.querySelectorAll('input, textarea, select').forEach((field) => field.addEventListener('input', () => {
       if (field.matches('[data-radius-input]')) offerForm.querySelector('[data-radius-value]').textContent = `${field.value} m`;

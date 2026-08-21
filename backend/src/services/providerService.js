@@ -9,12 +9,20 @@ const CURRENCIES = /^[A-Z]{3}$/;
 const URL_PATTERN = /^https?:\/\/[^\s]+$/i;
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+const MAX_OFFER_IMAGES = 3;
 
 function asId(value) { try { return new ObjectId(value); } catch { return null; } }
 function clone(value) { return value == null ? value : structuredClone(value); }
 function now() { return new Date(); }
 function plusDays(date, days) { return new Date(date.getTime() + days * 86400000); }
 function number(value) { return typeof value === 'number' ? value : Number(value); }
+
+function publicImages(images = []) {
+  return images.slice(0, MAX_OFFER_IMAGES).map((image, index) => typeof image === 'string'
+    ? { publicId: null, secureUrl: image, width: null, height: null, format: null, bytes: null, sortOrder: index, createdAt: null }
+    : { publicId: image.publicId, secureUrl: image.secureUrl, width: image.width, height: image.height, format: image.format, bytes: image.bytes || null, sortOrder: image.sortOrder ?? index, createdAt: image.createdAt || null });
+}
 
 function publicProfile(profile) {
   if (!profile) return null;
@@ -35,7 +43,7 @@ function publicOffer(offer) {
     translations: clone(offer.translations), needKeys: offer.needKeys, price: clone(offer.price),
     availability: clone(offer.availability), openingHours: clone(offer.openingHours || offer.availability?.weekly || {}),
     availabilityExceptions: clone(offer.availabilityExceptions || offer.availability?.exceptions || []),
-    radiusMeters: offer.radiusMeters, images: clone(offer.images || []),
+    radiusMeters: offer.radiusMeters, images: publicImages(clone(offer.images || [])),
     lastConfirmedAt: offer.lastConfirmedAt || null, confirmationDueAt: offer.confirmationDueAt || null,
     createdAt: offer.createdAt, updatedAt: offer.updatedAt,
   };
@@ -145,7 +153,17 @@ function validatePrice(price) {
   return { type: price.type, amount, currency };
 }
 
-function validateOfferInput(body, activeNeedKeys) {
+function validateOfferImages(images) {
+  if (!Array.isArray(images) || images.length > MAX_OFFER_IMAGES) throw new Error('images is invalid');
+  return images.map((image, index) => {
+    if (!image || typeof image !== 'object' || typeof image.publicId !== 'string' || typeof image.secureUrl !== 'string' || !URL_PATTERN.test(image.secureUrl)) throw new Error('images is invalid');
+    const width = Number(image.width); const height = Number(image.height);
+    if (!Number.isInteger(width) || width <= 0 || !Number.isInteger(height) || height <= 0 || !IMAGE_FORMATS.has(String(image.format || '').toLowerCase())) throw new Error('images is invalid');
+    return { publicId: image.publicId, secureUrl: image.secureUrl, width, height, format: String(image.format).toLowerCase(), bytes: Number.isInteger(image.bytes) && image.bytes > 0 ? image.bytes : null, sortOrder: index, createdAt: image.createdAt ? new Date(image.createdAt) : new Date() };
+  });
+}
+
+function validateOfferInput(body, activeNeedKeys, existingImages = []) {
   const title = readText(body?.title, 'title', { min: 2, max: 120 });
   const description = readText(body?.description, 'description', { min: 2, max: 1000 });
   if (!['de', 'en', 'es'].includes(body?.sourceLocale)) throw new Error('sourceLocale is invalid');
@@ -156,7 +174,7 @@ function validateOfferInput(body, activeNeedKeys) {
   const radiusMeters = number(body?.radiusMeters === undefined ? 250 : body.radiusMeters);
   if (!Number.isInteger(radiusMeters) || radiusMeters < 50 || radiusMeters > 1000) throw new Error('radiusMeters is invalid');
   const availability = validateTimeWindows(body?.availability || { weekly: body?.openingHours, exceptions: body?.availabilityExceptions });
-  const images = Array.isArray(body?.images) ? body.images.filter((value) => typeof value === 'string' && URL_PATTERN.test(value)).slice(0, 8) : [];
+  const images = body?.images === undefined ? publicImages(clone(existingImages)) : validateOfferImages(body.images);
   return { title, description, sourceLocale, needKeys, price: validatePrice(body?.price), availability, images, radiusMeters };
 }
 
@@ -245,14 +263,14 @@ export function createProviderService(databaseService, googlePlacesService, need
 
   async function writeOffer(user, scope, body, id = null) {
     const profile = await ensureProfile(user, scope);
+    const previous = id ? await offers().findOne({ _id: asId(id), providerId: user._id, scope }) : null;
+    if (id && !previous) throw new Error('offer_not_found');
     const allowedNeeds = await needService.activeKeys(Array.isArray(body?.needKeys) ? body.needKeys : []);
-    const input = validateOfferInput(body, allowedNeeds);
+    const input = validateOfferInput(body, allowedNeeds, previous?.images || []);
     const timestamp = now();
     const requestedActive = body?.activate === true;
     if (requestedActive && (!profile.businessName || !profile.location || profile.status !== 'active')) throw new Error('provider_profile_incomplete');
     const status = requestedActive ? 'active' : 'draft';
-    const previous = id ? await offers().findOne({ _id: asId(id), providerId: user._id, scope }) : null;
-    if (id && !previous) throw new Error('offer_not_found');
     const document = { providerId: user._id, scope, status, ...input, translations: withTranslations(input, previous?.translations), lastConfirmedAt: status === 'active' ? timestamp : (previous?.lastConfirmedAt || null), confirmationDueAt: status === 'active' ? plusDays(timestamp, 30) : (previous?.confirmationDueAt || null), createdAt: previous?.createdAt || timestamp, updatedAt: timestamp };
     if (previous) {
       await offers().updateOne({ _id: previous._id, providerId: user._id, scope }, { $set: document });
@@ -260,6 +278,39 @@ export function createProviderService(databaseService, googlePlacesService, need
     }
     const inserted = await offers().insertOne(document);
     return getOffer(user, scope, String(inserted.insertedId));
+  }
+
+  async function addOfferImage(user, scope, id, image) {
+    const objectId = asId(id); if (!objectId) throw new Error('offer_not_found');
+    const offer = await offers().findOne({ _id: objectId, providerId: user._id, scope });
+    if (!offer) throw new Error('offer_not_found');
+    const images = publicImages(offer.images || []);
+    if (images.length >= MAX_OFFER_IMAGES) throw new Error('images_limit_exceeded');
+    const nextImage = { ...image, sortOrder: images.length };
+    await offers().updateOne({ _id: objectId, providerId: user._id, scope }, { $set: { images: [...images, nextImage], updatedAt: now() } });
+    return getOffer(user, scope, id);
+  }
+
+  async function removeOfferImage(user, scope, id, publicId) {
+    const objectId = asId(id); if (!objectId) throw new Error('offer_not_found');
+    const offer = await offers().findOne({ _id: objectId, providerId: user._id, scope });
+    if (!offer) throw new Error('offer_not_found');
+    const images = publicImages(offer.images || []).filter((image) => image.publicId !== publicId).map((image, index) => ({ ...image, sortOrder: index }));
+    if (images.length === (offer.images || []).length) throw new Error('image_not_found');
+    await offers().updateOne({ _id: objectId, providerId: user._id, scope }, { $set: { images, updatedAt: now() } });
+    return getOffer(user, scope, id);
+  }
+
+  async function reorderOfferImages(user, scope, id, publicIds) {
+    const objectId = asId(id); if (!objectId) throw new Error('offer_not_found');
+    if (!Array.isArray(publicIds) || publicIds.length > MAX_OFFER_IMAGES) throw new Error('images is invalid');
+    const offer = await offers().findOne({ _id: objectId, providerId: user._id, scope });
+    if (!offer) throw new Error('offer_not_found');
+    const images = publicImages(offer.images || []);
+    if (images.length !== publicIds.length || new Set(publicIds).size !== images.length || publicIds.some((idValue) => !images.some((image) => image.publicId === idValue))) throw new Error('images is invalid');
+    const ordered = publicIds.map((publicId, index) => ({ ...images.find((image) => image.publicId === publicId), sortOrder: index }));
+    await offers().updateOne({ _id: objectId, providerId: user._id, scope }, { $set: { images: ordered, updatedAt: now() } });
+    return getOffer(user, scope, id);
   }
 
   async function transitionOffer(user, scope, id, fromStatuses, status) {
@@ -275,7 +326,7 @@ export function createProviderService(databaseService, googlePlacesService, need
 
   async function confirmOffer(user, scope, id) { return transitionOffer(user, scope, id, ['active', 'expired', 'paused'], 'active'); }
 
-  return { ensureProfile, getProfile, locationHint, updateProfile, validateLocation, updateLocation, listOffers, getOffer, writeOffer, pause: (u, s, id) => transitionOffer(u, s, id, ['active', 'expired'], 'paused'), resume: (u, s, id) => transitionOffer(u, s, id, ['paused', 'expired'], 'active'), confirm: confirmOffer, publicProfile, publicOffer, PROFILE_STATUSES, OFFER_STATUSES };
+  return { ensureProfile, getProfile, locationHint, updateProfile, validateLocation, updateLocation, listOffers, getOffer, writeOffer, addOfferImage, removeOfferImage, reorderOfferImages, pause: (u, s, id) => transitionOffer(u, s, id, ['active', 'expired'], 'paused'), resume: (u, s, id) => transitionOffer(u, s, id, ['paused', 'expired'], 'active'), confirm: confirmOffer, publicProfile, publicOffer, PROFILE_STATUSES, OFFER_STATUSES, MAX_OFFER_IMAGES };
 }
 
 export { canonicalGoogleLocation, haversineMeters, validatePrice, validateTimeWindows };

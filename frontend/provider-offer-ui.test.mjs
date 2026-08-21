@@ -45,6 +45,11 @@ describe('provider offer UI helpers', () => {
     assert.equal(ui.isProviderSetupReady({ businessName: 'Herberge' }), false);
   });
 
+  it('keeps all need labels available for a compact expandable summary', () => {
+    assert.equal(JSON.stringify(ui.summarizeNeedLabels(['A', 'B', 'C'])), JSON.stringify({ visible: ['A', 'B', 'C'], hidden: [] }));
+    assert.equal(JSON.stringify(ui.summarizeNeedLabels(['A', 'B', 'C', 'D', 'E'])), JSON.stringify({ visible: ['A', 'B', 'C'], hidden: ['D', 'E'] }));
+  });
+
   it('validates offer sections before submission', () => {
     assert.equal(ui.validateOfferDraft({ title: '', description: 'Long enough', needKeys: ['eat'], price: { type: 'free' }, availability: { weekly: {} }, radiusMeters: 250 }).field, 'title');
     assert.equal(ui.validateOfferDraft({ title: 'Offer', description: 'Long enough', needKeys: [], price: { type: 'free' }, availability: { weekly: {} }, radiusMeters: 250 }).field, 'needKeys');

@@ -9,6 +9,11 @@
 
   function popularNeeds(needs, limit = 6) { return needs.slice(0, limit); }
 
+  function summarizeNeedLabels(labels, limit = 3) {
+    const safe = Array.isArray(labels) ? labels.filter(Boolean) : [];
+    return { visible: safe.slice(0, limit), hidden: safe.slice(limit) };
+  }
+
   function groupNeeds(needs) {
     return [...new Set(needs.map((need) => need.group || need.criticality || 'other'))].map((group) => ({ group, items: needs.filter((need) => (need.group || need.criticality || 'other') === group) }));
   }
@@ -56,5 +61,5 @@
     return null;
   }
 
-  window.UltreiaProviderOfferUi = { days, filterNeeds, popularNeeds, groupNeeds, presetWeekly, detectHoursPreset, priceVisibility, hasOpeningWindow, isProviderSetupReady, isOnboardingComplete, providerViewState, validateOfferDraft };
+  window.UltreiaProviderOfferUi = { days, filterNeeds, popularNeeds, summarizeNeedLabels, groupNeeds, presetWeekly, detectHoursPreset, priceVisibility, hasOpeningWindow, isProviderSetupReady, isOnboardingComplete, providerViewState, validateOfferDraft };
 })();

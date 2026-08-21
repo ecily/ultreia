@@ -19,6 +19,7 @@ import { logEvent } from './lib/logger.js';
 import { createGooglePlacesService } from './services/googlePlacesService.js';
 import { createNeedService } from './services/needService.js';
 import { createProviderService } from './services/providerService.js';
+import { createMediaService } from './services/mediaService.js';
 import { createProviderRouter } from './routes/provider.js';
 import { createNeedsRouter } from './routes/needs.js';
 
@@ -54,6 +55,7 @@ export function createApp(config = loadConfig(), services = {}) {
   const googlePlacesService = services.googlePlacesService || createGooglePlacesService(config);
   const needService = services.needService || createNeedService(databaseService);
   const providerService = services.providerService || createProviderService(databaseService, googlePlacesService, needService);
+  const mediaService = services.mediaService || createMediaService(config);
 
   app.disable('x-powered-by');
   app.locals.corsOrigins = config.corsOrigins;
@@ -69,7 +71,7 @@ export function createApp(config = loadConfig(), services = {}) {
   app.use('/api/push', createPushRouter(config, databaseService));
   app.use('/api/diagnostics', createDiagnosticsRouter(config, databaseService));
   app.use('/api/auth', createAuthRouter(config, databaseService, authService, mailService, authMiddleware));
-  app.use('/api/provider', createProviderRouter(config, databaseService, providerService, googlePlacesService, authMiddleware));
+  app.use('/api/provider', createProviderRouter(config, databaseService, providerService, googlePlacesService, authMiddleware, mediaService));
   app.use('/api/account', createAccountRouter(authService, authMiddleware));
   app.use('/api/profiles', createProfileRouter(databaseService, authService, authMiddleware));
   app.use('/api/trips', createTripRouter(config, databaseService, tripService, authMiddleware));

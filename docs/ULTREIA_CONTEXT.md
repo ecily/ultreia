@@ -1128,3 +1128,22 @@ Keys werden nicht als technische Rohtexte ausgegeben. Feedback bleibt fuer
 Nutzer klar sichtbar, waehrend lokale technische Details einklappbar unter
 `Technikdetails` liegen. Onboarding-UI verschwindet damit aus der primaeren
 Oberflaeche, sobald die wiederkehrende Provider-Arbeitsaufgabe beginnen kann.
+
+## Provider-Fotos und Standortkarte (2026-08-21)
+
+Offer-Fotos sind auf drei Bilder je Offer begrenzt. Die API speichert nur
+Cloudinary-Metadaten (`publicId`, `secureUrl`, Dimensionen, Format, Bytes,
+Sortierung und Erstellzeit); Upload, Loeschen und Sortieren sind geschuetzte,
+provider- und scope-gebundene Operationen. Bilder werden serverseitig als
+Multipart-Daten geprueft und signiert zu Cloudinary hochgeladen. Base64 und
+lokale Dateien sind nicht Teil des Uploadwegs. Die logische Ablage trennt
+`local_test` und `production` sowie Provider und Offer.
+
+Die Provider-Standortkarte nutzt einen separaten, browserseitig
+eingeschraenkten Google-Maps-JavaScript-Key. Er wird nur fuer eine autorisierte
+Provider-Session ueber `/api/provider/maps-config` geliefert und ist nicht der
+serverseitige Places-Key. Nach einer Place-Auswahl werden Original- und
+Korrekturmarker angezeigt; der Server bleibt mit der 25-Meter-Grenze
+massgeblich. Die Maps-Routen-API wird nicht verwendet. Ohne die externen
+Cloudinary- bzw. Maps-Runtimewerte bleiben Foto-Upload bzw. Kartenansicht
+geschlossen oder als Text-Fallback sichtbar.

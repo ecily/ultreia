@@ -65,6 +65,28 @@ describe('provider V1 service', () => {
     await assert.rejects(() => service.writeOffer(user, 'production', { ...offerInput, radiusMeters: 1001 }), /radiusMeters is invalid/);
   });
 
+  it('keeps offer images scoped, ordered and capped at three', async () => {
+    const db = new Db();
+    const database = { getDb: () => db };
+    const service = createProviderService(database, { details: async () => ({ ok: true, place: locationPlace }) }, createNeedService(database));
+    const user = { _id: new ObjectId(), emailNormalized: 'images@example.test', displayName: 'Images', preferredLocale: 'en' };
+    await service.updateProfile(user, 'local_test', { businessName: 'Image Cafe', sourceLocale: 'en' });
+    await service.updateLocation(user, 'local_test', { googlePlaceId: 'places/test-place', sourceLocale: 'en' });
+    const created = await service.writeOffer(user, 'local_test', offerInput);
+    const image = (index) => ({ publicId: `ultreia/local_test/offers/${user._id}/${created.id}/photo-${index}`, secureUrl: `https://res.cloudinary.com/test/image/upload/photo-${index}.jpg`, width: 1200, height: 800, format: 'jpg', bytes: 1000, sortOrder: index, createdAt: new Date() });
+    const first = await service.addOfferImage(user, 'local_test', created.id, image(0));
+    const second = await service.addOfferImage(user, 'local_test', created.id, image(1));
+    const third = await service.addOfferImage(user, 'local_test', created.id, image(2));
+    assert.equal(third.images.length, 3);
+    await assert.rejects(() => service.addOfferImage(user, 'local_test', created.id, image(3)), /images_limit_exceeded/);
+    const edited = await service.writeOffer(user, 'local_test', { ...offerInput, title: 'Updated image offer' }, created.id);
+    assert.equal(edited.images.length, 3);
+    const reordered = await service.reorderOfferImages(user, 'local_test', created.id, [second.images[1].publicId, first.images[0].publicId, third.images[2].publicId]);
+    assert.equal(reordered.images[0].sortOrder, 0);
+    const removed = await service.removeOfferImage(user, 'local_test', created.id, reordered.images[0].publicId);
+    assert.equal(removed.images.length, 2);
+  });
+
   it('uses Places API (New) field masks and degrades safely without a key', async () => {
     const calls = [];
     const google = createGooglePlacesService({ googlePlacesApiKey: 'test-key', googlePlacesTimeoutMs: 1000 }, { fetchImpl: async (url, options) => { calls.push({ url, options }); return new Response(JSON.stringify({ suggestions: [{ placePrediction: { placeId: 'places/x', text: { text: 'X' } } }] }), { status: 200 }); } });
