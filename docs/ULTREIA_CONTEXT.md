@@ -1,5 +1,20 @@
 # Ultreia Context
 
+## Websessions und Admin-V1 (2026-08-21)
+
+Provider- und Admin-Websessions verwenden HttpOnly/Secure-Cookies mit kurzem
+Access-Token und rotierendem Refresh-Token. Die Refresh-Session bleibt bis zu
+30 Tage inaktiv nutzbar; Scope und `activeRole` werden bei Rotation erhalten.
+Logout widerruft die Server-Session und löscht beide Cookies. Magic Links
+bleiben kurzlebige One-Time-Loginmittel und sind kein dauerhafter Zugang.
+
+Der Adminbereich ist serverseitig ausschließlich über `requireAuth` und
+`requireRole('admin')` erreichbar. Er bietet Übersicht, Provider-/Offer-Listen,
+Needs, berechenbare Datenqualitätsprobleme, Scope-Filter und Statusmutationen.
+Adminmutationen schreiben eine schlanke `auditEvents`-Historie mit Actor,
+Aktion, Entität, Scope und Statusänderung. Pilgerdaten, Livepositionen und
+Routes bleiben außerhalb dieses V1-Blocks.
+
 ## Provider-Offer-Bildreihenfolge (2026-08-21)
 
 Die Reorder-Aktion sendet eine vollständige Liste der bestehenden `publicIds`.

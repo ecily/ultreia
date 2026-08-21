@@ -22,6 +22,7 @@ import { createProviderService } from './services/providerService.js';
 import { createMediaService } from './services/mediaService.js';
 import { createProviderRouter } from './routes/provider.js';
 import { createNeedsRouter } from './routes/needs.js';
+import { createAdminRouter } from './routes/admin.js';
 
 const ALLOWED_CORS_METHODS = 'GET,POST,PUT,PATCH,DELETE,OPTIONS';
 
@@ -72,6 +73,7 @@ export function createApp(config = loadConfig(), services = {}) {
   app.use('/api/diagnostics', createDiagnosticsRouter(config, databaseService));
   app.use('/api/auth', createAuthRouter(config, databaseService, authService, mailService, authMiddleware));
   app.use('/api/provider', createProviderRouter(config, databaseService, providerService, googlePlacesService, authMiddleware, mediaService));
+  app.use('/api/admin', createAdminRouter(databaseService, authMiddleware));
   app.use('/api/account', createAccountRouter(authService, authMiddleware));
   app.use('/api/profiles', createProfileRouter(databaseService, authService, authMiddleware));
   app.use('/api/trips', createTripRouter(config, databaseService, tripService, authMiddleware));

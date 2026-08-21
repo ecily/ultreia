@@ -68,7 +68,13 @@ describe('provider offer UI helpers', () => {
     assert.equal((authSource.match(/<textarea name="description"/g) || []).length, 1, 'the offer editor must have one description control');
     assert.equal((authSource.match(/<select/g) || []).length, (authSource.match(/<\/select>/g) || []).length, 'every generated select must close');
     assert.match(authSource, /if \(response\.status === 401[\s\S]*?webRefresh\(\)/);
-    assert.match(authSource, /catch \{ window\.location\.replace\(`\/\$\{role\}\/login\//);
+    assert.match(authSource, /window\.location\.replace\('\/provider\/login\/'\)/);
+    assert.match(authSource, /\/admin\/overview\?scope=\$\{scope\}/);
+    assert.match(authSource, /data-admin-tab/);
+    assert.match(authSource, /data-admin-scope="production"/);
+    assert.match(authSource, /\/auth\/session\/switch-scope/);
+    assert.match(authSource, /data-admin-provider-status/);
+    assert.match(authSource, /data-admin-offer-status/);
     assert.match(authSource, /providerOffersOverview/);
     assert.match(authSource, /function providerProfileLocationSummary\(profile\)/);
     assert.match(authSource, /data-edit-profile-location/);
@@ -84,7 +90,7 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /lastConfirmedAt/);
     assert.match(authSource, /confirmationDueAt/);
     assert.match(authSource, /offer\.status === 'active'/);
-    assert.match(authSource, /data-admin-panel/);
+    assert.match(authSource, /admin-shell/);
     assert.match(authSource, /data-photo-input/);
     assert.match(authSource, /data-photo-pending/);
     assert.match(authSource, /webApiUpload/);
