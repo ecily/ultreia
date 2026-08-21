@@ -1178,10 +1178,18 @@ unverändert.
 
 Ein gemeldeter Offer-Edit-Request mit `HTTP 504` und generischem
 `request_failed` konnte im aktuellen DigitalOcean-Run-Log nicht einem
-internen Backend-Fehler zugeordnet werden; der relevante Log-Ausschnitt
-enthielt nur den erfolgreichen Prozessstart. Der Befund bleibt daher ein
-Proxy-/Upstream-Timeout ohne belegten Cloudinary- oder Datenbank-Fehler und
-wird durch einen begrenzten Cloudinary-Request mit strukturierter
+internen Backend-Fehler zugeordnet werden. Der inzwischen korrelierte echte
+Foto-Request erreichte dagegen alle Phasen bis
+`cloudinary_upload_started`; Cloudinary antwortete nach 885 bzw. 906 ms mit
+HTTP 403 (`cloudinary_http_error` im damaligen Log), worauf der Backendpfad
+`media_upload_failed` klassifizierte. Es gab keinen Timeout und keine Mongo-
+Persistenz. Der Browser meldete für denselben Livebefund 504; ein
+`response_sent`-Event war bis dahin nicht vorhanden, daher ist die Abweichung
+zwischen Gateway-/Browserstatus und dem protokollierten Cloudinary-403 nicht
+weiter rückwirkend auflösbar. Die neue Klassifizierung unterscheidet künftig
+Authentifizierungsfehler von Forbidden-Fehlern, ohne Antwortinhalte zu loggen.
+
+Der Uploadpfad verwendet weiterhin einen begrenzten Cloudinary-Request mit strukturierter
 Phasenprotokollierung (`offer_image_upload_started`,
 `offer_image_multipart_parsed`,
 `offer_image_validation_passed`, `cloudinary_upload_started`,
