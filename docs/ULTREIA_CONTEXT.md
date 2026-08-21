@@ -24,6 +24,12 @@ Die Camino-UX-Recherche vom 21.08.2026 ist in
 eine ruhige, route- und serviceorientierte Darstellung mit lokal konkreten
 Angebotsdaten statt eines generischen Verzeichnis- oder SaaS-Eindrucks.
 
+Die während der Entwicklung verwendete Cloudinary-Product-Konfiguration mit
+erweiterter Admin-Rolle ist ausdrücklich eine TEMPORÄRE
+ENTWICKLUNGSKONFIGURATION. Vor einer externen Beta muss sie auf
+Least-Privilege mit der benötigten Upload-/Folder-Berechtigung zurückgeführt
+werden.
+
 Stand: 2026-07-28
 
 Dieses Dokument ist die operative Source of Truth für das eigenständige Projekt
