@@ -28,7 +28,7 @@ describe('provider media service', () => {
       const image = await service.uploadImage({ buffer, mimeType, scope: 'production', userId: 'u', offerId: 'o', sortOrder: 0 });
       assert.match(image.publicId, /^ultreia\/production\/offers\/u\/o\//);
     }
-    const uploadFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' }, { fetchImpl: async () => new Response('{}', { status: 500 }) });
+    const uploadFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' }, { fetchImpl: async () => new Response(JSON.stringify({ error: { message: 'Invalid Signature' } }), { status: 403 }) });
     await assert.rejects(() => uploadFailure.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'production', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_upload_failed/);
     const timeoutFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret', cloudinaryTimeoutMs: 1000 }, { fetchImpl: async () => { throw Object.assign(new Error('timed out'), { name: 'TimeoutError' }); } });
     await assert.rejects(() => timeoutFailure.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_upload_timeout/);

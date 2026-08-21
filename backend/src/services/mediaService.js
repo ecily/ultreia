@@ -34,6 +34,13 @@ function deliveryUrl(cloudName, publicId, format) {
   return `https://res.cloudinary.com/${encodeURIComponent(cloudName)}/image/upload/c_limit,w_1600,h_1600,q_auto,f_auto/${publicId}.${format}`;
 }
 
+function cloudinaryErrorClass(payload, status) {
+  const message = String(payload?.error?.message || '').toLowerCase();
+  if (message.includes('signature') || message.includes('api key') || message.includes('authentication') || status === 401) return 'cloudinary_authentication_invalid';
+  if (status === 403 || message.includes('not authorized') || message.includes('forbidden')) return 'cloudinary_forbidden';
+  return `cloudinary_http_${status || 'unknown'}`;
+}
+
 export function createMediaService(config, dependencies = {}) {
   const fetchImpl = dependencies.fetchImpl || fetch;
   const now = dependencies.now || (() => new Date());
@@ -72,7 +79,7 @@ export function createMediaService(config, dependencies = {}) {
     if (!response.ok || !payload.public_id || !payload.width || !payload.height) {
       const failure = new Error('media_upload_failed');
       failure.upstreamStatus = response.status;
-      if (correlationId) logEvent('error', 'cloudinary_upload_failed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: response.status, errorClass: 'cloudinary_http_error' });
+      if (correlationId) logEvent('error', 'cloudinary_upload_failed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: response.status, errorClass: cloudinaryErrorClass(payload, response.status) });
       throw failure;
     }
     if (correlationId) logEvent('info', 'cloudinary_upload_completed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: response.status });
