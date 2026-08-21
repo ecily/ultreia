@@ -1183,6 +1183,7 @@ enthielt nur den erfolgreichen Prozessstart. Der Befund bleibt daher ein
 Proxy-/Upstream-Timeout ohne belegten Cloudinary- oder Datenbank-Fehler und
 wird durch einen begrenzten Cloudinary-Request mit strukturierter
 Phasenprotokollierung (`offer_image_upload_started`,
+`offer_image_multipart_parsed`,
 `offer_image_validation_passed`, `cloudinary_upload_started`,
 `cloudinary_upload_completed`/`cloudinary_upload_failed`,
 `offer_image_persisted`) eingegrenzt. Der Backend-Timeout beträgt standardmäßig
