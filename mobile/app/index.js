@@ -6,18 +6,31 @@ import { API_BASE, APP_VERSION, EXPO_PROJECT_ID, ULTREIA_MODE } from '../lib/con
 import { bindDeviceToUser, getDeviceId, registerDevice } from '../lib/device';
 import { configureNotificationChannels, registerPushToken, requestNotificationPermission, showLocalTechnicalNotification } from '../lib/notifications';
 import { getBackgroundLocationTaskStatus, getCurrentLocation, getGeofenceStatus, getLocationPermissions, registerTechnicalGeofence, sendHeartbeat, startBackgroundLocation } from '../lib/location';
-import { getJson } from '../lib/api';
+import { getJson, postJson, putJson } from '../lib/api';
 import { listenForMagicLinks, loadCurrentUser, logout, openVerificationUrl, readDevVerificationUrl, requestMagicLink } from '../lib/auth';
 import { getSession } from '../lib/session';
 import { AUTH_TEXT } from '../lib/i18n';
 
+const PILGRIM_TEXT = {
+  de: { test: 'TESTDATEN – NICHT PRODUKTIV', title: 'Dein Camino', copy: 'Wähle einen Bedarf und prüfe passende Angebote an deinem aktuellen Standort.', start: 'Test-Trip starten', pause: 'Trip pausieren', resume: 'Trip fortsetzen', refresh: 'Matches aktualisieren', status: 'Trip', needs: 'Meine Bedürfnisse', needsCopy: 'Aktiviere nur, was du gerade brauchst.', active: 'aktiv', activate: 'aktivieren', saved: 'Need gespeichert', match: 'Passendes Angebot', best: 'Bester Match', more: 'Weitere passende Angebote', location: 'Standort wird benötigt, damit Ultreia passende Angebote erkennen kann.', noNeeds: 'Aktiviere einen Need, um Matches zu sehen.', updated: 'Matches aktualisiert', technical: 'Technikdetails', open: 'geöffnet' },
+  en: { test: 'TEST DATA – NOT PRODUCTION', title: 'Your Camino', copy: 'Choose a need and check relevant offers at your current location.', start: 'Start test trip', pause: 'Pause trip', resume: 'Resume trip', refresh: 'Refresh matches', status: 'Trip', needs: 'My needs', needsCopy: 'Activate only what you need right now.', active: 'active', activate: 'activate', saved: 'Need saved', match: 'Matching offer', best: 'Best match', more: 'More matching offers', location: 'Location is required so Ultreia can find relevant offers.', noNeeds: 'Activate a need to see matches.', updated: 'Matches refreshed', technical: 'Technical details', open: 'open' },
+  es: { test: 'DATOS DE PRUEBA – NO PRODUCTIVO', title: 'Tu Camino', copy: 'Elige una necesidad y consulta ofertas relevantes en tu ubicación actual.', start: 'Iniciar viaje de prueba', pause: 'Pausar viaje', resume: 'Continuar viaje', refresh: 'Actualizar coincidencias', status: 'Viaje', needs: 'Mis necesidades', needsCopy: 'Activa solo lo que necesitas ahora.', active: 'activa', activate: 'activar', saved: 'Necesidad guardada', match: 'Oferta coincidente', best: 'Mejor coincidencia', more: 'Más ofertas coincidentes', location: 'Se necesita la ubicación para encontrar ofertas relevantes.', noNeeds: 'Activa una necesidad para ver coincidencias.', updated: 'Coincidencias actualizadas', technical: 'Detalles técnicos', open: 'abierto' },
+};
+const pt = (locale, key) => (PILGRIM_TEXT[locale] || PILGRIM_TEXT.en)[key];
+
 export default function HomeScreen() {
+  const [locale, setLocale] = useState('de');
   const [deviceId, setDeviceId] = useState('wird geladen …');
   const [location, setLocation] = useState(null);
   const [logs, setLogs] = useState([]);
   const [authStatus, setAuthStatus] = useState(AUTH_TEXT.signedOut);
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [trip, setTrip] = useState(null);
+  const [catalog, setCatalog] = useState([]);
+  const [needs, setNeeds] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [pilgrimMessage, setPilgrimMessage] = useState('');
   const [devUrl, setDevUrl] = useState(null);
   const [status, setStatus] = useState({ api: 'unbekannt', ready: 'unbekannt', database: 'unbekannt', registration: 'unbekannt', location: 'unbekannt', background: 'unbekannt', backgroundTask: 'unbekannt', backgroundService: 'unbekannt', notification: 'unbekannt', push: 'unbekannt', localPush: '–', serverPush: 'wartet auf externen Test', geofence: 'unbekannt', geofenceData: '–', lastHeartbeat: '–', lastServerContact: '–', lastGeofence: '–', error: '–' });
 
@@ -86,6 +99,9 @@ export default function HomeScreen() {
     };
   }, []);
 
+  useEffect(() => { getJson(`/needs?locale=${locale}`).then((result) => setCatalog(result.items || [])).catch(() => {}); }, [locale]);
+  useEffect(() => { if (authStatus !== AUTH_TEXT.signedOut) loadPilgrim().catch(() => {}); }, [authStatus]);
+
   const locate = async () => {
     const current = await getCurrentLocation();
     setLocation(current.coords);
@@ -143,6 +159,12 @@ export default function HomeScreen() {
 
   const signOut = async () => { await logout(); setAuthStatus(AUTH_TEXT.signedOut); };
 
+  const loadPilgrim = async () => { const result = await getJson('/pilgrim/needs'); setTrip(result.trip); setNeeds(result.items || []); return result; };
+  const startTrip = async () => { const result = await postJson('/trips', { routeContext: ULTREIA_MODE === 'production' ? 'camino_frances' : 'local_test' }); setTrip(result.trip); return result; };
+  const tripAction = async (action) => { const result = await postJson(`/trips/${trip.id}/${action}`, {}); setTrip(result.trip); return result; };
+  const setNeed = async (key, active, urgency) => { const result = await putJson(`/pilgrim/needs/${encodeURIComponent(key)}`, { active, urgency }); await loadPilgrim(); setPilgrimMessage(pt(locale, 'saved')); return result; };
+  const refreshMatches = async () => { await sendHeartbeat(); const result = await postJson('/pilgrim/matches/current', {}); setMatches(result.matches || []); setPilgrimMessage(result.status === 'location_required' ? pt(locale, 'location') : result.status === 'needs_required' ? pt(locale, 'noNeeds') : pt(locale, 'updated')); return result; };
+
   const startBackground = async () => {
     const result = await startBackgroundLocation();
     setStatus((current) => ({ ...current, backgroundTask: result.started ? 'aktiv' : 'inaktiv', backgroundService: result.started ? 'aktiv' : 'inaktiv' }));
@@ -175,6 +197,13 @@ export default function HomeScreen() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.pilgrimHeader}><Text style={styles.eyebrow}>ULTREIA · PILGRIM</Text><View style={styles.localeRow}>{['de', 'en', 'es'].map((value) => <Pressable key={value} onPress={() => setLocale(value)} style={[styles.localeButton, locale === value && styles.localeButtonActive]}><Text>{value.toUpperCase()}</Text></Pressable>)}</View></View>
+        {ULTREIA_MODE !== 'production' && <Text style={styles.testBanner}>{pt(locale, 'test')}</Text>}
+        <Text style={styles.pilgrimTitle}>{pt(locale, 'title')}</Text><Text style={styles.copy}>{pt(locale, 'copy')}</Text>
+        {!trip ? <Action label={pt(locale, 'start')} onPress={() => run('Trip', startTrip)} /> : <View style={styles.tripBox}><Text style={styles.label}>{pt(locale, 'status')}: {trip.status}</Text><View style={styles.grid}><Action label={trip.status === 'paused' ? pt(locale, 'resume') : pt(locale, 'pause')} onPress={() => run('Trip', () => tripAction(trip.status === 'paused' ? 'resume' : 'pause'))} /><Action label={pt(locale, 'refresh')} onPress={() => run('Matches', refreshMatches)} /></View></View>}
+        {trip && <View style={styles.needBox}><Text style={styles.label}>{pt(locale, 'needs')}</Text><Text style={styles.copy}>{pt(locale, 'needsCopy')}</Text>{catalog.map((item) => { const current = needs.find((need) => need.needKey === item.key); const active = current?.active === true; return <Pressable key={item.key} onPress={() => setNeed(item.key, !active, active ? current.urgency : 'today')} style={[styles.needRow, active && styles.needRowActive]}><Text style={styles.needLabel}>{item.label}</Text><Text style={styles.needState}>{active ? `${pt(locale, 'active')} · ${current.urgency}` : pt(locale, 'activate')}</Text></Pressable>; })}</View>}
+        {pilgrimMessage ? <Text style={styles.feedback}>{pilgrimMessage}</Text> : null}
+        {matches.length > 0 && <View style={styles.matchBox}><Text style={styles.label}>{pt(locale, 'match')}</Text>{matches.slice(0, 3).map((match, index) => <View key={match.offer.id} style={styles.matchCard}><Text style={styles.matchRank}>{index === 0 ? pt(locale, 'best') : pt(locale, 'more')}</Text>{match.offer.images?.[0]?.secureUrl && <Text style={styles.value}>Photo available</Text>}<Text style={styles.matchTitle}>{match.offer.title}</Text><Text style={styles.value}>{match.provider.name || 'Provider'} · {match.matchingNeed.needKey} · {match.urgency}</Text><Text style={styles.value}>{match.distanceMeters} m · {pt(locale, 'open')} · {match.offer.price?.type || ''}</Text>{ULTREIA_MODE !== 'production' && <Text style={styles.diagnostic}>{pt(locale, 'technical')}: {match.reason.distanceMeters} m / {match.reason.offerRadiusMeters} m</Text>}</View>)}</View>}
         <Text style={styles.eyebrow}>ULTREIA · TECHNICAL FOUNDATION</Text>
         <Text style={styles.title}>Android proof screen</Text>
         <Text style={styles.copy}>Diese bewusst neutrale Oberfläche verifiziert Device-ID, Permissions, Location, Heartbeat, Push, lokale Notifications und Geofence.</Text>
@@ -225,6 +254,7 @@ export default function HomeScreen() {
 function Action({ label, onPress }) { return <Pressable style={styles.button} onPress={onPress}><Text style={styles.buttonText}>{label}</Text></Pressable>; }
 
 const styles = StyleSheet.create({
+  pilgrimHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, localeRow: { flexDirection: 'row', gap: 4 }, localeButton: { backgroundColor: '#fff', padding: 6, borderRadius: 6 }, localeButtonActive: { backgroundColor: '#b9d7c4' }, testBanner: { backgroundColor: '#ffe5a8', color: '#5a3d00', padding: 10, borderRadius: 8, fontWeight: '700' }, pilgrimTitle: { color: '#18251f', fontSize: 28, fontWeight: '800' }, tripBox: { backgroundColor: '#e4eee7', borderRadius: 12, padding: 12 }, needBox: { backgroundColor: '#fff', borderRadius: 12, padding: 12, gap: 6 }, needRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 13, borderRadius: 9, borderWidth: 1, borderColor: '#dbe7df', minHeight: 48 }, needRowActive: { backgroundColor: '#e4eee7', borderColor: '#275d4a' }, needLabel: { color: '#18251f', fontWeight: '600', flex: 1 }, needState: { color: '#275d4a', fontSize: 12 }, feedback: { color: '#275d4a', fontWeight: '700' }, matchBox: { gap: 8 }, matchCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, gap: 5 }, matchRank: { color: '#275d4a', fontWeight: '700' }, matchTitle: { color: '#18251f', fontSize: 18, fontWeight: '800' }, diagnostic: { color: '#617184', fontFamily: 'monospace', fontSize: 11 },
   screen: { flex: 1, backgroundColor: '#f5f1e8' }, content: { padding: 24, paddingTop: 64, gap: 10 },
   eyebrow: { color: '#275d4a', fontWeight: '700', letterSpacing: 1.2 }, title: { color: '#18251f', fontSize: 32, fontWeight: '800' },
   copy: { color: '#4e5d55', fontSize: 16, lineHeight: 23, marginBottom: 10 }, label: { color: '#275d4a', fontWeight: '700', marginTop: 12 }, value: { color: '#18251f', fontFamily: 'monospace', fontSize: 12 },

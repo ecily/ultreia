@@ -23,6 +23,9 @@ import { createMediaService } from './services/mediaService.js';
 import { createProviderRouter } from './routes/provider.js';
 import { createNeedsRouter } from './routes/needs.js';
 import { createAdminRouter } from './routes/admin.js';
+import { createPilgrimRouter } from './routes/pilgrim.js';
+import { createPilgrimNeedService } from './services/pilgrimNeedService.js';
+import { createMatchingService } from './services/matchingService.js';
 
 const ALLOWED_CORS_METHODS = 'GET,POST,PUT,PATCH,DELETE,OPTIONS';
 
@@ -57,6 +60,8 @@ export function createApp(config = loadConfig(), services = {}) {
   const needService = services.needService || createNeedService(databaseService);
   const providerService = services.providerService || createProviderService(databaseService, googlePlacesService, needService);
   const mediaService = services.mediaService || createMediaService(config);
+  const pilgrimNeedService = services.pilgrimNeedService || createPilgrimNeedService(databaseService, needService);
+  const matchingService = services.matchingService || createMatchingService(databaseService, pilgrimNeedService);
 
   app.disable('x-powered-by');
   app.locals.corsOrigins = config.corsOrigins;
@@ -74,6 +79,7 @@ export function createApp(config = loadConfig(), services = {}) {
   app.use('/api/auth', createAuthRouter(config, databaseService, authService, mailService, authMiddleware));
   app.use('/api/provider', createProviderRouter(config, databaseService, providerService, googlePlacesService, authMiddleware, mediaService));
   app.use('/api/admin', createAdminRouter(databaseService, authMiddleware));
+  app.use('/api/pilgrim', createPilgrimRouter(databaseService, authMiddleware, tripService, pilgrimNeedService, matchingService));
   app.use('/api/account', createAccountRouter(authService, authMiddleware));
   app.use('/api/profiles', createProfileRouter(databaseService, authService, authMiddleware));
   app.use('/api/trips', createTripRouter(config, databaseService, tripService, authMiddleware));

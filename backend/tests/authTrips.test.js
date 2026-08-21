@@ -355,4 +355,29 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.equal(productionOffers.response.status, 200);
     assert.equal(productionOffers.body.items.length, 0);
   });
+
+  it('stores pilgrim needs and matches only a current scoped open offer', async () => {
+    const pilgrim = await login('matching-pilgrim@example.test', 'ultreia-matching-device');
+    const auth = { authorization: `Bearer ${pilgrim.session.accessToken}`, 'x-ultreia-scope': 'local_test' };
+    const trip = await request('/api/trips', { method: 'POST', headers: auth, body: '{}' });
+    assert.equal(trip.response.status, 201);
+    await request('/api/devices/register', { method: 'POST', headers: auth, body: JSON.stringify({ deviceId: 'ultreia-matching-device', platform: 'android', appVersion: 'test', buildNumber: 'test' }) });
+    await request('/api/location/heartbeat', { method: 'POST', headers: auth, body: JSON.stringify({ deviceId: 'ultreia-matching-device', lat: 42.1, lng: -4.5, accuracy: 8 }) });
+    const need = await request('/api/pilgrim/needs/eat', { method: 'PUT', headers: auth, body: JSON.stringify({ active: true, urgency: 'now' }) });
+    assert.equal(need.response.status, 200);
+    const providerId = new ObjectId(); const profileId = new ObjectId(); const offerId = new ObjectId();
+    await database.db.collection('providerProfiles').insertOne({ _id: profileId, userId: providerId, scope: 'local_test', status: 'active', businessName: 'Test Cafe', location: { finalLocation: { location: { type: 'Point', coordinates: [-4.5, 42.1] } } } });
+    await database.db.collection('offers').insertOne({ _id: offerId, providerId, scope: 'local_test', status: 'active', title: 'Cafe match', description: 'Open test cafe', needKeys: ['eat'], radiusMeters: 250, price: { type: 'free' }, availability: { weekly: { sunday: [{ open: '00:00', close: '23:59' }], monday: [{ open: '00:00', close: '23:59' }], tuesday: [{ open: '00:00', close: '23:59' }], wednesday: [{ open: '00:00', close: '23:59' }], thursday: [{ open: '00:00', close: '23:59' }], friday: [{ open: '00:00', close: '23:59' }], saturday: [{ open: '00:00', close: '23:59' }] }, exceptions: [] }, images: [] });
+    const matches = await request('/api/pilgrim/matches/current', { method: 'POST', headers: auth, body: '{}' });
+    assert.equal(matches.response.status, 200, JSON.stringify(matches.body)); assert.equal(matches.body.status, 'ok'); assert.equal(matches.body.matches.length, 1); assert.equal(matches.body.matches[0].matchingNeed.urgency, 'now'); assert.equal(matches.body.matches[0].distanceMeters, 0);
+    const wrongScope = await request('/api/pilgrim/matches/current', { method: 'POST', headers: { authorization: `Bearer ${pilgrim.session.accessToken}`, 'x-ultreia-scope': 'production' }, body: '{}' });
+    assert.equal(wrongScope.response.status, 403);
+    await request('/api/pilgrim/needs/eat', { method: 'PUT', headers: auth, body: JSON.stringify({ active: false, urgency: 'now' }) });
+    const inactiveNeed = await request('/api/pilgrim/matches/current', { method: 'POST', headers: auth, body: '{}' });
+    assert.equal(inactiveNeed.body.matches.length, 0);
+    await request('/api/pilgrim/needs/eat', { method: 'PUT', headers: auth, body: JSON.stringify({ active: true, urgency: 'today' }) });
+    await database.db.collection('offers').updateOne({ _id: offerId }, { $set: { status: 'paused' } });
+    const paused = await request('/api/pilgrim/matches/current', { method: 'POST', headers: auth, body: '{}' });
+    assert.equal(paused.body.matches.length, 0);
+  });
 });

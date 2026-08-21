@@ -1,5 +1,28 @@
 # Ultreia Context
 
+## Pilger-/Basis-Matching-Block (2026-08-21)
+
+Der erste serverseitige Pilgerfluss ist implementiert: ein authentifizierter
+Pilger kann im autorisierten `local_test` einen bestehenden Trip starten,
+eigene Needs in `pilgrimNeeds` je Trip und Scope aktivieren/deaktivieren und
+die Dringlichkeit `now`, `today` oder `always` speichern. Die eindeutige
+Mongo-Kombination ist `userId + tripId + scope + needKey`.
+
+`GET /api/pilgrim/needs`, `PUT /api/pilgrim/needs/:needKey` und
+`POST /api/pilgrim/matches/current` sind ausschließlich für die aktive
+Pilger-Session verfügbar. Das Matching verwendet die letzte gebundene
+Geräteposition, aktive Trips/Needs, aktive Provider/Offers, gültige Offer-
+Bestätigung, Offer-Radius sowie aktuelle strukturierte Availability. Die
+Sortierung ist `now`, `today`, `always`, danach technische Distanz. Die
+Distanz ist ausdrücklich `currentDistanceMeters`-Basisdistanz und keine
+Gehstrecke, kein Umweg und kein Routing. `local_test` darf kompakte
+Matchdiagnose sehen; Produktionsantworten enthalten keine Diagnosegründe.
+
+Es gibt in diesem Block keinen automatischen Push, keine Routes API, keine
+Navigation und kein Background-Matching. Die Android-App zeigt einen
+reduzierten Trip-/Need-/Match-Bereich mit DE/EN/ES-Texten und verwendet die
+bereits vorhandene reale Foreground-Position/Heartbeat-Technik.
+
 ## Websessions und Admin-V1 (2026-08-21)
 
 Provider- und Admin-Websessions verwenden HttpOnly/Secure-Cookies mit kurzem

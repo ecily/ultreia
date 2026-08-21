@@ -212,6 +212,8 @@ async function ensureIndexes(database, heartbeatTtlSeconds = 604800, diagnosticT
     database.collection('providerProfiles').createIndex({ userId: 1, scope: 1 }, { unique: true, name: 'user_scope_unique' }),
     database.collection('needs').createIndex({ key: 1 }, { unique: true, name: 'key_unique' }),
     database.collection('needs').createIndex({ status: 1, sortOrder: 1 }, { name: 'status_sortOrder' }),
+    database.collection('pilgrimNeeds').createIndex({ userId: 1, tripId: 1, scope: 1, needKey: 1 }, { unique: true, name: 'user_trip_scope_need_unique' }),
+    database.collection('pilgrimNeeds').createIndex({ userId: 1, tripId: 1, scope: 1, active: 1, priorityOrder: 1 }, { name: 'user_trip_active_priority' }),
     database.collection('offers').createIndex({ providerId: 1, scope: 1, updatedAt: -1 }, { name: 'provider_scope_updatedAt' }),
     database.collection('offers').createIndex({ scope: 1, status: 1 }, { name: 'scope_status' }),
     database.collection('offers').createIndex({ scope: 1, needKeys: 1 }, { name: 'scope_needKeys' }),

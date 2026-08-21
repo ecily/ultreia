@@ -51,3 +51,7 @@ export function postJson(path, body) {
 export function getJson(path) {
   return apiRequest(path);
 }
+
+export function putJson(path, body) {
+  return apiRequest(path, { method: 'PUT', body: JSON.stringify(body) });
+}
