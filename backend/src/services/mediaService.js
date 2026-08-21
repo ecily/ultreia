@@ -58,8 +58,10 @@ export function createMediaService(config, dependencies = {}) {
     form.append('signature', cloudinarySignature(params, config.cloudinaryApiSecret));
     if (correlationId) logEvent('info', 'cloudinary_upload_started', { correlationId, scope, bytes: buffer.length, mimeType });
     let response;
+    let payload;
     try {
       response = await fetchImpl(`https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudinaryCloudName)}/image/upload`, { method: 'POST', body: form, signal: AbortSignal.timeout(timeoutMs) });
+      payload = await response.json();
     } catch (error) {
       const timeout = error?.name === 'TimeoutError' || error?.name === 'AbortError';
       const failure = new Error(timeout ? 'media_upload_timeout' : 'media_upload_network_error');
@@ -67,7 +69,6 @@ export function createMediaService(config, dependencies = {}) {
       if (correlationId) logEvent('error', 'cloudinary_upload_failed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: null, errorClass: failure.message });
       throw failure;
     }
-    const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.public_id || !payload.width || !payload.height) {
       const failure = new Error('media_upload_failed');
       failure.upstreamStatus = response.status;

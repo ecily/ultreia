@@ -32,6 +32,8 @@ describe('provider media service', () => {
     await assert.rejects(() => uploadFailure.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'production', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_upload_failed/);
     const timeoutFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret', cloudinaryTimeoutMs: 1000 }, { fetchImpl: async () => { throw Object.assign(new Error('timed out'), { name: 'TimeoutError' }); } });
     await assert.rejects(() => timeoutFailure.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_upload_timeout/);
+    const responseBodyTimeout = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret', cloudinaryTimeoutMs: 1000 }, { fetchImpl: async () => ({ ok: true, status: 200, json: async () => { throw Object.assign(new Error('timed out'), { name: 'TimeoutError' }); } }) });
+    await assert.rejects(() => responseBodyTimeout.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_upload_timeout/);
     const deleteFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' }, { fetchImpl: async () => new Response(JSON.stringify({ result: 'error' }), { status: 200 }) });
     await assert.rejects(() => deleteFailure.destroyImage({ publicId: 'ultreia/production/offers/u/o/photo-1', scope: 'production', userId: 'u', offerId: 'o' }), /media_delete_failed/);
   });
