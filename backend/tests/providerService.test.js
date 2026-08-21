@@ -81,6 +81,7 @@ describe('provider V1 service', () => {
     await assert.rejects(() => service.addOfferImage(user, 'local_test', created.id, image(3)), /images_limit_exceeded/);
     const edited = await service.writeOffer(user, 'local_test', { ...offerInput, title: 'Updated image offer' }, created.id);
     assert.equal(edited.images.length, 3);
+    await assert.rejects(() => service.writeOffer(user, 'local_test', { ...offerInput, images: [{ publicId: 'foreign/photo', secureUrl: 'https://example.com/foreign.jpg', width: 1, height: 1, format: 'jpg' }] }, created.id), /images_are_managed_separately/);
     const reordered = await service.reorderOfferImages(user, 'local_test', created.id, [second.images[1].publicId, first.images[0].publicId, third.images[2].publicId]);
     assert.equal(reordered.images[0].sortOrder, 0);
     const removed = await service.removeOfferImage(user, 'local_test', created.id, reordered.images[0].publicId);

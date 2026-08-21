@@ -41,7 +41,7 @@ function providerError(res, error) {
   if (message === 'offer_transition_not_allowed') return res.status(409).json({ ok: false, status: message });
   if (message === 'provider_profile_incomplete') return res.status(409).json({ ok: false, status: message });
   if (message === 'media_provider_not_configured') return res.status(503).json({ ok: false, status: message });
-  if (['image_too_large_or_empty', 'image_type_not_allowed', 'image_content_invalid', 'image_multipart_invalid', 'image_field_missing', 'images is invalid', 'images_limit_exceeded'].includes(message)) return res.status(400).json({ ok: false, status: message });
+  if (['image_too_large_or_empty', 'image_type_not_allowed', 'image_content_invalid', 'image_multipart_invalid', 'image_field_missing', 'images is invalid', 'images_are_managed_separately', 'images_limit_exceeded'].includes(message)) return res.status(400).json({ ok: false, status: message });
   if (['image_not_found', 'media_ownership_invalid'].includes(message)) return res.status(404).json({ ok: false, status: message });
   if (['media_upload_failed', 'media_delete_failed'].includes(message)) return res.status(502).json({ ok: false, status: message });
   if (message.startsWith('google_places_')) return res.status(message === 'google_places_not_configured' ? 503 : 502).json({ ok: false, status: message });
@@ -132,7 +132,8 @@ export function createProviderRouter(config, databaseService, providerService, g
       const publicId = readString(req.body?.publicId, { name: 'publicId', min: 3, max: 500 });
       const image = offer.images.find((item) => item.publicId === publicId);
       if (!image) throw new Error('image_not_found');
-      if (mediaService?.configured) await mediaService.destroyImage({ publicId, scope, userId: String(req.user._id), offerId: offer.id });
+      if (!mediaService?.configured) throw new Error('media_provider_not_configured');
+      await mediaService.destroyImage({ publicId, scope, userId: String(req.user._id), offerId: offer.id });
       const updated = await providerService.removeOfferImage(req.user, scope, offer.id, publicId);
       return res.json({ ok: true, offer: updated });
     } catch (error) { return providerError(res, error); }

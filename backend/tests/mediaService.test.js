@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import { createMediaService, cloudinarySignature } from '../src/services/mediaService.js';
 
 const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
+const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0x00]);
+const webp = Buffer.from('RIFF0000WEBP', 'ascii');
 
 describe('provider media service', () => {
   it('creates deterministic Cloudinary signatures without exposing secrets', () => {
@@ -14,6 +16,22 @@ describe('provider media service', () => {
     await assert.rejects(() => service.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_provider_not_configured/);
     const configured = createMediaService({ cloudinaryCloudName: 'test', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' });
     await assert.rejects(() => configured.uploadImage({ buffer: Buffer.from('not-an-image'), mimeType: 'image/png', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /image_content_invalid/);
+    await assert.rejects(() => configured.uploadImage({ buffer: jpeg, mimeType: 'image/svg+xml', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /image_type_not_allowed/);
+    await assert.rejects(() => configured.uploadImage({ buffer: Buffer.alloc(8 * 1024 * 1024 + 1), mimeType: 'image/jpeg', scope: 'local_test', userId: 'u', offerId: 'o', sortOrder: 0 }), /image_too_large_or_empty/);
+  });
+
+  it('accepts JPEG, PNG and WebP and classifies Cloudinary failures', async () => {
+    const service = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' }, {
+      fetchImpl: async (url) => new Response(JSON.stringify(url.endsWith('/image/upload') ? { public_id: 'ultreia/production/offers/u/o/photo-1', width: 1, height: 1, format: 'jpg', bytes: 4 } : { result: 'ok' }), { status: 200 }),
+    });
+    for (const [buffer, mimeType] of [[jpeg, 'image/jpeg'], [png, 'image/png'], [webp, 'image/webp']]) {
+      const image = await service.uploadImage({ buffer, mimeType, scope: 'production', userId: 'u', offerId: 'o', sortOrder: 0 });
+      assert.match(image.publicId, /^ultreia\/production\/offers\/u\/o\//);
+    }
+    const uploadFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' }, { fetchImpl: async () => new Response('{}', { status: 500 }) });
+    await assert.rejects(() => uploadFailure.uploadImage({ buffer: png, mimeType: 'image/png', scope: 'production', userId: 'u', offerId: 'o', sortOrder: 0 }), /media_upload_failed/);
+    const deleteFailure = createMediaService({ cloudinaryCloudName: 'test-cloud', cloudinaryApiKey: 'key', cloudinaryApiSecret: 'secret' }, { fetchImpl: async () => new Response(JSON.stringify({ result: 'error' }), { status: 200 }) });
+    await assert.rejects(() => deleteFailure.destroyImage({ publicId: 'ultreia/production/offers/u/o/photo-1', scope: 'production', userId: 'u', offerId: 'o' }), /media_delete_failed/);
   });
 
   it('uploads only transformed delivery metadata and deletes within the scoped folder', async () => {

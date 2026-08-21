@@ -85,5 +85,12 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /confirmationDueAt/);
     assert.match(authSource, /offer\.status === 'active'/);
     assert.match(authSource, /data-admin-panel/);
+    assert.match(authSource, /data-photo-input/);
+    assert.match(authSource, /data-photo-pending/);
+    assert.match(authSource, /data-photo-remove/);
+    assert.match(authSource, /data-photo-move/);
+    assert.match(authSource, /provider-offer-thumbnail/);
+    assert.match(styleSource, /provider-photo-picker/);
+    for (const key of ['photosHint', 'photoUpload', 'photoUploaded', 'photoUploadError', 'noPhotos']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
   });
 });

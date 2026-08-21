@@ -1157,3 +1157,12 @@ Drag-Hinweis, Distanzfeedback und Save/Cancel die Bearbeitung. Bei 0 m wird
 visuell als fehlerhaft markiert und Speichern clientseitig blockiert. Die
 serverseitige 25-Meter-Validierung bleibt unveraendert verbindlich. Der
 local_test-Banner und einklappbare Technikdetails bleiben davon getrennt.
+
+Der Offer-Editor zeigt ausgewählte Bilder bereits vor dem Submit als lokale
+Browser-Vorschau. Uploads melden ihren laufenden und erfolgreichen Zustand;
+bei Teilfehlern bleiben nur die noch nicht hochgeladenen Bilder zur sicheren
+Wiederholung erhalten. Ein Cloudinary-Delete erfolgt vor der DB-Änderung; bei
+fehlender Runtime-Konfiguration oder Delete-Fehler bleibt das Offer-Dokument
+unverändert. Der aktuelle DigitalOcean-Stand enthält weiterhin keine
+`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` oder
+`CLOUDINARY_FOLDER`-Werte, daher ist ein echter Foto-Live-Smoke noch offen.

@@ -174,7 +174,8 @@ function validateOfferInput(body, activeNeedKeys, existingImages = []) {
   const radiusMeters = number(body?.radiusMeters === undefined ? 250 : body.radiusMeters);
   if (!Number.isInteger(radiusMeters) || radiusMeters < 50 || radiusMeters > 1000) throw new Error('radiusMeters is invalid');
   const availability = validateTimeWindows(body?.availability || { weekly: body?.openingHours, exceptions: body?.availabilityExceptions });
-  const images = body?.images === undefined ? publicImages(clone(existingImages)) : validateOfferImages(body.images);
+  if (body?.images !== undefined) throw new Error('images_are_managed_separately');
+  const images = publicImages(clone(existingImages));
   return { title, description, sourceLocale, needKeys, price: validatePrice(body?.price), availability, images, radiusMeters };
 }
 
@@ -286,7 +287,7 @@ export function createProviderService(databaseService, googlePlacesService, need
     if (!offer) throw new Error('offer_not_found');
     const images = publicImages(offer.images || []);
     if (images.length >= MAX_OFFER_IMAGES) throw new Error('images_limit_exceeded');
-    const nextImage = { ...image, sortOrder: images.length };
+    const nextImage = { ...validateOfferImages([image])[0], sortOrder: images.length };
     await offers().updateOne({ _id: objectId, providerId: user._id, scope }, { $set: { images: [...images, nextImage], updatedAt: now() } });
     return getOffer(user, scope, id);
   }

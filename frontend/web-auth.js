@@ -62,9 +62,9 @@ Object.assign(providerText.es, { noOffers: 'Todav\u00eda no hay ofertas.' });
 Object.assign(webText.de, { offerDiagnostics: 'Technikdetails' });
 Object.assign(webText.en, { offerDiagnostics: 'Technical details' });
 Object.assign(webText.es, { offerDiagnostics: 'Detalles t\u00e9cnicos' });
-Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerUnchanged: 'Google-Position unverändert', markerTooFar: 'Der Marker darf maximal 25 m von der bestätigten Google-Position verschoben werden.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', markerTitle: 'Anbieterstandort', locationAdjust: 'Marker auf den tatsächlichen Eingang ziehen (max. 25 m).', photos: 'Angebotsfotos', photosHint: 'Bis zu 3 Fotos, JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUploadError: 'Ein Foto konnte nicht hochgeladen werden.' });
-Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'The marker may be moved no more than 25 m from the confirmed Google position.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', markerTitle: 'Provider location', locationAdjust: 'Drag the marker to the actual entrance (max. 25 m).', photos: 'Offer photos', photosHint: 'Up to 3 photos, JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUploadError: 'A photo could not be uploaded.' });
-Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador desplazado', markerUnchanged: 'Posición de Google sin cambios', markerTooFar: 'El marcador no puede alejarse más de 25 m de la posición de Google confirmada.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', markerTitle: 'Ubicación del proveedor', locationAdjust: 'Arrastra el marcador hasta la entrada real (máx. 25 m).', photos: 'Fotos de la oferta', photosHint: 'Hasta 3 fotos, JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUploadError: 'No se pudo subir una foto.' });
+Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerUnchanged: 'Google-Position unverändert', markerTooFar: 'Der Marker darf maximal 25 m von der bestätigten Google-Position verschoben werden.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', markerTitle: 'Anbieterstandort', locationAdjust: 'Marker auf den tatsächlichen Eingang ziehen (max. 25 m).', photos: 'Angebotsfotos', photosHint: 'Füge bis zu 3 Fotos hinzu. JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUpload: 'Fotos werden hochgeladen …', photoUploaded: 'Foto hochgeladen.', photoUploadError: 'Foto konnte nicht hochgeladen werden. Bitte Format und Größe prüfen.', noPhotos: 'Noch keine Fotos hinzugefügt.' });
+Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'The marker may be moved no more than 25 m from the confirmed Google position.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', markerTitle: 'Provider location', locationAdjust: 'Drag the marker to the actual entrance (max. 25 m).', photos: 'Offer photos', photosHint: 'Add up to 3 photos. JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUpload: 'Uploading photos …', photoUploaded: 'Photo uploaded.', photoUploadError: 'Photo could not be uploaded. Check its format and size.', noPhotos: 'No photos added yet.' });
+Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador desplazado', markerUnchanged: 'Posición de Google sin cambios', markerTooFar: 'El marcador no puede alejarse más de 25 m de la posición de Google confirmada.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', markerTitle: 'Ubicación del proveedor', locationAdjust: 'Arrastra el marcador hasta la entrada real (máx. 25 m).', photos: 'Fotos de la oferta', photosHint: 'Añade hasta 3 fotos. JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUpload: 'Subiendo fotos …', photoUploaded: 'Foto subida.', photoUploadError: 'No se pudo subir la foto. Comprueba el formato y el tamaño.', noPhotos: 'Todavía no hay fotos.' });
 
 function pt(key) { return providerText[currentWebLanguage()][key] || providerText.en[key] || key; }
 
@@ -126,6 +126,12 @@ const providerErrorMap = {
   'availability is invalid': ['hours', 'hoursInvalid'],
   'availability must contain an opening window': ['hours', 'hoursInvalid'],
   'radiusMeters is invalid': ['radiusMeters', 'radiusInvalid'],
+  image_too_large_or_empty: ['photos', 'photoInvalid'],
+  image_type_not_allowed: ['photos', 'photoInvalid'],
+  image_content_invalid: ['photos', 'photoInvalid'],
+  media_provider_not_configured: ['photos', 'photoUploadError'],
+  media_upload_failed: ['photos', 'photoUploadError'],
+  media_delete_failed: ['photos', 'photoUploadError'],
 };
 
 function providerErrorDetails(error, fallbackKey) {
@@ -316,7 +322,7 @@ function providerOfferPreview(offer, needs, weekly, price, radius) {
 
 function providerOfferPhotos(offer) {
   const images = Array.isArray(offer?.images) ? offer.images : [];
-  if (!images.length) return `<p class="provider-empty-selection">${pt('noNeedMatches')}</p>`;
+  if (!images.length) return `<p class="provider-empty-selection">${pt('noPhotos')}</p>`;
   return images.map((image, index) => `<li class="provider-photo-item" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index + 1}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
 }
 
@@ -324,14 +330,26 @@ function validProviderPhoto(file) {
   return file && ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 8 * 1024 * 1024;
 }
 
-async function uploadPendingOfferPhotos(offerId, files, formElement) {
+async function uploadPendingOfferPhotos(offerId, entries, formElement) {
   const status = formElement.querySelector('[data-photo-status]');
-  for (const file of files) {
+  for (let index = 0; index < entries.length; index += 1) {
+    const file = entries[index].file || entries[index];
     if (status) status.textContent = `${pt('photoUpload')} ${file.name}`;
     const body = new FormData();
     body.append('image', file, file.name);
-    await webApi(`/provider/offers/${offerId}/images`, { method: 'POST', body });
+    try {
+      await webApi(`/provider/offers/${offerId}/images`, { method: 'POST', body });
+      if (status) status.textContent = `${pt('photoUploaded')} ${file.name}`;
+    } catch (error) {
+      error.completedPhotoEntries = entries.slice(0, index);
+      error.remainingPhotoEntries = entries.slice(index);
+      throw error;
+    }
   }
+}
+
+function revokePendingPhotoEntries(entries = []) {
+  entries.forEach((entry) => { if (entry.url && window.URL?.revokeObjectURL) window.URL.revokeObjectURL(entry.url); });
 }
 
 function providerOfferForm(offer, needs, pendingPhotoFiles = []) {
@@ -349,7 +367,7 @@ function providerOfferForm(offer, needs, pendingPhotoFiles = []) {
       <section class="provider-offer-section"><p class="provider-section-kicker">3</p><h3>${pt('priceIntro')}</h3><p class="provider-section-help">${pt('priceHint')}</p><select name="priceType" data-price-type>${priceOptions}</select><div class="provider-price-fields" data-price-fields data-price-type="${price.type}"><label data-price-field="amount">${pt('amount')}<input name="amount" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.amount ?? '')}"></label><div class="provider-range-fields" data-price-field="range"><label>${pt('min')}<input name="min" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.min ?? '')}"></label><span>–</span><label>${pt('max')}<input name="max" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.max ?? '')}"></label></div><label data-price-field="currency">${pt('currency')}<input name="currency" maxlength="3" value="${escapeProviderHtml(price.currency || 'EUR')}"><span class="provider-field-error" data-field-error="currency"></span></label></div><span class="provider-field-error" data-field-error="price"></span></section>
       <section class="provider-offer-section"><p class="provider-section-kicker">4</p><h3>${pt('availabilityIntro')}</h3><p class="provider-section-help">${pt('availabilityHint')}</p><div class="provider-hours-presets"><button type="button" class="provider-preset-button" data-hours-preset-action="daily">${pt('presetDaily')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="weekdays">${pt('presetWeekdays')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="custom">${pt('presetCustom')}</button></div><div class="provider-hours-editor" data-hours-editor>${providerHoursEditor(weekly)}</div><button type="button" class="provider-inline-button" data-copy-hours>${pt('copyHours')}</button><span class="provider-field-error" data-field-error="hours"></span></section>
       <section class="provider-offer-section"><p class="provider-section-kicker">5</p><h3>${pt('radiusIntro')}</h3><div class="provider-radius-control"><input name="radiusMeters" data-radius-input type="range" min="50" max="1000" step="10" value="${escapeProviderHtml(offer?.radiusMeters || 250)}"><output data-radius-value>${escapeProviderHtml(offer?.radiusMeters || 250)} m</output><div class="provider-radius-scale"><span>50 m</span><span>${pt('radiusRecommended')}</span><span>1000 m</span></div></div><p class="provider-section-help">${pt('radiusHelp')}</p><span class="provider-field-error" data-field-error="radiusMeters"></span></section>
-      <section class="provider-offer-section"><p class="provider-section-kicker">6</p><h3>${pt('photos')}</h3><p class="provider-section-help">${pt('photosHint')}</p><input type="file" data-photo-input accept="image/jpeg,image/png,image/webp" multiple><ul class="provider-photo-list" data-photo-list>${providerOfferPhotos(offer)}</ul><ul class="provider-photo-pending" data-photo-pending>${pendingPhotoFiles.map((file) => `<li>${escapeProviderHtml(file.name)}</li>`).join('')}</ul><p class="provider-photo-status" data-photo-status aria-live="polite"></p><span class="provider-field-error" data-field-error="photos"></span></section>
+      <section class="provider-offer-section"><p class="provider-section-kicker">6</p><h3>${pt('photos')}</h3><p class="provider-section-help">${pt('photosHint')}</p><label class="provider-photo-picker"><span>${pt('choosePhotos')}</span><input type="file" data-photo-input accept="image/jpeg,image/png,image/webp" multiple></label><ul class="provider-photo-list" data-photo-list>${providerOfferPhotos(offer)}</ul><ul class="provider-photo-pending" data-photo-pending>${pendingPhotoFiles.map((entry) => { const file = entry.file || entry; return `<li><img src="${escapeProviderHtml(entry.url || '')}" alt="${escapeProviderHtml(file.name)}"><span>${escapeProviderHtml(file.name)}</span></li>`; }).join('')}</ul><p class="provider-photo-status" data-photo-status aria-live="polite"></p><span class="provider-field-error" data-field-error="photos"></span></section>
       <button class="web-auth-button provider-publish-button" type="submit">${offer ? pt('saveChanges') : pt('publishOffer')}</button><button class="web-auth-button secondary" data-cancel-offer type="button">${pt('cancel')}</button>
     </div><details class="provider-offer-preview" open><summary>${pt('preview')}</summary><div data-offer-preview>${providerOfferPreview(offer, needs, weekly, price, offer?.radiusMeters || 250)}</div></details></div>
   </form>`;
@@ -565,17 +583,26 @@ async function renderProviderStart() {
       const endpoint = id ? `/provider/offers/${id}` : '/provider/offers';
       setProviderFeedback(state, 'offer', 'saving', pt('saving'));
       setFormBusy(formElement, true);
+      let savedOffer = null;
       try {
         const result = await webApi(endpoint, { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
         const offer = result.offer;
+        savedOffer = offer;
         if (pendingPhotos.length) await uploadPendingOfferPhotos(offer.id, pendingPhotos, formElement);
         state.feedback.offer = { state: 'success', message: body.activate ? pt('offerPublished') : pt('offerSaved'), diagnostic: diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, result, state.profile, offer) };
         state.editingOffer = null;
+        revokePendingPhotoEntries(pendingPhotos);
         state.pendingPhotoFiles = [];
         await load();
         render();
       } catch (error) {
         const details = providerErrorDetails(error, id ? 'offerSaveError' : 'offerPublishError');
+        if (savedOffer) {
+          revokePendingPhotoEntries(error.completedPhotoEntries || []);
+          formElement.dataset.offerId = savedOffer.id;
+          state.editingOffer = savedOffer;
+          state.pendingPhotoFiles = error.remainingPhotoEntries || pendingPhotos;
+        }
         setFieldError(formElement, details.field, details.message);
         setProviderFeedback(state, 'offer', 'error', details.message, diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, null, null, null, error));
       } finally { setFormBusy(formElement, false); }
@@ -596,9 +623,10 @@ async function renderProviderStart() {
         event.currentTarget.value = '';
         return;
       }
-      state.pendingPhotoFiles = selectedFiles;
+      revokePendingPhotoEntries(state.pendingPhotoFiles);
+      state.pendingPhotoFiles = selectedFiles.map((file) => ({ file, url: window.URL?.createObjectURL ? window.URL.createObjectURL(file) : '' }));
       const pending = offerForm.querySelector('[data-photo-pending]');
-      if (pending) pending.innerHTML = selectedFiles.map((file) => `<li>${escapeProviderHtml(file.name)}</li>`).join('');
+      if (pending) pending.innerHTML = state.pendingPhotoFiles.map((entry) => `<li><img src="${escapeProviderHtml(entry.url)}" alt="${escapeProviderHtml(entry.file.name)}"><span>${escapeProviderHtml(entry.file.name)}</span></li>`).join('');
     });
     offerForm?.querySelectorAll('[data-photo-remove]')?.forEach((button) => button.addEventListener('click', async () => {
       const offerId = offerForm.dataset.offerId;
@@ -642,7 +670,7 @@ async function renderProviderStart() {
     if (offerForm) offerForm.querySelector(`[data-hours-preset-action="${offerForm.dataset.hoursPreset}"]`)?.classList.add('is-selected');
     offerForm?.querySelectorAll('[data-add-window]').forEach((button) => button.addEventListener('click', () => { const day = button.dataset.addWindow; const row = [...offerForm.querySelectorAll(`[data-hours-window^="${day}-"]`)].find((item) => item.hidden); if (row) { row.hidden = false; offerForm.dataset.hoursPreset = 'custom'; offerForm.dataset.hoursExpanded = 'true'; offerForm.querySelector(`[data-hours-day="${day}"] [data-hours-closed]`).hidden = true; button.hidden = [...offerForm.querySelectorAll(`[data-hours-window^="${day}-"]`)].every((item) => !item.hidden); } }));
     offerForm?.querySelector('[data-copy-hours]')?.addEventListener('click', () => { const source = providerFormWeekly(offerForm).monday || []; providerDays.filter((day) => day !== 'monday').forEach((day) => { offerForm.querySelectorAll(`[data-hours-open="${day}"]`).forEach((input, index) => { const window = source[index] || {}; input.value = window.open || ''; const close = offerForm.querySelector(`[data-hours-close="${day}"][data-hours-index="${index}"]`); if (close) close.value = window.close || ''; const row = offerForm.querySelector(`[data-hours-window="${day}-${index}"]`); if (row) row.hidden = !source[index]; }); offerForm.querySelector(`[data-hours-day="${day}"] [data-hours-closed]`).hidden = source.length > 0; }); providerUpdateOfferPreview(offerForm, state.needs); });
-    document.querySelector('[data-cancel-offer]')?.addEventListener('click', () => { state.editingOffer = null; render(); });
+    document.querySelector('[data-cancel-offer]')?.addEventListener('click', () => { revokePendingPhotoEntries(state.pendingPhotoFiles); state.pendingPhotoFiles = []; state.editingOffer = null; render(); });
     document.querySelector('[data-new-offer]')?.addEventListener('click', () => { state.editingOffer = {}; render(); });
     document.querySelector('[data-edit-profile-location]')?.addEventListener('click', () => { state.editingSetup = true; render(); });
     document.querySelector('[data-cancel-setup]')?.addEventListener('click', () => { state.editingSetup = false; state.locationDraft = null; render(); });
