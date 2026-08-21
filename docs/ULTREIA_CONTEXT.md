@@ -1146,7 +1146,9 @@ serverseitige Places-Key. Nach einer Place-Auswahl werden Original- und
 Korrekturmarker angezeigt; der Server bleibt mit der 25-Meter-Grenze
 massgeblich. Die Maps-Routen-API wird nicht verwendet. Ohne die externen
 Cloudinary- bzw. Maps-Runtimewerte bleiben Foto-Upload bzw. Kartenansicht
-geschlossen oder als Text-Fallback sichtbar.
+geschlossen oder als Text-Fallback sichtbar. Die vier Cloudinary-
+Runtimevariablen sind in DigitalOcean inzwischen konfiguriert; ihre Werte
+werden weder hier noch in Logs dokumentiert.
 
 Die Provider-Karte trennt seit 2026-08-21 Anzeige und Bearbeitung klar: Im
 Dashboard ist der Marker nicht verschiebbar und die Karte zeigt weder
@@ -1159,10 +1161,21 @@ serverseitige 25-Meter-Validierung bleibt unveraendert verbindlich. Der
 local_test-Banner und einklappbare Technikdetails bleiben davon getrennt.
 
 Der Offer-Editor zeigt ausgewählte Bilder bereits vor dem Submit als lokale
-Browser-Vorschau. Uploads melden ihren laufenden und erfolgreichen Zustand;
-bei Teilfehlern bleiben nur die noch nicht hochgeladenen Bilder zur sicheren
-Wiederholung erhalten. Ein Cloudinary-Delete erfolgt vor der DB-Änderung; bei
-fehlender Runtime-Konfiguration oder Delete-Fehler bleibt das Offer-Dokument
-unverändert. Der aktuelle DigitalOcean-Stand enthält weiterhin keine
-`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` oder
-`CLOUDINARY_FOLDER`-Werte, daher ist ein echter Foto-Live-Smoke noch offen.
+Browser-Vorschau. Der Upload nutzt `XMLHttpRequest.upload.onprogress` mit
+Fortschrittsanzeige bzw. indeterminiertem Zustand, Timeout und Einzelbild-
+Retry; Zustände sind `selected`, `uploading`, `uploaded` und `error`. Save
+bleibt während eines Uploads deaktiviert. Normale UI-Texte zeigen keine
+technischen Dateinamen; Titelbild und Zählung sind in DE/EN/ES lokalisiert.
+Nach erfolgreichem Server-Upload wird das Offer erneut geladen, sodass nur
+persistierte Cloudinary-Metadaten als Erfolg gelten. Bei Teilfehlern bleiben
+nicht hochgeladene Bilder zur sicheren Wiederholung erhalten. Ein
+Cloudinary-Delete erfolgt vor der DB-Änderung; bei fehlender
+Runtime-Konfiguration oder Delete-Fehler bleibt das Offer-Dokument
+unverändert.
+
+Ein gemeldeter Offer-Edit-Request mit `HTTP 504` und generischem
+`request_failed` konnte im aktuellen DigitalOcean-Run-Log nicht einem
+internen Backend-Fehler zugeordnet werden; der relevante Log-Ausschnitt
+enthielt nur den erfolgreichen Prozessstart. Der Befund bleibt daher ein
+Proxy-/Upstream-Timeout ohne belegten Cloudinary- oder Datenbank-Fehler und
+wird nach dem nächsten Deploy erneut als Live-Smoke geprüft.

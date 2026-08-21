@@ -159,6 +159,7 @@
 .provider-offer-needs-expanded { flex-basis: 100%; color: #34465a; }
 .provider-offer-thumbnail { flex: 0 0 92px; width: 92px; height: 76px; object-fit: cover; border-radius: 8px; background: #dcebe4; }
 .provider-photo-list, .provider-photo-pending { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.provider-photo-count { color: #617184; font-size: .78rem; font-weight: 500; }
 .provider-photo-item { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 8px; border: 1px solid #d5dde2; border-radius: 8px; }
 .provider-photo-item img { width: 64px; height: 52px; object-fit: cover; border-radius: 5px; }
 .provider-photo-item span { color: #617184; font-size: .82rem; }
@@ -167,5 +168,11 @@
 .provider-photo-picker input { padding: 0; border: 0; }
 .provider-photo-pending li { display: flex; align-items: center; gap: 8px; }
 .provider-photo-pending img { width: 64px; height: 52px; object-fit: cover; border-radius: 5px; }
+.provider-photo-pending-item { align-items: center; padding: 8px; border: 1px solid #d5dde2; border-radius: 8px; }
+.provider-photo-pending-item > div { display: grid; gap: 3px; min-width: 0; }
+.provider-photo-pending-item [data-photo-state-label] { color: #617184; font-size: .82rem; }
+.provider-photo-pending-item progress { width: min(260px, 100%); height: 8px; }
+.provider-photo-state-error { border-color: #c55a4c; background: #fff5f2; }
+.provider-photo-error-message { color: #8c3325; }
 .provider-photo-status { min-height: 1.2em; margin: 0; color: #617184; font-size: .82rem; }
 @media (max-width: 620px) { .provider-offer-thumbnail { flex-basis: 100%; width: 100%; height: 140px; } .provider-map-summary { min-height: 150px; } }

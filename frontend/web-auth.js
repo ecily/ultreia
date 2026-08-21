@@ -65,6 +65,9 @@ Object.assign(webText.es, { offerDiagnostics: 'Detalles t\u00e9cnicos' });
 Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerUnchanged: 'Google-Position unverändert', markerTooFar: 'Der Marker darf maximal 25 m von der bestätigten Google-Position verschoben werden.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', markerTitle: 'Anbieterstandort', locationAdjust: 'Marker auf den tatsächlichen Eingang ziehen (max. 25 m).', photos: 'Angebotsfotos', photosHint: 'Füge bis zu 3 Fotos hinzu. JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUpload: 'Fotos werden hochgeladen …', photoUploaded: 'Foto hochgeladen.', photoUploadError: 'Foto konnte nicht hochgeladen werden. Bitte Format und Größe prüfen.', noPhotos: 'Noch keine Fotos hinzugefügt.' });
 Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'The marker may be moved no more than 25 m from the confirmed Google position.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', markerTitle: 'Provider location', locationAdjust: 'Drag the marker to the actual entrance (max. 25 m).', photos: 'Offer photos', photosHint: 'Add up to 3 photos. JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUpload: 'Uploading photos …', photoUploaded: 'Photo uploaded.', photoUploadError: 'Photo could not be uploaded. Check its format and size.', noPhotos: 'No photos added yet.' });
 Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador desplazado', markerUnchanged: 'Posición de Google sin cambios', markerTooFar: 'El marcador no puede alejarse más de 25 m de la posición de Google confirmada.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', markerTitle: 'Ubicación del proveedor', locationAdjust: 'Arrastra el marcador hasta la entrada real (máx. 25 m).', photos: 'Fotos de la oferta', photosHint: 'Añade hasta 3 fotos. JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUpload: 'Subiendo fotos …', photoUploaded: 'Foto subida.', photoUploadError: 'No se pudo subir la foto. Comprueba el formato y el tamaño.', noPhotos: 'Todavía no hay fotos.' });
+Object.assign(providerText.de, { photoUploading: 'Foto wird hochgeladen', photoUploaded: 'Foto erfolgreich hochgeladen.', photoRetry: 'Upload fehlgeschlagen.', photoRetryAction: 'Erneut versuchen', photoSelected: 'Ausgewählt, wartet auf Upload', photoNumber: 'Foto', photoCount: 'Fotos', titleImage: 'Titelbild', photoWait: 'Bitte warten, bis alle Foto-Uploads abgeschlossen sind.' });
+Object.assign(providerText.en, { photoUploading: 'Uploading photo', photoUploaded: 'Photo uploaded successfully.', photoRetry: 'Upload failed.', photoRetryAction: 'Try again', photoSelected: 'Selected, waiting to upload', photoNumber: 'Photo', photoCount: 'photos', titleImage: 'Title image', photoWait: 'Please wait until all photo uploads are complete.' });
+Object.assign(providerText.es, { photoUploading: 'Subiendo foto', photoUploaded: 'Foto subida correctamente.', photoRetry: 'Error de subida.', photoRetryAction: 'Intentar de nuevo', photoSelected: 'Seleccionada, pendiente de subir', photoNumber: 'Foto', photoCount: 'fotos', titleImage: 'Imagen principal', photoWait: 'Espera hasta que terminen todas las subidas de fotos.' });
 
 function pt(key) { return providerText[currentWebLanguage()][key] || providerText.en[key] || key; }
 
@@ -166,6 +169,38 @@ async function webApi(path, options = {}, allowRefresh = true) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) { const error = new Error(body.status || 'request_failed'); error.status = body.status || 'request_failed'; error.detail = body.error || null; error.httpStatus = response.status; throw error; }
   return { ...body, _httpStatus: response.status };
+}
+
+function webApiUpload(path, file, onProgress, allowRefresh = true) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const body = new FormData();
+    body.append('image', file, file.name);
+    xhr.open('POST', `${WEB_API_BASE}${path}`, true);
+    xhr.withCredentials = true;
+    xhr.timeout = 120000;
+    xhr.setRequestHeader('x-ultreia-web', '1');
+    xhr.setRequestHeader('x-ultreia-scope', webScope());
+    xhr.upload.onprogress = (event) => onProgress?.(event.lengthComputable ? Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100))) : null);
+    xhr.onerror = () => { const error = new Error('upload_network_error'); error.status = 'upload_network_error'; error.httpStatus = xhr.status || 0; reject(error); };
+    xhr.ontimeout = () => { const error = new Error('upload_timeout'); error.status = 'upload_timeout'; error.httpStatus = xhr.status || 0; reject(error); };
+    xhr.onabort = () => { const error = new Error('upload_aborted'); error.status = 'upload_aborted'; error.httpStatus = xhr.status || 0; reject(error); };
+    xhr.onload = async () => {
+      let responseBody = {};
+      try { responseBody = JSON.parse(xhr.responseText || '{}'); } catch { const error = new Error('request_failed'); error.status = 'request_failed'; error.httpStatus = xhr.status; reject(error); return; }
+      if (xhr.status === 401 && allowRefresh && await webRefresh()) return webApiUpload(path, file, onProgress, false).then(resolve, reject);
+      if (xhr.status < 200 || xhr.status >= 300) {
+        const error = new Error(responseBody.status || 'request_failed');
+        error.status = responseBody.status || 'request_failed';
+        error.detail = responseBody.error || null;
+        error.httpStatus = xhr.status;
+        reject(error);
+        return;
+      }
+      resolve({ ...responseBody, _httpStatus: xhr.status });
+    };
+    xhr.send(body);
+  });
 }
 
 function webShell(title, content) {
@@ -323,7 +358,32 @@ function providerOfferPreview(offer, needs, weekly, price, radius) {
 function providerOfferPhotos(offer) {
   const images = Array.isArray(offer?.images) ? offer.images : [];
   if (!images.length) return `<p class="provider-empty-selection">${pt('noPhotos')}</p>`;
-  return images.map((image, index) => `<li class="provider-photo-item" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index + 1}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
+  return images.map((image, index) => `<li class="provider-photo-item" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index === 0 ? pt('titleImage') : `${pt('photoNumber')} ${index + 1}`}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
+}
+
+function providerPendingPhotoStatus(entry, index) {
+  const status = entry.status || 'selected';
+  if (status === 'uploading') return entry.progress === null ? pt('photoUploading') : `${pt('photoUploading')} ${entry.progress} %`;
+  if (status === 'uploaded') return `✓ ${pt('photoUploaded')}`;
+  if (status === 'error') return `<span class="provider-photo-error-message">${pt('photoRetry')}</span><button type="button" class="provider-inline-button" data-retry-photo="${index}">${pt('photoRetryAction')}</button>`;
+  return pt('photoSelected');
+}
+
+function providerPendingPhotosMarkup(entries = []) {
+  return entries.map((entry, index) => {
+    const status = entry.status || 'selected';
+    const progress = status === 'uploading'
+      ? `<progress max="100" ${entry.progress === null ? '' : `value="${entry.progress}"`}>${entry.progress ?? ''}</progress>`
+      : '';
+    return `<li class="provider-photo-pending-item provider-photo-state-${status}" data-pending-photo="${index}"><img src="${escapeProviderHtml(entry.url || '')}" alt="${escapeProviderHtml(`${pt('photoNumber')} ${index + 1}`)}"><div><strong>${escapeProviderHtml(`${pt('photoNumber')} ${index + 1}`)}</strong><span data-photo-state-label>${providerPendingPhotoStatus(entry, index)}</span>${progress}</div></li>`;
+  }).join('');
+}
+
+function updatePendingPhotoList(formElement, entries) {
+  const list = formElement?.querySelector('[data-photo-pending]');
+  if (list) list.innerHTML = providerPendingPhotosMarkup(entries);
+  const count = formElement?.querySelector('[data-photo-count]');
+  if (count) count.textContent = `${entries.length + formElement.querySelectorAll('[data-photo-id]').length} ${pt('photoCount')}`;
 }
 
 function validProviderPhoto(file) {
@@ -333,19 +393,34 @@ function validProviderPhoto(file) {
 async function uploadPendingOfferPhotos(offerId, entries, formElement) {
   const status = formElement.querySelector('[data-photo-status]');
   for (let index = 0; index < entries.length; index += 1) {
-    const file = entries[index].file || entries[index];
-    if (status) status.textContent = `${pt('photoUpload')} ${file.name}`;
-    const body = new FormData();
-    body.append('image', file, file.name);
+    const entry = entries[index];
+    const file = entry.file || entry;
+    entry.status = 'uploading';
+    entry.progress = 0;
+    entry.error = null;
+    updatePendingPhotoList(formElement, entries);
+    if (status) status.textContent = pt('photoUploading');
     try {
-      await webApi(`/provider/offers/${offerId}/images`, { method: 'POST', body });
-      if (status) status.textContent = `${pt('photoUploaded')} ${file.name}`;
+      const result = await webApiUpload(`/provider/offers/${offerId}/images`, file, (progress) => {
+        entry.progress = progress;
+        updatePendingPhotoList(formElement, entries);
+      });
+      entry.status = 'uploaded';
+      entry.progress = 100;
+      entry.result = result;
+      updatePendingPhotoList(formElement, entries);
+      if (status) status.textContent = pt('photoUploaded');
     } catch (error) {
+      entry.status = 'error';
+      entry.error = error.status || 'upload_failed';
+      error.uploadPath = `/provider/offers/${offerId}/images`;
       error.completedPhotoEntries = entries.slice(0, index);
       error.remainingPhotoEntries = entries.slice(index);
+      updatePendingPhotoList(formElement, entries);
       throw error;
     }
   }
+  return entries.at(-1)?.result || null;
 }
 
 function revokePendingPhotoEntries(entries = []) {
@@ -360,6 +435,7 @@ function providerOfferForm(offer, needs, pendingPhotoFiles = []) {
   const preset = Object.keys(weekly).some((day) => (weekly[day] || []).length) ? ui.detectHoursPreset(weekly) : '';
   const popular = new Set(ui.popularNeeds(needs).map((need) => need.key));
   const groups = ui.groupNeeds(needs);
+  const totalPhotoCount = (offer?.images?.length || 0) + pendingPhotoFiles.length;
   const priceOptions = [['free', 'priceFree'], ['fixed', 'priceFixed'], ['from', 'priceFrom'], ['range', 'priceRange'], ['donativo', 'priceDonativo'], ['on_request', 'priceOnRequest']].map(([value, label]) => `<option value="${value}" ${price.type === value ? 'selected' : ''}>${pt(label)}</option>`).join('');
   return `<form class="provider-form provider-offer-form provider-offer-editor" data-offer-form novalidate data-offer-id="${offer?.id || ''}" data-hours-preset="${preset}" data-hours-expanded="${preset === 'custom' ? 'true' : 'false'}">
     <div class="provider-offer-editor-layout"><div class="provider-offer-main"><section class="provider-offer-section"><p class="provider-section-kicker">1</p><h3>${pt('offerIntro')}</h3><label>${pt('title')}<input name="title" required maxlength="120" placeholder="${pt('offerTitlePlaceholder')}" value="${escapeProviderHtml(offer?.title || '')}"><span class="provider-field-error" data-field-error="title"></span></label><label>${pt('description')}<textarea name="description" required maxlength="1000" placeholder="${pt('offerDescriptionPlaceholder')}">${escapeProviderHtml(offer?.description || '')}</textarea><span class="provider-field-error" data-field-error="description"></span></label></section>
@@ -367,7 +443,7 @@ function providerOfferForm(offer, needs, pendingPhotoFiles = []) {
       <section class="provider-offer-section"><p class="provider-section-kicker">3</p><h3>${pt('priceIntro')}</h3><p class="provider-section-help">${pt('priceHint')}</p><select name="priceType" data-price-type>${priceOptions}</select><div class="provider-price-fields" data-price-fields data-price-type="${price.type}"><label data-price-field="amount">${pt('amount')}<input name="amount" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.amount ?? '')}"></label><div class="provider-range-fields" data-price-field="range"><label>${pt('min')}<input name="min" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.min ?? '')}"></label><span>–</span><label>${pt('max')}<input name="max" type="number" min="0" step="0.01" value="${escapeProviderHtml(price.max ?? '')}"></label></div><label data-price-field="currency">${pt('currency')}<input name="currency" maxlength="3" value="${escapeProviderHtml(price.currency || 'EUR')}"><span class="provider-field-error" data-field-error="currency"></span></label></div><span class="provider-field-error" data-field-error="price"></span></section>
       <section class="provider-offer-section"><p class="provider-section-kicker">4</p><h3>${pt('availabilityIntro')}</h3><p class="provider-section-help">${pt('availabilityHint')}</p><div class="provider-hours-presets"><button type="button" class="provider-preset-button" data-hours-preset-action="daily">${pt('presetDaily')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="weekdays">${pt('presetWeekdays')}</button><button type="button" class="provider-preset-button" data-hours-preset-action="custom">${pt('presetCustom')}</button></div><div class="provider-hours-editor" data-hours-editor>${providerHoursEditor(weekly)}</div><button type="button" class="provider-inline-button" data-copy-hours>${pt('copyHours')}</button><span class="provider-field-error" data-field-error="hours"></span></section>
       <section class="provider-offer-section"><p class="provider-section-kicker">5</p><h3>${pt('radiusIntro')}</h3><div class="provider-radius-control"><input name="radiusMeters" data-radius-input type="range" min="50" max="1000" step="10" value="${escapeProviderHtml(offer?.radiusMeters || 250)}"><output data-radius-value>${escapeProviderHtml(offer?.radiusMeters || 250)} m</output><div class="provider-radius-scale"><span>50 m</span><span>${pt('radiusRecommended')}</span><span>1000 m</span></div></div><p class="provider-section-help">${pt('radiusHelp')}</p><span class="provider-field-error" data-field-error="radiusMeters"></span></section>
-      <section class="provider-offer-section"><p class="provider-section-kicker">6</p><h3>${pt('photos')}</h3><p class="provider-section-help">${pt('photosHint')}</p><label class="provider-photo-picker"><span>${pt('choosePhotos')}</span><input type="file" data-photo-input accept="image/jpeg,image/png,image/webp" multiple></label><ul class="provider-photo-list" data-photo-list>${providerOfferPhotos(offer)}</ul><ul class="provider-photo-pending" data-photo-pending>${pendingPhotoFiles.map((entry) => { const file = entry.file || entry; return `<li><img src="${escapeProviderHtml(entry.url || '')}" alt="${escapeProviderHtml(file.name)}"><span>${escapeProviderHtml(file.name)}</span></li>`; }).join('')}</ul><p class="provider-photo-status" data-photo-status aria-live="polite"></p><span class="provider-field-error" data-field-error="photos"></span></section>
+       <section class="provider-offer-section"><p class="provider-section-kicker">6</p><h3>${pt('photos')} <span class="provider-photo-count" data-photo-count>${totalPhotoCount} ${pt('photoCount')}</span></h3><p class="provider-section-help">${pt('photosHint')}</p>${totalPhotoCount < 3 ? `<label class="provider-photo-picker"><span>${pt('choosePhotos')}</span><input type="file" data-photo-input accept="image/jpeg,image/png,image/webp" multiple></label>` : ''}<ul class="provider-photo-list" data-photo-list>${providerOfferPhotos(offer)}</ul><ul class="provider-photo-pending" data-photo-pending>${providerPendingPhotosMarkup(pendingPhotoFiles)}</ul><p class="provider-photo-status" data-photo-status aria-live="polite"></p><span class="provider-field-error" data-field-error="photos"></span></section>
       <button class="web-auth-button provider-publish-button" type="submit">${offer ? pt('saveChanges') : pt('publishOffer')}</button><button class="web-auth-button secondary" data-cancel-offer type="button">${pt('cancel')}</button>
     </div><details class="provider-offer-preview" open><summary>${pt('preview')}</summary><div data-offer-preview>${providerOfferPreview(offer, needs, weekly, price, offer?.radiusMeters || 250)}</div></details></div>
   </form>`;
@@ -578,6 +654,7 @@ async function renderProviderStart() {
       const pendingPhotos = state.pendingPhotoFiles || [];
       const existingPhotoCount = Array.isArray(state.editingOffer?.images) ? state.editingOffer.images.length : 0;
       if (existingPhotoCount + pendingPhotos.length > 3) { setFieldError(formElement, 'photos', pt('photoLimit')); return; }
+      if (pendingPhotos.some((entry) => entry.status === 'uploading')) { setFieldError(formElement, 'photos', pt('photoWait')); return; }
       const scope = state.account?.scope || webScope();
       const id = formElement.dataset.offerId;
       const endpoint = id ? `/provider/offers/${id}` : '/provider/offers';
@@ -588,8 +665,10 @@ async function renderProviderStart() {
         const result = await webApi(endpoint, { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
         const offer = result.offer;
         savedOffer = offer;
-        if (pendingPhotos.length) await uploadPendingOfferPhotos(offer.id, pendingPhotos, formElement);
-        state.feedback.offer = { state: 'success', message: body.activate ? pt('offerPublished') : pt('offerSaved'), diagnostic: diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, result, state.profile, offer) };
+        const uploadResult = pendingPhotos.length ? await uploadPendingOfferPhotos(offer.id, pendingPhotos, formElement) : null;
+        const successDiagnostic = diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, result, state.profile, offer);
+        if (uploadResult) { successDiagnostic.method = `POST /api/provider/offers/${offer.id}/images`; successDiagnostic.httpStatus = uploadResult._httpStatus; successDiagnostic.cloudinary = 'uploaded'; }
+        state.feedback.offer = { state: 'success', message: body.activate ? pt('offerPublished') : pt('offerSaved'), diagnostic: successDiagnostic };
         state.editingOffer = null;
         revokePendingPhotoEntries(pendingPhotos);
         state.pendingPhotoFiles = [];
@@ -604,7 +683,7 @@ async function renderProviderStart() {
           state.pendingPhotoFiles = error.remainingPhotoEntries || pendingPhotos;
         }
         setFieldError(formElement, details.field, details.message);
-        setProviderFeedback(state, 'offer', 'error', details.message, diagnostic(`${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, null, null, null, error));
+        setProviderFeedback(state, 'offer', 'error', details.message, diagnostic(error.uploadPath || `${id ? 'PUT' : 'POST'} /api/provider/offers${id ? `/${id}` : ''}`, scope, null, null, null, error));
       } finally { setFormBusy(formElement, false); }
     });
     const offerForm = document.querySelector('[data-offer-form]');
@@ -624,9 +703,29 @@ async function renderProviderStart() {
         return;
       }
       revokePendingPhotoEntries(state.pendingPhotoFiles);
-      state.pendingPhotoFiles = selectedFiles.map((file) => ({ file, url: window.URL?.createObjectURL ? window.URL.createObjectURL(file) : '' }));
-      const pending = offerForm.querySelector('[data-photo-pending]');
-      if (pending) pending.innerHTML = state.pendingPhotoFiles.map((entry) => `<li><img src="${escapeProviderHtml(entry.url)}" alt="${escapeProviderHtml(entry.file.name)}"><span>${escapeProviderHtml(entry.file.name)}</span></li>`).join('');
+      state.pendingPhotoFiles = selectedFiles.map((file) => ({ file, url: window.URL?.createObjectURL ? window.URL.createObjectURL(file) : '', status: 'selected', progress: 0 }));
+      updatePendingPhotoList(offerForm, state.pendingPhotoFiles);
+    });
+    offerForm?.querySelector('[data-photo-pending]')?.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-retry-photo]');
+      if (!button) return;
+      const index = Number(button.dataset.retryPhoto);
+      const entry = state.pendingPhotoFiles[index];
+      const offerId = offerForm.dataset.offerId;
+      if (!entry || !offerId) return;
+      setFormBusy(offerForm, true);
+      try {
+        await uploadPendingOfferPhotos(offerId, [entry], offerForm);
+        revokePendingPhotoEntries([entry]);
+        state.pendingPhotoFiles.splice(index, 1);
+        await load();
+        state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer;
+        state.feedback.offer = { state: 'success', message: pt('photoUploaded'), diagnostic: { method: `POST /api/provider/offers/${offerId}/images`, httpStatus: 201, scope: state.account?.scope || webScope(), cloudinary: 'uploaded' } };
+        render();
+      } catch (error) {
+        setProviderFeedback(state, 'offer', 'error', pt('photoUploadError'), diagnostic(error.uploadPath || `POST /api/provider/offers/${offerId}/images`, state.account?.scope || webScope(), null, null, null, error));
+        updatePendingPhotoList(offerForm, state.pendingPhotoFiles);
+      } finally { setFormBusy(offerForm, false); }
     });
     offerForm?.querySelectorAll('[data-photo-remove]')?.forEach((button) => button.addEventListener('click', async () => {
       const offerId = offerForm.dataset.offerId;
