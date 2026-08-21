@@ -1288,3 +1288,8 @@ visuelle DNA ist in `docs/ULTREIA_DESIGN_SYSTEM.md` festgehalten (Camino-Blau,
 Gelb als nächste Handlung, warme Stone-/Cream-Flächen, Grün nur sekundär).
 Es wurden keine Routes-, Ranking-, Hintergrund-Matching-, Push-, Bewertungs-
 oder Monetarisierungsfunktionen ergänzt.
+
+Die DigitalOcean-App-Spezifikation bindet `COMMIT_SHA` jetzt an
+`${_self.COMMIT_HASH}`. Dadurch zeigt `/api/health` nach jedem App-Platform-
+Build automatisch den tatsächlich gebauten Commit und benötigt keinen
+manuell gepflegten statischen Runtimewert.
