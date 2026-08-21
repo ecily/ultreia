@@ -1147,3 +1147,13 @@ Korrekturmarker angezeigt; der Server bleibt mit der 25-Meter-Grenze
 massgeblich. Die Maps-Routen-API wird nicht verwendet. Ohne die externen
 Cloudinary- bzw. Maps-Runtimewerte bleiben Foto-Upload bzw. Kartenansicht
 geschlossen oder als Text-Fallback sichtbar.
+
+Die Provider-Karte trennt seit 2026-08-21 Anzeige und Bearbeitung klar: Im
+Dashboard ist der Marker nicht verschiebbar und die Karte zeigt weder
+Distanzfeedback noch Editierhinweise; die Aktion bleibt ausserhalb der Karte
+`Profil & Standort bearbeiten`. Im Edit-Modus kennzeichnen lokalisierter
+Drag-Hinweis, Distanzfeedback und Save/Cancel die Bearbeitung. Bei 0 m wird
+`Google-Position unveraendert` angezeigt, bei mehr als 25 m wird der Marker
+visuell als fehlerhaft markiert und Speichern clientseitig blockiert. Die
+serverseitige 25-Meter-Validierung bleibt unveraendert verbindlich. Der
+local_test-Banner und einklappbare Technikdetails bleiben davon getrennt.

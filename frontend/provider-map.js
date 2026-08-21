@@ -26,10 +26,18 @@
     return promise;
   }
 
-  function coordinates(location) {
+  function mapCoordinates(location) {
     const original = location?.googleOriginalLocation || location?.finalLocation || location;
     const final = location?.finalLocation || location;
     return { original: { lat: Number(original?.latitude), lng: Number(original?.longitude) }, final: { lat: Number(final?.latitude), lng: Number(final?.longitude) } };
+  }
+
+  function mapUiState({ editable = false, adjustmentMeters = 0, accepted = true, labels = {} } = {}) {
+    const text = { markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'Marker movement exceeds 25 m.', ...labels };
+    if (!editable) return { showAdjustment: false, tooFar: false, text: '' };
+    if (!accepted) return { showAdjustment: true, tooFar: true, text: text.markerTooFar };
+    if (Math.round(adjustmentMeters) === 0) return { showAdjustment: true, tooFar: false, text: text.markerUnchanged };
+    return { showAdjustment: true, tooFar: false, text: `${text.markerMoved}: ${Math.round(adjustmentMeters)} m` };
   }
 
   async function mount(container, { apiKey, location, editable = false, labels = {}, onMove, onError } = {}) {
@@ -40,21 +48,24 @@
     canvas.setAttribute('role', 'img');
     const text = { mapLabel: 'Provider location map', markerMoved: 'Marker moved', markerTooFar: 'Marker movement exceeds 25 m.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', ...labels };
     canvas.setAttribute('aria-label', container.dataset.mapLabel || text.mapLabel);
+    container.classList.toggle('provider-map-editable', editable);
     const details = document.createElement('div');
     details.className = 'provider-map-copy';
-    details.innerHTML = `<strong>${String(location.formattedAddress || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</strong><span data-map-adjustment></span>`;
+    details.innerHTML = `<strong>${String(location.formattedAddress || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</strong>${editable ? '<span data-map-adjustment></span>' : ''}`;
     container.append(canvas, details);
     try {
       const maps = await load(apiKey);
-      const points = coordinates(location);
+      const points = mapCoordinates(location);
       if (![points.original.lat, points.original.lng, points.final.lat, points.final.lng].every(Number.isFinite)) throw new Error('maps_location_invalid');
       let finalPoint = points.final;
       const map = new maps.Map(canvas, { center: finalPoint, zoom: 17, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' });
-      const marker = new maps.Marker({ map, position: finalPoint, draggable: editable, title: location.formattedAddress || 'Provider location' });
+      const marker = new maps.Marker({ map, position: finalPoint, draggable: editable, title: location.formattedAddress || text.markerTitle || 'Provider location' });
       const updateAdjustment = (point, accepted = true) => {
         const adjustmentMeters = haversineMeters(points.original, point);
         const target = details.querySelector('[data-map-adjustment]');
-        if (target) target.textContent = accepted ? `${text.markerMoved}: ${Math.round(adjustmentMeters)} m` : text.markerTooFar;
+        const state = mapUiState({ editable, adjustmentMeters, accepted, labels: text });
+        container.classList.toggle('provider-map-too-far', state.tooFar);
+        if (target) target.textContent = state.text;
         onMove?.({ ...point, adjustmentMeters, accepted });
       };
       if (editable) marker.addListener('dragend', () => {
@@ -78,5 +89,5 @@
     }
   }
 
-  window.UltreiaProviderMap = { mount, haversineMeters };
+  window.UltreiaProviderMap = { mount, haversineMeters, mapCoordinates, mapUiState };
 })();

@@ -150,6 +150,9 @@
 .provider-map-copy { display: grid; gap: 3px; width: 100%; padding: 8px 10px; box-sizing: border-box; background: rgba(255,255,255,.86); text-align: left; }
 .provider-map-copy span { color: #617184; font-size: .8rem; }
 .provider-map-error { background: #fff4d6; }
+.provider-map-editable { border: 2px solid #cf8a2e; background: #fffaf0; }
+.provider-map-too-far { border-color: #b84d3c; background: #fff0ed; }
+.provider-map-too-far .provider-map-copy { color: #8c3325; }
 .provider-map-summary { min-height: 170px; }
 .provider-offer-needs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
 .provider-needs-toggle { padding: 0; font-size: .82rem; }
