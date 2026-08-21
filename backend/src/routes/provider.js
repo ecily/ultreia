@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import { randomUUID } from 'node:crypto';
 import { badRequest, databaseRequired, readString } from '../lib/validation.js';
 import { normalizeLocale } from '../services/taxonomyService.js';
+import { logEvent } from '../lib/logger.js';
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
@@ -43,7 +45,8 @@ function providerError(res, error) {
   if (message === 'media_provider_not_configured') return res.status(503).json({ ok: false, status: message });
   if (['image_too_large_or_empty', 'image_type_not_allowed', 'image_content_invalid', 'image_multipart_invalid', 'image_field_missing', 'images is invalid', 'images_are_managed_separately', 'images_limit_exceeded'].includes(message)) return res.status(400).json({ ok: false, status: message });
   if (['image_not_found', 'media_ownership_invalid'].includes(message)) return res.status(404).json({ ok: false, status: message });
-  if (['media_upload_failed', 'media_delete_failed'].includes(message)) return res.status(502).json({ ok: false, status: message });
+  if (message === 'media_upload_timeout') return res.status(504).json({ ok: false, status: message });
+  if (['media_upload_failed', 'media_upload_network_error', 'media_delete_failed'].includes(message)) return res.status(502).json({ ok: false, status: message });
   if (message.startsWith('google_places_')) return res.status(message === 'google_places_not_configured' ? 503 : 502).json({ ok: false, status: message });
   if (message === 'location_adjustment_exceeds_25m' || message === 'google_place_invalid' || message === 'location_coordinates_invalid') return res.status(400).json({ ok: false, status: message });
   if (message.includes('required') || message.includes('invalid') || message.includes('too short') || message.includes('too long') || message.includes('unknown Need') || message.includes('availability')) return badRequest(res, { message });
@@ -108,17 +111,22 @@ export function createProviderRouter(config, databaseService, providerService, g
   router.post('/offers/:id/images', async (req, res) => {
     let uploaded = null;
     let scope = null;
+    const correlationId = String(req.headers['x-request-id'] || randomUUID()).slice(0, 80);
+    const startedAt = Date.now();
     try {
       const db = databaseRequired(res, databaseService); if (!db) return;
       scope = sessionScope(req);
       if (!mediaService?.configured) throw new Error('media_provider_not_configured');
       const offer = await providerService.getOffer(req.user, scope, req.params.id);
+      logEvent('info', 'offer_image_upload_started', { correlationId, scope });
       if ((offer.images || []).length >= providerService.MAX_OFFER_IMAGES) throw new Error('images_limit_exceeded');
       const file = await readMultipartImage(req);
-      uploaded = await mediaService.uploadImage({ buffer: file.buffer, mimeType: file.mimeType, scope, userId: String(req.user._id), offerId: offer.id, sortOrder: offer.images.length });
+      uploaded = await mediaService.uploadImage({ buffer: file.buffer, mimeType: file.mimeType, scope, userId: String(req.user._id), offerId: offer.id, sortOrder: offer.images.length, correlationId });
       const updated = await providerService.addOfferImage(req.user, scope, offer.id, uploaded);
+      logEvent('info', 'offer_image_persisted', { correlationId, scope, bytes: file.buffer.length, mimeType: file.mimeType, durationMs: Date.now() - startedAt });
       return res.status(201).json({ ok: true, image: uploaded, offer: updated });
     } catch (error) {
+      logEvent('error', 'offer_image_upload_failed', { correlationId, scope, durationMs: Date.now() - startedAt, upstreamStatus: error?.upstreamStatus || null, errorClass: error?.message || 'unknown' });
       if (uploaded && mediaService?.destroyImage && scope) await mediaService.destroyImage({ publicId: uploaded.publicId, scope, userId: String(req.user._id), offerId: req.params.id }).catch(() => {});
       return providerError(res, error);
     }

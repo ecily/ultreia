@@ -1178,4 +1178,15 @@ Ein gemeldeter Offer-Edit-Request mit `HTTP 504` und generischem
 internen Backend-Fehler zugeordnet werden; der relevante Log-Ausschnitt
 enthielt nur den erfolgreichen Prozessstart. Der Befund bleibt daher ein
 Proxy-/Upstream-Timeout ohne belegten Cloudinary- oder Datenbank-Fehler und
-wird nach dem nächsten Deploy erneut als Live-Smoke geprüft.
+wird durch einen begrenzten Cloudinary-Request mit strukturierter
+Phasenprotokollierung (`offer_image_upload_started`,
+`offer_image_validation_passed`, `cloudinary_upload_started`,
+`cloudinary_upload_completed`/`cloudinary_upload_failed`,
+`offer_image_persisted`) eingegrenzt. Der Backend-Timeout beträgt standardmäßig
+30 Sekunden und wird als `504 media_upload_timeout` zurückgegeben; Netzwerk-
+und HTTP-Fehler werden kontrolliert als 502 klassifiziert. Logs enthalten nur
+Correlation-ID, Scope, Bytes, MIME, Dauer, Upstream-Status und Error-Klasse.
+Ein direkter Cloudinary-Test aus der lokalen Agent-Umgebung war wegen eines
+Netzwerkfehlers nicht aussagekräftig; eine authentifizierte Production-
+Offer-Session bzw. ein App-Platform-Exec für einen echten Runtime-Smoke steht
+hier nicht zur Verfügung.

@@ -8,6 +8,7 @@ const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
 const DEFAULT_MAGIC_LINK_TTL_SECONDS = 900;
 const DEFAULT_MICROSOFT_GRAPH_TIMEOUT_MS = 10000;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 8000;
+const DEFAULT_CLOUDINARY_TIMEOUT_MS = 30000;
 
 function parseBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
@@ -36,6 +37,13 @@ function parseTimeout(value) {
   if (value === undefined || value === null || value === '') return DEFAULT_MICROSOFT_GRAPH_TIMEOUT_MS;
   const number = Number(value);
   if (!Number.isInteger(number) || number < 1000 || number > 30000) throw new Error('MICROSOFT_GRAPH_TIMEOUT_MS must be an integer between 1000 and 30000');
+  return number;
+}
+
+function parseCloudinaryTimeout(value) {
+  if (value === undefined || value === null || value === '') return DEFAULT_CLOUDINARY_TIMEOUT_MS;
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 1000 || number > 60000) throw new Error('CLOUDINARY_TIMEOUT_MS must be an integer between 1000 and 60000');
   return number;
 }
 
@@ -93,6 +101,7 @@ export function loadConfig(env = process.env) {
     cloudinaryApiKey: env.CLOUDINARY_API_KEY || '',
     cloudinaryApiSecret: env.CLOUDINARY_API_SECRET || '',
     cloudinaryFolder: env.CLOUDINARY_FOLDER || 'ultreia',
+    cloudinaryTimeoutMs: parseCloudinaryTimeout(env.CLOUDINARY_TIMEOUT_MS),
     allowLocalTestScope: parseBoolean(env.ALLOW_LOCAL_TEST_SCOPE, true),
     localTestEmails: parseCsv(env.LOCAL_TEST_EMAILS),
     serviceName: SERVICE_NAME,

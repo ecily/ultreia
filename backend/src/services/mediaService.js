@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { logEvent } from '../lib/logger.js';
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
@@ -37,9 +38,12 @@ export function createMediaService(config, dependencies = {}) {
   const fetchImpl = dependencies.fetchImpl || fetch;
   const now = dependencies.now || (() => new Date());
   const configured = Boolean(config.cloudinaryCloudName && config.cloudinaryApiKey && config.cloudinaryApiSecret);
+  const timeoutMs = Number.isInteger(config.cloudinaryTimeoutMs) ? config.cloudinaryTimeoutMs : 30000;
 
-  async function uploadImage({ buffer, mimeType, scope, userId, offerId, sortOrder }) {
+  async function uploadImage({ buffer, mimeType, scope, userId, offerId, sortOrder, correlationId = null }) {
+    const startedAt = Date.now();
     validateImage(buffer, mimeType);
+    if (correlationId) logEvent('info', 'offer_image_validation_passed', { correlationId, scope, bytes: buffer.length, mimeType });
     if (!configured) throw new Error('media_provider_not_configured');
     const timestamp = Math.floor(now().getTime() / 1000);
     const folder = scopeFolder(config, scope, userId, offerId);
@@ -52,9 +56,25 @@ export function createMediaService(config, dependencies = {}) {
     form.append('folder', folder);
     form.append('public_id', publicId);
     form.append('signature', cloudinarySignature(params, config.cloudinaryApiSecret));
-    const response = await fetchImpl(`https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudinaryCloudName)}/image/upload`, { method: 'POST', body: form });
+    if (correlationId) logEvent('info', 'cloudinary_upload_started', { correlationId, scope, bytes: buffer.length, mimeType });
+    let response;
+    try {
+      response = await fetchImpl(`https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudinaryCloudName)}/image/upload`, { method: 'POST', body: form, signal: AbortSignal.timeout(timeoutMs) });
+    } catch (error) {
+      const timeout = error?.name === 'TimeoutError' || error?.name === 'AbortError';
+      const failure = new Error(timeout ? 'media_upload_timeout' : 'media_upload_network_error');
+      failure.upstreamStatus = null;
+      if (correlationId) logEvent('error', 'cloudinary_upload_failed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: null, errorClass: failure.message });
+      throw failure;
+    }
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok || !payload.public_id || !payload.width || !payload.height) throw new Error('media_upload_failed');
+    if (!response.ok || !payload.public_id || !payload.width || !payload.height) {
+      const failure = new Error('media_upload_failed');
+      failure.upstreamStatus = response.status;
+      if (correlationId) logEvent('error', 'cloudinary_upload_failed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: response.status, errorClass: 'cloudinary_http_error' });
+      throw failure;
+    }
+    if (correlationId) logEvent('info', 'cloudinary_upload_completed', { correlationId, scope, bytes: buffer.length, mimeType, durationMs: Date.now() - startedAt, upstreamStatus: response.status });
     return {
       publicId: payload.public_id,
       secureUrl: deliveryUrl(config.cloudinaryCloudName, payload.public_id, payload.format || EXTENSIONS[mimeType]),
@@ -79,7 +99,7 @@ export function createMediaService(config, dependencies = {}) {
     form.append('invalidate', 'true');
     form.append('api_key', config.cloudinaryApiKey);
     form.append('signature', cloudinarySignature(params, config.cloudinaryApiSecret));
-    const response = await fetchImpl(`https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudinaryCloudName)}/image/destroy`, { method: 'POST', body: form });
+    const response = await fetchImpl(`https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudinaryCloudName)}/image/destroy`, { method: 'POST', body: form, signal: AbortSignal.timeout(timeoutMs) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !['ok', 'not found'].includes(payload.result)) throw new Error('media_delete_failed');
     return { ok: true };

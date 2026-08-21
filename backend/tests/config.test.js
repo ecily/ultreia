@@ -6,7 +6,13 @@ describe('runtime configuration', () => {
   it('defaults non-production execution to local mode', () => {
     const config = loadConfig({ NODE_ENV: 'development', PORT: '3000' });
     assert.equal(config.runtimeMode, 'local');
+    assert.equal(config.cloudinaryTimeoutMs, 30000);
     assert.equal(validateRuntimeConfig(config).ok, true);
+  });
+
+  it('accepts a bounded Cloudinary timeout without exposing runtime values', () => {
+    const config = loadConfig({ NODE_ENV: 'development', CLOUDINARY_TIMEOUT_MS: '15000' });
+    assert.equal(config.cloudinaryTimeoutMs, 15000);
   });
 
   it('requires production database and CORS configuration', () => {

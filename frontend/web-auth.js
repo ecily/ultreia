@@ -68,6 +68,9 @@ Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar men
 Object.assign(providerText.de, { photoUploading: 'Foto wird hochgeladen', photoUploaded: 'Foto erfolgreich hochgeladen.', photoRetry: 'Upload fehlgeschlagen.', photoRetryAction: 'Erneut versuchen', photoSelected: 'Ausgewählt, wartet auf Upload', photoNumber: 'Foto', photoCount: 'Fotos', titleImage: 'Titelbild', photoWait: 'Bitte warten, bis alle Foto-Uploads abgeschlossen sind.' });
 Object.assign(providerText.en, { photoUploading: 'Uploading photo', photoUploaded: 'Photo uploaded successfully.', photoRetry: 'Upload failed.', photoRetryAction: 'Try again', photoSelected: 'Selected, waiting to upload', photoNumber: 'Photo', photoCount: 'photos', titleImage: 'Title image', photoWait: 'Please wait until all photo uploads are complete.' });
 Object.assign(providerText.es, { photoUploading: 'Subiendo foto', photoUploaded: 'Foto subida correctamente.', photoRetry: 'Error de subida.', photoRetryAction: 'Intentar de nuevo', photoSelected: 'Seleccionada, pendiente de subir', photoNumber: 'Foto', photoCount: 'fotos', titleImage: 'Imagen principal', photoWait: 'Espera hasta que terminen todas las subidas de fotos.' });
+Object.assign(providerText.de, { photoUploadTimeout: 'Cloudinary hat beim Upload nicht rechtzeitig geantwortet. Bitte erneut versuchen.', photoUploadUnavailable: 'Der Bilddienst ist vorübergehend nicht erreichbar. Bitte erneut versuchen.' });
+Object.assign(providerText.en, { photoUploadTimeout: 'Cloudinary did not respond in time. Please try again.', photoUploadUnavailable: 'The image service is temporarily unavailable. Please try again.' });
+Object.assign(providerText.es, { photoUploadTimeout: 'Cloudinary no respondió a tiempo. Inténtalo de nuevo.', photoUploadUnavailable: 'El servicio de imágenes no está disponible temporalmente. Inténtalo de nuevo.' });
 
 function pt(key) { return providerText[currentWebLanguage()][key] || providerText.en[key] || key; }
 
@@ -134,6 +137,8 @@ const providerErrorMap = {
   image_content_invalid: ['photos', 'photoInvalid'],
   media_provider_not_configured: ['photos', 'photoUploadError'],
   media_upload_failed: ['photos', 'photoUploadError'],
+  media_upload_timeout: ['photos', 'photoUploadTimeout'],
+  media_upload_network_error: ['photos', 'photoUploadUnavailable'],
   media_delete_failed: ['photos', 'photoUploadError'],
 };
 
