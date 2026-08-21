@@ -101,6 +101,12 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /data-photo-move/);
     assert.match(authSource, /querySelectorAll\('\[data-photo-list\] > \[data-photo-id\]'\)/);
     assert.match(authSource, /provider-offer-thumbnail/);
+    assert.match(authSource, /captureProviderOfferEditorContext/);
+    assert.match(authSource, /restoreProviderOfferEditorContext/);
+    assert.match(authSource, /focus\(\{ preventScroll: true \}\)/);
+    assert.match(authSource, /window\.scrollTo\(context\.left, context\.top\)/);
+    assert.match(authSource, /button type="button" class="provider-inline-button" data-photo-move/);
+    assert.match(authSource, /target\?\.focus\(\{ preventScroll: true \}\)/);
     assert.match(styleSource, /provider-photo-picker/);
     for (const key of ['photosHint', 'photoUpload', 'photoUploaded', 'photoUploadError', 'noPhotos', 'photoUploading', 'photoRetry', 'photoRetryAction', 'photoSelected', 'photoNumber', 'photoCount', 'titleImage', 'photoWait', 'photoUploadTimeout', 'photoUploadUnavailable', 'photoTransferComplete', 'photoProcessing', 'photoTransferError', 'photoProcessingError', 'photoReorderSaving', 'photoReorderSaved', 'photoReorderError']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
   });

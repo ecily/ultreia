@@ -10,6 +10,11 @@ Buttons einsammelte und dadurch doppelte IDs sendete. Der Selector liest nun nur
 noch die Bildzeilen; nach erfolgreichem Reorder wird die Serverreihenfolge neu
 geladen. Cloudinary wird beim Reorder nicht aufgerufen.
 
+Bei Offer-Mutationen mit anschließendem Reload bewahrt der Provider-Editor
+Scrollposition und aktives Feld beziehungsweise Foto-Aktion. Der erneute Render
+fokussiert dadurch nicht mehr automatisch den Seitentitel; gezieltes Springen
+zum ersten Validierungsfehler bleibt weiterhin möglich.
+
 Stand: 2026-07-28
 
 Dieses Dokument ist die operative Source of Truth für das eigenständige Projekt

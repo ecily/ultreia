@@ -95,6 +95,29 @@ function setFormBusy(form, busy) {
   if (form) form.dataset.saving = String(busy);
 }
 
+function captureProviderOfferEditorContext() {
+  const form = document.querySelector('[data-offer-form]');
+  if (!form) return null;
+  const active = document.activeElement;
+  const focus = active && form.contains(active) ? {
+    name: active.getAttribute('name') || null,
+    photoMove: active.dataset.photoMove || null,
+    photoId: active.dataset.photoId || null,
+  } : null;
+  return { left: window.scrollX, top: window.scrollY, focus };
+}
+
+function restoreProviderOfferEditorContext(context) {
+  if (!context) return;
+  let target = null;
+  if (context.focus?.name) target = [...document.querySelectorAll('[data-offer-form] [name]')].find((item) => item.getAttribute('name') === context.focus.name);
+  if (!target && context.focus?.photoMove && context.focus?.photoId) {
+    target = [...document.querySelectorAll('[data-offer-form] [data-photo-move]')].find((item) => item.dataset.photoMove === context.focus.photoMove && item.dataset.photoId === context.focus.photoId);
+  }
+  target?.focus({ preventScroll: true });
+  window.scrollTo(context.left, context.top);
+}
+
 function clearFieldErrors(form) {
   form?.querySelectorAll('[aria-invalid="true"]').forEach((field) => field.removeAttribute('aria-invalid'));
   form?.querySelectorAll('[data-field-error]').forEach((error) => { error.textContent = ''; });
@@ -555,7 +578,7 @@ async function renderProviderStart() {
     const [profileResult, needsResult, offersResult] = await Promise.all([webApi('/provider/profile'), webApi(`/needs?locale=${currentWebLanguage()}`), webApi('/provider/offers')]);
     state.profile = profileResult.profile; state.needs = needsResult.items || []; state.offers = offersResult.items || []; state.offersRequest = { httpStatus: offersResult._httpStatus, scope: accountResult.scope };
   };
-  const renderDashboard = () => {
+  const renderDashboard = (editorContext = null) => {
     const profile = state.profile || {};
     const viewState = window.UltreiaProviderOfferUi.providerViewState(profile, state.offers);
     const scope = state.account?.scope || webScope();
@@ -573,12 +596,16 @@ async function renderProviderStart() {
     }
     webShell(pt('dashboardTitle'), `${testBanner}${account}${content}`);
     bind();
-    if (state.editingOffer) document.querySelector('[data-offer-form] [name="title"]')?.focus();
+    if (state.editingOffer) {
+      if (editorContext) restoreProviderOfferEditorContext(editorContext);
+      else document.querySelector('[data-offer-form] [name="title"]')?.focus();
+    }
     if (state.editingSetup) document.querySelector('[data-profile-form] [name="businessName"]')?.focus();
   };
   const render = () => {
+    const editorContext = state.editingOffer ? captureProviderOfferEditorContext() : null;
     const viewState = window.UltreiaProviderOfferUi.providerViewState(state.profile, state.offers);
-    if (viewState !== 'onboarding') { renderDashboard(); return; }
+    if (viewState !== 'onboarding') { renderDashboard(editorContext); return; }
     const profile = state.profile || {};
     const scope = state.account?.scope || webScope();
     const steps = `<div class="provider-stepper"><span class="${profile.businessName ? 'is-done' : 'is-current'}">${profile.businessName ? '✓ ' : ''}1. ${pt('providerStep')}</span><span class="${profile.location ? 'is-done' : profile.businessName ? 'is-current' : ''}">${profile.location ? '✓ ' : ''}2. ${pt('locationStep')}</span><span class="${profile.status === 'active' ? 'is-current' : ''}">${profile.status === 'active' ? '' : '3. '}${pt('offerStep')}</span></div>`;
