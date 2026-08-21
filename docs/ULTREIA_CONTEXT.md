@@ -1,5 +1,15 @@
 # Ultreia Context
 
+## Provider-Offer-Bildreihenfolge (2026-08-21)
+
+Die Reorder-Aktion sendet eine vollständige Liste der bestehenden `publicIds`.
+Der Backend-Contract verlangt jedes Bild genau einmal, prüft Ownership und Scope
+und persistiert anschließend `sortOrder` atomar. Ein Live-400 entstand, weil das
+Frontend zuvor auch die `data-photo-id`-Attribute der Nach-oben/Nach-unten-
+Buttons einsammelte und dadurch doppelte IDs sendete. Der Selector liest nun nur
+noch die Bildzeilen; nach erfolgreichem Reorder wird die Serverreihenfolge neu
+geladen. Cloudinary wird beim Reorder nicht aufgerufen.
+
 Stand: 2026-07-28
 
 Dieses Dokument ist die operative Source of Truth für das eigenständige Projekt

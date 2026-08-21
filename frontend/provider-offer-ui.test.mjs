@@ -99,8 +99,9 @@ describe('provider offer UI helpers', () => {
     assert.doesNotMatch(authSource, /photoUploading\}\s+\$\{file\.name\}/);
     assert.match(authSource, /data-photo-remove/);
     assert.match(authSource, /data-photo-move/);
+    assert.match(authSource, /querySelectorAll\('\[data-photo-list\] > \[data-photo-id\]'\)/);
     assert.match(authSource, /provider-offer-thumbnail/);
     assert.match(styleSource, /provider-photo-picker/);
-    for (const key of ['photosHint', 'photoUpload', 'photoUploaded', 'photoUploadError', 'noPhotos', 'photoUploading', 'photoRetry', 'photoRetryAction', 'photoSelected', 'photoNumber', 'photoCount', 'titleImage', 'photoWait', 'photoUploadTimeout', 'photoUploadUnavailable', 'photoTransferComplete', 'photoProcessing', 'photoTransferError', 'photoProcessingError']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
+    for (const key of ['photosHint', 'photoUpload', 'photoUploaded', 'photoUploadError', 'noPhotos', 'photoUploading', 'photoRetry', 'photoRetryAction', 'photoSelected', 'photoNumber', 'photoCount', 'titleImage', 'photoWait', 'photoUploadTimeout', 'photoUploadUnavailable', 'photoTransferComplete', 'photoProcessing', 'photoTransferError', 'photoProcessingError', 'photoReorderSaving', 'photoReorderSaved', 'photoReorderError']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
   });
 });

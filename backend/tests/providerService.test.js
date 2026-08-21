@@ -70,6 +70,7 @@ describe('provider V1 service', () => {
     const database = { getDb: () => db };
     const service = createProviderService(database, { details: async () => ({ ok: true, place: locationPlace }) }, createNeedService(database));
     const user = { _id: new ObjectId(), emailNormalized: 'images@example.test', displayName: 'Images', preferredLocale: 'en' };
+    const other = { _id: new ObjectId(), emailNormalized: 'other-images@example.test', displayName: 'Other', preferredLocale: 'en' };
     await service.updateProfile(user, 'local_test', { businessName: 'Image Cafe', sourceLocale: 'en' });
     await service.updateLocation(user, 'local_test', { googlePlaceId: 'places/test-place', sourceLocale: 'en' });
     const created = await service.writeOffer(user, 'local_test', offerInput);
@@ -84,6 +85,12 @@ describe('provider V1 service', () => {
     await assert.rejects(() => service.writeOffer(user, 'local_test', { ...offerInput, images: [{ publicId: 'foreign/photo', secureUrl: 'https://example.com/foreign.jpg', width: 1, height: 1, format: 'jpg' }] }, created.id), /images_are_managed_separately/);
     const reordered = await service.reorderOfferImages(user, 'local_test', created.id, [second.images[1].publicId, first.images[0].publicId, third.images[2].publicId]);
     assert.equal(reordered.images[0].sortOrder, 0);
+    assert.equal(reordered.images[0].publicId, second.images[1].publicId);
+    await assert.rejects(() => service.reorderOfferImages(user, 'local_test', created.id, [reordered.images[0].publicId, reordered.images[0].publicId, reordered.images[2].publicId]), /images is invalid/);
+    await assert.rejects(() => service.reorderOfferImages(user, 'local_test', created.id, [reordered.images[0].publicId, reordered.images[1].publicId]), /images is invalid/);
+    await assert.rejects(() => service.reorderOfferImages(user, 'local_test', created.id, [reordered.images[0].publicId, reordered.images[1].publicId, 'foreign/photo']), /images is invalid/);
+    await assert.rejects(() => service.reorderOfferImages(other, 'local_test', created.id, reordered.images.map((image) => image.publicId)), /offer_not_found/);
+    await assert.rejects(() => service.reorderOfferImages(user, 'production', created.id, reordered.images.map((image) => image.publicId)), /offer_not_found/);
     const removed = await service.removeOfferImage(user, 'local_test', created.id, reordered.images[0].publicId);
     assert.equal(removed.images.length, 2);
   });

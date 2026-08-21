@@ -72,6 +72,10 @@ Object.assign(providerText.de, { photoUploadTimeout: 'Cloudinary hat beim Upload
 Object.assign(providerText.en, { photoUploadTimeout: 'Cloudinary did not respond in time. Please try again.', photoUploadUnavailable: 'The image service is temporarily unavailable. Please try again.' });
 Object.assign(providerText.es, { photoUploadTimeout: 'Cloudinary no respondió a tiempo. Inténtalo de nuevo.', photoUploadUnavailable: 'El servicio de imágenes no está disponible temporalmente. Inténtalo de nuevo.' });
 
+Object.assign(providerText.de, { photoReorderSaving: 'Reihenfolge wird gespeichert …', photoReorderSaved: '✓ Reihenfolge gespeichert', photoReorderError: 'Reihenfolge konnte nicht geändert werden.' });
+Object.assign(providerText.en, { photoReorderSaving: 'Saving order …', photoReorderSaved: '✓ Order saved', photoReorderError: 'Could not change the order.' });
+Object.assign(providerText.es, { photoReorderSaving: 'Guardando orden …', photoReorderSaved: '✓ Orden guardado', photoReorderError: 'No se pudo cambiar el orden.' });
+
 function pt(key) { return providerText[currentWebLanguage()][key] || providerText.en[key] || key; }
 
 function feedbackItem(state, key) { return state.feedback[key] || { state: 'idle', message: '', diagnostic: null }; }
@@ -781,12 +785,22 @@ async function renderProviderStart() {
     offerForm?.querySelectorAll('[data-photo-move]')?.forEach((button) => button.addEventListener('click', async () => {
       const offerId = offerForm.dataset.offerId;
       if (!offerId) return;
-      const publicIds = [...offerForm.querySelectorAll('[data-photo-id]')].map((item) => item.dataset.photoId).filter(Boolean);
+      const publicIds = [...offerForm.querySelectorAll('[data-photo-list] > [data-photo-id]')].map((item) => item.dataset.photoId).filter(Boolean);
       const from = publicIds.indexOf(button.dataset.photoId);
       const to = button.dataset.photoMove === 'up' ? from - 1 : from + 1;
       if (from < 0 || to < 0 || to >= publicIds.length) return;
       [publicIds[from], publicIds[to]] = [publicIds[to], publicIds[from]];
-      try { await webApi(`/provider/offers/${offerId}/images/reorder`, { method: 'POST', body: JSON.stringify({ publicIds }) }); await load(); state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer; render(); } catch (error) { setProviderFeedback(state, 'offer', 'error', pt('photoUploadError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, state.account?.scope || webScope(), null, null, null, error)); }
+      setProviderFeedback(state, 'offer', 'saving', pt('photoReorderSaving'));
+      setFormBusy(offerForm, true);
+      try {
+        const response = await webApi(`/provider/offers/${offerId}/images/reorder`, { method: 'POST', body: JSON.stringify({ publicIds }) });
+        await load();
+        state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer;
+        state.feedback.offer = { state: 'success', message: pt('photoReorderSaved'), diagnostic: diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, state.account?.scope || webScope(), response) };
+        render();
+      } catch (error) {
+        setProviderFeedback(state, 'offer', 'error', pt('photoReorderError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, state.account?.scope || webScope(), null, null, null, error));
+      } finally { setFormBusy(offerForm, false); }
     }));
     const refreshOfferPreview = () => { if (offerForm) { providerUpdateNeedChips(offerForm, state.needs); providerUpdateOfferPreview(offerForm, state.needs); } };
     offerForm?.querySelectorAll('input, textarea, select').forEach((field) => field.addEventListener('input', () => {
