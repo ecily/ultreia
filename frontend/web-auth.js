@@ -831,54 +831,75 @@ async function renderProviderStart() {
     }));
     const photoList = offerForm?.querySelector('[data-photo-list]');
     let draggedPhotoId = null;
+    let reorderBusy = false;
+    const clearPhotoDragState = () => {
+      photoList?.querySelectorAll('[data-photo-id]').forEach((entry) => {
+        entry.classList.remove('is-dragging', 'is-drop-target');
+        entry.removeAttribute('aria-grabbed');
+      });
+      draggedPhotoId = null;
+    };
+    const photoItems = () => [...(photoList?.querySelectorAll(':scope > [data-photo-id]') || [])];
+    const reorderPhotos = async (targetItem, event) => {
+      const targetId = targetItem?.dataset.photoId;
+      if (!draggedPhotoId || !targetId || draggedPhotoId === targetId || reorderBusy) return;
+      const publicIds = photoItems().map((entry) => entry.dataset.photoId).filter(Boolean);
+      const from = publicIds.indexOf(draggedPhotoId);
+      const target = publicIds.indexOf(targetId);
+      if (from < 0 || target < 0) return;
+      publicIds.splice(from, 1);
+      const targetRect = targetItem.getBoundingClientRect();
+      const afterTarget = event.clientY > targetRect.top + targetRect.height / 2;
+      const insertAt = target + (afterTarget ? 1 : 0) - (from < target ? 1 : 0);
+      publicIds.splice(Math.max(0, Math.min(insertAt, publicIds.length)), 0, draggedPhotoId);
+      const offerId = offerForm.dataset.offerId;
+      const scope = state.account?.scope || webScope();
+      reorderBusy = true;
+      setProviderFeedback(state, 'offer', 'saving', pt('photoReorderSaving'));
+      setFormBusy(offerForm, true);
+      try {
+        const response = await webApi(`/provider/offers/${offerId}/images/reorder`, { method: 'POST', body: JSON.stringify({ publicIds }) });
+        await load();
+        state.editingOffer = state.offers.find((offer) => offer.id === offerId) || state.editingOffer;
+        state.feedback.offer = { state: 'success', message: pt('photoReorderSaved'), diagnostic: diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, scope, response) };
+        render();
+      } catch (error) {
+        await load().catch(() => {});
+        state.editingOffer = state.offers.find((offer) => offer.id === offerId) || state.editingOffer;
+        setProviderFeedback(state, 'offer', 'error', pt('photoReorderError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, scope, null, null, null, error));
+        render();
+      } finally {
+        reorderBusy = false;
+        setFormBusy(offerForm, false);
+        clearPhotoDragState();
+      }
+    };
     photoList?.querySelectorAll('[data-photo-id]')?.forEach((item) => {
       item.addEventListener('dragstart', (event) => {
+        if (!event.target.closest('[data-photo-drag-handle]')) { event.preventDefault(); return; }
         draggedPhotoId = item.dataset.photoId;
         item.classList.add('is-dragging');
+        item.setAttribute('aria-grabbed', 'true');
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', draggedPhotoId);
       });
-      item.addEventListener('dragend', () => {
-        draggedPhotoId = null;
-        item.classList.remove('is-dragging');
-        photoList.querySelectorAll('.is-drop-target').forEach((target) => target.classList.remove('is-drop-target'));
-      });
-      item.addEventListener('dragover', (event) => {
-        if (!draggedPhotoId || draggedPhotoId === item.dataset.photoId) return;
+      item.addEventListener('dragend', clearPhotoDragState);
+      const markDropTarget = (event) => {
+        if (!draggedPhotoId || draggedPhotoId === item.dataset.photoId || reorderBusy) return;
         event.preventDefault();
         photoList.querySelectorAll('.is-drop-target').forEach((target) => target.classList.remove('is-drop-target'));
         item.classList.add('is-drop-target');
         event.dataTransfer.dropEffect = 'move';
-      });
+      };
+      item.addEventListener('dragenter', markDropTarget);
+      item.addEventListener('dragover', markDropTarget);
       item.addEventListener('drop', async (event) => {
         event.preventDefault();
-        const targetId = item.dataset.photoId;
-        if (!draggedPhotoId || draggedPhotoId === targetId) return;
-        const publicIds = [...photoList.querySelectorAll(':scope > [data-photo-id]')].map((entry) => entry.dataset.photoId).filter(Boolean);
-        const from = publicIds.indexOf(draggedPhotoId);
-        const target = publicIds.indexOf(targetId);
-        if (from < 0 || target < 0) return;
-        publicIds.splice(from, 1);
-        const targetRect = item.getBoundingClientRect();
-        const insertAt = target + (event.clientY > targetRect.top + targetRect.height / 2 ? 1 : 0) - (from < target ? 1 : 0);
-        publicIds.splice(Math.max(0, Math.min(insertAt, publicIds.length)), 0, draggedPhotoId);
-        const offerId = offerForm.dataset.offerId;
-        const scope = state.account?.scope || webScope();
-        setProviderFeedback(state, 'offer', 'saving', pt('photoReorderSaving'));
-        setFormBusy(offerForm, true);
-        try {
-          const response = await webApi(`/provider/offers/${offerId}/images/reorder`, { method: 'POST', body: JSON.stringify({ publicIds }) });
-          await load();
-          state.editingOffer = state.offers.find((offer) => offer.id === offerId) || state.editingOffer;
-          state.feedback.offer = { state: 'success', message: pt('photoReorderSaved'), diagnostic: diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, scope, response) };
-          render();
-        } catch (error) {
-          await load().catch(() => {});
-          state.editingOffer = state.offers.find((offer) => offer.id === offerId) || state.editingOffer;
-          setProviderFeedback(state, 'offer', 'error', pt('photoReorderError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, scope, null, null, null, error));
-          render();
-        } finally { setFormBusy(offerForm, false); }
+        await reorderPhotos(item, event);
       });
+    });
+    photoList?.addEventListener('dragover', (event) => {
+      if (draggedPhotoId) event.preventDefault();
     });
     const refreshOfferPreview = () => { if (offerForm) { providerUpdateNeedChips(offerForm, state.needs); providerUpdateOfferPreview(offerForm, state.needs); } };
     offerForm?.querySelectorAll('input, textarea, select').forEach((field) => field.addEventListener('input', () => {

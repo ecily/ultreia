@@ -33,6 +33,45 @@ document.querySelectorAll('[data-language-button]').forEach((button) => {
 
 setLanguage(getInitialLanguage());
 
+function canUseHeroVideo() {
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    && !window.matchMedia('(max-width: 767px)').matches
+    && !navigator.connection?.saveData;
+}
+
+function loadHeroVideo() {
+  const video = document.querySelector('[data-hero-video]');
+  if (!video || !canUseHeroVideo()) return;
+
+  const source = video.dataset.videoMp4;
+  if (!source) return;
+
+  video.addEventListener('error', () => {
+    video.classList.remove('is-ready');
+    video.closest('.hero-media')?.classList.add('video-failed');
+  }, { once: true });
+
+  video.addEventListener('canplay', () => {
+    video.classList.add('is-ready');
+    video.play().catch(() => video.classList.remove('is-ready'));
+  }, { once: true });
+
+  video.src = source;
+  video.load();
+}
+
+function scheduleHeroVideo() {
+  if (!canUseHeroVideo()) return;
+
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(loadHeroVideo, { timeout: 2500 });
+  } else {
+    window.addEventListener('load', () => window.setTimeout(loadHeroVideo, 250), { once: true });
+  }
+}
+
+scheduleHeroVideo();
+
 if (document.querySelector('[data-web-app]')) {
   const authScript = document.createElement('script');
   authScript.src = '/web-auth.js';

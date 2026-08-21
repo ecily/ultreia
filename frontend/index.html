@@ -44,11 +44,24 @@
       <section class="hero" aria-labelledby="hero-title">
         <figure class="hero-media">
           <img
-            src="assets/camino/camino-hero-background.jpg"
+            src="media/ultreia-hero-poster.webp"
             alt="A quiet Camino path through open fields with pilgrims ahead."
             width="2200"
             height="1648"
+            fetchpriority="high"
           >
+          <video
+            class="hero-video"
+            data-hero-video
+            data-video-mp4="media/ultreia-hero-loop.mp4"
+            poster="media/ultreia-hero-poster.webp"
+            muted
+            loop
+            playsinline
+            preload="none"
+            tabindex="-1"
+            aria-hidden="true"
+          ></video>
         </figure>
         <div class="hero-inner">
           <p class="route-line">
@@ -77,6 +90,20 @@
               y avisarte solo cuando haya algo útil cerca.
             </span>
           </p>
+
+          <div class="hero-actions" aria-label="Start here">
+            <a class="hero-action hero-action-primary" href="#process-title">
+              <span data-lang="de">So funktioniert es</span>
+              <span data-lang="en">How it works</span>
+              <span data-lang="es">Cómo funciona</span>
+              <span aria-hidden="true">→</span>
+            </a>
+            <a class="hero-action hero-action-secondary" href="/provider/login/">
+              <span data-lang="de">Für Anbieter</span>
+              <span data-lang="en">For providers</span>
+              <span data-lang="es">Para proveedores</span>
+            </a>
+          </div>
 
           <div class="hero-signals" aria-label="Core needs">
             <p>
@@ -187,7 +214,7 @@
         </figure>
       </section>
 
-      <section class="process-section" aria-labelledby="process-title">
+      <section id="how-it-works" class="process-section" aria-labelledby="process-title">
         <div class="section-wrap">
           <div class="section-heading">
             <p class="section-label">

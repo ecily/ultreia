@@ -2,7 +2,7 @@
 
 ## Quellen
 
-Gesichtet wurden 25 aktuelle beziehungsweise weiterhin operative Quellen aus
+Gesichtet wurden 42 aktuelle beziehungsweise weiterhin operative Quellen aus
 offiziellen Tourismusportalen, Pilger-Guides, Apps, Anbieter-Websites und
 Community-Diskussionen:
 
@@ -32,6 +32,27 @@ Community-Diskussionen:
 - https://www.santiago.nl/camino-frances/
 - https://www.reddit.com/r/CaminoDeSantiago/
 
+Ergänzend für regionale Orientierung, praktische Bedarfssituationen und die
+heutige App-/Community-Nutzung:
+
+- https://www.caminodesantiago.gal/es/inicio
+- https://www.caminodesantiago.gal/en/inicio
+- https://www.visitnavarra.es/en/you-like/way-of-st-james
+- https://www.visitnavarra.es/documents/8191683/8519922/Way%2Bof%2BSt%2BJames.pdf
+- https://www.cultura.gal/es/caminos-santiago
+- https://www.cultura.gal/es/delimitacion-caminos
+- https://www.turismocastillayleon.com/en/way-saint-james
+- https://leon.es/camino-de-santiago/
+- https://galicia.travel/camino-de-santiago/
+- https://www.caminodesantiago.me/community/threads/basics-in-albergue-what-to-bring.97605/
+- https://www.caminoguide.net/pages/camino-apps
+- https://camino.ninja/
+- https://caminoapp.com/
+- https://caminoapp.com/es/guide/camino-frances
+- https://alberguelasantasiesta.com/servicios/
+- https://www.caminosantiago.org/cpperegrino/caminos/etapa.asp?CaminoId=1&EtapaId=22
+- https://www.reddit.com/r/CaminoDeSantiago/comments/1vu8vej/which_night_did_you_actually_fail_to_get_a_bed/
+
 ## Wiederkehrende Muster
 
 - Pilger-Information wird entlang der Route und nach konkreten Orten/Etappen
@@ -58,3 +79,14 @@ Scope-Banner und Diagnoseinformationen bleiben sichtbar, aber sekundär.
 Vermeidet werden ein generisches SaaS-Dashboard, dekorative Camino-Klischees,
 kleine unlesbare Metadaten, reine Kartenabhängigkeit und unbestätigte Zusagen
 zu Öffnung, Verfügbarkeit oder Push-Zustellung.
+
+## Verdichtete UX-Leitlinie
+
+Die Startseite beginnt mit dem Nutzungsmoment: Need sagen, Telefon weglegen,
+nur bei relevanter Nähe wieder Aufmerksamkeit bekommen. Danach folgen drei
+scanbare Schritte, konkrete Need-Beispiele, der regionale Camino-Kontext und
+ein klarer Provider-Einstieg. Gelb wird nur für die nächste Handlung oder den
+relevanten Hinweis eingesetzt; die Karte und die Anbieterkarte bleiben ruhig.
+Das entspricht dem Muster der gesichteten offiziellen Routeninformationen,
+praktischen Anbieter-Seiten und Community-Fragen: Pilger suchen situative,
+lokale Gewissheit statt eines weiteren allgemeinen Verzeichnisses.

@@ -1270,3 +1270,21 @@ Ein direkter Cloudinary-Test aus der lokalen Agent-Umgebung war wegen eines
 Netzwerkfehlers nicht aussagekräftig; eine authentifizierte Production-
 Offer-Session bzw. ein App-Platform-Exec für einen echten Runtime-Smoke steht
 hier nicht zur Verfügung.
+
+## UX-/Editor-Abschluss (2026-08-21)
+
+Der Offer-Fotoeditor verwendet für Desktop-Drag-and-drop ausschließlich den
+sichtbaren Drag-Handle. Drag-Enter/Drag-Over markieren das Ziel, der Reorder-
+Request sendet die vollständige aktuelle `publicIds`-Reihenfolge an die
+bestehende API und der Editor übernimmt danach die vom Server geladene
+Reihenfolge. Während eines Reorders wird kein paralleler Request zugelassen;
+bei Fehlern werden Serverstand und Drag-Zustand wiederhergestellt. Die
+Tastatur-/Button-Fallbacks für mobile Geräte bleiben bestehen.
+
+Die öffentliche Startseite folgt nun dem verdichteten Camino-UX-Forschungs-
+befund in `docs/ULTREIA_CAMINO_UX_RESEARCH_2026-08-21.md`: Need benennen,
+Telefon weglegen, nur bei relevanter Nähe Aufmerksamkeit erhalten. Die
+visuelle DNA ist in `docs/ULTREIA_DESIGN_SYSTEM.md` festgehalten (Camino-Blau,
+Gelb als nächste Handlung, warme Stone-/Cream-Flächen, Grün nur sekundär).
+Es wurden keine Routes-, Ranking-, Hintergrund-Matching-, Push-, Bewertungs-
+oder Monetarisierungsfunktionen ergänzt.
