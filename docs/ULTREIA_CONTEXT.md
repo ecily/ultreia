@@ -15,6 +15,15 @@ Scrollposition und aktives Feld beziehungsweise Foto-Aktion. Der erneute Render
 fokussiert dadurch nicht mehr automatisch den Seitentitel; gezieltes Springen
 zum ersten Validierungsfehler bleibt weiterhin möglich.
 
+Der Offer-Fotoeditor unterstützt zusätzlich natives Desktop-Drag-and-Drop mit
+sichtbarem Handle und Drop-Ziel. Der bestehende Nach-oben/Nach-unten-Contract
+bleibt der Keyboard- und Mobile-Fallback; Touch-Drag wird nicht simuliert.
+
+Die Camino-UX-Recherche vom 21.08.2026 ist in
+`docs/ULTREIA_CAMINO_UX_RESEARCH_2026-08-21.md` dokumentiert. Sie bestätigt
+eine ruhige, route- und serviceorientierte Darstellung mit lokal konkreten
+Angebotsdaten statt eines generischen Verzeichnis- oder SaaS-Eindrucks.
+
 Stand: 2026-07-28
 
 Dieses Dokument ist die operative Source of Truth für das eigenständige Projekt

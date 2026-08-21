@@ -99,6 +99,12 @@ describe('provider offer UI helpers', () => {
     assert.doesNotMatch(authSource, /photoUploading\}\s+\$\{file\.name\}/);
     assert.match(authSource, /data-photo-remove/);
     assert.match(authSource, /data-photo-move/);
+    assert.match(authSource, /draggable="true"/);
+    assert.match(authSource, /data-photo-drag-handle/);
+    assert.match(authSource, /is-drop-target/);
+    assert.match(authSource, /dataTransfer\.setData\('text\/plain'/);
+    assert.match(authSource, /catch \(error\) \{\n          await load\(\)\.catch/);
+    assert.match(styleSource, /provider-photo-drag-handle/);
     assert.match(authSource, /querySelectorAll\('\[data-photo-list\] > \[data-photo-id\]'\)/);
     assert.match(authSource, /provider-offer-thumbnail/);
     assert.match(authSource, /captureProviderOfferEditorContext/);

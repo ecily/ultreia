@@ -62,9 +62,9 @@ Object.assign(providerText.es, { noOffers: 'Todav\u00eda no hay ofertas.' });
 Object.assign(webText.de, { offerDiagnostics: 'Technikdetails' });
 Object.assign(webText.en, { offerDiagnostics: 'Technical details' });
 Object.assign(webText.es, { offerDiagnostics: 'Detalles t\u00e9cnicos' });
-Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerUnchanged: 'Google-Position unverändert', markerTooFar: 'Der Marker darf maximal 25 m von der bestätigten Google-Position verschoben werden.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', markerTitle: 'Anbieterstandort', locationAdjust: 'Marker auf den tatsächlichen Eingang ziehen (max. 25 m).', photos: 'Angebotsfotos', photosHint: 'Füge bis zu 3 Fotos hinzu. JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUpload: 'Fotos werden hochgeladen …', photoUploaded: 'Foto hochgeladen.', photoUploadError: 'Foto konnte nicht hochgeladen werden. Bitte Format und Größe prüfen.', noPhotos: 'Noch keine Fotos hinzugefügt.' });
-Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'The marker may be moved no more than 25 m from the confirmed Google position.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', markerTitle: 'Provider location', locationAdjust: 'Drag the marker to the actual entrance (max. 25 m).', photos: 'Offer photos', photosHint: 'Add up to 3 photos. JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUpload: 'Uploading photos …', photoUploaded: 'Photo uploaded.', photoUploadError: 'Photo could not be uploaded. Check its format and size.', noPhotos: 'No photos added yet.' });
-Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador desplazado', markerUnchanged: 'Posición de Google sin cambios', markerTooFar: 'El marcador no puede alejarse más de 25 m de la posición de Google confirmada.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', markerTitle: 'Ubicación del proveedor', locationAdjust: 'Arrastra el marcador hasta la entrada real (máx. 25 m).', photos: 'Fotos de la oferta', photosHint: 'Añade hasta 3 fotos. JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUpload: 'Subiendo fotos …', photoUploaded: 'Foto subida.', photoUploadError: 'No se pudo subir la foto. Comprueba el formato y el tamaño.', noPhotos: 'Todavía no hay fotos.' });
+Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerUnchanged: 'Google-Position unverändert', markerTooFar: 'Der Marker darf maximal 25 m von der bestätigten Google-Position verschoben werden.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', markerTitle: 'Anbieterstandort', locationAdjust: 'Marker auf den tatsächlichen Eingang ziehen (max. 25 m).', photos: 'Angebotsfotos', photosHint: 'Füge bis zu 3 Fotos hinzu. JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoDragHandle: 'Foto verschieben', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUpload: 'Fotos werden hochgeladen …', photoUploaded: 'Foto hochgeladen.', photoUploadError: 'Foto konnte nicht hochgeladen werden. Bitte Format und Größe prüfen.', noPhotos: 'Noch keine Fotos hinzugefügt.' });
+Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'The marker may be moved no more than 25 m from the confirmed Google position.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', markerTitle: 'Provider location', locationAdjust: 'Drag the marker to the actual entrance (max. 25 m).', photos: 'Offer photos', photosHint: 'Add up to 3 photos. JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoDragHandle: 'Move photo', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUpload: 'Uploading photos …', photoUploaded: 'Photo uploaded.', photoUploadError: 'Photo could not be uploaded. Check its format and size.', noPhotos: 'No photos added yet.' });
+Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador desplazado', markerUnchanged: 'Posición de Google sin cambios', markerTooFar: 'El marcador no puede alejarse más de 25 m de la posición de Google confirmada.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', markerTitle: 'Ubicación del proveedor', locationAdjust: 'Arrastra el marcador hasta la entrada real (máx. 25 m).', photos: 'Fotos de la oferta', photosHint: 'Añade hasta 3 fotos. JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoDragHandle: 'Mover foto', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUpload: 'Subiendo fotos …', photoUploaded: 'Foto subida.', photoUploadError: 'No se pudo subir la foto. Comprueba el formato y el tamaño.', noPhotos: 'Todavía no hay fotos.' });
 Object.assign(providerText.de, { photoUploading: 'Foto wird übertragen', photoUploaded: 'Foto erfolgreich hochgeladen.', photoRetry: 'Upload fehlgeschlagen.', photoRetryAction: 'Erneut versuchen', photoSelected: 'Ausgewählt – wird nach dem Speichern hochgeladen', photoNumber: 'Foto', photoCount: 'Fotos', titleImage: 'Titelbild', photoWait: 'Bitte warten, bis alle Foto-Uploads abgeschlossen sind.', photoTransferComplete: 'Übertragung abgeschlossen', photoProcessing: 'Foto wird verarbeitet …', photoTransferError: 'Upload konnte nicht übertragen werden.', photoProcessingError: 'Foto konnte nicht verarbeitet werden.' });
 Object.assign(providerText.en, { photoUploading: 'Transferring photo', photoUploaded: 'Photo uploaded successfully.', photoRetry: 'Upload failed.', photoRetryAction: 'Try again', photoSelected: 'Selected – uploads after saving', photoNumber: 'Photo', photoCount: 'photos', titleImage: 'Title image', photoWait: 'Please wait until all photo uploads are complete.', photoTransferComplete: 'Transfer complete', photoProcessing: 'Processing photo …', photoTransferError: 'The upload could not be transferred.', photoProcessingError: 'The photo could not be processed.' });
 Object.assign(providerText.es, { photoUploading: 'Transfiriendo foto', photoUploaded: 'Foto subida correctamente.', photoRetry: 'Error de subida.', photoRetryAction: 'Intentar de nuevo', photoSelected: 'Seleccionada – se subirá al guardar', photoNumber: 'Foto', photoCount: 'fotos', titleImage: 'Imagen principal', photoWait: 'Espera hasta que terminen todas las subidas de fotos.', photoTransferComplete: 'Transferencia completada', photoProcessing: 'Procesando foto …', photoTransferError: 'No se pudo transferir la subida.', photoProcessingError: 'No se pudo procesar la foto.' });
@@ -391,7 +391,7 @@ function providerOfferPreview(offer, needs, weekly, price, radius) {
 function providerOfferPhotos(offer) {
   const images = Array.isArray(offer?.images) ? offer.images : [];
   if (!images.length) return `<p class="provider-empty-selection">${pt('noPhotos')}</p>`;
-  return images.map((image, index) => `<li class="provider-photo-item" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index === 0 ? pt('titleImage') : `${pt('photoNumber')} ${index + 1}`}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
+  return images.map((image, index) => `<li class="provider-photo-item" draggable="true" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><button type="button" class="provider-photo-drag-handle" data-photo-drag-handle aria-label="${escapeProviderHtml(pt('photoDragHandle'))}" title="${escapeProviderHtml(pt('photoDragHandle'))}">⋮⋮</button><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index === 0 ? pt('titleImage') : `${pt('photoNumber')} ${index + 1}`}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
 }
 
 function providerPendingPhotoStatus(entry, index) {
@@ -829,6 +829,57 @@ async function renderProviderStart() {
         setProviderFeedback(state, 'offer', 'error', pt('photoReorderError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, state.account?.scope || webScope(), null, null, null, error));
       } finally { setFormBusy(offerForm, false); }
     }));
+    const photoList = offerForm?.querySelector('[data-photo-list]');
+    let draggedPhotoId = null;
+    photoList?.querySelectorAll('[data-photo-id]')?.forEach((item) => {
+      item.addEventListener('dragstart', (event) => {
+        draggedPhotoId = item.dataset.photoId;
+        item.classList.add('is-dragging');
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', draggedPhotoId);
+      });
+      item.addEventListener('dragend', () => {
+        draggedPhotoId = null;
+        item.classList.remove('is-dragging');
+        photoList.querySelectorAll('.is-drop-target').forEach((target) => target.classList.remove('is-drop-target'));
+      });
+      item.addEventListener('dragover', (event) => {
+        if (!draggedPhotoId || draggedPhotoId === item.dataset.photoId) return;
+        event.preventDefault();
+        photoList.querySelectorAll('.is-drop-target').forEach((target) => target.classList.remove('is-drop-target'));
+        item.classList.add('is-drop-target');
+        event.dataTransfer.dropEffect = 'move';
+      });
+      item.addEventListener('drop', async (event) => {
+        event.preventDefault();
+        const targetId = item.dataset.photoId;
+        if (!draggedPhotoId || draggedPhotoId === targetId) return;
+        const publicIds = [...photoList.querySelectorAll(':scope > [data-photo-id]')].map((entry) => entry.dataset.photoId).filter(Boolean);
+        const from = publicIds.indexOf(draggedPhotoId);
+        const target = publicIds.indexOf(targetId);
+        if (from < 0 || target < 0) return;
+        publicIds.splice(from, 1);
+        const targetRect = item.getBoundingClientRect();
+        const insertAt = target + (event.clientY > targetRect.top + targetRect.height / 2 ? 1 : 0) - (from < target ? 1 : 0);
+        publicIds.splice(Math.max(0, Math.min(insertAt, publicIds.length)), 0, draggedPhotoId);
+        const offerId = offerForm.dataset.offerId;
+        const scope = state.account?.scope || webScope();
+        setProviderFeedback(state, 'offer', 'saving', pt('photoReorderSaving'));
+        setFormBusy(offerForm, true);
+        try {
+          const response = await webApi(`/provider/offers/${offerId}/images/reorder`, { method: 'POST', body: JSON.stringify({ publicIds }) });
+          await load();
+          state.editingOffer = state.offers.find((offer) => offer.id === offerId) || state.editingOffer;
+          state.feedback.offer = { state: 'success', message: pt('photoReorderSaved'), diagnostic: diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, scope, response) };
+          render();
+        } catch (error) {
+          await load().catch(() => {});
+          state.editingOffer = state.offers.find((offer) => offer.id === offerId) || state.editingOffer;
+          setProviderFeedback(state, 'offer', 'error', pt('photoReorderError'), diagnostic(`POST /api/provider/offers/${offerId}/images/reorder`, scope, null, null, null, error));
+          render();
+        } finally { setFormBusy(offerForm, false); }
+      });
+    });
     const refreshOfferPreview = () => { if (offerForm) { providerUpdateNeedChips(offerForm, state.needs); providerUpdateOfferPreview(offerForm, state.needs); } };
     offerForm?.querySelectorAll('input, textarea, select').forEach((field) => field.addEventListener('input', () => {
       if (field.matches('[data-radius-input]')) offerForm.querySelector('[data-radius-value]').textContent = `${field.value} m`;
