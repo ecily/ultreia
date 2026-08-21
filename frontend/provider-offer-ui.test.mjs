@@ -34,6 +34,17 @@ describe('provider offer UI helpers', () => {
     assert.equal(ui.hasOpeningWindow(weekdays), true);
   });
 
+  it('derives setup and onboarding state from backend-shaped data', () => {
+    const profile = { businessName: 'Herberge', location: { formattedAddress: 'Gratwein' } };
+    assert.equal(ui.isProviderSetupReady(profile), true);
+    assert.equal(ui.isOnboardingComplete(profile, []), false);
+    assert.equal(ui.isOnboardingComplete(profile, [{ id: 'offer-1' }]), true);
+    assert.equal(ui.providerViewState(profile, []), 'dashboard_empty');
+    assert.equal(ui.providerViewState(profile, [{ id: 'offer-1' }, { id: 'offer-2' }]), 'dashboard');
+    assert.equal(ui.providerViewState({ businessName: 'Herberge' }, []), 'onboarding');
+    assert.equal(ui.isProviderSetupReady({ businessName: 'Herberge' }), false);
+  });
+
   it('validates offer sections before submission', () => {
     assert.equal(ui.validateOfferDraft({ title: '', description: 'Long enough', needKeys: ['eat'], price: { type: 'free' }, availability: { weekly: {} }, radiusMeters: 250 }).field, 'title');
     assert.equal(ui.validateOfferDraft({ title: 'Offer', description: 'Long enough', needKeys: [], price: { type: 'free' }, availability: { weekly: {} }, radiusMeters: 250 }).field, 'needKeys');
@@ -54,6 +65,11 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /if \(response\.status === 401[\s\S]*?webRefresh\(\)/);
     assert.match(authSource, /catch \{ window\.location\.replace\(`\/\$\{role\}\/login\//);
     assert.match(authSource, /providerOffersOverview/);
+    assert.match(authSource, /function providerProfileLocationSummary\(profile\)/);
+    assert.match(authSource, /data-edit-profile-location/);
+    assert.match(authSource, /providerViewState\(state\.profile, state\.offers\)/);
+    assert.match(authSource, /editingSetup/);
+    assert.match(authSource, /data-cancel-offer/);
     assert.match(authSource, /function offerTodaySummary\(offer\)/);
     assert.match(authSource, /provider-offer-status status-\$\{escapeProviderHtml\(status\)\}/);
     assert.match(authSource, /class="web-auth-button" data-offer-action="edit"/);

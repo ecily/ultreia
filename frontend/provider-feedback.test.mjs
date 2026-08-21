@@ -18,6 +18,8 @@ describe('provider feedback component', () => {
     const html = component.component('profile', { state: 'success', message: 'Anbieterdaten gespeichert.', diagnostic: { method: 'PUT /api/provider/profile', httpStatus: 200, scope: 'local_test', providerStatus: 'pending' } }, true);
     assert.match(html, /data-feedback-state="success"/);
     assert.match(html, /Anbieterdaten gespeichert\./);
+    assert.match(html, /<details class="provider-feedback-details"/);
+    assert.match(html, /Technikdetails|Technical details/);
     assert.match(html, /PUT \/api\/provider\/profile · HTTP 200 · scope=local_test · providerStatus=pending/);
     assert.doesNotMatch(html, /<script|onerror=/i);
   });

@@ -1107,3 +1107,24 @@ Die Card-Hierarchie bleibt Titel/Status, kompakte Needs, Preis/Heute/Radius,
 sekundaere Bestaetigungsdaten und statusgerechte Aktionen. Bearbeiten ist die
 primaere Aktion, weitere Aktionen sind dezenter. Der Fix ist rein responsives
 Frontend-Layout und fuehrt keine neue Produktfunktion ein.
+
+## Provider-Arbeitsmodus nach dem Onboarding (2026-08-21)
+
+Der Provider-Webbereich leitet seinen Zustand jetzt aus den geladenen
+Backend-Daten ab: Ohne vollstaendiges Profil oder gespeicherten Standort bleibt
+der dreistufige Onboarding-Wizard sichtbar. Sobald Profil und Standort
+vorhanden sind, wechselt die Seite in einen kompakten Arbeitsbereich; ohne
+Offer zeigt er einen Empty State mit `Erstes Angebot anlegen`, mit mindestens
+einem Offer das normale Dashboard.
+
+Im Dashboard stehen Anbietername, Scope, Status und die Offer-Liste im
+Vordergrund. Profil und Standort werden nur noch als kompakte Zusammenfassung
+angezeigt und ueber `Profil & Standort bearbeiten` editiert. Der Offer-Editor
+erscheint ausschliesslich fuer ein neues oder bestehendes Offer, hat immer
+Abbrechen und kehrt nach Speichern zur aktualisierten Liste zurueck.
+
+Need-Labels stammen aus der zentral geladenen DE/EN/ES-Taxonomie; unbekannte
+Keys werden nicht als technische Rohtexte ausgegeben. Feedback bleibt fuer
+Nutzer klar sichtbar, waehrend lokale technische Details einklappbar unter
+`Technikdetails` liegen. Onboarding-UI verschwindet damit aus der primaeren
+Oberflaeche, sobald die wiederkehrende Provider-Arbeitsaufgabe beginnen kann.

@@ -35,6 +35,15 @@
 
   function hasOpeningWindow(weekly = {}) { return days.some((day) => (weekly[day] || []).some((window) => window?.open && window?.close && window.open !== window.close)); }
 
+  function isProviderSetupReady(profile) { return Boolean(String(profile?.businessName || '').trim() && profile?.location); }
+
+  function isOnboardingComplete(profile, offers = []) { return isProviderSetupReady(profile) && Array.isArray(offers) && offers.length > 0; }
+
+  function providerViewState(profile, offers = []) {
+    if (!isProviderSetupReady(profile)) return 'onboarding';
+    return isOnboardingComplete(profile, offers) ? 'dashboard' : 'dashboard_empty';
+  }
+
   function validateOfferDraft(body) {
     if (String(body?.title || '').trim().length < 2) return { field: 'title', code: 'title_required' };
     if (String(body?.description || '').trim().length < 2) return { field: 'description', code: 'description_required' };
@@ -47,5 +56,5 @@
     return null;
   }
 
-  window.UltreiaProviderOfferUi = { days, filterNeeds, popularNeeds, groupNeeds, presetWeekly, detectHoursPreset, priceVisibility, hasOpeningWindow, validateOfferDraft };
+  window.UltreiaProviderOfferUi = { days, filterNeeds, popularNeeds, groupNeeds, presetWeekly, detectHoursPreset, priceVisibility, hasOpeningWindow, isProviderSetupReady, isOnboardingComplete, providerViewState, validateOfferDraft };
 })();
