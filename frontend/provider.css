@@ -172,7 +172,9 @@
 .provider-photo-pending-item > div { display: grid; gap: 3px; min-width: 0; }
 .provider-photo-pending-item [data-photo-state-label] { color: #617184; font-size: .82rem; }
 .provider-photo-pending-item progress { width: min(260px, 100%); height: 8px; }
+.provider-photo-spinner { display: inline-block; animation: provider-photo-spin 1s linear infinite; }
 .provider-photo-state-error { border-color: #c55a4c; background: #fff5f2; }
 .provider-photo-error-message { color: #8c3325; }
 .provider-photo-status { min-height: 1.2em; margin: 0; color: #617184; font-size: .82rem; }
+@keyframes provider-photo-spin { to { transform: rotate(360deg); } }
 @media (max-width: 620px) { .provider-offer-thumbnail { flex-basis: 100%; width: 100%; height: 140px; } .provider-map-summary { min-height: 150px; } }

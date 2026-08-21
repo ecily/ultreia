@@ -89,6 +89,10 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /data-photo-pending/);
     assert.match(authSource, /webApiUpload/);
     assert.match(authSource, /xhr\.upload\.onprogress/);
+    assert.match(authSource, /lengthComputable/);
+    assert.match(authSource, /status = 'processing'/);
+    assert.match(authSource, /startExistingOfferPhotoUpload/);
+    assert.match(authSource, /provider-photo-spinner/);
     assert.match(authSource, /data-photo-state-label/);
     assert.match(authSource, /data-photo-count/);
     assert.match(authSource, /data-retry-photo/);
@@ -97,6 +101,6 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /data-photo-move/);
     assert.match(authSource, /provider-offer-thumbnail/);
     assert.match(styleSource, /provider-photo-picker/);
-    for (const key of ['photosHint', 'photoUpload', 'photoUploaded', 'photoUploadError', 'noPhotos', 'photoUploading', 'photoRetry', 'photoRetryAction', 'photoSelected', 'photoNumber', 'photoCount', 'titleImage', 'photoWait', 'photoUploadTimeout', 'photoUploadUnavailable']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
+    for (const key of ['photosHint', 'photoUpload', 'photoUploaded', 'photoUploadError', 'noPhotos', 'photoUploading', 'photoRetry', 'photoRetryAction', 'photoSelected', 'photoNumber', 'photoCount', 'titleImage', 'photoWait', 'photoUploadTimeout', 'photoUploadUnavailable', 'photoTransferComplete', 'photoProcessing', 'photoTransferError', 'photoProcessingError']) assert.ok((authSource.match(new RegExp(`${key}:`, 'g')) || []).length >= 3, `${key} must exist in DE/EN/ES`);
   });
 });

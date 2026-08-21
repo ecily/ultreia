@@ -65,9 +65,9 @@ Object.assign(webText.es, { offerDiagnostics: 'Detalles t\u00e9cnicos' });
 Object.assign(providerText.de, { moreNeedsShort: 'weitere', hideNeeds: 'Weniger anzeigen', mapLabel: 'Kartenansicht des Anbieterstandorts', markerMoved: 'Marker verschoben', markerUnchanged: 'Google-Position unverändert', markerTooFar: 'Der Marker darf maximal 25 m von der bestätigten Google-Position verschoben werden.', mapUnavailable: 'Kartenansicht nicht verfügbar; die Adresse bleibt als Text erhalten.', markerTitle: 'Anbieterstandort', locationAdjust: 'Marker auf den tatsächlichen Eingang ziehen (max. 25 m).', photos: 'Angebotsfotos', photosHint: 'Füge bis zu 3 Fotos hinzu. JPG, PNG oder WebP, maximal 8 MB pro Foto.', choosePhotos: 'Fotos auswählen', photoRemove: 'Foto entfernen', photoMoveUp: 'Nach oben', photoMoveDown: 'Nach unten', photoLimit: 'Maximal 3 Fotos sind möglich.', photoInvalid: 'Nur JPG, PNG oder WebP bis 8 MB sind möglich.', photoUpload: 'Fotos werden hochgeladen …', photoUploaded: 'Foto hochgeladen.', photoUploadError: 'Foto konnte nicht hochgeladen werden. Bitte Format und Größe prüfen.', noPhotos: 'Noch keine Fotos hinzugefügt.' });
 Object.assign(providerText.en, { moreNeedsShort: 'more', hideNeeds: 'Show less', mapLabel: 'Map view of provider location', markerMoved: 'Marker moved', markerUnchanged: 'Google position unchanged', markerTooFar: 'The marker may be moved no more than 25 m from the confirmed Google position.', mapUnavailable: 'Map preview is unavailable; the address remains available as text.', markerTitle: 'Provider location', locationAdjust: 'Drag the marker to the actual entrance (max. 25 m).', photos: 'Offer photos', photosHint: 'Add up to 3 photos. JPG, PNG or WebP, maximum 8 MB per photo.', choosePhotos: 'Choose photos', photoRemove: 'Remove photo', photoMoveUp: 'Move up', photoMoveDown: 'Move down', photoLimit: 'A maximum of 3 photos is allowed.', photoInvalid: 'Only JPG, PNG or WebP up to 8 MB are allowed.', photoUpload: 'Uploading photos …', photoUploaded: 'Photo uploaded.', photoUploadError: 'Photo could not be uploaded. Check its format and size.', noPhotos: 'No photos added yet.' });
 Object.assign(providerText.es, { moreNeedsShort: 'más', hideNeeds: 'Mostrar menos', mapLabel: 'Mapa de la ubicación del proveedor', markerMoved: 'Marcador desplazado', markerUnchanged: 'Posición de Google sin cambios', markerTooFar: 'El marcador no puede alejarse más de 25 m de la posición de Google confirmada.', mapUnavailable: 'El mapa no está disponible; la dirección sigue visible como texto.', markerTitle: 'Ubicación del proveedor', locationAdjust: 'Arrastra el marcador hasta la entrada real (máx. 25 m).', photos: 'Fotos de la oferta', photosHint: 'Añade hasta 3 fotos. JPG, PNG o WebP, máximo 8 MB por foto.', choosePhotos: 'Elegir fotos', photoRemove: 'Eliminar foto', photoMoveUp: 'Mover arriba', photoMoveDown: 'Mover abajo', photoLimit: 'Se permiten como máximo 3 fotos.', photoInvalid: 'Solo se permiten JPG, PNG o WebP de hasta 8 MB.', photoUpload: 'Subiendo fotos …', photoUploaded: 'Foto subida.', photoUploadError: 'No se pudo subir la foto. Comprueba el formato y el tamaño.', noPhotos: 'Todavía no hay fotos.' });
-Object.assign(providerText.de, { photoUploading: 'Foto wird hochgeladen', photoUploaded: 'Foto erfolgreich hochgeladen.', photoRetry: 'Upload fehlgeschlagen.', photoRetryAction: 'Erneut versuchen', photoSelected: 'Ausgewählt, wartet auf Upload', photoNumber: 'Foto', photoCount: 'Fotos', titleImage: 'Titelbild', photoWait: 'Bitte warten, bis alle Foto-Uploads abgeschlossen sind.' });
-Object.assign(providerText.en, { photoUploading: 'Uploading photo', photoUploaded: 'Photo uploaded successfully.', photoRetry: 'Upload failed.', photoRetryAction: 'Try again', photoSelected: 'Selected, waiting to upload', photoNumber: 'Photo', photoCount: 'photos', titleImage: 'Title image', photoWait: 'Please wait until all photo uploads are complete.' });
-Object.assign(providerText.es, { photoUploading: 'Subiendo foto', photoUploaded: 'Foto subida correctamente.', photoRetry: 'Error de subida.', photoRetryAction: 'Intentar de nuevo', photoSelected: 'Seleccionada, pendiente de subir', photoNumber: 'Foto', photoCount: 'fotos', titleImage: 'Imagen principal', photoWait: 'Espera hasta que terminen todas las subidas de fotos.' });
+Object.assign(providerText.de, { photoUploading: 'Foto wird übertragen', photoUploaded: 'Foto erfolgreich hochgeladen.', photoRetry: 'Upload fehlgeschlagen.', photoRetryAction: 'Erneut versuchen', photoSelected: 'Ausgewählt – wird nach dem Speichern hochgeladen', photoNumber: 'Foto', photoCount: 'Fotos', titleImage: 'Titelbild', photoWait: 'Bitte warten, bis alle Foto-Uploads abgeschlossen sind.', photoTransferComplete: 'Übertragung abgeschlossen', photoProcessing: 'Foto wird verarbeitet …', photoTransferError: 'Upload konnte nicht übertragen werden.', photoProcessingError: 'Foto konnte nicht verarbeitet werden.' });
+Object.assign(providerText.en, { photoUploading: 'Transferring photo', photoUploaded: 'Photo uploaded successfully.', photoRetry: 'Upload failed.', photoRetryAction: 'Try again', photoSelected: 'Selected – uploads after saving', photoNumber: 'Photo', photoCount: 'photos', titleImage: 'Title image', photoWait: 'Please wait until all photo uploads are complete.', photoTransferComplete: 'Transfer complete', photoProcessing: 'Processing photo …', photoTransferError: 'The upload could not be transferred.', photoProcessingError: 'The photo could not be processed.' });
+Object.assign(providerText.es, { photoUploading: 'Transfiriendo foto', photoUploaded: 'Foto subida correctamente.', photoRetry: 'Error de subida.', photoRetryAction: 'Intentar de nuevo', photoSelected: 'Seleccionada – se subirá al guardar', photoNumber: 'Foto', photoCount: 'fotos', titleImage: 'Imagen principal', photoWait: 'Espera hasta que terminen todas las subidas de fotos.', photoTransferComplete: 'Transferencia completada', photoProcessing: 'Procesando foto …', photoTransferError: 'No se pudo transferir la subida.', photoProcessingError: 'No se pudo procesar la foto.' });
 Object.assign(providerText.de, { photoUploadTimeout: 'Cloudinary hat beim Upload nicht rechtzeitig geantwortet. Bitte erneut versuchen.', photoUploadUnavailable: 'Der Bilddienst ist vorübergehend nicht erreichbar. Bitte erneut versuchen.' });
 Object.assign(providerText.en, { photoUploadTimeout: 'Cloudinary did not respond in time. Please try again.', photoUploadUnavailable: 'The image service is temporarily unavailable. Please try again.' });
 Object.assign(providerText.es, { photoUploadTimeout: 'Cloudinary no respondió a tiempo. Inténtalo de nuevo.', photoUploadUnavailable: 'El servicio de imágenes no está disponible temporalmente. Inténtalo de nuevo.' });
@@ -87,6 +87,7 @@ function setProviderFeedback(state, key, nextState, message, diagnostic = null) 
 
 function setFormBusy(form, busy) {
   form?.querySelectorAll('button').forEach((button) => { button.disabled = busy; });
+  form?.querySelector('[data-photo-input]')?.toggleAttribute('disabled', busy);
   if (form) form.dataset.saving = String(busy);
 }
 
@@ -149,7 +150,7 @@ function providerErrorDetails(error, fallbackKey) {
 }
 
 function diagnostic(method, scope, result, profile = null, offer = null, error = null) {
-  return { method, httpStatus: result?._httpStatus || error?.httpStatus, scope, providerStatus: profile?.status, offerStatus: offer?.status, errorCode: error ? (error.detail || error.status) : null };
+  return { method, httpStatus: result?._httpStatus || error?.httpStatus, scope, providerStatus: profile?.status, offerStatus: offer?.status, phase: error?.phase || null, errorCode: error ? (error.detail || error.status) : null };
 }
 
 function currentWebLanguage() {
@@ -368,9 +369,10 @@ function providerOfferPhotos(offer) {
 
 function providerPendingPhotoStatus(entry, index) {
   const status = entry.status || 'selected';
-  if (status === 'uploading') return entry.progress === null ? pt('photoUploading') : `${pt('photoUploading')} ${entry.progress} %`;
+  if (status === 'uploading') return entry.progress === null ? `<span class="provider-photo-spinner" aria-hidden="true">◌</span> ${pt('photoUploading')}` : `<span class="provider-photo-spinner" aria-hidden="true">◌</span> ${pt('photoUploading')} ${entry.progress} %`;
+  if (status === 'processing') return `✓ ${pt('photoTransferComplete')} · <span class="provider-photo-spinner" aria-hidden="true">◌</span> ${pt('photoProcessing')}`;
   if (status === 'uploaded') return `✓ ${pt('photoUploaded')}`;
-  if (status === 'error') return `<span class="provider-photo-error-message">${pt('photoRetry')}</span><button type="button" class="provider-inline-button" data-retry-photo="${index}">${pt('photoRetryAction')}</button>`;
+  if (status === 'error') return `<span class="provider-photo-error-message">${pt(entry.errorPhase === 'browser_transfer' ? 'photoTransferError' : 'photoProcessingError')}</span><button type="button" class="provider-inline-button" data-retry-photo="${index}">${pt('photoRetryAction')}</button>`;
   return pt('photoSelected');
 }
 
@@ -379,6 +381,7 @@ function providerPendingPhotosMarkup(entries = []) {
     const status = entry.status || 'selected';
     const progress = status === 'uploading'
       ? `<progress max="100" ${entry.progress === null ? '' : `value="${entry.progress}"`}>${entry.progress ?? ''}</progress>`
+      : status === 'processing' ? '<progress max="100"></progress>'
       : '';
     return `<li class="provider-photo-pending-item provider-photo-state-${status}" data-pending-photo="${index}"><img src="${escapeProviderHtml(entry.url || '')}" alt="${escapeProviderHtml(`${pt('photoNumber')} ${index + 1}`)}"><div><strong>${escapeProviderHtml(`${pt('photoNumber')} ${index + 1}`)}</strong><span data-photo-state-label>${providerPendingPhotoStatus(entry, index)}</span>${progress}</div></li>`;
   }).join('');
@@ -407,6 +410,8 @@ async function uploadPendingOfferPhotos(offerId, entries, formElement) {
     if (status) status.textContent = pt('photoUploading');
     try {
       const result = await webApiUpload(`/provider/offers/${offerId}/images`, file, (progress) => {
+        if (progress === 100) entry.status = 'processing';
+        else entry.status = 'uploading';
         entry.progress = progress;
         updatePendingPhotoList(formElement, entries);
       });
@@ -418,6 +423,8 @@ async function uploadPendingOfferPhotos(offerId, entries, formElement) {
     } catch (error) {
       entry.status = 'error';
       entry.error = error.status || 'upload_failed';
+      entry.errorPhase = String(error.status || '').startsWith('upload_') ? 'browser_transfer' : 'cloudinary_upload';
+      error.phase = entry.errorPhase;
       error.uploadPath = `/provider/offers/${offerId}/images`;
       error.completedPhotoEntries = entries.slice(0, index);
       error.remainingPhotoEntries = entries.slice(index);
@@ -692,6 +699,32 @@ async function renderProviderStart() {
       } finally { setFormBusy(formElement, false); }
     });
     const offerForm = document.querySelector('[data-offer-form]');
+    const startExistingOfferPhotoUpload = async () => {
+      const offerId = offerForm?.dataset.offerId;
+      const entries = state.pendingPhotoFiles || [];
+      if (!offerId || !entries.length) return;
+      const scope = state.account?.scope || webScope();
+      setProviderFeedback(state, 'offer', 'saving', pt('photoUploading'));
+      setFormBusy(offerForm, true);
+      try {
+        const uploadResult = await uploadPendingOfferPhotos(offerId, entries, offerForm);
+        const successDiagnostic = { method: `POST /api/provider/offers/${offerId}/images`, httpStatus: uploadResult?._httpStatus || 201, scope, phase: 'cloudinary_upload', cloudinary: 'uploaded' };
+        revokePendingPhotoEntries(entries);
+        state.pendingPhotoFiles = [];
+        await load();
+        state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer;
+        state.feedback.offer = { state: 'success', message: pt('photoUploaded'), diagnostic: successDiagnostic };
+        render();
+      } catch (error) {
+        revokePendingPhotoEntries(error.completedPhotoEntries || []);
+        state.pendingPhotoFiles = error.remainingPhotoEntries || entries;
+        setFieldError(offerForm, 'photos', pt(error.phase === 'browser_transfer' ? 'photoTransferError' : 'photoProcessingError'));
+        setProviderFeedback(state, 'offer', 'error', pt(error.phase === 'browser_transfer' ? 'photoTransferError' : 'photoProcessingError'), diagnostic(error.uploadPath || `POST /api/provider/offers/${offerId}/images`, scope, null, null, null, error));
+        updatePendingPhotoList(offerForm, state.pendingPhotoFiles);
+      } finally {
+        setFormBusy(offerForm, false);
+      }
+    };
     document.querySelectorAll('[data-toggle-offer-needs]').forEach((button) => button.addEventListener('click', () => {
       const expanded = document.querySelector(`[data-full-offer-needs]`);
       if (!expanded) return;
@@ -710,6 +743,7 @@ async function renderProviderStart() {
       revokePendingPhotoEntries(state.pendingPhotoFiles);
       state.pendingPhotoFiles = selectedFiles.map((file) => ({ file, url: window.URL?.createObjectURL ? window.URL.createObjectURL(file) : '', status: 'selected', progress: 0 }));
       updatePendingPhotoList(offerForm, state.pendingPhotoFiles);
+      if (offerForm.dataset.offerId) startExistingOfferPhotoUpload();
     });
     offerForm?.querySelector('[data-photo-pending]')?.addEventListener('click', async (event) => {
       const button = event.target.closest('[data-retry-photo]');
@@ -725,10 +759,11 @@ async function renderProviderStart() {
         state.pendingPhotoFiles.splice(index, 1);
         await load();
         state.editingOffer = state.offers.find((item) => item.id === offerId) || state.editingOffer;
-        state.feedback.offer = { state: 'success', message: pt('photoUploaded'), diagnostic: { method: `POST /api/provider/offers/${offerId}/images`, httpStatus: 201, scope: state.account?.scope || webScope(), cloudinary: 'uploaded' } };
+        state.feedback.offer = { state: 'success', message: pt('photoUploaded'), diagnostic: { method: `POST /api/provider/offers/${offerId}/images`, httpStatus: 201, scope: state.account?.scope || webScope(), phase: 'cloudinary_upload', cloudinary: 'uploaded' } };
         render();
       } catch (error) {
-        setProviderFeedback(state, 'offer', 'error', pt('photoUploadError'), diagnostic(error.uploadPath || `POST /api/provider/offers/${offerId}/images`, state.account?.scope || webScope(), null, null, null, error));
+        const message = pt(error.phase === 'browser_transfer' ? 'photoTransferError' : 'photoProcessingError');
+        setProviderFeedback(state, 'offer', 'error', message, diagnostic(error.uploadPath || `POST /api/provider/offers/${offerId}/images`, state.account?.scope || webScope(), null, null, null, error));
         updatePendingPhotoList(offerForm, state.pendingPhotoFiles);
       } finally { setFormBusy(offerForm, false); }
     });

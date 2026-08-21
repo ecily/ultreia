@@ -1161,10 +1161,13 @@ serverseitige 25-Meter-Validierung bleibt unveraendert verbindlich. Der
 local_test-Banner und einklappbare Technikdetails bleiben davon getrennt.
 
 Der Offer-Editor zeigt ausgewählte Bilder bereits vor dem Submit als lokale
-Browser-Vorschau. Der Upload nutzt `XMLHttpRequest.upload.onprogress` mit
-Fortschrittsanzeige bzw. indeterminiertem Zustand, Timeout und Einzelbild-
-Retry; Zustände sind `selected`, `uploading`, `uploaded` und `error`. Save
-bleibt während eines Uploads deaktiviert. Normale UI-Texte zeigen keine
+Browser-Vorschau. Bei einem bereits bestehenden Offer startet der Upload nach
+der Dateiauswahl unmittelbar über die geschützte Image-Route. Der Upload nutzt
+`XMLHttpRequest.upload.onprogress` mit echten Browser-Bytes; Zustände sind
+`selected`, `uploading`, `processing`, `uploaded` und `error`. Nach 100 Prozent
+Browsertransfer wechselt die Anzeige ehrlich auf indeterminate Verarbeitung
+für Backend/Cloudinary; es wird kein künstlicher Gesamtfortschritt behauptet.
+Save bleibt während eines Uploads deaktiviert. Normale UI-Texte zeigen keine
 technischen Dateinamen; Titelbild und Zählung sind in DE/EN/ES lokalisiert.
 Nach erfolgreichem Server-Upload wird das Offer erneut geladen, sodass nur
 persistierte Cloudinary-Metadaten als Erfolg gelten. Bei Teilfehlern bleiben

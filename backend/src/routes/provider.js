@@ -121,12 +121,14 @@ export function createProviderRouter(config, databaseService, providerService, g
       logEvent('info', 'offer_image_upload_started', { correlationId, scope });
       if ((offer.images || []).length >= providerService.MAX_OFFER_IMAGES) throw new Error('images_limit_exceeded');
       const file = await readMultipartImage(req);
+      logEvent('info', 'offer_image_multipart_parsed', { correlationId, scope, bytes: file.buffer.length, mimeType: file.mimeType });
       uploaded = await mediaService.uploadImage({ buffer: file.buffer, mimeType: file.mimeType, scope, userId: String(req.user._id), offerId: offer.id, sortOrder: offer.images.length, correlationId });
       const updated = await providerService.addOfferImage(req.user, scope, offer.id, uploaded);
       logEvent('info', 'offer_image_persisted', { correlationId, scope, bytes: file.buffer.length, mimeType: file.mimeType, durationMs: Date.now() - startedAt });
       return res.status(201).json({ ok: true, image: uploaded, offer: updated });
     } catch (error) {
-      logEvent('error', 'offer_image_upload_failed', { correlationId, scope, durationMs: Date.now() - startedAt, upstreamStatus: error?.upstreamStatus || null, errorClass: error?.message || 'unknown' });
+      const phase = String(error?.message || '').startsWith('media_upload_') ? 'cloudinary_upload' : String(error?.message || '').startsWith('image_') ? 'multipart' : 'offer_or_persistence';
+      logEvent('error', 'offer_image_upload_failed', { correlationId, scope, durationMs: Date.now() - startedAt, phase, upstreamStatus: error?.upstreamStatus || null, errorClass: error?.message || 'unknown' });
       if (uploaded && mediaService?.destroyImage && scope) await mediaService.destroyImage({ publicId: uploaded.publicId, scope, userId: String(req.user._id), offerId: req.params.id }).catch(() => {});
       return providerError(res, error);
     }

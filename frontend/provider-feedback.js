@@ -16,7 +16,7 @@
 
   function diagnosticText(diagnostic) {
     if (!diagnostic) return '';
-    const parts = [diagnostic.method, diagnostic.httpStatus ? `HTTP ${diagnostic.httpStatus}` : null, diagnostic.scope ? `scope=${diagnostic.scope}` : null, diagnostic.providerStatus ? `providerStatus=${diagnostic.providerStatus}` : null, diagnostic.offerStatus ? `offerStatus=${diagnostic.offerStatus}` : null, diagnostic.cloudinary ? `cloudinary=${diagnostic.cloudinary}` : null, diagnostic.errorCode ? `errorCode=${diagnostic.errorCode}` : null].filter(Boolean);
+    const parts = [diagnostic.method, diagnostic.httpStatus ? `HTTP ${diagnostic.httpStatus}` : null, diagnostic.scope ? `scope=${diagnostic.scope}` : null, diagnostic.phase ? `phase=${diagnostic.phase}` : null, diagnostic.providerStatus ? `providerStatus=${diagnostic.providerStatus}` : null, diagnostic.offerStatus ? `offerStatus=${diagnostic.offerStatus}` : null, diagnostic.cloudinary ? `cloudinary=${diagnostic.cloudinary}` : null, diagnostic.errorCode ? `errorCode=${diagnostic.errorCode}` : null].filter(Boolean);
     return parts.join(' \u00b7 ');
   }
 
