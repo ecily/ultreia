@@ -113,6 +113,11 @@ describe('provider offer UI helpers', () => {
     assert.match(authSource, /event\.target\.closest\('\[data-photo-drag-handle\]'\)/);
     assert.match(authSource, /addEventListener\('dragenter'/);
     assert.match(authSource, /reorderBusy/);
+    assert.match(authSource, /addEventListener\('pointerdown'/);
+    assert.match(authSource, /addEventListener\('pointermove'/);
+    assert.match(authSource, /addEventListener\('pointerup'/);
+    assert.match(styleSource, /data-drop-position="before"/);
+    assert.match(styleSource, /data-drop-position="after"/);
     assert.match(authSource, /catch \(error\) \{\s+await load\(\)\.catch/);
     assert.match(styleSource, /provider-photo-drag-handle/);
     assert.match(authSource, /querySelectorAll\('\[data-photo-list\] > \[data-photo-id\]'\)/);

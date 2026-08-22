@@ -1289,10 +1289,27 @@ Gelb als nächste Handlung, warme Stone-/Cream-Flächen, Grün nur sekundär).
 Es wurden keine Routes-, Ranking-, Hintergrund-Matching-, Push-, Bewertungs-
 oder Monetarisierungsfunktionen ergänzt.
 
+## Foto-DnD-Härtung (2026-08-22)
+
+Der Offer-Fotoeditor unterstützt jetzt neben nativem Desktop-HTML5-DnD auch
+Pointer-Drag direkt am sichtbaren Handle. Damit funktionieren Maus-, Touch-
+und hybride Pointer-Geräte ohne zusätzliche DnD-Bibliothek. Während des
+Verschiebens werden Quelle und Vorher/Nachher-Dropkante sichtbar markiert.
+Die vorhandene Reorder-API erhält weiterhin die vollständige `publicIds`-
+Reihenfolge; Server-Reload, Rollback, Titelbildregel sowie Nach-oben/Nach-
+unten-Buttons als Keyboard-/Mobile-Fallback bleiben unverändert.
+
 Die DigitalOcean-App-Spezifikation bindet `COMMIT_SHA` jetzt an
 `${_self.COMMIT_HASH}`. Dadurch zeigt `/api/health` nach jedem App-Platform-
 Build automatisch den tatsächlich gebauten Commit und benötigt keinen
 manuell gepflegten statischen Runtimewert.
+
+## Scope-/Admin-Audit (2026-08-22)
+
+Admin read and status routes now bind the requested scope explicitly to
+`req.session.scope`. An admin must use the existing session scope switch before
+reading or changing the other scope; a mismatching query or body scope returns
+`403 scope_mismatch`. The global `needs` taxonomy is unchanged.
 
 ## Auth-Regression-Smoke (2026-08-22)
 

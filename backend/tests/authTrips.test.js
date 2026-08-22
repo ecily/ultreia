@@ -35,6 +35,7 @@ class FakeCollection {
   async updateMany(query, update) { for (const document of this.documents.filter((item) => matches(item, query))) applyUpdate(document, update); return {}; }
   async findOneAndUpdate(query, update) { const document = this.documents.find((item) => matches(item, query)); if (!document) return null; applyUpdate(document, update); return document; }
   find(query) { const items = this.documents.filter((item) => matches(item, query)); return { sort: () => ({ limit: () => ({ toArray: async () => items }), toArray: async () => items }), toArray: async () => items }; }
+  async countDocuments(query) { return this.documents.filter((document) => matches(document, query)).length; }
 }
 
 class FakeDb {
@@ -192,6 +193,11 @@ describe('V1 auth, device binding, scope and trips', () => {
     assert.equal(me.body.session.activeRole, 'admin');
     assert.equal((await request('/api/provider/offers', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 403);
     assert.equal((await request('/api/trips/current', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 403);
+    const adminScopeAuth = { cookie: `ultreia_access=${accessCookie}` };
+    assert.equal((await request('/api/admin/overview?scope=local_test', { headers: adminScopeAuth })).response.status, 200);
+    const crossScopeAdminRead = await request('/api/admin/overview?scope=production', { headers: adminScopeAuth });
+    assert.equal(crossScopeAdminRead.response.status, 403);
+    assert.equal(crossScopeAdminRead.body.status, 'scope_mismatch');
     assert.equal((await request('/api/auth/logout', { method: 'POST', headers: { origin: 'https://web.test', cookie: `ultreia_access=${accessCookie}` } })).response.status, 200);
     assert.equal((await request('/api/auth/me', { headers: { cookie: `ultreia_access=${accessCookie}` } })).response.status, 401);
 

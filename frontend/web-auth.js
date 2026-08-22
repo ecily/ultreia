@@ -391,7 +391,7 @@ function providerOfferPreview(offer, needs, weekly, price, radius) {
 function providerOfferPhotos(offer) {
   const images = Array.isArray(offer?.images) ? offer.images : [];
   if (!images.length) return `<p class="provider-empty-selection">${pt('noPhotos')}</p>`;
-  return images.map((image, index) => `<li class="provider-photo-item" draggable="true" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><button type="button" class="provider-photo-drag-handle" data-photo-drag-handle aria-label="${escapeProviderHtml(pt('photoDragHandle'))}" title="${escapeProviderHtml(pt('photoDragHandle'))}">⋮⋮</button><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index === 0 ? pt('titleImage') : `${pt('photoNumber')} ${index + 1}`}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
+  return images.map((image, index) => `<li class="provider-photo-item" draggable="true" data-photo-id="${escapeProviderHtml(image.publicId || '')}"><button type="button" class="provider-photo-drag-handle" draggable="true" data-photo-drag-handle aria-label="${escapeProviderHtml(pt('photoDragHandle'))}" title="${escapeProviderHtml(pt('photoDragHandle'))}">⋮⋮</button><img src="${escapeProviderHtml(image.secureUrl)}" alt="${escapeProviderHtml(`${pt('photos')} ${index + 1}`)}"><span>${index === 0 ? pt('titleImage') : `${pt('photoNumber')} ${index + 1}`}</span><button type="button" class="provider-inline-button" data-photo-remove="${escapeProviderHtml(image.publicId || '')}">${pt('photoRemove')}</button><button type="button" class="provider-inline-button" data-photo-move="up" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === 0 ? 'disabled' : ''}>${pt('photoMoveUp')}</button><button type="button" class="provider-inline-button" data-photo-move="down" data-photo-id="${escapeProviderHtml(image.publicId || '')}" ${index === images.length - 1 ? 'disabled' : ''}>${pt('photoMoveDown')}</button></li>`).join('');
 }
 
 function providerPendingPhotoStatus(entry, index) {
@@ -832,6 +832,8 @@ async function renderProviderStart() {
     const photoList = offerForm?.querySelector('[data-photo-list]');
     let draggedPhotoId = null;
     let reorderBusy = false;
+    let pointerDrag = null;
+    let suppressPhotoClick = false;
     const clearPhotoDragState = () => {
       photoList?.querySelectorAll('[data-photo-id]').forEach((entry) => {
         entry.classList.remove('is-dragging', 'is-drop-target');
@@ -840,6 +842,21 @@ async function renderProviderStart() {
       draggedPhotoId = null;
     };
     const photoItems = () => [...(photoList?.querySelectorAll(':scope > [data-photo-id]') || [])];
+    const setPhotoDropTarget = (item, clientY) => {
+      if (!photoList || !item || !draggedPhotoId || item.dataset.photoId === draggedPhotoId || reorderBusy) return;
+      photoList.querySelectorAll('[data-photo-id]').forEach((target) => {
+        target.classList.remove('is-drop-target');
+        target.removeAttribute('data-drop-position');
+      });
+      const rect = item.getBoundingClientRect();
+      item.classList.add('is-drop-target');
+      item.dataset.dropPosition = clientY > rect.top + rect.height / 2 ? 'after' : 'before';
+    };
+    const photoAtPoint = (clientX, clientY) => {
+      const element = document.elementFromPoint(clientX, clientY);
+      const item = element?.closest('[data-photo-id]');
+      return item && photoList?.contains(item) ? item : null;
+    };
     const reorderPhotos = async (targetItem, event) => {
       const targetId = targetItem?.dataset.photoId;
       if (!draggedPhotoId || !targetId || draggedPhotoId === targetId || reorderBusy) return;
@@ -887,9 +904,8 @@ async function renderProviderStart() {
       const markDropTarget = (event) => {
         if (!draggedPhotoId || draggedPhotoId === item.dataset.photoId || reorderBusy) return;
         event.preventDefault();
-        photoList.querySelectorAll('.is-drop-target').forEach((target) => target.classList.remove('is-drop-target'));
-        item.classList.add('is-drop-target');
-        event.dataTransfer.dropEffect = 'move';
+        setPhotoDropTarget(item, event.clientY);
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
       };
       item.addEventListener('dragenter', markDropTarget);
       item.addEventListener('dragover', markDropTarget);
@@ -900,6 +916,48 @@ async function renderProviderStart() {
     });
     photoList?.addEventListener('dragover', (event) => {
       if (draggedPhotoId) event.preventDefault();
+    });
+    photoList?.querySelectorAll('[data-photo-drag-handle]')?.forEach((handle) => {
+      handle.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0 || reorderBusy) return;
+        const item = handle.closest('[data-photo-id]');
+        if (!item) return;
+        pointerDrag = { handle, item, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, active: false };
+        handle.setPointerCapture?.(event.pointerId);
+      });
+      handle.addEventListener('pointermove', (event) => {
+        if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+        const distance = Math.hypot(event.clientX - pointerDrag.startX, event.clientY - pointerDrag.startY);
+        if (!pointerDrag.active && distance < 6) return;
+        if (!pointerDrag.active) {
+          pointerDrag.active = true;
+          draggedPhotoId = pointerDrag.item.dataset.photoId;
+          pointerDrag.item.classList.add('is-dragging');
+          pointerDrag.item.setAttribute('aria-grabbed', 'true');
+          suppressPhotoClick = true;
+        }
+        const target = photoAtPoint(event.clientX, event.clientY);
+        if (target) setPhotoDropTarget(target, event.clientY);
+        event.preventDefault();
+      });
+      handle.addEventListener('pointerup', async (event) => {
+        if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+        const active = pointerDrag.active;
+        const target = photoAtPoint(event.clientX, event.clientY);
+        pointerDrag = null;
+        handle.releasePointerCapture?.(event.pointerId);
+        if (!active) { clearPhotoDragState(); return; }
+        event.preventDefault();
+        if (target && target.dataset.photoId !== draggedPhotoId) await reorderPhotos(target, event);
+        else clearPhotoDragState();
+      });
+      handle.addEventListener('pointercancel', () => { pointerDrag = null; clearPhotoDragState(); });
+      handle.addEventListener('click', (event) => {
+        if (!suppressPhotoClick) return;
+        suppressPhotoClick = false;
+        event.preventDefault();
+        event.stopPropagation();
+      });
     });
     const refreshOfferPreview = () => { if (offerForm) { providerUpdateNeedChips(offerForm, state.needs); providerUpdateOfferPreview(offerForm, state.needs); } };
     offerForm?.querySelectorAll('input, textarea, select').forEach((field) => field.addEventListener('input', () => {
