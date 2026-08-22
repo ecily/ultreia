@@ -1293,3 +1293,22 @@ Die DigitalOcean-App-Spezifikation bindet `COMMIT_SHA` jetzt an
 `${_self.COMMIT_HASH}`. Dadurch zeigt `/api/health` nach jedem App-Platform-
 Build automatisch den tatsächlich gebauten Commit und benötigt keinen
 manuell gepflegten statischen Runtimewert.
+
+## Auth-Regression-Smoke (2026-08-22)
+
+Ein gemeldeter Production-HTTP-403 beim Provider-Magic-Link für den
+Multi-Role-Account konnte im aktuellen Live-Stand nicht reproduziert werden.
+Die exakten Requests mit `role=provider` und `preferredLocale=de` antworteten
+für `production` und `local_test` jeweils mit HTTP 200 und `accepted`; ein
+separater Admin-Request antwortete ebenfalls mit HTTP 200. Die zugehörigen
+Backend-Events `magic_link_delivered` weisen für alle heutigen Requests
+Microsoft-Upstream HTTP 202 aus.
+
+Die geprüfte Rollenlogik akzeptiert bestehende User nur, wenn die angeforderte
+Rolle im `users.roles`-Array vorhanden ist; Provider, Admin und Pilger werden
+dabei nicht überschrieben. Unbekannte Provider dürfen angelegt werden,
+unbekannte Pilger ebenfalls nach V1-Regel, unbekannte Admins nicht. Der
+frühzeitige 403-Scope-Branch wird im aktuellen Code nicht mit einer
+Request-ID protokolliert; deshalb lässt sich ein früherer, nicht mehr
+vorliegender 403 nicht rückwirkend einem der Scope-Codes zuordnen. Es wurde
+kein Auth-Code geändert, weil der behauptete Fehler live nicht mehr besteht.
