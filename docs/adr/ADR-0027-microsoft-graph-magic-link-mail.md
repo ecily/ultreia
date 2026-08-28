@@ -2,8 +2,7 @@
 
 ## Status
 
-Accepted. Implemented locally; external Microsoft configuration remains
-manual before the first real Production-Mailtest.
+Accepted. Implemented and in Production live verified; Stand 2026-08-28.
 
 ## Entscheidung
 
@@ -43,3 +42,15 @@ anderer Projekte wiederverwendet.
   Doppel-Mails nach einem Timeout zu vermeiden.
 - Magic-Link-Mail nutzt DE/EN/ES, Text- und HTML-Teil, eine HTTPS-URL unter
   `https://ultreia.app/auth/verify`, kurze Ablaufzeit und One-Time-Token.
+
+## Production-Nachweis
+
+Die eigene Microsoft-App-Konfiguration und eine dedizierte Ultreia-
+Absendermailbox sind als geschützte Runtimewerte eingerichtet. Wiederholte
+Provider- und Admin-Magic-Link-Requests wurden akzeptiert; die zugehörigen
+Backend-Events belegen Microsoft Graph `sendMail` mit Upstream HTTP 202. Der
+konkrete `MAIL_FROM`-Wert und Credentials bleiben außerhalb des Repositories.
+
+Das Öffnen eines konkreten One-Time-Links und der anschließende Browserzustand
+sind vom serverseitigen Versandnachweis getrennt. Eine zusätzliche Exchange-
+Application-RBAC-Begrenzung bleibt optionale spätere Härtung.

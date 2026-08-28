@@ -1,5 +1,14 @@
 # Ultreia Microsoft-Mail: Operator-Block
 
+Status: Production eingerichtet und live verifiziert, Stand 2026-08-28.
+
+Die eigene Microsoft-App-Konfiguration und eine dedizierte Ultreia-
+Absendermailbox sind als geschützte DigitalOcean-Runtimewerte eingerichtet.
+Mehrere Production-Magic-Link-Requests lieferten HTTP 200; die zugehörigen
+Backend-Events belegen Microsoft Graph `sendMail` mit Upstream HTTP 202. Der
+konkrete `MAIL_FROM`-Wert und alle übrigen Runtimewerte werden bewusst nicht im
+Repository dokumentiert.
+
 ## Bewährtes Muster
 
 `ecily.com` verwendet produktiv Microsoft Graph mit OAuth 2.0
@@ -29,7 +38,11 @@ Die vier konfigurationsabhängigen Werte werden ausschließlich als Runtime-
 Variablen der DigitalOcean-App `ultreia-backend` unter `RUN_TIME` hinterlegt.
 Kein Wert gehört in Git, lokale Doku oder Chat.
 
-## Noch notwendige Microsoft-Schritte
+## Einrichtungsreferenz und Wiederherstellung
+
+Die folgenden Schritte dokumentieren die bereits umgesetzte Einrichtung und
+dienen nur für Wiederherstellung oder Rotation. Sie sind keine aktuelle
+To-do-Liste.
 
 1. Öffne den Microsoft-Entra-Adminbereich:
    <https://entra.microsoft.com/> → **Identity** → **Applications** → **App
@@ -50,10 +63,10 @@ Kein Wert gehört in Git, lokale Doku oder Chat.
 
 4. Öffne das Exchange Admin Center:
    <https://admin.exchange.microsoft.com/> → **Recipients** → **Mailboxes**.
-   Eine eigene Ultreia-Absender-Mailbox anlegen oder eine bereits vorhandene
-   Ultreia-Mailbox bestätigen. Empfohlene V1-Adresse:
-   `noreply@ultreia.app`. Sie darf erst verwendet werden, wenn sie im Tenant
-   tatsächlich existiert und senden darf. Ergebnis: `MAIL_FROM`.
+   Eine eigene Ultreia-Absendermailbox anlegen oder die vorhandene Runtime-
+   Mailbox bestätigen. `noreply@ultreia.app` war eine frühe Empfehlung, ist
+   aber in dieser Dokumentation nicht als aktueller Runtimewert bestätigt.
+   Ergebnis: `MAIL_FROM`.
 
 5. Optional als zusätzliche Tenant-Härtung: Exchange Online Application RBAC
    kann die App auf genau diese Mailbox begrenzen. Microsoft beschreibt dafür
@@ -62,7 +75,7 @@ Kein Wert gehört in Git, lokale Doku oder Chat.
    `Test-ServicePrincipalAuthorization`. Dieses bestehende ecily-Muster nutzt
    diese Zusatzgrenze nicht; sie wird daher nicht automatisch eingerichtet.
 
-6. Hinterlege danach in DigitalOcean App Platform → `ultreia-backend` →
+6. Hinterlege beziehungsweise rotiere danach in DigitalOcean App Platform → `ultreia-backend` →
    **Settings / App-Level Environment Variables** die Werte unter **Runtime**:
 
    - `MICROSOFT_TENANT_ID` → Directory (tenant) ID aus Schritt 1
@@ -70,16 +83,22 @@ Kein Wert gehört in Git, lokale Doku oder Chat.
    - `MICROSOFT_CLIENT_SECRET` → Secret-Value aus Schritt 3
    - `MAIL_FROM` → bestätigte Mailbox aus Schritt 4
 
-   `MAIL_PROVIDER=microsoft` und der Timeout sind im Ultreia-Deployment bereits
-   als nicht-geheime Runtime-Konfiguration vorbereitet. Bis die vier Werte
-   gesetzt sind, bleibt Production absichtlich fail-closed.
+   `MAIL_PROVIDER=microsoft` und der Timeout sind im Ultreia-Deployment als
+   nicht-geheime Runtime-Konfiguration gesetzt. Fehlt einer der notwendigen
+   Werte nach einer Rotation, bleibt Production absichtlich fail-closed.
 
-## Danach
+## Aktueller Nachweis und offene Härtung
 
-Nach dem Speichern der vier Runtime-Werte kann Ultreia den DO-Deploy abwarten,
-den Tokenabruf und Graph-`202` technisch prüfen und anschließend einen echten
-Provider- und Admin-Magic-Link-End-to-End-Test durchführen. Die Mailzustellung
-ist bis dahin nicht bewiesen und wird nicht vorgetäuscht.
+Graph-Tokenabruf und `sendMail` HTTP 202 sind live serverseitig nachgewiesen.
+Provider- und Admin-Requests für den autorisierten Multi-Role-Account wurden
+wiederholt akzeptiert. Das Öffnen eines konkreten One-Time-Links und der
+anschließende Browserzustand bleiben ein interaktiver Nutzerbeweis und werden
+nicht aus dem Versandlog abgeleitet.
+
+Optional offen bleibt eine zusätzliche Exchange-Application-RBAC-Begrenzung
+auf genau die verwendete Absendermailbox sowie die organisatorische Rotation
+der Runtime-Credentials. Ein Absenderwechsel ist nur nach Bestätigung der neuen
+Mailbox und erneutem Live-Nachweis zulässig.
 
 Primärreferenzen:
 

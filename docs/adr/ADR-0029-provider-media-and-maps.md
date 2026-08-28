@@ -32,3 +32,21 @@ begrenzt. Die Routes API ist ausserhalb dieses V1-Funktionsumfangs.
 - Der Browser-Key ist technisch sichtbar und deshalb zwingend per Referrer,
   API- und Origin-Regeln zu begrenzen. Ein Secret wird nicht in die APK oder
   in Server-Places-Anfragen eingebettet.
+
+## Aktueller Betriebsstand (2026-08-28)
+
+Der Uploadweg ist eingerichtet und funktioniert im aktuellen Entwicklungsstand.
+Pro Offer gelten weiterhin maximal drei Bilder. Upload, Delete und vollständige
+Reorder-Reihenfolge sind ownership- und scopegebunden; `local_test` und
+`production` verwenden getrennte logische Pfade. Die Provider-UI unterstützt
+DnD beziehungsweise Pointer-/Touch-Drag und behält Nach-oben-/Nach-unten-
+Buttons als Keyboard-/Mobile-Fallback.
+
+Die derzeit verwendete Product-Environment-Admin-Berechtigung ist eine
+temporäre Entwicklungskonfiguration. Vor einer externen Beta muss Cloudinary
+auf Least Privilege für die tatsächlich benötigten Upload-/Folder-Rechte
+zurückgeführt und erneut real geprüft werden.
+
+Places API (New) bleibt serverseitig; `local_test` verwendet Österreich,
+Production Spanien/Frankreich. Der getrennte Maps-JavaScript-Key ist
+browserseitig eingeschränkt. Es gibt weiterhin keine Routes API.

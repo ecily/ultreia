@@ -1,57 +1,68 @@
 # Ultreia Backend
 
-Minimal Node.js/Express backend foundation for Ultreia Phase 1.
+Das Backend ist die eigenständige Node.js-/Express-API von Ultreia. Es nutzt
+den nativen MongoDB-Treiber und enthält heute technische Foundation- sowie
+erste V1-Domänenfunktionen.
 
-## Scope
+## Umfang
 
-- Own Ultreia MongoDB database connection and health/readiness checks.
-- Technical device registration and Expo push-token lifecycle.
-- Location heartbeat, temporary geospatial records and technical geofence events.
-- Controlled, disabled-by-default server push test endpoint.
-- No authentication, Camino product logic, matching, offers or provider marketplace.
-- No StepsMatch runtime, API, database, package or secret dependency.
-- No secrets in repository files.
+- Health/Readiness und sichere Production-Konfiguration
+- eigene MongoDB mit Geo-, Unique- und TTL-Indizes
+- Device-, Push-, Location-, Geofence- und Diagnostikgrundlage
+- Magic-Link-Auth über lokale Diagnose-Outbox oder Microsoft Graph
+- gehashte Access-/Refresh-Sessions, Rollen und Multi-Role-Kontext
+- strikt gebundene Scopes `production` und `local_test`
+- Pilger-/Providerprofile, Accountlöschung und Trip-Lifecycle
+- zentraler Need-Katalog und tripgebundene Pilger-Needs
+- Provider-Self-Service, Google-validierte Standorte, Offers und Medien
+- geschützte Admin-Grundfläche und AuditEvents
+- manuell ausgelöstes Haversine-/Radius-Basis-Matching
 
-## Scripts
+Noch nicht vorhanden sind Route-first Matching, RouteKm, Walking Directions,
+MatchEvents, Notification Policy, automatische Match-Pushes, Navigation,
+Arrival, Erledigt und Provider-Funnelstatistik. Siehe
+[operativer Context](../docs/ULTREIA_CONTEXT.md).
 
-```bash
+## Lokal starten
+
+```powershell
 npm install
 npm start
+```
+
+Bei Bedarf `backend/.env.example` als lokale Vorlage verwenden. Reale Werte
+dürfen nicht in Git gelangen. Ohne `MONGODB_URI` startet ein lokaler Server mit
+`database.status=not_configured`; Production validiert die erforderliche
+Runtime-Konfiguration vor dem Start.
+
+## Prüfen
+
+```powershell
 npm test
+npm run verify
 ```
 
-Development mode:
+Vom Repository-Root:
 
-```bash
-npm run dev
+```powershell
+npm run verify:backend
+npm run verify:db
+npm run verify:live
 ```
 
-## Environment
+`verify:db` benötigt einen bewusst bereitgestellten autorisierten
+Runtime-Kontext. Tests verwenden keine Production-Secrets.
 
-Copy `.env.example` to a local `.env` file if needed. Keep real values out of Git.
-
-```bash
-cp .env.example .env
-```
-
-`MONGODB_URI` is optional. If it is empty, the backend still starts and health reports `not_configured`.
-`npm start` loads a local `.env` file when present. It does not log env values.
-
-## Technical endpoints
+## API-Bereiche
 
 ```text
-GET /api/health
-GET /api/ready
-POST /api/devices/register
-POST /api/push/register
-GET /api/push/status
-POST /api/push/test
-POST /api/location/heartbeat
-POST /api/location/geofence-enter
-GET /api/location/nearby
-POST /api/diagnostics/log
+/api/health          /api/ready
+/api/auth            /api/account       /api/profiles
+/api/trips           /api/needs         /api/pilgrim
+/api/provider        /api/admin
+/api/devices         /api/location      /api/push
+/api/diagnostics     /api/taxonomy
 ```
 
-`/api/health` confirms process-level health and includes optional database status.
-`/api/ready` returns HTTP 200 only when the own MongoDB database is connected.
-The push test is disabled unless explicitly enabled with a runtime secret.
+Geschützte Routen prüfen Auth, Rolle, Ownership und Scope serverseitig.
+Secrets, vollständige Tokens und Connection Strings werden nicht ausgegeben.

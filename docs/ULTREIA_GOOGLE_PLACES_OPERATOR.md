@@ -14,6 +14,15 @@ the browser, stored in Git, or returned by the API. Autocomplete uses a client
 session token to group typing and selection requests, but Ultreia never stores
 that token.
 
+The integration is configured in the Production runtime. Provider geography
+is derived from the authenticated session scope: `local_test` uses Austria,
+while `production` uses Spain and France.
+
+The provider location UI additionally uses a separate browser-restricted
+Google Maps JavaScript key. It is returned only to an authenticated provider
+session and must remain restricted to the Maps JavaScript API and Ultreia web
+origins. It is not the server-side Places key.
+
 ## Required Google Cloud setup
 
 Use an Ultreia-owned Google Cloud project. Do not reuse credentials from
@@ -62,3 +71,6 @@ The server fetches Place Details again for the selected `googlePlaceId`, stores
 the structured address and the original Google coordinate, and accepts a final
 marker only when it is at most 25 metres away. The final GeoJSON Point uses
 `[longitude, latitude]`. Provider activation requires a valid saved location.
+
+Ultreia does not currently use Google Routes API or Walking Directions. The
+provider map and Place validation are not a navigation implementation.

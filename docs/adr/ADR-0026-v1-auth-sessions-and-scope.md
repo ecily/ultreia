@@ -19,8 +19,10 @@ sein und Production-Daten strikt von lokal autorisierten Testdaten trennen.
 - Sessions verwenden opaque, serverseitig gehashte Access-Tokens mit kurzer
   Laufzeit und gehashte, rotierbare Refresh-Tokens mit längerer Laufzeit.
   Sessions tragen `userId`, optional `deviceId` und den unveränderlichen Scope.
-  Logout widerruft die Session und löst die Device-Bindung, ohne Push-Tokens
-  zu löschen.
+  Die Refresh-Session bleibt bis zu 30 Tage Inaktivität nutzbar. Scope und
+  aktiver Rollen-Kontext bleiben bei Rotation erhalten. Logout widerruft die
+  Session, löscht Webcookies und löst die Device-Bindung, ohne Push-Tokens zu
+  löschen.
 - `User` ist die gemeinsame Entität mit Rollenarray `pilgrim`, `provider` und
   `admin`; Profile bleiben in eigenen Collections. Rollen werden ausschließlich
   serverseitig geprüft.

@@ -1,5 +1,12 @@
 # Ultreia Repository Audit
 
+> **HISTORISCHER SNAPSHOT – KEINE OPERATIVE SOURCE OF TRUTH**
+>
+> Dieser Audit beschreibt ausschließlich den Repository-Stand vom 2026-07-28
+> auf Commit `c73a1b1`. Auth, Live-Infrastruktur, Mobile, Provider, Admin und
+> Basis-Matching wurden danach implementiert. Für den aktuellen Stand gilt
+> `docs/ULTREIA_CONTEXT.md`.
+
 Audit-Zeitpunkt: 2026-07-28 14:46:58 +02:00  
 Repository: `C:\coding\ultreia`  
 Branch: `main`  

@@ -1,48 +1,59 @@
 # Ultreia.app
 
-Ultreia ist ein Camino-spezifischer Wegbegleiter für Pilger am Camino Francés.
+Ultreia ist ein Camino-Francés-spezifischer Begleiter für Pilger. Pilger
+aktivieren konkrete Bedürfnisse und sollen nur bei einem plausibel relevanten
+Angebot im Weg- und Zeitkontext aufmerksam gemacht werden.
 
-## Geografischer MVP-Scope
+## Aktueller Entwicklungsstand
 
-Gesamter Camino Francés von Saint-Jean-Pied-de-Port bis Santiago de Compostela.
+Das Monorepo enthält heute:
 
-## Sprachen ab Start
+- eine öffentliche Webpräsenz sowie Provider-, Admin- und Auth-Webflächen;
+- ein Node.js-/Express-Backend mit eigener MongoDB;
+- Magic-Link-Auth, Rollen, Sessions und getrennte Scopes `production` und
+  `local_test`;
+- Provider-Self-Service, Offers, Fotos, Google Places/Maps und eine
+  Admin-Grundfläche;
+- Pilger-, Trip- und Need-Grundlagen sowie ein manuell ausgelöstes
+  Haversine-/Radius-Basis-Matching;
+- eine Android-first Expo-App mit technischem Device-, Location-, Heartbeat-,
+  Geofence- und Push-Unterbau.
 
-- Deutsch
-- Englisch
-- Spanisch
+Route-first Matching, tatsächlicher Gehweg/Umweg, automatische Match-Pushes,
+Navigation, Arrival, Erledigt, Provider-Funnel, Ratings, Track/Export und der
+Offline-Endausbau sind noch nicht fertig.
 
-## Monorepo-Struktur
+## Architektur und Dokumentation
 
-- `backend/`
-- `mobile/`
-- `frontend/`
-- `shared/`
-- `docs/`
+- [Operative Source of Truth](docs/ULTREIA_CONTEXT.md) – aktueller gebauter,
+  getesteter und live verifizierter Stand
+- [V1-Produktspezifikation](docs/ULTREIA_V1_PRODUCT_SPEC.md) – fachliches
+  Zielbild, einschließlich noch offener Implementierung
+- [Architekturentscheidungen](docs/adr/) – dauerhafte ADRs
 
-## Fachliche Source of Truth
+Historische Auditdateien sind Momentaufnahmen und keine aktuelle Source of
+Truth. Ultreia bleibt technisch, fachlich und betrieblich von StepsMatch und
+anderen Projekten getrennt.
 
-Die konsolidierte fachliche V1-Definition steht in
-[`docs/ULTREIA_V1_PRODUCT_SPEC.md`](docs/ULTREIA_V1_PRODUCT_SPEC.md).
-Der aktuelle technische Projektstand, die Infrastruktur und verifizierte
-Nachweise stehen in [`docs/ULTREIA_CONTEXT.md`](docs/ULTREIA_CONTEXT.md).
+## Repository
 
-## Projektgrenze
+- `backend/` – API, Auth, MongoDB und Domänenservices
+- `frontend/` – öffentliche, Provider-, Admin- und Auth-Webflächen
+- `mobile/` – Android-first Expo-/React-Native-App
+- `shared/` – zentrale Taxonomie
+- `deploy/` – secretfreies DigitalOcean-App-Manifest
+- `docs/` – Context, Produktspezifikation, ADRs und Operator-Dokumentation
 
-StepsMatch.com bleibt technisches Labor.
+## Lokale Checks
 
-Ultreia ist ein eigenständiges Produkt.
+```powershell
+npm run verify:backend
+node shared/taxonomy/validate-taxonomy.mjs
+node --test frontend/*.test.mjs
+npm run verify:mobile
+```
 
-Technik und Learnings aus StepsMatch dürfen bewusst übernommen werden.
-
-Keine StepsMatch-Daten, Branding, Demo-Inhalte, Commits oder Deploys vermischen.
-
-## Aktueller Hinweis
-
-- Die technische Android-/Backend-Basis ist vorhanden und separat verifiziert.
-- Die fachliche V1-Implementierung ist noch nicht gebaut; die Produktspezifikation
-  ist dafür jetzt verbindlich.
-- Die vollständige Mongo-/Domänen-/Auth-/Matching-Implementierung folgt in
-  eigenen, geplanten Arbeitsblöcken.
-- Live-Infrastruktur und Repository-Remote bestehen; Secrets bleiben außerhalb
-  des Repositories.
+`verify:mobile` führt ein frisches `npm ci` im Mobile-Verzeichnis aus. Weitere
+Operatorpfade sind im [Backend-README](backend/README.md),
+[Frontend-README](frontend/README.md) und [Mobile-README](mobile/README.md)
+dokumentiert. Reale Secrets bleiben außerhalb des Repositories.
