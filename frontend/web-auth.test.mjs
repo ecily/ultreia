@@ -18,13 +18,13 @@ for (const role of ['provider', 'admin', 'pilgrim']) {
         document: { querySelector: selector => selector === '[data-auth-form]' ? form : message },
         window: { sessionStorage: { setItem() {} } }, WEB_SCOPE_KEY: 'scope',
         FormData: class { get(key) { return key === 'localTest' ? 'on' : 'test@example.test'; } },
-        webApi: async () => { calls++; throw { status: 'magic_link_temporarily_disabled', httpStatus: 503 }; },
+        webApi: async () => { calls++; throw { status: 'magic_link_temporarily_disabled', httpStatus: 403 }; },
       };
       vm.runInNewContext(loginSource + `\nrenderLogin('${role}');`, context);
       await submit({ preventDefault() {}, currentTarget: form });
       assert.equal(button.disabled, true);
       assert.match(message.textContent, { de: /vorübergehend deaktiviert/, en: /temporarily disabled/, es: /desactivado temporalmente/ }[locale]);
-      assert.doesNotMatch(message.textContent, /503|magic_link|HTTP/);
+      assert.doesNotMatch(message.textContent, /403|magic_link|HTTP/);
       await submit({ preventDefault() {}, currentTarget: form });
       assert.equal(calls, 1);
     });

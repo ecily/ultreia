@@ -121,7 +121,7 @@ kein Frontend-Rebuild nötig; Loginseite nach Reaktivierung neu laden. Für loka
 Auth-Tests explizit `magicLinkEnabled: true` beziehungsweise
 `MAGIC_LINK_ENABLED=true` verwenden. Standard bleibt global aus, auch local_test.
 
-Bei deaktivierter Anforderung: HTTP 503, stabiler Status
+Bei deaktivierter Anforderung: HTTP 403, stabiler Status
 `magic_link_temporarily_disabled`, keine Accountsuche/-Anlage, kein Token,
 kein Magic-Link-Datensatz, kein Graph-Tokenabruf und kein sendMail. Bereits
 versendete Links bleiben bis TTL einmal verifizierbar. Bestehende Sessions,
@@ -133,6 +133,13 @@ Das bisherige aktive Request-Limit beträgt 8 pro 60 Sekunden und Verbindungs-IP
 (pro Prozess). Express konfiguriert kein trust proxy; hinter einem Proxy kann
 sich das Limit daher auf die Proxy-IP beziehen. Ein separates E-Mail-Limit fehlt.
 Diese Grenzen werden hier nicht umgebaut. Die Abschaltung läuft vor dem Limiter,
-damit jeder blockierte Request denselben 503-Status erhält und kein Limiter als
+damit jeder blockierte Request denselben 403-Status erhält und kein Limiter als
 Sicherheitsvoraussetzung dient. Ein zukünftiger Ausbau sollte die vertrauenswürdige
 Proxykette und ein datensparsames E-Mail-Limit ausdrücklich prüfen.
+
+Live-Besonderheit der App Platform: HTTP 503 aus dem Backend wurde am
+2026-09-13 von der vorgeschalteten Plattform in eine generische HTML-Fehlerseite
+mit HTTP 504 umgewandelt. Die temporäre Sperre verwendet deshalb HTTP 403 mit
+dem unveränderten JSON-Status `magic_link_temporarily_disabled`, damit Webclients
+die lokalisierte Meldung zuverlässig anzeigen können. Die Sicherheitswirkung
+und Reaktivierung bleiben gleich.

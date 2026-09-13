@@ -407,7 +407,7 @@ describe('temporary magic-link shutdown', () => {
               method: 'POST', headers: { 'content-type': 'application/json', 'x-ultreia-scope': scope, 'x-magic-link-enabled': 'true' },
               body: JSON.stringify({ email, role, magicLinkEnabled: true }),
             });
-            assert.equal(response.status, 503);
+            assert.equal(response.status, 403);
             assert.deepEqual(await response.json(), { ok: false, status: 'magic_link_temporarily_disabled' });
           }
           await assert.rejects(service.requestMagicLink({ email: 'new@example.test', role, scope }), /magic_link_temporarily_disabled/);
@@ -440,7 +440,7 @@ describe('temporary magic-link shutdown', () => {
           return { status: response.status, body: await response.json() };
         };
         try {
-          assert.equal((await request('/auth/magic-link/request', { role, email: 'new@example.test' })).status, 503);
+          assert.equal((await request('/auth/magic-link/request', { role, email: 'new@example.test' })).status, 403);
           assert.equal(JSON.stringify([...database.db.collections]), snapshot);
           assert.equal(mailCalls, 1);
           const me = await request('/auth/me', null, session.accessToken);

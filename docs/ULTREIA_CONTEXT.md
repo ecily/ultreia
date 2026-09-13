@@ -536,7 +536,7 @@ ist der serverseitige Default in allen Umgebungen und der vorgesehene
 Production-Runtimewert. Nur explizites `true` aktiviert die Anforderung wieder;
 die Runtimekonfiguration wird beim Prozessstart gelesen (Redeploy erforderlich).
 
-`POST /api/auth/magic-link/request` liefert für alle Rollen und Scopes HTTP 503
+`POST /api/auth/magic-link/request` liefert für alle Rollen und Scopes HTTP 403
 mit `status=magic_link_temporarily_disabled`, bevor Accountsuche, Token-Erzeugung,
 Datenbankmutationen oder Microsoft Graph erreicht werden. Es gibt keinen
 Operator-/Client-Bypass. Die Service-Methode prüft den Flag zusätzlich.

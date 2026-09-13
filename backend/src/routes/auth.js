@@ -38,7 +38,7 @@ export function createAuthRouter(config, databaseService, authService, mailServi
     if (config.magicLinkEnabled !== true) {
       const role = ['provider', 'admin', 'pilgrim'].includes(req.body?.role) ? req.body.role : 'unspecified';
       logEvent('info', 'magic_link_request_blocked', { role, status: 'disabled' });
-      return res.status(503).json({ ok: false, status: 'magic_link_temporarily_disabled' });
+      return res.status(403).json({ ok: false, status: 'magic_link_temporarily_disabled' });
     }
     return next();
   }, requestLimiter, async (req, res) => {
