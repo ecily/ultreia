@@ -1,6 +1,6 @@
 # Ultreia – operativer Projektkontext
 
-Stand: 2026-08-28
+Stand: 2026-09-13
 
 Repository: `C:\coding\ultreia`
 
@@ -532,7 +532,7 @@ Die Git-Historie und ADRs bewahren die einzelnen Entwicklungsschritte.
 
 Zum Schutz vor unerwünschter/missbräuchlicher Nutzung während der Entwicklung
 sind neue Magic-Link-Requests temporär deaktiviert. `MAGIC_LINK_ENABLED=false`
-ist der serverseitige Default in allen Umgebungen und der vorgesehene
+ist der serverseitige Default in allen Umgebungen und der best?tigte
 Production-Runtimewert. Nur explizites `true` aktiviert die Anforderung wieder;
 die Runtimekonfiguration wird beim Prozessstart gelesen (Redeploy erforderlich).
 
@@ -555,3 +555,28 @@ Sperre ohne DB-/Mailzugriff, Rollen-/Scope-Erhalt, Refresh, Logout und Verify.
 Details zur Reaktivierung und zu den bestehenden Rate-Limit-Grenzen stehen in
 `docs/ULTREIA_MICROSOFT_MAIL_OPERATOR.md`. Live-Nachweise werden nach dem
 Deployment getrennt ergänzt; ältere Versandnachweise oben sind historisch.
+
+
+### Live-Nachweis der Abschaltung ? 2026-09-13, 14:36 UTC
+
+Backend und Frontend wurden mit Implementierungscommit `14256e0` erfolgreich
+auf DigitalOcean deployt. Production verwendet best?tigt
+`MAGIC_LINK_ENABLED=false`, Scope `RUN_TIME`, unver?ndert eine Instanz
+`apps-s-1vcpu-0.5gb`; keine Kosten-/Datenbank-/DNS-Umstellung.
+
+- Health HTTP 200, `commitShort=14256e0`, Mongo verbunden; Ready HTTP 200.
+- Reale Request-POSTs f?r Provider, Admin und Pilgrim: jeweils HTTP 403 mit
+  `{ "ok": false, "status": "magic_link_temporarily_disabled" }`.
+- Runtime-Logs des Deployments zeigen die drei zugeh?rigen Blockierereignisse;
+  keine Versand-/Graph-Ereignisse im gepr?ften Logausschnitt.
+- Das ausgelieferte `web-auth.js` enth?lt die lokalisierte Sperrbehandlung.
+  Provider-/Admin-Fl?chen und beide Loginseiten liefern HTTP 200.
+
+Nachweisgrenzen: Kein Browser war verbunden, daher kein Live-Nachweis einer
+vorhandenen eingeloggten Session, eines gesch?tzten Bereichszugriffs oder Logout.
+Ein direkter Zugang zur produktiven MongoDB konnte mit der lokalen
+Konfiguration nicht best?tigt werden; keine Live-Vorher-/Nachher-Z?hlung der
+Magic-Link-Datens?tze. Keine Datenbankmutationen f?r den Nachweis vorgenommen.
+Sessionerhalt, Refresh, Logout, Verify und das Ausbleiben von DB-/Mailarbeit
+sind durch die automatisierten Tests belegt; der Live-Logausschnitt ersetzt
+keinen vollst?ndigen Graph- oder Datenbank-Audit.
