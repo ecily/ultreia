@@ -3,6 +3,14 @@ import { describe, it } from 'node:test';
 import { loadConfig, validateRuntimeConfig } from '../src/config/env.js';
 
 describe('runtime configuration', () => {
+  it('disables magic links by default and allows explicit runtime reactivation', () => {
+    for (const NODE_ENV of ['production', 'development', 'test']) {
+      assert.equal(loadConfig({ NODE_ENV }).magicLinkEnabled, false);
+      assert.equal(loadConfig({ NODE_ENV, MAGIC_LINK_ENABLED: 'false' }).magicLinkEnabled, false);
+      assert.equal(loadConfig({ NODE_ENV, MAGIC_LINK_ENABLED: 'true' }).magicLinkEnabled, true);
+      assert.equal(loadConfig({ NODE_ENV, MAGIC_LINK_ENABLED: 'invalid' }).magicLinkEnabled, false);
+    }
+  });
   it('defaults non-production execution to local mode', () => {
     const config = loadConfig({ NODE_ENV: 'development', PORT: '3000' });
     assert.equal(config.runtimeMode, 'local');

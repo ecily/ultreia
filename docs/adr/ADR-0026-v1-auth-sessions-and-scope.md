@@ -92,3 +92,14 @@ vorhandener Cookie blockiert den anderen Rollen-Login nicht.
 
 `GET /api/auth/me` liefert User-Rollen sowie `session.activeRole`,
 `session.allowedRoles` und `session.scope` ohne Access-/Refresh-Token.
+
+## Temporäre Request-Sperre (2026-09-13)
+
+`MAGIC_LINK_ENABLED` ist serverseitig standardmäßig false. Die Request-Route
+antwortet vor Account-/Token-/Mailarbeit mit HTTP 503 und
+`magic_link_temporarily_disabled`; der Auth-Service prüft zusätzlich. Keine
+Ausnahme für local_test. Bestehende Verify-Links, Sessions, Refresh und Logout
+bleiben unverändert. Reaktivierung über Runtimewert true und Prozessneustart.
+Dies ist eine reversible Betriebsmaßnahme gegen unerwünschte Nutzung während
+Entwicklung, kein Rückbau der Autharchitektur. Operatorverfahren siehe
+`../ULTREIA_MICROSOFT_MAIL_OPERATOR.md`.

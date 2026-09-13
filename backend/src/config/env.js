@@ -87,6 +87,7 @@ export function loadConfig(env = process.env) {
     accessTokenTtlSeconds: parsePositiveInteger(env.AUTH_ACCESS_TTL_SECONDS, DEFAULT_ACCESS_TTL_SECONDS, 'AUTH_ACCESS_TTL_SECONDS'),
     refreshTokenTtlSeconds: parsePositiveInteger(env.AUTH_REFRESH_TTL_SECONDS, DEFAULT_REFRESH_TTL_SECONDS, 'AUTH_REFRESH_TTL_SECONDS'),
     magicLinkTtlSeconds: parsePositiveInteger(env.AUTH_MAGIC_LINK_TTL_SECONDS, DEFAULT_MAGIC_LINK_TTL_SECONDS, 'AUTH_MAGIC_LINK_TTL_SECONDS'),
+    magicLinkEnabled: parseBoolean(env.MAGIC_LINK_ENABLED, false),
     mailProvider: env.MAIL_PROVIDER || 'none',
     mailFrom: env.MAIL_FROM || '',
     authPublicBaseUrl: env.AUTH_PUBLIC_BASE_URL || 'ultreia://auth/verify',

@@ -527,3 +527,31 @@ Die Git-Historie und ADRs bewahren die einzelnen Entwicklungsschritte.
 - Keine Secrets oder personenbezogenen Testdaten dokumentieren.
 - Keine Fremdprojektartefakte übernehmen.
 - Kein Push oder Deployment ohne ausdrückliche Freigabe.
+
+## Temporäre Abschaltung neuer Magic Links (2026-09-13)
+
+Zum Schutz vor unerwünschter/missbräuchlicher Nutzung während der Entwicklung
+sind neue Magic-Link-Requests temporär deaktiviert. `MAGIC_LINK_ENABLED=false`
+ist der serverseitige Default in allen Umgebungen und der vorgesehene
+Production-Runtimewert. Nur explizites `true` aktiviert die Anforderung wieder;
+die Runtimekonfiguration wird beim Prozessstart gelesen (Redeploy erforderlich).
+
+`POST /api/auth/magic-link/request` liefert für alle Rollen und Scopes HTTP 503
+mit `status=magic_link_temporarily_disabled`, bevor Accountsuche, Token-Erzeugung,
+Datenbankmutationen oder Microsoft Graph erreicht werden. Es gibt keinen
+Operator-/Client-Bypass. Die Service-Methode prüft den Flag zusätzlich.
+Bestehende Accounts, Profile, Rollen, activeRole, allowedRoles und Scopes werden
+durch die Abschaltung nicht geändert. Access-/Refresh-Sessions, Logout und Verify
+bereits versendeter One-Time-Links bleiben erhalten; die Link-TTL beträgt
+standardmäßig 15 Minuten. Die Autharchitektur wird nicht zurückgebaut.
+
+Die vorhandenen Provider-/Admin-Weblogins behandeln den Serverstatus mit einer
+DE/EN/ES-Meldung und deaktivieren den Sende-Button nach der Antwort. Ein eigener
+Pilger-Weblogin existiert derzeit nicht; die Sperre schützt auch den Pilger-API-
+und Mobile-Request. Der gemeinsame Web-Loginhandler ist für alle Rollen getestet.
+
+Automatisiert: Backend 63/63 und Frontend 23/23 Tests grün, einschließlich
+Sperre ohne DB-/Mailzugriff, Rollen-/Scope-Erhalt, Refresh, Logout und Verify.
+Details zur Reaktivierung und zu den bestehenden Rate-Limit-Grenzen stehen in
+`docs/ULTREIA_MICROSOFT_MAIL_OPERATOR.md`. Live-Nachweise werden nach dem
+Deployment getrennt ergänzt; ältere Versandnachweise oben sind historisch.

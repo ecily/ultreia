@@ -43,6 +43,9 @@ services:
         value: https://ultreia.app/auth/verify
       - key: MAIL_PROVIDER
         value: microsoft
+      - key: MAGIC_LINK_ENABLED
+        scope: RUN_TIME
+        value: "false"
       - key: MICROSOFT_GRAPH_TIMEOUT_MS
         value: "10000"
       - key: GOOGLE_PLACES_TIMEOUT_MS

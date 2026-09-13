@@ -49,6 +49,7 @@ function createFakeDatabase() {
 }
 
 const config = {
+  magicLinkEnabled: true,
   runtimeMode: 'local', nodeEnv: 'test', port: 0, corsOrigins: ['https://web.test'], logLevel: 'silent', serviceName: 'ultreia-backend', version: '0.1.0', commitShort: 'unknown', mongodbUri: '', mongodbDbName: 'ultreia_production', expoProjectId: '', expoAccessToken: '', pushTestEnabled: false, pushTestKey: '', accessTokenTtlSeconds: 900, refreshTokenTtlSeconds: 3600, magicLinkTtlSeconds: 900, mailProvider: 'none', mailFrom: '', authPublicBaseUrl: 'ultreia://auth/verify', microsoftTenantId: '', microsoftClientId: '', microsoftClientSecret: '', microsoftGraphTimeoutMs: 10000, allowLocalTestScope: true, localTestEmails: [], authRequestRateLimitMax: 100,
 };
 
@@ -386,4 +387,79 @@ describe('V1 auth, device binding, scope and trips', () => {
     const paused = await request('/api/pilgrim/matches/current', { method: 'POST', headers: auth, body: '{}' });
     assert.equal(paused.body.matches.length, 0);
   });
+});
+
+describe('temporary magic-link shutdown', () => {
+  it('blocks every role and scope before database, token or mail work, including direct service calls', async () => {
+    let dbCalls = 0;
+    let mailCalls = 0;
+    const disabled = { ...config, runtimeMode: 'production', magicLinkEnabled: false };
+    const databaseService = { getDb() { dbCalls++; throw new Error('unexpected database access'); } };
+    const mailService = { isConfigured() { mailCalls++; return true; }, sendMagicLink() { mailCalls++; throw new Error('unexpected mail'); } };
+    const service = createAuthService(disabled, databaseService, mailService);
+    const server = createApp(disabled, { databaseService, mailService }).listen(0, '127.0.0.1');
+    await new Promise(resolve => server.once('listening', resolve));
+    try {
+      for (const role of ['provider', 'admin', 'pilgrim']) {
+        for (const scope of ['production', 'local_test']) {
+          for (const email of ['existing@example.test', 'new@example.test', 'invalid']) {
+            const response = await fetch(`http://127.0.0.1:${server.address().port}/api/auth/magic-link/request`, {
+              method: 'POST', headers: { 'content-type': 'application/json', 'x-ultreia-scope': scope, 'x-magic-link-enabled': 'true' },
+              body: JSON.stringify({ email, role, magicLinkEnabled: true }),
+            });
+            assert.equal(response.status, 503);
+            assert.deepEqual(await response.json(), { ok: false, status: 'magic_link_temporarily_disabled' });
+          }
+          await assert.rejects(service.requestMagicLink({ email: 'new@example.test', role, scope }), /magic_link_temporarily_disabled/);
+        }
+      }
+      assert.equal(dbCalls, 0);
+      assert.equal(mailCalls, 0);
+    } finally { await new Promise(resolve => server.close(resolve)); }
+  });
+
+  for (const role of ['provider', 'admin', 'pilgrim']) {
+    for (const scope of ['production', 'local_test']) {
+      it(`preserves ${role} ${scope} sessions, refresh, logout and pending one-time links across shutdown`, async () => {
+        const database = createFakeDatabase();
+        const userId = new ObjectId();
+        await database.db.collection('users').insertOne({ _id: userId, emailNormalized: 'session@example.test', displayName: 'Session Test', roles: ['provider', 'admin', 'pilgrim'], status: 'active', testAccess: true });
+        let pendingToken;
+        let mailCalls = 0;
+        const mailService = { sendMagicLink: async ({ verificationUrl }) => { mailCalls++; pendingToken = new URL(verificationUrl).searchParams.get('token'); return { delivered: true, channel: 'test' }; } };
+        const enabled = createAuthService(config, database.service, mailService);
+        const session = await enabled.issueSession(userId, null, scope, role, ['provider', 'admin', 'pilgrim']);
+        await enabled.requestMagicLink({ email: 'session@example.test', role, scope });
+        const snapshot = JSON.stringify([...database.db.collections]);
+        const server = createApp({ ...config, magicLinkEnabled: false }, { databaseService: database.service, mailService }).listen(0, '127.0.0.1');
+        await new Promise(resolve => server.once('listening', resolve));
+        const request = async (path, body, accessToken) => {
+          const response = await fetch(`http://127.0.0.1:${server.address().port}/api${path}`, {
+            method: body ? 'POST' : 'GET', headers: { 'content-type': 'application/json', 'x-ultreia-scope': scope, ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}),
+          });
+          return { status: response.status, body: await response.json() };
+        };
+        try {
+          assert.equal((await request('/auth/magic-link/request', { role, email: 'new@example.test' })).status, 503);
+          assert.equal(JSON.stringify([...database.db.collections]), snapshot);
+          assert.equal(mailCalls, 1);
+          const me = await request('/auth/me', null, session.accessToken);
+          assert.equal(me.status, 200);
+          assert.equal(me.body.session.activeRole, role);
+          assert.equal(me.body.session.scope, scope);
+          assert.deepEqual(me.body.session.allowedRoles, ['provider', 'admin', 'pilgrim']);
+          const refreshed = await request('/auth/session/refresh', { refreshToken: session.refreshToken });
+          assert.equal(refreshed.status, 200);
+          assert.equal(refreshed.body.session.activeRole, role);
+          assert.equal(refreshed.body.session.scope, scope);
+          assert.equal((await request('/auth/me', null, refreshed.body.session.accessToken)).status, 200);
+          assert.equal((await request('/auth/logout', {}, refreshed.body.session.accessToken)).status, 200);
+          assert.equal((await request('/auth/me', null, refreshed.body.session.accessToken)).status, 401);
+          assert.equal((await request('/auth/session/refresh', { refreshToken: refreshed.body.session.refreshToken })).status, 401);
+          assert.equal((await request('/auth/magic-link/verify', { token: pendingToken })).status, 200);
+          assert.equal((await request('/auth/magic-link/verify', { token: pendingToken })).status, 401);
+        } finally { await new Promise(resolve => server.close(resolve)); }
+      });
+    }
+  }
 });

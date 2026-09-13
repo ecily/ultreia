@@ -105,3 +105,34 @@ Primärreferenzen:
 - <https://learn.microsoft.com/en-us/graph/auth-v2-service>
 - <https://learn.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0>
 - <https://learn.microsoft.com/en-us/exchange/permissions-exo/application-rbac>
+
+## TEMPORÄR deaktiviert: neue Magic-Link-Requests (2026-09-13)
+
+Grund: Schutz vor unerwünschter/missbräuchlicher Nutzung während Entwicklung.
+`MAGIC_LINK_ENABLED=false` ist der sichere Default und wird als Runtimevariable
+am bestehenden DigitalOcean-Service `api` der App `ultreia-backend` gesetzt.
+Die bisherigen Graph-202-Nachweise beschreiben den Stand vor der Abschaltung.
+Keine Mailcredentials entfernen oder rotieren, keine Sessions oder Links löschen.
+
+Reaktivierung: Runtimevariable `MAGIC_LINK_ENABLED=true` setzen und Backend
+redeployen. Dabei auch das Deploymentmanifest bewusst angleichen, damit ein
+späteres Anwenden nicht versehentlich wieder deaktiviert. Kein Code-Rückbau und
+kein Frontend-Rebuild nötig; Loginseite nach Reaktivierung neu laden. Für lokale
+Auth-Tests explizit `magicLinkEnabled: true` beziehungsweise
+`MAGIC_LINK_ENABLED=true` verwenden. Standard bleibt global aus, auch local_test.
+
+Bei deaktivierter Anforderung: HTTP 503, stabiler Status
+`magic_link_temporarily_disabled`, keine Accountsuche/-Anlage, kein Token,
+kein Magic-Link-Datensatz, kein Graph-Tokenabruf und kein sendMail. Bereits
+versendete Links bleiben bis TTL einmal verifizierbar. Bestehende Sessions,
+Refresh, Logout, Rollen und Scopes bleiben unverändert.
+
+Sichere strukturierte Blockierlogs: `event=magic_link_request_blocked`, timestamp,
+validierte role (sonst unspecified), `status=disabled`; keine E-Mail, IP oder Tokens.
+Das bisherige aktive Request-Limit beträgt 8 pro 60 Sekunden und Verbindungs-IP
+(pro Prozess). Express konfiguriert kein trust proxy; hinter einem Proxy kann
+sich das Limit daher auf die Proxy-IP beziehen. Ein separates E-Mail-Limit fehlt.
+Diese Grenzen werden hier nicht umgebaut. Die Abschaltung läuft vor dem Limiter,
+damit jeder blockierte Request denselben 503-Status erhält und kein Limiter als
+Sicherheitsvoraussetzung dient. Ein zukünftiger Ausbau sollte die vertrauenswürdige
+Proxykette und ein datensparsames E-Mail-Limit ausdrücklich prüfen.

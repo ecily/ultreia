@@ -54,6 +54,7 @@ export function createAuthService(config, databaseService, mailService) {
   }
 
   async function requestMagicLink({ email, displayName, preferredLocale, role, scope = 'production' }) {
+    if (config.magicLinkEnabled !== true) throw new Error('magic_link_temporarily_disabled');
     const emailNormalized = normalizeEmail(email);
     const requestedRole = readRole(role);
     const collection = databaseService.getDb().collection('users');

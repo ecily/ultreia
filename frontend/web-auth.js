@@ -244,11 +244,13 @@ function webShell(title, content) {
 }
 
 function renderLogin(role) {
+  let temporarilyDisabled = false;
   const isAdmin = role === 'admin';
   const title = isAdmin ? tx('adminLogin') : tx('providerLogin');
   webShell(title, `<form class="web-auth-form" data-auth-form><label for="auth-email">${tx('email')}</label><input id="auth-email" name="email" type="email" autocomplete="email" required><button class="web-auth-button" type="submit">${tx('send')}</button>${isAdmin ? `<label class="web-scope-option"><input type="checkbox" name="localTest"> <span>${tx('localTest')}</span><small>${tx('localTestHint')}</small></label>` : ''}</form><p class="web-auth-message" data-auth-message aria-live="polite"></p><p class="web-auth-back"><a href="/">${tx('back')}</a></p>`);
   document.querySelector('[data-auth-form]')?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (temporarilyDisabled) return;
     const formElement = event.currentTarget;
     const form = new FormData(event.currentTarget);
     const scope = isAdmin && form.get('localTest') === 'on' ? 'local_test' : 'production';
@@ -262,12 +264,21 @@ function renderLogin(role) {
       const result = await webApi('/auth/magic-link/request', { method: 'POST', body: JSON.stringify({ email: form.get('email'), role, preferredLocale: currentWebLanguage() }) }, false);
       message.textContent = result.diagnosticId ? `${tx('sent')} ${result.diagnosticId}` : tx('sent');
     } catch (error) {
+      if (error.status === 'magic_link_temporarily_disabled') {
+        temporarilyDisabled = true;
+        message.textContent = {
+          de: 'Die Anmeldung ist vorübergehend deaktiviert. Bitte versuche es später erneut.',
+          en: 'Sign-in is temporarily disabled. Please try again later.',
+          es: 'El inicio de sesión está desactivado temporalmente. Inténtalo de nuevo más tarde.',
+        }[currentWebLanguage()] || 'Sign-in is temporarily disabled. Please try again later.';
+        return;
+      }
       const friendly = error.status === 'access_not_available' || error.status === 'role_access_not_granted' ? tx('denied') : error.status === 'mail_provider_not_configured' ? tx('mailMissing') : error.status === 'mail_provider_failed' ? tx('mailFailed') : tx('requested');
       const diagnosticText = scope === 'local_test' && error.httpStatus ? ` (HTTP ${error.httpStatus} · ${error.status || 'request_failed'})` : '';
       message.textContent = `${friendly}${diagnosticText}`;
     } finally {
       submitButton?.removeAttribute('aria-busy');
-      if (submitButton) submitButton.disabled = false;
+      if (submitButton) submitButton.disabled = temporarilyDisabled;
     }
   });
 }

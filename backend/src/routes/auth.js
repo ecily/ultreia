@@ -34,7 +34,14 @@ export function createAuthRouter(config, databaseService, authService, mailServi
   const router = Router();
   const requestLimiter = createRateLimiter({ max: config.authRequestRateLimitMax || 8 });
 
-  router.post('/magic-link/request', requestLimiter, async (req, res) => {
+  router.post('/magic-link/request', (req, res, next) => {
+    if (config.magicLinkEnabled !== true) {
+      const role = ['provider', 'admin', 'pilgrim'].includes(req.body?.role) ? req.body.role : 'unspecified';
+      logEvent('info', 'magic_link_request_blocked', { role, status: 'disabled' });
+      return res.status(503).json({ ok: false, status: 'magic_link_temporarily_disabled' });
+    }
+    return next();
+  }, requestLimiter, async (req, res) => {
     try {
       const db = databaseRequired(res, databaseService);
       if (!db) return;
